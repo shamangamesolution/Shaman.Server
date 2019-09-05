@@ -1,0 +1,18 @@
+version: '3'
+services:
+  mysql1:
+    build:
+      context: .
+      dockerfile: Dockerfile.Mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: QweAsd123
+      MYSQL_USER: dbuser
+      MYSQL_PASSWORD: QweAsd123
+      MYSQL_DATABASE: mydb
+  redis1:
+    image: redis
+    ports:
+      - "6379:6379"
+      

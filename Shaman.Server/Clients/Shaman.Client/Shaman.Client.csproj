@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <LangVersion>default</LangVersion>
+        <TargetFrameworks>net462;netcoreapp2.2</TargetFrameworks>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\Network\Shaman.HazelAdapter\Shaman.HazelAdapter.csproj" />
+      <ProjectReference Include="..\..\Servers\Shaman.Messages\Shaman.Messages.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+        <HintPath>..\..\..\..\..\..\..\Library\Frameworks\Mono.framework\Versions\5.20.1\lib\mono\4.6.2-api\System.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
+</Project>

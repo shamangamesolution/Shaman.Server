@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp2.2</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Folder Include="Extensions" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\Common\Shaman.Common.Server\Shaman.Common.Server.csproj" />
+      <ProjectReference Include="..\..\Common\Shaman.Common.Utils\Shaman.Common.Utils.csproj" />
+      <ProjectReference Include="..\Shaman.Messages\Shaman.Messages.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.Extensions.Logging">
+        <Version>2.1.1</Version>
+      </PackageReference>
+      <PackageReference Include="Serilog.AspNetCore">
+        <Version>3.0.0-dev-00088</Version>
+      </PackageReference>
+      <PackageReference Include="Serilog.Sinks.Loggly">
+        <Version>5.4.0-dev-00175</Version>
+      </PackageReference>
+    </ItemGroup>
+
+</Project>
