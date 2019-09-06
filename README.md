@@ -1,4 +1,5 @@
-Shaman server - is C# solution for creating full functional game server system.
+# Shaman server
+C# solution for creating full functional game server system.
 
 ### Description
 Solution consists of following modules:
