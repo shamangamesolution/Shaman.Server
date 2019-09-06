@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp2.2</TargetFramework>
+        <OutputType>Exe</OutputType>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.App" />
+        <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
+        <PackageReference Include="Serilog.AspNetCore" Version="3.0.0-dev-00088" />
+        <PackageReference Include="Serilog.Sinks.Loggly" Version="5.4.0-dev-00175" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <ProjectReference Include="..\..\Common\Shaman.Common.Server\Shaman.Common.Server.csproj" />
+      <ProjectReference Include="..\..\Common\Shaman.Common.Utils\Shaman.Common.Utils.csproj" />
+      <ProjectReference Include="..\..\Network\Shaman.HazelAdapter\Shaman.HazelAdapter.csproj" />
+      <ProjectReference Include="..\Shaman.Messages\Shaman.Messages.csproj" />
+      <ProjectReference Include="..\Shaman.ServerSharedUtilities\Shaman.ServerSharedUtilities.csproj" />
+    </ItemGroup>
+
+
+
+</Project>
