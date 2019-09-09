@@ -5,11 +5,13 @@ namespace Shaman.Common.Utils.Messages
 {
     public abstract class EntityBase : SerializableBase
     {
+        public int Id { get; set; }
         //serialization
         protected abstract void SerializeBody(ISerializer serializer);        
 
         public override byte[] Serialize(ISerializer serializer)
         {
+            serializer.WriteInt(this.Id);
             SerializeBody(serializer);
             var buffer = serializer.GetDataBuffer();
             serializer.GetLogger().Debug($"Serialized entity {this.GetType()}. Current buffer size {serializer.GetCurrentBufferSize()}");
@@ -25,12 +27,13 @@ namespace Shaman.Common.Utils.Messages
         {
             var stream = new MemoryStream(param, 0, param.Length, true);
             serializer.SetStream(stream);
-            
+            this.Id = serializer.ReadInt();
             this.DeserializeBody(serializer);
         }
         
         private void Deserialize(ISerializer serializer)
         {
+            this.Id = serializer.ReadInt();
             this.DeserializeBody(serializer);
         }
         

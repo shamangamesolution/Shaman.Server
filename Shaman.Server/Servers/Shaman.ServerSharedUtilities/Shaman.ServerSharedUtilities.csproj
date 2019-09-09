@@ -5,13 +5,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Extensions" />
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\..\Common\Shaman.Common.Server\Shaman.Common.Server.csproj" />
       <ProjectReference Include="..\..\Common\Shaman.Common.Utils\Shaman.Common.Utils.csproj" />
-      <ProjectReference Include="..\Shaman.Messages\Shaman.Messages.csproj" />
+      <ProjectReference Include="..\..\Messages\Shaman.Messages\Shaman.Messages.csproj" />
     </ItemGroup>
 
     <ItemGroup>

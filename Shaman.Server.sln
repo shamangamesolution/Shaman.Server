@@ -3,13 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26430.14
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Web", "Web", "{6DC55185-AAFA-4650-B064-CB04257109FE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.BackEnd", "Shaman.Server\Servers\Shaman.BackEnd\Shaman.BackEnd.csproj", "{77F00E04-F9BA-4C78-941A-7F8D5887F2A3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.BackEnd", "Shaman.Server\Web\Shaman.BackEnd\Shaman.BackEnd.csproj", "{77F00E04-F9BA-4C78-941A-7F8D5887F2A3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Router", "Shaman.Server\Servers\Shaman.Router\Shaman.Router.csproj", "{4142B4CF-D166-4E3F-BCDE-F21324797DE6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Router", "Shaman.Server\Web\Shaman.Router\Shaman.Router.csproj", "{4142B4CF-D166-4E3F-BCDE-F21324797DE6}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.DAL", "Shaman.Server\Web\Shaman.DAL\Shaman.DAL.csproj", "{E1EE08A1-6EA8-4E29-8243-7BDDD425400F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.DAL", "Shaman.Server\Database\Shaman.DAL\Shaman.DAL.csproj", "{E1EE08A1-6EA8-4E29-8243-7BDDD425400F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Clients", "Clients", "{6D2BFABF-B635-44CE-B8D1-535521B1174C}"
 EndProject
@@ -25,7 +23,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Common.Utils", "Sham
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Client", "Shaman.Server\Clients\Shaman.Client\Shaman.Client.csproj", "{52F7916C-2336-45BD-997F-E65B109B1E3D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Messages", "Shaman.Server\Servers\Shaman.Messages\Shaman.Messages.csproj", "{188691B8-9FCB-4B5C-B163-B2DA10F8BCC2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Messages", "Shaman.Server\Messages\Shaman.Messages\Shaman.Messages.csproj", "{188691B8-9FCB-4B5C-B163-B2DA10F8BCC2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HazelAdapter", "Shaman.Server\Network\Shaman.HazelAdapter\Shaman.HazelAdapter.csproj", "{FB9012EB-3838-4754-BAD8-B004AA468288}"
 EndProject
@@ -33,22 +31,22 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Game", "Shaman.Serve
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.MM", "Shaman.Server\Servers\Shaman.MM\Shaman.MM.csproj", "{8E9913FD-D864-4B03-8080-6494E7277362}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Shared", "Shaman.Server\Web\Shaman.Shared\Shaman.Shared.csproj", "{2D78F9D8-9FA2-42FA-B875-22D83EE88F75}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Tests", "Shaman.Server\Shaman.Tests\Shaman.Tests.csproj", "{47805C91-A245-4702-B142-2968E7F65B32}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Tests", "Shaman.Server\Tests\Shaman.Tests\Shaman.Tests.csproj", "{47805C91-A245-4702-B142-2968E7F65B32}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.ServerSharedUtilities", "Shaman.Server\Servers\Shaman.ServerSharedUtilities\Shaman.ServerSharedUtilities.csproj", "{E974AA83-F903-45CB-B255-75720098FF50}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{41E076DA-AB3A-4574-9D14-BC883159B60D}"
 ProjectSection(SolutionItems) = preProject
-	Shaman.Server\docker-compose.yml = Shaman.Server\docker-compose.yml
-	Shaman.Server\Dockerfile.Mysql = Shaman.Server\Dockerfile.Mysql
+	Shaman.Server\SolutionItems\db_all.sql = Shaman.Server\SolutionItems\db_all.sql
+	Shaman.Server\SolutionItems\Dockerfile.Mysql = Shaman.Server\SolutionItems\Dockerfile.Mysql
+	Shaman.Server\SolutionItems\docker-compose.yml = Shaman.Server\SolutionItems\docker-compose.yml
 EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DbBackups", "DbBackups", "{176E5CB4-FBDB-4785-A69B-4FBCFF705D47}"
-ProjectSection(SolutionItems) = preProject
-	Shaman.Server\DbBackups\db_all.sql = Shaman.Server\DbBackups\db_all.sql
-EndProjectSection
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Messages", "Messages", "{D997037A-8C67-4E13-84DB-79E586A39F96}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Database", "Database", "{A491A8CA-15CB-4741-9356-D9378A3AD48E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{3A4DE7F7-1B80-4C8D-9175-A2CED54DA593}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -192,18 +190,6 @@ Global
 		{8E9913FD-D864-4B03-8080-6494E7277362}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{8E9913FD-D864-4B03-8080-6494E7277362}.Release|Win32.ActiveCfg = Release|Any CPU
 		{8E9913FD-D864-4B03-8080-6494E7277362}.Release|Win32.Build.0 = Release|Any CPU
-		{2D78F9D8-9FA2-42FA-B875-22D83EE88F75}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2D78F9D8-9FA2-42FA-B875-22D83EE88F75}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2D78F9D8-9FA2-42FA-B875-22D83EE88F75}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{2D78F9D8-9FA2-42FA-B875-22D83EE88F75}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{2D78F9D8-9FA2-42FA-B875-22D83EE88F75}.Debug|Win32.ActiveCfg = Debug|Any CPU
-		{2D78F9D8-9FA2-42FA-B875-22D83EE88F75}.Debug|Win32.Build.0 = Debug|Any CPU
-		{2D78F9D8-9FA2-42FA-B875-22D83EE88F75}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2D78F9D8-9FA2-42FA-B875-22D83EE88F75}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2D78F9D8-9FA2-42FA-B875-22D83EE88F75}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{2D78F9D8-9FA2-42FA-B875-22D83EE88F75}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{2D78F9D8-9FA2-42FA-B875-22D83EE88F75}.Release|Win32.ActiveCfg = Release|Any CPU
-		{2D78F9D8-9FA2-42FA-B875-22D83EE88F75}.Release|Win32.Build.0 = Release|Any CPU
 		{758C0051-70E7-489B-BDE1-67A7EF8DE72B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{758C0051-70E7-489B-BDE1-67A7EF8DE72B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{758C0051-70E7-489B-BDE1-67A7EF8DE72B}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
@@ -245,17 +231,17 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{77F00E04-F9BA-4C78-941A-7F8D5887F2A3} = {6DC55185-AAFA-4650-B064-CB04257109FE}
-		{4142B4CF-D166-4E3F-BCDE-F21324797DE6} = {6DC55185-AAFA-4650-B064-CB04257109FE}
-		{E1EE08A1-6EA8-4E29-8243-7BDDD425400F} = {6DC55185-AAFA-4650-B064-CB04257109FE}
 		{4DA04B75-FCD5-4A2E-8469-410F14E24870} = {0F24BC06-D961-4A3F-9EFD-1B4A96688425}
 		{E2294E62-D74E-4FCB-84CF-7E454079C1CD} = {0F24BC06-D961-4A3F-9EFD-1B4A96688425}
 		{52F7916C-2336-45BD-997F-E65B109B1E3D} = {6D2BFABF-B635-44CE-B8D1-535521B1174C}
 		{FB9012EB-3838-4754-BAD8-B004AA468288} = {8BF92AD4-B028-49F4-8BB3-26FDAFE7298A}
 		{4F8BB778-900C-4906-AF43-13FC617068D0} = {5681CC39-9FAB-4A2F-935B-3BE870EB18B6}
 		{8E9913FD-D864-4B03-8080-6494E7277362} = {5681CC39-9FAB-4A2F-935B-3BE870EB18B6}
-		{2D78F9D8-9FA2-42FA-B875-22D83EE88F75} = {6DC55185-AAFA-4650-B064-CB04257109FE}
-		{47805C91-A245-4702-B142-2968E7F65B32} = {5681CC39-9FAB-4A2F-935B-3BE870EB18B6}
 		{E974AA83-F903-45CB-B255-75720098FF50} = {5681CC39-9FAB-4A2F-935B-3BE870EB18B6}
+		{188691B8-9FCB-4B5C-B163-B2DA10F8BCC2} = {D997037A-8C67-4E13-84DB-79E586A39F96}
+		{E1EE08A1-6EA8-4E29-8243-7BDDD425400F} = {A491A8CA-15CB-4741-9356-D9378A3AD48E}
+		{77F00E04-F9BA-4C78-941A-7F8D5887F2A3} = {5681CC39-9FAB-4A2F-935B-3BE870EB18B6}
+		{4142B4CF-D166-4E3F-BCDE-F21324797DE6} = {5681CC39-9FAB-4A2F-935B-3BE870EB18B6}
+		{47805C91-A245-4702-B142-2968E7F65B32} = {3A4DE7F7-1B80-4C8D-9175-A2CED54DA593}
 	EndGlobalSection
 EndGlobal

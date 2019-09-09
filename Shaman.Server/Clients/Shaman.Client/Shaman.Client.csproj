@@ -7,7 +7,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\Network\Shaman.HazelAdapter\Shaman.HazelAdapter.csproj" />
-      <ProjectReference Include="..\..\Servers\Shaman.Messages\Shaman.Messages.csproj" />
+      <ProjectReference Include="..\..\Messages\Shaman.Messages\Shaman.Messages.csproj" />
     </ItemGroup>
 
     <ItemGroup>

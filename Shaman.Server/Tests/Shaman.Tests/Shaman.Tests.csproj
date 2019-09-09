@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp2.2</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\Common\Shaman.Common.Server\Shaman.Common.Server.csproj" />
+      <ProjectReference Include="..\..\Clients\Shaman.Client\Shaman.Client.csproj" />
+      <ProjectReference Include="..\..\Servers\Shaman.Game\Shaman.Game.csproj" />
+      <ProjectReference Include="..\..\Messages\Shaman.Messages\Shaman.Messages.csproj" />
+      <ProjectReference Include="..\..\Servers\Shaman.MM\Shaman.MM.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.0" />
+      <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0-preview-20190606-02" />
+      <PackageReference Include="NUnit" Version="3.12.0" />
+      <PackageReference Include="NUnit3TestAdapter" Version="3.13.0" />
+    </ItemGroup>
+
+</Project>
