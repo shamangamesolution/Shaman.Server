@@ -28,8 +28,10 @@ using Shaman.MM.Players;
 using Shaman.ServerSharedUtilities.Backends;
 using Shaman.ServerSharedUtilities.Logging;
 using Shaman.Messages;
+using Shaman.MM.Contract;
 using Shaman.MM.Metrics;
 using Shaman.MM.Providers;
+using Shaman.ServerSharedUtilities;
 using GameProject = Shaman.Messages.General.Entity.GameProject;
 
 namespace Shaman.MM
@@ -152,7 +154,7 @@ namespace Shaman.MM
             //todo refactor
             ((MmApplication)server).SetMatchMakerProperties(new List<byte>{ PropertyCode.PlayerProperties.League });
             
-            BundleLoader.LoadMmBundle(matchMaker);
+            BundleHelper.LoadTypeFromBundle<IMmResolver>(Configuration["BundlePath"]).Configure(matchMaker);
 
             _globalTaskScheduler = taskSchedulerFactory.GetTaskScheduler();
             server.Start();

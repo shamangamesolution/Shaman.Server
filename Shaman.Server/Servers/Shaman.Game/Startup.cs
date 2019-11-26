@@ -24,6 +24,7 @@ using Shaman.Game.Providers;
 using Shaman.Game.Rooms;
 using Shaman.Game.Rooms.RoomProperties;
 using Shaman.LiteNetLibAdapter;
+using Shaman.ServerSharedUtilities;
 using Shaman.ServerSharedUtilities.Backends;
 using Shaman.ServerSharedUtilities.Logging;
 using LogLevel = Shaman.Common.Utils.Logging.LogLevel;
@@ -108,9 +109,9 @@ namespace Shaman.Game
 
         private void ConfigureBundle(IServiceCollection services)
         {
-            var loadGameBundle = BundleLoader.LoadGameBundle();
+            var loadGameBundle = BundleHelper.LoadTypeFromBundle<IGameResolver>(Configuration["BundlePath"]);
             loadGameBundle.Configure(services);
-            services.AddSingleton<IGameResolver>(loadGameBundle);
+            services.AddSingleton(loadGameBundle);
         }
 
         private void ConfigureMetrics(IServiceCollection services)
