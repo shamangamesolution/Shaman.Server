@@ -27,14 +27,14 @@ namespace Shaman.Messages.Authorization
         {
         }
         
-        protected override void SerializeRequestBody(ISerializer serializer)
+        protected override void SerializeRequestBody(ITypeWriter typeWriter)
         {
-            serializer.WriteInt(BackendId);
+            typeWriter.Write(BackendId);
         }
 
-        protected override void DeserializeRequestBody(ISerializer serializer)
+        protected override void DeserializeRequestBody(ITypeReader typeReader)
         {
-            this.BackendId = serializer.ReadInt();
+            this.BackendId = typeReader.ReadInt();
         }
     }
 }
