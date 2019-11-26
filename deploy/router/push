@@ -1,0 +1,2 @@
+docker tag rw.router:latest ***REMOVED***:rw.router.1.0.0
+docker push ***REMOVED***:rw.router.1.0.0

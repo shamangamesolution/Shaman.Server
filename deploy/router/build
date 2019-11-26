@@ -1,0 +1,2 @@
+#!/bin/bash
+docker build -t rw.router -f ../../../Shaman.Server/Servers/Shaman.Router/Dockerfile ../../../Shaman.Server

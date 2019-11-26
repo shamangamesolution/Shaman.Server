@@ -1,0 +1,2 @@
+docker tag rw.game:latest ***REMOVED***:rw.game.latest
+docker push ***REMOVED***:rw.game.latest

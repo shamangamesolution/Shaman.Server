@@ -1,0 +1,8 @@
+./game/login
+cd game
+(./build && ./push) &
+gamep=$!
+cd ../mm
+(./build && ./push) &
+mmp=$!
+wait $gamep && echo "game built successfully" && wait $mmp && echo "mm built successfully"
