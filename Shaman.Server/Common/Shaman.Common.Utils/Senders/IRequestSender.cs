@@ -9,5 +9,6 @@ namespace Shaman.Common.Utils.Senders
         Task<T> SendRequest<T>(string url, RequestBase request) where T: ResponseBase, new();
         
         Task SendRequest<T>(string url, RequestBase request, Action<T> callback) where T: ResponseBase, new();
+
     }
 }

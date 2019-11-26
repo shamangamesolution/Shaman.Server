@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AG.Common.Metrics;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -9,26 +10,34 @@ using Newtonsoft.Json.Serialization;
 using Serilog.Events;
 using Shaman.Common.Server.Applications;
 using Shaman.Common.Server.Configuration;
+using Shaman.Common.Server.Providers;
 using Shaman.Common.Server.Senders;
+using Shaman.Common.Utils.Extensions;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Serialization;
 using Shaman.Common.Utils.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
-using Shaman.HazelAdapter;
+using Shaman.Game;
+using Shaman.Game.Contract;
+using Shaman.GameBundleContract;
+using Shaman.LiteNetLibAdapter;
 using Shaman.MM.Configuration;
 using Shaman.MM.MatchMaking;
 using Shaman.MM.Players;
-using Shaman.MM.Servers;
 using Shaman.ServerSharedUtilities.Backends;
 using Shaman.ServerSharedUtilities.Logging;
 using Shaman.Messages;
-using Shaman.Messages.General.Entity;
+using Shaman.MM.Metrics;
+using Shaman.MM.Providers;
+using GameProject = Shaman.Messages.General.Entity.GameProject;
 
 namespace Shaman.MM
 {
     public class Startup
     {
+        private static ITaskScheduler _globalTaskScheduler;
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -49,13 +58,16 @@ namespace Shaman.MM
                 };
             });
             
+            ConfigureMetrics(services);
+            
             services.Configure<MmApplicationConfig>(Configuration);
-            var ports = Configuration["Ports"].Split(',').Select(s => Convert.ToUInt16(s)).ToArray();
+            var ports = Configuration["Ports"].Split(',').Select(s => Convert.ToUInt16(s)).ToList();
             //services.AddSingleton<IShamanLogger, ConsoleLogger>();//(l => new SerilogLogger(logLevel:LogLevel.Error | LogLevel.Info));            
 
             services.AddSingleton<IShamanLogger, SerilogLogger>();//(l => new SerilogLogger(logLevel:LogLevel.Error | LogLevel.Info));            
-            services.AddSingleton<IApplicationConfig, MmApplicationConfig>(c => 
+            services.AddSingleton<IApplicationConfig>(c => 
                 new MmApplicationConfig(
+                    Configuration["Region"],
                     Configuration["PublicDomainNameOrAddress"],
                     ports, 
                     Configuration["RouterUrl"],
@@ -63,36 +75,52 @@ namespace Shaman.MM
                     Convert.ToInt32(Configuration["ServerUnregisterTimeoutMs"]),
                     (GameProject)Convert.ToInt32(Configuration["GameProject"]), 
                     Configuration["name"], 
-                    Configuration["Secret"],
                     Convert.ToInt32(Configuration["SocketTickTimeMs"]),
                     Convert.ToInt32(Configuration["ReceiveTickTimeMs"]),
                     Convert.ToInt32(Configuration["SendTickTimeMs"]),
                     Convert.ToInt32(Configuration["BackendListFromRouterIntervalMs"]),
                     Convert.ToInt32(Configuration["ActualizeMatchmakerIntervalMs"]),
-                    Convert.ToBoolean(Configuration["AuthOn"])
+                    Convert.ToBoolean(Configuration["AuthOn"]), 
+                    Configuration["Secret"],
+                    serverInfoListUpdateIntervalMs: Convert.ToInt32(Configuration["ServerInfoListUpdateIntervalMs"])
                 ));    
-            services.AddTransient<IPacketSender, PacketBatchSender>();
-            services.AddSingleton<ISerializerFactory, SerializerFactory>();            
-            services.AddSingleton<ISocketFactory, HazelSockFactory>();            
+            
+            services.AddSingleton<IPacketSenderConfig>(c => c.GetRequiredService<IApplicationConfig>()); 
+            services.AddSingleton<IMatchMakerServerInfoProvider, MatchMakerServerInfoProvider>();
+
+            services.AddSingleton<ICreatedRoomManager, CreatedRoomManager>();
+            services.AddSingleton<IPacketSender, PacketBatchSender>();
+            services.AddSingleton<ISerializer, BinarySerializer>();            
+            //services.AddSingleton<ISocketFactory, HazelSockFactory>();
+            services.AddSingleton<ISocketFactory, LiteNetSockFactory>();            
+
             services.AddSingleton<ITaskSchedulerFactory, TaskSchedulerFactory>();            
             services.AddSingleton<IRequestSender, HttpSender>();            
-            services.AddSingleton<IRegisteredServerCollection, RegisteredServersCollection>();    
             services.AddSingleton<IPlayerCollection, PlayerCollection>();    
             services.AddSingleton<IMatchMaker, MatchMaker>();    
             services.AddSingleton<IApplication, MmApplication>();
             services.AddSingleton<IBackendProvider, BackendProvider>();
+            services.AddSingleton<IStatisticsProvider, StatisticsProvider>();
+        }
+        
+        private void ConfigureMetrics(IServiceCollection services)
+        {
+            var metricsSettings = new MetricsSettings();
+            Configuration.GetSection("Metrics").Bind(metricsSettings);
+            var metricsAgent = new MetricsAgent(metricsSettings);
+            services.AddSingleton<IMetricsAgent>(metricsAgent);
+            services.AddSingleton<IMmMetrics, MmMetrics>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplication server, IShamanLogger logger, IPlayerCollection playerColelction, ITaskSchedulerFactory taskSchedulerFactory, IRegisteredServerCollection registeredServerCollection, IMatchMaker matchMaker)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplication server,
+            IShamanLogger logger, IPlayerCollection playerColelction, ITaskSchedulerFactory taskSchedulerFactory,
+            IMatchMaker matchMaker,
+            IMatchMakerServerInfoProvider serverInfoProvider)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-            }
-            else
-            {
-                app.UseHsts();
             }
 
             app.UseMvc();
@@ -119,13 +147,16 @@ namespace Shaman.MM
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-
-            ((MmApplication)server).SetMatchMakerProperties(new List<byte>{ PropertyCode.PlayerProperties.GameMode });
             
-            matchMaker.AddMatchMakingGroup(4, 250, true, true, 5000, new Dictionary<byte, object> {{PropertyCode.RoomProperties.GameMode, (byte)GameMode.DefaultGameMode}}, new Dictionary<byte, object> {{PropertyCode.PlayerProperties.GameMode, (byte)GameMode.DefaultGameMode}});
 
+            //todo refactor
+            ((MmApplication)server).SetMatchMakerProperties(new List<byte>{ PropertyCode.PlayerProperties.League });
+            
+            BundleLoader.LoadMmBundle(matchMaker);
+
+            _globalTaskScheduler = taskSchedulerFactory.GetTaskScheduler();
             server.Start();
-
+            serverInfoProvider.Start();
         }
         
     }

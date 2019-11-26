@@ -3,26 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Moq;
 using NUnit.Framework;
-using Shaman.Common.Server.Senders;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Game;
 using Shaman.Game.Configuration;
-using Shaman.Game.Data;
+using Shaman.Game.Contract;
+using Shaman.Game.Metrics;
 using Shaman.Game.Rooms;
-using Shaman.Game.Rooms.GameModeControllers;
-using Shaman.Game.Rooms.RoomProperties;
 using Shaman.ServerSharedUtilities.Backends;
-using Shaman.Tests.ClientPeers;
 using Shaman.Tests.GameModeControllers;
 using Shaman.Tests.Helpers;
-using Shaman.Tests.Storage;
 using Shaman.Messages;
 using Shaman.Messages.Authorization;
-using Shaman.Messages.General.Entity;
-using Shaman.Messages.General.Entity.Storage;
 using Shaman.Messages.RoomFlow;
+using Shaman.TestTools.ClientPeers;
 
 namespace Shaman.Tests
 {
@@ -31,47 +27,42 @@ namespace Shaman.Tests
     {
         private const string CLIENT_CONNECTS_TO_IP = "127.0.0.1";
         private const ushort SERVER_PORT = 23450;
-        private const ushort WAIT_TIMEOUT = 100;
+        private const ushort WAIT_TIMEOUT = 300;
         
         private GameApplication _gameApplication;
-        private IPEndPoint _ep = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 5555);
+        private IPEndPoint _ep = _testEndPoint;
         private TestClientPeer _client;           
         private Task emptyTask = new Task(() => {});
         private IRequestSender _requestSender;
         private IBackendProvider _backendProvider;
-        private IStorageContainer _storageContainer;
-        private IRoomPropertiesContainer _roomPropertiesContainer;
         private IRoomManager _roomManager;
         private IGameModeControllerFactory _gameModeControllerFactory;
         private IPacketSender _packetSender;
-        
+        private static readonly IPEndPoint _testEndPoint;
+
+        static MainTests()
+        {
+            _testEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 5555);
+        }
+
         [SetUp]
         public void Setup()
         {
 
-            var config = new GameApplicationConfig("127.0.0.1", new ushort[] {SERVER_PORT}, "", "", 7000);
+            var config = new GameApplicationConfig("", "", "127.0.0.1", new List<ushort> {SERVER_PORT}, "", "", 7000);
             taskSchedulerFactory = new TaskSchedulerFactory(_serverLogger);
 
             _requestSender = new FakeSender();
-
+            
             _backendProvider = new BackendProvider(taskSchedulerFactory, config, _requestSender, _serverLogger);
 
-            _storageContainer = new GameServerStorageContainer(
-                _requestSender, 
-                new FakeStorageUpdater(),
-                _serverLogger,
-                serializerFactory,
-                taskSchedulerFactory);
-            //start container
-            _storageContainer.Start("<no>");
             emptyTask.Wait(2000);
-
+            
             //setup server
-            _roomPropertiesContainer = new RoomPropertiesContainer(_serverLogger);
             _gameModeControllerFactory = new FakeGameModeControllerFactory();
             _packetSender = new PacketBatchSender(taskSchedulerFactory, config, serializerFactory);
-            _roomManager = new RoomManager(_serverLogger, serializerFactory, config, taskSchedulerFactory, _requestSender, _backendProvider, _gameModeControllerFactory, _roomPropertiesContainer, _storageContainer, _packetSender);
-            _gameApplication = new GameApplication(_serverLogger, config, serializerFactory, socketFactory, taskSchedulerFactory, _requestSender, _backendProvider, _storageContainer, _roomManager, _packetSender);
+            _roomManager = new RoomManager(_serverLogger, serializerFactory, config, taskSchedulerFactory,  _gameModeControllerFactory, _packetSender, Mock.Of<IGameMetrics>());
+            _gameApplication = new GameApplication(_serverLogger, config, serializerFactory, socketFactory, taskSchedulerFactory, _requestSender, _backendProvider, _roomManager, _packetSender);
             _gameApplication.Start();
             
             //setup client
@@ -103,7 +94,8 @@ namespace Shaman.Tests
             _gameApplication.GetListeners()[0].OnNewClientConnect(_ep);
             var peer = _gameApplication.GetListeners()[0].GetPeerCollection().Get(_ep);
             Assert.False(peer.IsAuthorized);
-            _gameApplication.GetListeners()[0].OnReceivePacketFromClient(PackageHelper.GetPacketInfo(new AuthorizationRequest(1, Guid.NewGuid()), _serverLogger));
+            var packetInfo = PackageHelper.GetPacketInfo(new AuthorizationRequest(1, Guid.NewGuid()));
+            _gameApplication.GetListeners()[0].OnReceivePacketFromClient(_testEndPoint, packetInfo);
             Assert.True(peer.IsAuthorized);
         }
         
@@ -117,7 +109,7 @@ namespace Shaman.Tests
             
             //create room
             var roomId = _gameApplication.CreateRoom(
-                new Dictionary<byte, object>() {{PropertyCode.RoomProperties.GameMode, (byte) GameMode.DefaultGameMode}},
+                new Dictionary<byte, object>() {{PropertyCode.RoomProperties.GameMode, (byte) GameMode.SinglePlayer}},
                 new Dictionary<Guid, Dictionary<byte, object>>());
             
             stats = _gameApplication.GetStats();
@@ -134,17 +126,17 @@ namespace Shaman.Tests
             //check peer is not authorized
             Assert.False(peer.IsAuthorized);
             //sen JoinRoom Message
-            _gameApplication.GetListeners()[0].OnReceivePacketFromClient(PackageHelper.GetPacketInfo(new JoinRoomRequest(roomId, new Dictionary<byte, object>()), _serverLogger));
+            _gameApplication.GetListeners()[0].OnReceivePacketFromClient(_testEndPoint, PackageHelper.GetPacketInfo(new JoinRoomRequest(roomId, new Dictionary<byte, object>())));
             //get room by peerId
             var room = _gameApplication.GetRoomManager().GetRoomBySessionId(peer.GetSessionId());
             //check it is null
             Assert.Null(room);
             //now authorize
-            _gameApplication.GetListeners()[0].OnReceivePacketFromClient(PackageHelper.GetPacketInfo(new AuthorizationRequest(1, Guid.NewGuid()), _serverLogger));
+            _gameApplication.GetListeners()[0].OnReceivePacketFromClient(_testEndPoint, PackageHelper.GetPacketInfo(new AuthorizationRequest(1, Guid.NewGuid())));
             //check if we authorized
             Assert.True(peer.IsAuthorized);
             //join one more time
-            _gameApplication.GetListeners()[0].OnReceivePacketFromClient(PackageHelper.GetPacketInfo(new JoinRoomRequest(roomId, new Dictionary<byte, object>()), _serverLogger));
+            _gameApplication.GetListeners()[0].OnReceivePacketFromClient(_testEndPoint, PackageHelper.GetPacketInfo(new JoinRoomRequest(roomId, new Dictionary<byte, object>())));
             //get room by peerId
             room = _gameApplication.GetRoomManager().GetRoomBySessionId(peer.GetSessionId());
             //room exists
@@ -158,7 +150,7 @@ namespace Shaman.Tests
             Assert.AreEqual(1, stats.RoomsPeerCount.FirstOrDefault().Value);
 
             //leave
-            _gameApplication.GetListeners()[0].OnReceivePacketFromClient(PackageHelper.GetPacketInfo(new LeaveRoomEvent(), _serverLogger));
+            _gameApplication.GetListeners()[0].OnReceivePacketFromClient(_testEndPoint, PackageHelper.GetPacketInfo(new LeaveRoomEvent()));
             //get room by peerId
             room = _gameApplication.GetRoomManager().GetRoomBySessionId(peer.GetSessionId());
             //assert room is null
@@ -190,7 +182,7 @@ namespace Shaman.Tests
             emptyTask.Wait(WAIT_TIMEOUT);
             //create room
             var roomId = _gameApplication.CreateRoom(
-                new Dictionary<byte, object>() {{PropertyCode.RoomProperties.GameMode, (byte) GameMode.DefaultGameMode}},
+                new Dictionary<byte, object>() {{PropertyCode.RoomProperties.GameMode, (byte) GameMode.SinglePlayer}},
                 new Dictionary<Guid, Dictionary<byte, object>>());
             
             //try to send something without auth
@@ -265,7 +257,7 @@ namespace Shaman.Tests
 
             
             var roomId = _gameApplication.CreateRoom(
-                new Dictionary<byte, object>() {{PropertyCode.RoomProperties.GameMode, (byte) GameMode.DefaultGameMode}},
+                new Dictionary<byte, object>() {{PropertyCode.RoomProperties.GameMode, (byte) GameMode.SinglePlayer}},
                 new Dictionary<Guid, Dictionary<byte, object>>());
             
             _client.Connect(CLIENT_CONNECTS_TO_IP, SERVER_PORT);                

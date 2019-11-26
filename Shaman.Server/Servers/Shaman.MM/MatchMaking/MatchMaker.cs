@@ -1,37 +1,44 @@
 using System;
 using System.Collections.Generic;
-using Shaman.Common.Server.Senders;
 using Shaman.Common.Utils.Logging;
+using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Serialization;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.MM.Peers;
 using Shaman.MM.Players;
-using Shaman.MM.Servers;
 using Shaman.Messages.RoomFlow;
+using Shaman.MM.Metrics;
+using Shaman.MM.Providers;
 
 namespace Shaman.MM.MatchMaking
 {
     public class MatchMaker : IMatchMaker
     {
-        private ITaskSchedulerFactory _taskSchedulerFactory;
-        private IRegisteredServerCollection _serverCollection;
-        private IPlayerCollection _playerCollection;
-        private ISerializerFactory _serializerFactory;
-        private List<MatchMakingGroup> _matchMakingGroups;
-        private IShamanLogger _logger;
-        private object _syncCollection = new object();
+        private readonly ICreatedRoomManager _createdRoomManager;
+        private readonly ITaskSchedulerFactory _taskSchedulerFactory;
+        private readonly IPlayerCollection _playerCollection;
+        private readonly ISerializer _serializer;
+        private readonly List<MatchMakingGroup> _matchMakingGroups;
+        private readonly IShamanLogger _logger;
+        private readonly IMatchMakerServerInfoProvider _serverProvider;
         private List<byte> _requiredMatchMakingProperties = new List<byte>();
 
-        private IPacketSender _packetSender;
+        private readonly IPacketSender _packetSender;
+
+        private readonly IMmMetrics _mmMetrics;
         //hashcodes lists
         //private Dictionary<Guid, int> _hashCodeSets = new Dictionary<Guid, int>();
 
-        public MatchMaker(IRegisteredServerCollection serverCollection, IPlayerCollection playerCollection, IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory, ISerializerFactory serializerFactory, IPacketSender packetSender)
+        public MatchMaker(IPlayerCollection playerCollection,
+            IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory, ISerializer serializer,
+            IPacketSender packetSender, IMmMetrics mmMetrics, ICreatedRoomManager createdRoomManager, IMatchMakerServerInfoProvider serverProvider)
         {
             _taskSchedulerFactory = taskSchedulerFactory;
-            _serializerFactory = serializerFactory;
+            _serializer = serializer;
             _packetSender = packetSender;
-            _serverCollection = serverCollection;
+            _mmMetrics = mmMetrics;
+            _createdRoomManager = createdRoomManager;
+            _serverProvider = serverProvider;
             _playerCollection = playerCollection;
             _logger = logger;
             _matchMakingGroups = new List<MatchMakingGroup>();
@@ -77,9 +84,11 @@ namespace Shaman.MM.MatchMaking
             _playerCollection.Clear();
         }
 
-        public void AddMatchMakingGroup(int totalPlayersNeeded, int matchMakingTickMs, bool addBots, bool addOtherPlayers, int timeBeforeBotsAddedMs, Dictionary<byte, object> roomProperties, Dictionary<byte, object> measures)
+        public void AddMatchMakingGroup(int totalPlayersNeeded, int matchMakingTickMs, bool addBots, bool addOtherPlayers, int timeBeforeBotsAddedMs, int roomClosingIn, Dictionary<byte, object> roomProperties, Dictionary<byte, object> measures)
         {
-            var mmGroup = new MatchMakingGroup(totalPlayersNeeded, matchMakingTickMs,addBots, addOtherPlayers, timeBeforeBotsAddedMs, roomProperties, measures, _logger, _taskSchedulerFactory, this, _serverCollection, _playerCollection, _serializerFactory, _packetSender);
+            var mmGroup = new MatchMakingGroup(totalPlayersNeeded, matchMakingTickMs, addBots, addOtherPlayers,
+                timeBeforeBotsAddedMs, roomClosingIn, roomProperties, measures, _logger, _taskSchedulerFactory, this,
+                _playerCollection, _serializer, _packetSender, _mmMetrics, _createdRoomManager, _serverProvider);
             _matchMakingGroups.Add(mmGroup);
 //            var hashCode = measures.GetHashCode();
 //            _hashCodeSets.Add(mmGroup.Id, hashCode);
@@ -94,7 +103,19 @@ namespace Shaman.MM.MatchMaking
                 group.Start();
                 _playerCollection.AddMmGroup(group.Id, group.Measures);
             }
+            
+            _createdRoomManager.Start();
+        }
 
+        public void Stop()
+        {
+            foreach (var group in _matchMakingGroups)
+            {
+                group.Stop();
+            }
+            
+            _createdRoomManager.Stop();
+            Clear();
         }
         
         

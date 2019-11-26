@@ -9,7 +9,6 @@ using Shaman.Common.Utils.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Messages;
 using Shaman.Messages.Authorization;
-using Shaman.Messages.General;
 using Shaman.Messages.General.DTO.Requests;
 using Shaman.Messages.General.DTO.Responses;
 using Shaman.Messages.MM;
@@ -60,26 +59,27 @@ namespace Shaman.Client.Peers
     
     public class ShamanClientPeer 
     {
-        private ClientPeer _clientPeer = null;
+        private readonly ClientPeer _clientPeer;
+        private readonly IMessageDeserializer _messageDeserializer;
         private IShamanLogger _logger;
-        private ITaskSchedulerFactory _taskSchedulerFactory;
-        private ITaskScheduler _taskScheduler;
-        private ISerializerFactory _serializerFactory;
+        private readonly ITaskScheduler _taskScheduler;
+        private ISerializer _serializer;
         private ClientStatus _status;
         private PendingTask _pollingTask;
-        private int _pollPackageQueueIntervalMs;
-        private IRequestSender _requestSender;
+        private readonly int _pollPackageQueueIntervalMs;
+        private readonly IRequestSender _requestSender;
         private int _backendId;
         
         private object _syncCollections = new object();
         private Dictionary<ushort, Dictionary<Guid, EventHandler>> _handlers = new Dictionary<ushort, Dictionary<Guid, EventHandler>>();
-        private Dictionary<Guid, ushort> _handlerIdToOperationCodes = new Dictionary<Guid, ushort>(); 
+        private readonly Dictionary<Guid, ushort> _handlerIdToOperationCodes = new Dictionary<Guid, ushort>(); 
         private Dictionary<byte, object> _matchMakingProperties;
         private Dictionary<byte, object> _joinGameProperties;
         private Action<ConnectionStatus, JoinInfo> _statusCallback;
 
         private Guid _joinInfoEventId;
-        private Guid _pingTaskId, _resetPingTaskId;
+        private PendingTask _pingTask;
+        private PendingTask _resetPingTask;
         private bool _isPinging = false;
         private DateTime? _pingRequestSentOn = null;
 
@@ -95,16 +95,16 @@ namespace Shaman.Client.Peers
         public int Rtt => _rtt;
 
         #region ctors
-        public ShamanClientPeer(IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory, int pollPackageQueueIntervalMs, ISerializerFactory serializerFactory, IRequestSender requestSender, bool startOtherThreadMessageProcessing = true, int maxPacketSize = 300, int sendTickMs = 33)
+        public ShamanClientPeer(IMessageDeserializer messageDeserializer, IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory, int pollPackageQueueIntervalMs, ISerializer serializer, IRequestSender requestSender, bool startOtherThreadMessageProcessing = true, int maxPacketSize = 300, int sendTickMs = 33)
         {
             _status = ClientStatus.Offline;
-            
+
+            _messageDeserializer = messageDeserializer;
             _logger = logger;
-            _taskSchedulerFactory = taskSchedulerFactory;
-            _taskScheduler = _taskSchedulerFactory.GetTaskScheduler();
-            _serializerFactory = serializerFactory;
-            _serializerFactory.InitializeDefaultSerializers(0, "client");
-            _clientPeer = new ClientPeer(logger, _taskSchedulerFactory, maxPacketSize, sendTickMs);
+            _taskScheduler = taskSchedulerFactory.GetTaskScheduler();
+            _serializer = serializer;
+//            _serializer.InitializeDefaultSerializers(0, "client");
+            _clientPeer = new ClientPeer(logger, taskSchedulerFactory, maxPacketSize, sendTickMs);
             _requestSender = requestSender;
             _clientPeer.OnDisconnectedFromServer += (reason) =>
             {
@@ -141,7 +141,7 @@ namespace Shaman.Client.Peers
         {
             _pollingTask = _taskScheduler.ScheduleOnInterval(() =>
             {
-                PacketInfo pack = null;
+                IPacketInfo pack = null;
                 while ((pack = PopNextPacket()) != null)
                 {
                     //launch callback in another thread
@@ -216,7 +216,7 @@ namespace Shaman.Client.Peers
             var response = message as PingResponse;
             
             //drop reset task
-            _taskScheduler.Remove(_resetPingTaskId);
+            _taskScheduler.Remove(_resetPingTask);
             
             if (response != null && response.Success && _pingRequestSentOn != null)
             {
@@ -260,7 +260,7 @@ namespace Shaman.Client.Peers
             SetAndReportStatus(ClientStatus.InRoom, _statusCallback);
             
             //start ping sequence
-            _pingTaskId = _taskScheduler.ScheduleOnInterval(() =>
+            _pingTask = _taskScheduler.ScheduleOnInterval(() =>
             {
                 if (_isPinging)
                     return;
@@ -269,12 +269,12 @@ namespace Shaman.Client.Peers
                 _pingRequestSentOn = DateTime.UtcNow;
                 SendRequest(new PingRequest(), OnPingResponse);
                 //schedule resetting flag
-                _resetPingTaskId = _taskScheduler.Schedule(() =>
+                _resetPingTask = _taskScheduler.Schedule(() =>
                 {
                     _isPinging = false;
                     _rtt = int.MaxValue;
-                }, 2000).Id;
-            }, 0, 1000).Id;
+                }, 2000);
+            }, 0, 1000);
         }
 
         private void OnGameAuthorizationResponse(MessageBase message)
@@ -337,7 +337,7 @@ namespace Shaman.Client.Peers
             _matchMakingProperties = null;
             _statusCallback = null;
             _status = ClientStatus.Offline;
-            _taskScheduler.Remove(_pingTaskId);
+            _taskScheduler.Remove(_pingTask);
         }
         
         private void EnterMatchMaking()
@@ -417,8 +417,7 @@ namespace Shaman.Client.Peers
                 
                 _logger.Debug($"Message received. Operation code: {operationCode}");
 
-                deserialized = MessageFactory.DeserializeMessage(operationCode, _serializerFactory, message);
-                
+                deserialized = _messageDeserializer.DeserializeMessage(operationCode, _serializer, message);
             }
             catch (Exception ex)
             {
@@ -457,22 +456,27 @@ namespace Shaman.Client.Peers
             }
         }    
 
-        public void ClientOnPackageReceived(PacketInfo packet)
+        public void ClientOnPackageReceived(IPacketInfo packet)
         {
-            var offsets = PacketInfo.GetOffsetInfo(packet.Buffer, packet.Offset);
-            foreach (var item in offsets)
+            try
             {
-                try
+                var offsets = PacketInfo.GetOffsetInfo(packet.Buffer, packet.Offset);
+                foreach (var item in offsets)
                 {
-                    ProcessMessage(packet.Buffer, item.Offset, item.Length);
-                }
-                catch (Exception ex)
-                {
-                    _logger.Error($"Error processing message: {ex}");
+                    try
+                    {
+                        ProcessMessage(packet.Buffer, item.Offset, item.Length);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Error($"Error processing message: {ex}");
+                    }
                 }
             }
-            
-            packet.RecycleCallback?.Invoke();
+            finally
+            {
+                packet.Dispose();
+            }
         }
                 
         public Guid RegisterOperationHandler(ushort operationCode, Action<MessageBase> handler, bool callOnce = false)
@@ -516,7 +520,7 @@ namespace Shaman.Client.Peers
                 _handlers[operationCode].Remove(id);
             }
         }
-        public PacketInfo PopNextPacket()
+        public IPacketInfo PopNextPacket()
         {
             return _clientPeer.PopNextPacket();
         }

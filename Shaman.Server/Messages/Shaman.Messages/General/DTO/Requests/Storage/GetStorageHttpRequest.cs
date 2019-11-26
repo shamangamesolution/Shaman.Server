@@ -19,14 +19,14 @@ namespace Shaman.Messages.General.DTO.Requests.Storage
             this.StorageVersion = storageVersion;
         }
 
-        protected override void SerializeRequestBody(ISerializer serializer)
+        protected override void SerializeRequestBody(ITypeWriter typeWriter)
         {
-            serializer.Write(this.StorageVersion);
+            typeWriter.Write(this.StorageVersion);
         }
 
-        protected override void DeserializeRequestBody(ISerializer serializer)
+        protected override void DeserializeRequestBody(ITypeReader typeReader)
         {
-            StorageVersion = serializer.ReadString();
+            StorageVersion = typeReader.ReadString();
         }
     }
 }

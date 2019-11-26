@@ -20,16 +20,16 @@ namespace Shaman.Messages.General.Entity.Router
             Port = port;
         }
         
-        protected override void SerializeBody(ISerializer serializer)
+        protected override void SerializeBody(ITypeWriter typeWriter)
         {
-            serializer.Write(Address);
-            serializer.Write(Port);
+            typeWriter.Write(Address);
+            typeWriter.Write(Port);
         }
 
-        protected override void DeserializeBody(ISerializer serializer)
+        protected override void DeserializeBody(ITypeReader typeReader)
         {
-            Address = serializer.ReadString();
-            Port = serializer.ReadUShort();
+            Address = typeReader.ReadString();
+            Port = typeReader.ReadUShort();
         }
     }
 }

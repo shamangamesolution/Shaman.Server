@@ -13,17 +13,17 @@ namespace Shaman.Router.Controllers
 {
     public class WebControllerBase : Controller
     {
-        protected IOptions<RouterConfiguration> Config;
-        protected IShamanLogger Logger;
-        protected IConfigurationRepository ConfigRepo;
-        protected ISerializerFactory SerializerFactory;
+        protected readonly IOptions<RouterConfiguration> Config;
+        protected readonly IShamanLogger Logger;
+        protected readonly IConfigurationRepository ConfigRepo;
+        protected readonly ISerializer Serializer;
         
         public WebControllerBase(IConfigurationRepository configRepo, 
             IShamanLogger logger, 
             IOptions<RouterConfiguration> config,
-            ISerializerFactory serializerFactory)
+            ISerializer serializer)
         {
-            this.SerializerFactory = serializerFactory;
+            this.Serializer = serializer;
             this.ConfigRepo = configRepo;
 
             this.Logger = logger;
@@ -35,7 +35,7 @@ namespace Shaman.Router.Controllers
             using (var client = new HttpClient())
             {
                 client.Timeout = new TimeSpan(0,0,60);
-                ByteArrayContent byteContent = new ByteArrayContent(request.Serialize(SerializerFactory));
+                ByteArrayContent byteContent = new ByteArrayContent(Serializer.Serialize(request));
                 //await client.PostAsync(url, byteContent);
                 using (var message = client.PostAsync(url, byteContent).Result)
                 {

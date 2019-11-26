@@ -1,13 +1,14 @@
-using System;
 using System.Collections.Generic;
 using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Serialization;
-using Shaman.Messages.Extensions;
 
 namespace Shaman.Messages
 {
     public class TestRoomEvent : EventBase
     {
+        public override bool IsReliable => true;
+        public override bool IsBroadcasted => true;
+
         public bool TestBool { get; set; }
         public int TestInt { get; set; }
         public float TestFloat { get; set; }
@@ -27,27 +28,20 @@ namespace Shaman.Messages
         {
         }
 
-        protected override void SetMessageParameters()
+        protected override void SerializeBody(ITypeWriter typeWriter)
         {
-            IsReliable = true;
-            IsOrdered = true;
-            IsBroadcasted = true;
+            typeWriter.WriteList(TestList);
+            typeWriter.Write(TestBool);
+            typeWriter.Write(TestInt);
+            typeWriter.Write(TestFloat);
         }
 
-        protected override void SerializeBody(ISerializer serializer)
+        protected override void DeserializeBody(ITypeReader typeReader)
         {
-            serializer.WriteList(TestList);
-            serializer.WriteBool(TestBool);
-            serializer.WriteInt(TestInt);
-            serializer.WriteFloat(TestFloat);
-        }
-
-        protected override void DeserializeBody(ISerializer serializer)
-        {
-            TestList = serializer.ReadIntList();
-            TestBool = serializer.ReadBool();
-            TestInt = serializer.ReadInt();
-            TestFloat = serializer.ReadFloat();
+            TestList = typeReader.ReadListOfInt();
+            TestBool = typeReader.ReadBool();
+            TestInt = typeReader.ReadInt();
+            TestFloat = typeReader.ReadFloat();
         }
     }
 }

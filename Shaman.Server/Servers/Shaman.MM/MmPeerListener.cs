@@ -1,15 +1,16 @@
 using System;
 using System.Net;
 using Shaman.Common.Server.Peers;
-using Shaman.Common.Server.Senders;
 using Shaman.Common.Utils.Messages;
+using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Sockets;
+using Shaman.Game.Contract;
+using Shaman.GameBundleContract;
 using Shaman.MM.MatchMaking;
 using Shaman.MM.Peers;
 using Shaman.ServerSharedUtilities.Backends;
 using Shaman.Messages;
 using Shaman.Messages.Authorization;
-using Shaman.Messages.General;
 using Shaman.Messages.General.DTO.Events;
 using Shaman.Messages.General.DTO.Requests.Auth;
 using Shaman.Messages.General.DTO.Responses;
@@ -23,20 +24,21 @@ namespace Shaman.MM
         private IMatchMaker _matchMaker;
         private IBackendProvider _backendProvider;
         private IPacketSender _packetSender;
-        
-        public void Initialize(IMatchMaker matchMaker, IBackendProvider backendProvider, IPacketSender packetSender)
+        private string _authSecret;
+
+        public void Initialize(IMatchMaker matchMaker, IBackendProvider backendProvider, IPacketSender packetSender,
+            string authSecret)
         {
             _matchMaker = matchMaker;
             _backendProvider = backendProvider;
             _packetSender = packetSender;
+            _authSecret = authSecret;
         }
 
-        private void ProcessMessage(PacketInfo obj, int offset, int length, MmPeer peer)
+        private void ProcessMessage(IPEndPoint endPoint, byte[] buffer, int offset, int length, MmPeer peer)
         {
             //probably bad kind of using
-            var endPoint = obj.EndPoint;
-            var message = new ArraySegment<byte>(obj.Buffer, offset, length).ToArray();
-            var operationCode = MessageBase.GetOperationCode(message);
+            var operationCode = MessageBase.GetOperationCode(buffer, offset);
             _logger.Debug($"Message received. Operation code: {operationCode}");
 
             peer = PeerCollection.Get(endPoint);
@@ -62,7 +64,7 @@ namespace Shaman.MM
                     break;
                 case CustomOperationCode.Authorization:
                     var authMessage =
-                        MessageBase.DeserializeAs<AuthorizationRequest>(SerializerFactory, message);
+                        Serializer.DeserializeAs<AuthorizationRequest>(buffer, offset, length);
                     
                     if (!Config.IsAuthOn())
                     {
@@ -77,13 +79,18 @@ namespace Shaman.MM
                     {
                         if (peer.IsAuthorizing)
                             return;
-
+                        
+                        // todo RW
                         RequestSender.SendRequest<ValidateSessionIdResponse>(
                             _backendProvider.GetBackendUrl(authMessage.BackendId),
-                            new ValidateSessionIdRequest(authMessage.SessionId, "secret"),
+                            new ValidateSessionIdRequest
+                            {
+                                SessionId = authMessage.SessionId, 
+                                Secret = _authSecret
+                            },
                             (response) =>
                             {
-                                if (response.ResultCode == ResultCode.OK)
+                                if (response.Success)
                                 {
                                     //if success - send auth success
                                     peer.IsAuthorizing = false;
@@ -110,7 +117,7 @@ namespace Shaman.MM
                     switch (operationCode)
                     {
                         case CustomOperationCode.EnterMatchMaking:
-                            var enterMessage =  MessageBase.DeserializeAs<EnterMatchMakingRequest>(SerializerFactory, message);
+                            var enterMessage =  Serializer.DeserializeAs<EnterMatchMakingRequest>(buffer, offset, length);
                             if (enterMessage == null)
                                 throw new Exception("Can not deserialize EnterMatchMakingRequest. Result is null");
                                                             
@@ -150,19 +157,18 @@ namespace Shaman.MM
             }
         }
 
-        public override void OnReceivePacketFromClient(PacketInfo obj)
+        public override void OnReceivePacketFromClient(IPEndPoint endPoint, DataPacket dataPacket)
         {
             MmPeer peer = null;
             try
             {
-                var endPoint = obj.EndPoint;
                 peer = PeerCollection.Get(endPoint);
-                var offsets = PacketInfo.GetOffsetInfo(obj.Buffer, obj.Offset);
+                var offsets = PacketInfo.GetOffsetInfo(dataPacket.Buffer, dataPacket.Offset);
                 foreach (var item in offsets)
                 {
                     try
                     {
-                        ProcessMessage(obj, item.Offset, item.Length, peer);
+                        ProcessMessage(endPoint, dataPacket.Buffer, item.Offset, item.Length, peer);
                     }
                     catch (Exception ex)
                     {
@@ -171,7 +177,6 @@ namespace Shaman.MM
                             _packetSender.AddPacket(new ErrorResponse(ResultCode.MessageProcessingError), peer);
                     }
                 }
-                obj.RecycleCallback?.Invoke();
             }
             catch (Exception ex)
             {
@@ -206,6 +211,7 @@ namespace Shaman.MM
             }
             
             _matchMaker.RemovePlayer(peer.GetPeerId());
+            _packetSender.PeerDisconnected(peer);
             
             base.OnClientDisconnect(endPoint, reason);            
         }

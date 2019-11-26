@@ -1,6 +1,5 @@
 ﻿using System.IO;
-using System.Linq;
-using Ionic.Zip;
+using System.IO.Compression;
 
 namespace Shaman.Common.Utils.Helpers
 {
@@ -10,18 +9,16 @@ namespace Shaman.Common.Utils.Helpers
         {
             byte[] returnData;
 
-            using (MemoryStream stream = new MemoryStream(bytesToCompress))
+            using (MemoryStream output = new MemoryStream())
+            using (MemoryStream input = new MemoryStream(bytesToCompress))
             {
-                using (ZipFile zip = new ZipFile())
+                using (var zip = new GZipStream(output, CompressionLevel.Fastest))
                 {
-                    zip.ParallelDeflateThreshold = -1;
-                    zip.AddEntry("compress", stream);
-
-                    using (MemoryStream newStream = new MemoryStream())
-                    {
-                        zip.Save(newStream);
-                        returnData = newStream.ToArray();
-                    }
+                    input.CopyTo(zip);
+                    input.Flush();
+                    output.Flush();
+                    zip.Close();
+                    returnData = output.ToArray();
                 }
             }
 
@@ -30,17 +27,22 @@ namespace Shaman.Common.Utils.Helpers
 
         public static byte[] Decompress(byte[] bytesToDecompress)
         {
-            using (MemoryStream stream = new MemoryStream(bytesToDecompress))
-            using (ZipFile zout = ZipFile.Read(stream))
+            byte[] returnData;
+
+            using (MemoryStream output = new MemoryStream())
+            using (MemoryStream input = new MemoryStream(bytesToDecompress))
             {
-                zout.ParallelDeflateThreshold = -1;
-                ZipEntry entry = zout.FirstOrDefault();
-                using (MemoryStream newStream = new MemoryStream())
+                using (var zip = new GZipStream(input, CompressionMode.Decompress))
                 {
-                    entry.Extract(newStream);
-                    return newStream.ToArray();
+                    zip.CopyTo(output);
+                    zip.Flush();
+                    output.Flush();
+                    zip.Close();
+                    returnData = output.ToArray();
                 }
             }
+
+            return returnData;
         }
     }
 }

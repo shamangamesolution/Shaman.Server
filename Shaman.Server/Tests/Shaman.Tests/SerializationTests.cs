@@ -12,11 +12,9 @@ namespace Shaman.Tests
     public class SerializationTests
     {
         private IShamanLogger _logger = new ConsoleLogger();
-        private ISerializerFactory _serializerFactory;
         [SetUp]
         public void Setup()
         {
-            _serializerFactory = new SerializerFactory(_logger);
         }
 
         [TearDown]

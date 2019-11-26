@@ -113,10 +113,7 @@ namespace Shaman.BackEnd.Controllers
                 if (request.Secret != Config.Value.CustomSecret)
                     throw new Exception("General auth error");
                 
-                var playerId = await ValidateToken(request.SessionId);
-                
-                if (playerId == 0)
-                    throw new Exception($"Auth error: sessionId {request.SessionId} is not valid");
+                await ValidateToken(request.SessionId);
             }
             catch (Exception ex)
             {

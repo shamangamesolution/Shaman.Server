@@ -20,14 +20,14 @@ namespace Shaman.Messages.General.DTO.Responses.Router
             Backends = new List<Backend>();
         }
 
-        protected override void SerializeResponseBody(ISerializer serializer)
+        protected override void SerializeResponseBody(ITypeWriter typeWriter)
         {
-            serializer.WriteList(Backends);
+            typeWriter.WriteList(Backends);
         }
 
-        protected override void DeserializeResponseBody(ISerializer serializer)
+        protected override void DeserializeResponseBody(ITypeReader typeReader)
         {
-            Backends = serializer.ReadList<Backend>();
+            Backends = typeReader.ReadList<Backend>();
         }
     }
 }

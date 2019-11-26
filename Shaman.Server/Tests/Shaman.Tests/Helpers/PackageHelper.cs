@@ -9,23 +9,16 @@ namespace Shaman.Tests.Helpers
 {
     public class PackageHelper
     {
-        public static PacketInfo GetPacketInfo(MessageBase message, IShamanLogger logger)
+        public static DataPacket GetPacketInfo(MessageBase message)
         {
-            var _serializerFactory = new SerializerFactory(logger);
-            _serializerFactory.InitializeDefaultSerializers(8, "");
-            var initMsgArray = message.Serialize(_serializerFactory);
-//            var buf = _buffer.Get(initMsgArray.Length, "ForMessage");
-//            Array.Copy(initMsgArray, 0, buf, 0, initMsgArray.Length);
-            PacketInfo info = new PacketInfo(300);
-            info.Add(initMsgArray, message.IsReliable, message.IsOrdered);
-            info.EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 5555);
-//            {
-//                EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 5555),
-//                ReturnAfterSend = false
-//            };
-
-            //_socket.Send(buf, 0, buf.Length, true, true);
-            return info;
+            var serializerFactory = new BinarySerializer();
+            var initMsgArray = serializerFactory.Serialize(message);//message.Serialize(_serializerFactory);
+            var packetInfo = new PacketInfo(initMsgArray, false, false, 300);
+            
+            return new DataPacket
+            {
+                Buffer = packetInfo.Buffer, Offset = 0, Length = packetInfo.Length
+            };
         }
     }
 }

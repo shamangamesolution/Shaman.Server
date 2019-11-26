@@ -18,14 +18,14 @@ namespace Shaman.Messages.MM
             
         }
 
-        protected override void SerializeResponseBody(ISerializer serializer)
+        protected override void SerializeResponseBody(ITypeWriter typeWriter)
         {
-            serializer.WriteByte((byte)MatchMakingErrorCode);
+            typeWriter.Write((byte)MatchMakingErrorCode);
         }
 
-        protected override void DeserializeResponseBody(ISerializer serializer)
+        protected override void DeserializeResponseBody(ITypeReader typeReader)
         {
-            this.MatchMakingErrorCode = (MatchMakingErrorCode)serializer.ReadByte();
+            this.MatchMakingErrorCode = (MatchMakingErrorCode)typeReader.ReadByte();
         }
     }
 }

@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
+using Microsoft.IdentityModel.Tokens;
 using Shaman.Common.Utils.Extensions;
 using Shaman.Common.Utils.Logging;
+using Shaman.Game.Contract;
+using Shaman.GameBundleContract;
 using Shaman.Messages;
 
 namespace Shaman.Game.Rooms.RoomProperties
@@ -24,6 +27,12 @@ namespace Shaman.Game.Rooms.RoomProperties
             
             if (_roomProperties == null)
                 _roomProperties = new Dictionary<byte, object>();
+        }
+
+        public void AddNewPlayers(Dictionary<Guid, Dictionary<byte, object>> playersCameFromMatchMaker)
+        {
+            foreach(var player in playersCameFromMatchMaker)
+                _playersCameFromMatchMaker.Add(player.Key, player.Value);
         }
 
         public bool IsPlayerInMatchMakerCollection(Guid sessionId)
@@ -72,6 +81,16 @@ namespace Shaman.Game.Rooms.RoomProperties
             where T : struct
         {
             return (T?)(_roomProperties.GetProperty<T>(key));
+        }
+        
+        public int GetPlayerCountToStartGame()
+        {
+            return _playersCameFromMatchMaker.Count;
+        }
+
+        public void RemovePlayer(Guid sessionId)
+        {
+            _playersCameFromMatchMaker.Remove(sessionId);
         }
     }
 }

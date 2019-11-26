@@ -14,16 +14,16 @@ namespace Shaman.Messages.General.DTO.Responses
 
         }
 
-        protected override void SerializeResponseBody(ISerializer serializer)
+        protected override void SerializeResponseBody(ITypeWriter typeWriter)
         {
-            serializer.Write(this.IsOnService);
-            serializer.Write(this.ClientVersion);
+            typeWriter.Write(this.IsOnService);
+            typeWriter.Write(this.ClientVersion);
         }
 
-        protected override void DeserializeResponseBody(ISerializer serializer)
+        protected override void DeserializeResponseBody(ITypeReader typeReader)
         {
-            IsOnService = serializer.ReadBool();
-            ClientVersion = serializer.ReadString();
+            IsOnService = typeReader.ReadBool();
+            ClientVersion = typeReader.ReadString();
         }
     }
 }

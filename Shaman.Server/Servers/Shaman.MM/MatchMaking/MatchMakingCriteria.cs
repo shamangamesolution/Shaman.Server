@@ -16,16 +16,16 @@ namespace Shaman.MM.MatchMaking
             ExactValue = exactValue;
         }
 
-        protected override void SerializeBody(ISerializer serializer)
+        protected override void SerializeBody(ITypeWriter typeWriter)
         {
-            serializer.Write(PropertyCode);
-            serializer.Write(ExactValue);
+            typeWriter.Write(PropertyCode);
+            typeWriter.Write(ExactValue);
         }
 
-        protected override void DeserializeBody(ISerializer serializer)
+        protected override void DeserializeBody(ITypeReader typeReader)
         {
-            PropertyCode = serializer.ReadByte();
-            ExactValue = serializer.ReadInt();
+            PropertyCode = typeReader.ReadByte();
+            ExactValue = typeReader.ReadInt();
         }
     }
 }

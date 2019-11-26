@@ -12,12 +12,12 @@ namespace Shaman.Messages.MM
 
         }
 
-        protected override void SerializeRequestBody(ISerializer serializer)
+        protected override void SerializeRequestBody(ITypeWriter typeWriter)
         {
 
         }
 
-        protected override void DeserializeRequestBody(ISerializer serializer)
+        protected override void DeserializeRequestBody(ITypeReader typeReader)
         {
 
         }

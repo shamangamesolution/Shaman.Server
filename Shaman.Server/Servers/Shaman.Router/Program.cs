@@ -13,31 +13,50 @@ namespace Shaman.Router
 {
     public class Program
     {
-        public static void Main(string[] args)
+        internal static void Main(string[] args)
         {
             //read config
             var config = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: false)
+                .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json",
+                    optional: true)
                 .AddEnvironmentVariables()
                 .Build();
-            
-            var logger = Log.Logger = new LoggerConfiguration()
+
+            Start(config);
+
+            //CreateWebHostBuilder(args).Build().Run();
+        }
+
+        public static void Start(IConfigurationRoot config)
+        {
+            var loggerConfiguration = new LoggerConfiguration()
                 .Enrich.FromLogContext()
-                .MinimumLevel.Is(Enum.Parse<LogEventLevel>(config["Serilog:MinimumLevel"], ignoreCase: true))
-                .WriteTo.Loggly(customerToken: config["Serilog:customerToken"])
-                .CreateLogger();
-            
+                .MinimumLevel.Is(Enum.Parse<LogEventLevel>(config["Serilog:MinimumLevel"], ignoreCase: true));
+
+            if (!string.IsNullOrEmpty(config["Serilog:customerToken"]))
+                loggerConfiguration.WriteTo.Loggly(customerToken: config["Serilog:customerToken"]);
+
+            var logger = Log.Logger = loggerConfiguration.CreateLogger();
+
             SubscribeOnUnhandledException(logger);
-            
+
             var ip = config["BindToIP"];
             if (string.IsNullOrWhiteSpace(ip))
             {
                 Console.WriteLine("Unable to parse IPAddress from configuration file");
                 return;
             }
+
             int port = 0;
             if (!int.TryParse(config["BindToPortHttp"].ToString(), out port))
+            {
+                Console.WriteLine("Unable to parse port number from configuration file");
+                return;
+            }
+
+            if (!int.TryParse(config["BindToPortHttps"].ToString(), out var httpsPort))
             {
                 Console.WriteLine("Unable to parse port number from configuration file");
                 return;
@@ -52,6 +71,8 @@ namespace Shaman.Router
                     options.Limits.MinResponseDataRate =
                         new MinDataRate(bytesPerSecond: 10, gracePeriod: TimeSpan.FromSeconds(30));
                     options.Listen(IPAddress.Parse(ip), port);
+                    options.Listen(IPAddress.Parse(ip), httpsPort,
+                        listenOptions => { listenOptions.UseHttps("certificate.pfx", "Ght_67jkQ"); });
                 })
                 .UseConfiguration(config)
                 .UseContentRoot(Directory.GetCurrentDirectory())
@@ -65,10 +86,8 @@ namespace Shaman.Router
                 .Build();
 
             host.Run();
-            
-            //CreateWebHostBuilder(args).Build().Run();
         }
-        
+
         internal static void SubscribeOnUnhandledException(ILogger logger)
         {
             AppDomain.CurrentDomain.UnhandledException += (sender, args) =>

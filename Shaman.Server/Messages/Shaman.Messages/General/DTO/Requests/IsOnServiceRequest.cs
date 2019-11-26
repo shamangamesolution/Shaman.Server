@@ -11,11 +11,11 @@ namespace Shaman.Messages.General.DTO.Requests
 
         }
 
-        protected override void SerializeRequestBody(ISerializer serializer)
+        protected override void SerializeRequestBody(ITypeWriter typeWriter)
         {
         }
 
-        protected override void DeserializeRequestBody(ISerializer serializer)
+        protected override void DeserializeRequestBody(ITypeReader typeReader)
         {
         }
     }

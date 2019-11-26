@@ -7,20 +7,24 @@ namespace Shaman.Messages.General.DTO.Responses
     {
         public ResultCode ErrorCode { get; set; }
         
+        public ErrorResponse() 
+            : base(CustomOperationCode.Error)
+        {
+        }
         public ErrorResponse(ResultCode errorCode) 
-            : base(Messages.CustomOperationCode.EnterMatchMaking)
+            : base(CustomOperationCode.Error)
         {
             ErrorCode = errorCode;
         }
         
-        protected override void SerializeResponseBody(ISerializer serializer)
+        protected override void SerializeResponseBody(ITypeWriter typeWriter)
         {
-            serializer.WriteUShort((byte)ErrorCode);
+            typeWriter.Write((ushort)ErrorCode);
         }
 
-        protected override void DeserializeResponseBody(ISerializer serializer)
+        protected override void DeserializeResponseBody(ITypeReader typeReader)
         {
-            this.ErrorCode = (ResultCode)serializer.ReadUShort();
+            this.ErrorCode = (ResultCode)typeReader.ReadUShort();
         }
     }
 }

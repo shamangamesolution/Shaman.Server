@@ -2,12 +2,16 @@ using System;
 using System.Collections.Generic;
 using Shaman.Common.Server.Peers;
 using Shaman.Common.Utils.Messages;
+using Shaman.Game.Contract;
+using Shaman.GameBundleContract;
 
 namespace Shaman.Game.Rooms
 {
     public interface IRoomManager
     {
         Guid CreateRoom(Dictionary<byte, object> properties, Dictionary<Guid, Dictionary<byte, object>> players);
+        void UpdateRoom(Guid roomId, Dictionary<Guid, Dictionary<byte, object>> players);
+
         void DeleteRoom(Guid roomId);
         List<IRoom> GetAllRooms();
         int GetRoomsCount();
@@ -17,7 +21,7 @@ namespace Shaman.Game.Rooms
         bool IsInRoom(Guid sessionId);
         void PeerLeft(Guid sessionId);
         void PeerDisconnected(Guid sessionId);
-        void ProcessMessage(MessageBase message, IPeer peer);
+        void ProcessMessage(ushort operationCode, MessageData message, IPeer peer);
         Dictionary<Guid, int> GetRoomPeerCount();
         IRoom GetOldestRoom();
         void ConfirmedJoin(Guid sessionId, IRoom room);

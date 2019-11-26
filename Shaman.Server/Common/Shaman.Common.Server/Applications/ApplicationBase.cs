@@ -15,22 +15,22 @@ namespace Shaman.Common.Server.Applications
         where TP: class, IPeer, new()
     {
         
-        protected List<IPeerListener<TP>> PeerListeners = new List<IPeerListener<TP>>();
-        protected IShamanLogger Logger;
-        protected ITaskSchedulerFactory TaskSchedulerFactory;
-        protected ITaskScheduler TaskScheduler;
-        protected IApplicationConfig Config;
+        protected readonly List<IPeerListener<TP>> PeerListeners = new List<IPeerListener<TP>>();
         
+        protected readonly IShamanLogger Logger;
+        protected readonly ITaskSchedulerFactory TaskSchedulerFactory;
+        protected readonly ITaskScheduler TaskScheduler;
+        protected readonly IApplicationConfig Config;
         protected IPeerCollection<TP> PeerCollection;
-        protected ISerializerFactory SerializerFactory;
-        protected ISocketFactory SocketFactory;
-        protected IRequestSender RequestSender;
-        
-        public virtual void Initialize(IShamanLogger logger, IApplicationConfig config, ISerializerFactory serializerFactory, ISocketFactory socketFactory, ITaskSchedulerFactory taskSchedulerFactory, IRequestSender requestSender)
+        protected readonly ISerializer Serializer;
+        protected readonly ISocketFactory SocketFactory;
+        protected readonly IRequestSender RequestSender;
+
+        protected ApplicationBase(IShamanLogger logger, IApplicationConfig config, ISerializer serializer, ISocketFactory socketFactory, ITaskSchedulerFactory taskSchedulerFactory, IRequestSender requestSender)
         {
             Logger = logger;
             Config = config;
-            SerializerFactory = serializerFactory;
+            Serializer = serializer;
             SocketFactory = socketFactory;
             TaskSchedulerFactory = taskSchedulerFactory;
             TaskScheduler = taskSchedulerFactory.GetTaskScheduler();
@@ -63,16 +63,16 @@ namespace Shaman.Common.Server.Applications
         {
             Logger.Info($"Starting");
             //initialize peer collection
-            PeerCollection = new PeerCollection<TP>(Logger, SerializerFactory, Config);
+            PeerCollection = new PeerCollection<TP>(Logger, Serializer, Config);
             Logger.Debug($"Peer collection initialized as {PeerCollection.GetType()}");
             //initialize packers
-            SerializerFactory.InitializeDefaultSerializers(8, $"Simple{this.GetType()}Buffer");
-            Logger.Debug($"Serializer factory initialized as {SerializerFactory.GetType()}");
+//            Serializer.InitializeDefaultSerializers(8, $"Simple{this.GetType()}Buffer");
+            Logger.Debug($"Serializer factory initialized as {Serializer.GetType()}");
             //initialize listener
             foreach (var port in Config.GetListenPorts())
             {
                 var peerListener = new TL();
-                peerListener.Initialize(Logger, PeerCollection, SerializerFactory, Config, TaskSchedulerFactory, port, SocketFactory, RequestSender);
+                peerListener.Initialize(Logger, PeerCollection, Serializer, Config, TaskSchedulerFactory, port, SocketFactory, RequestSender);
                 PeerListeners.Add(peerListener);
                 Logger.Info($"PeerListener initialized as {peerListener.GetType()} on port {port}");
             }

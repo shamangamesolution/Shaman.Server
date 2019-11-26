@@ -1,38 +1,39 @@
 using System;
+using System.Collections.Generic;
 using Shaman.Common.Utils.Serialization;
 
 namespace Shaman.Common.Utils.Messages
 {
     public abstract class RequestBase : MessageBase
     {
+        public override bool IsReliable => true;
+        public override bool IsBroadcasted => false;
+
+        
         public string EndPoint { get; set; }
         public Guid SessionId { get; set; }
-        
+        public List<TransitItem> TransitItems { get; set; }
+
         protected RequestBase(ushort operationCode, string endpoint = "") : base(MessageType.Request, operationCode)
         {
             this.EndPoint = endpoint;
         }
-
-        protected override void SetMessageParameters()
-        {
-            IsReliable = true;
-            IsOrdered = true;
-            IsBroadcasted = false;
-        }
         
-        protected abstract void SerializeRequestBody(ISerializer serializer);
-        protected abstract void DeserializeRequestBody(ISerializer serializer);
+        protected abstract void SerializeRequestBody(ITypeWriter typeWriter);
+        protected abstract void DeserializeRequestBody(ITypeReader typeReader);
         
-        protected override void SerializeBody(ISerializer serializer)
+        protected override void SerializeBody(ITypeWriter typeWriter)
         {
-            serializer.WriteBytes(SessionId.ToByteArray());
-            SerializeRequestBody(serializer);
+            typeWriter.Write(SessionId);
+            typeWriter.WriteList(TransitItems);
+            SerializeRequestBody(typeWriter);
         }
 
-        protected override void DeserializeBody(ISerializer serializer)
+        protected override void DeserializeBody(ITypeReader typeReader)
         {
-            this.SessionId = new Guid(serializer.ReadBytes());
-            DeserializeRequestBody(serializer);
+            this.SessionId = typeReader.ReadGuid();
+            this.TransitItems = typeReader.ReadList<TransitItem>();
+            DeserializeRequestBody(typeReader);
         }
 
         public string ComposeUrl(string baseUrl)

@@ -1,86 +1,120 @@
+using System.Collections.Generic;
+using Shaman.Common.Utils.Messages;
+using Shaman.Common.Utils.Servers;
+
 namespace Shaman.Common.Server.Configuration
 {
     public class ApplicationConfig : IApplicationConfig
     {
-        public SocketType SocketType;
+        private readonly SocketType _socketType;
 
-        public ushort[] Ports;
-        public int SocketTickTimeMs;
-        public int ReceiveTickTimeMs;
-        public int SendTickTimeMs;
-        public string PublicDomainNameOrAddress;
-        public bool AuthOn;
-        public int BackendListFromRouterIntervalMs;
-        public string RouterUrl;
-        public int MaxPacketSize;
+        private readonly List<ushort> _ports;
+        private readonly int _socketTickTimeMs;
+        private readonly int _receiveTickTimeMs;
+        private readonly int _sendTickTimeMs;
+        private readonly string _publicDomainNameOrAddress;
+        private readonly bool _authOn;
+        private readonly int _backendListFromRouterIntervalMs;
+        private readonly string _routerUrl;
+        private readonly int _maxPacketSize;
+        private readonly string _authSecret;
+        private readonly string _name;
+        private readonly string _region;
+        private readonly ServerRole _serverRole;
+        private ServerIdentity _identity;
         
-        public ApplicationConfig(string publicDomainNameOrIpAddress, ushort[] ports, string routerUrl, int socketTickTimeMs = 100, int receiveTickTimeMs = 33, int sendTickTimeMs = 50, SocketType socketType = SocketType.BareSocket, bool isAuthOn = true, int getBackendListFromRouterIntervalMs = 30000, int maxPacketSize = 300)
+        public ApplicationConfig(string name, string region, ServerRole serverRole, string publicDomainNameOrIpAddress, List<ushort> ports, string routerUrl, int socketTickTimeMs = 10, int receiveTickTimeMs = 33, int sendTickTimeMs = 50, SocketType socketType = SocketType.BareSocket, bool isAuthOn = true, string authSecret = null, int getBackendListFromRouterIntervalMs = 30000, int maxPacketSize = 300)
         {
-            Initialize(publicDomainNameOrIpAddress, ports, socketTickTimeMs, receiveTickTimeMs, sendTickTimeMs, routerUrl, socketType, isAuthOn, getBackendListFromRouterIntervalMs, maxPacketSize);
-        }
-        
-        public void Initialize(string publicDomainNameOrIpAddress, ushort[] ports, int socketTickTimeMs, int receiveTickTimeMs, int sendTickTimeMs, string routerUrl, SocketType socketType = SocketType.BareSocket, bool isAuthOn = true, int getBackendListFromRouterIntervalMs = 30000, int maxPacketSize = 300)
-        {
-            Ports = ports;
-            SocketTickTimeMs = socketTickTimeMs;
-            ReceiveTickTimeMs = receiveTickTimeMs;
-            PublicDomainNameOrAddress = publicDomainNameOrIpAddress;
-            AuthOn = isAuthOn;
-            BackendListFromRouterIntervalMs = getBackendListFromRouterIntervalMs;
-            RouterUrl = routerUrl;
-            SendTickTimeMs = sendTickTimeMs;
-            MaxPacketSize = maxPacketSize;
-            SocketType = socketType;
+            _name = name;
+            _region = region;
+            _serverRole = serverRole;
+            _ports = ports;
+            _socketTickTimeMs = socketTickTimeMs;
+            _receiveTickTimeMs = receiveTickTimeMs;
+            _publicDomainNameOrAddress = publicDomainNameOrIpAddress;
+            _authOn = isAuthOn;
+            _authSecret = authSecret;
+            _backendListFromRouterIntervalMs = getBackendListFromRouterIntervalMs;
+            _routerUrl = routerUrl;
+            _sendTickTimeMs = sendTickTimeMs;
+            _maxPacketSize = maxPacketSize;
+            _socketType = socketType;
+            _identity = new ServerIdentity(publicDomainNameOrIpAddress, ports, serverRole);
         }
 
         public string GetPublicName()
         {
-            return PublicDomainNameOrAddress;
+            return _publicDomainNameOrAddress;
         }
 
-        public ushort[] GetListenPorts()
+        public List<ushort> GetListenPorts()
         {
-            return Ports;
+            return _ports;
         }
 
         public int GetSocketTickTimeMs()
         {
-            return SocketTickTimeMs;
+            return _socketTickTimeMs;
         }
 
         public int GetReceiveTickTimerMs()
         {
-            return ReceiveTickTimeMs;
+            return _receiveTickTimeMs;
         }
 
         public bool IsAuthOn()
         {
-            return AuthOn;
+            return _authOn;
         }
 
         public SocketType GetSocketType()
         {
-            return SocketType;
+            return _socketType;
         }
 
         public int GetBackendListFromRouterIntervalMs()
         {
-            return BackendListFromRouterIntervalMs;
+            return _backendListFromRouterIntervalMs;
         }
 
         public string GetRouterUrl()
         {
-            return RouterUrl;
+            return _routerUrl;
         }
 
         public int GetSendTickTimerMs()
         {
-            return SendTickTimeMs;
+            return _sendTickTimeMs;
         }
 
         public int GetMaxPacketSize()
         {
-            return MaxPacketSize;
+            return _maxPacketSize;
+        }
+
+        public string GetAuthSecret()
+        {
+            return _authSecret;
+        }
+
+        public string GetServerName()
+        {
+            return _name;
+        }
+
+        public string GetRegion()
+        {
+            return _region;
+        }
+
+        public ServerRole GetServerRole()
+        {
+            return _serverRole;
+        }
+
+        public ServerIdentity GetIdentity()
+        {
+            return _identity;
         }
     }
 }

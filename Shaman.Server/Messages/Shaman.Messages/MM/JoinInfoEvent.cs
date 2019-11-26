@@ -18,14 +18,14 @@ namespace Shaman.Messages.MM
         {
         }
 
-        protected override void SerializeBody(ISerializer serializer)
+        protected override void SerializeBody(ITypeWriter typeWriter)
         {
-            serializer.WriteEntity(JoinInfo);
+            typeWriter.WriteEntity(JoinInfo);
         }
 
-        protected override void DeserializeBody(ISerializer serializer)
+        protected override void DeserializeBody(ITypeReader typeReader)
         {
-            JoinInfo = serializer.ReadEntity<JoinInfo>();
+            JoinInfo = typeReader.ReadEntity<JoinInfo>();
         }
     }
 }

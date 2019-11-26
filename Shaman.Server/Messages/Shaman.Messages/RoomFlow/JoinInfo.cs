@@ -1,5 +1,4 @@
 using System;
-using System.Net;
 using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Serialization;
 
@@ -19,8 +18,9 @@ namespace Shaman.Messages.RoomFlow
         public JoinStatus Status { get; set; }
         public int CurrentPlayers { get; set; }
         public int MaxPlayers { get; set; }
+        public bool JoinToExisting { get; set; }
         
-        public JoinInfo(string serverIpAddress, ushort serverPort, Guid roomId, JoinStatus status, int currentPlayers, int maxPlayers)
+        public JoinInfo(string serverIpAddress, ushort serverPort, Guid roomId, JoinStatus status, int currentPlayers, int maxPlayers, bool joinToExisting = false)
         {
             ServerIpAddress = serverIpAddress;
             ServerPort = serverPort;
@@ -28,31 +28,33 @@ namespace Shaman.Messages.RoomFlow
             Status = status;
             CurrentPlayers = currentPlayers;
             MaxPlayers = maxPlayers;
+            JoinToExisting = joinToExisting;
         }
 
         public JoinInfo()
         {
         }
 
-        protected override void SerializeBody(ISerializer serializer)
+        protected override void SerializeBody(ITypeWriter typeWriter)
         {
-            serializer.WriteString(ServerIpAddress);
-            serializer.WriteUShort(ServerPort);
-            serializer.WriteBytes(RoomId.ToByteArray());
-            serializer.WriteByte((byte)Status);
-            serializer.WriteInt(CurrentPlayers);
-            serializer.WriteInt(MaxPlayers);
-            
+            typeWriter.Write(ServerIpAddress);
+            typeWriter.Write(ServerPort);
+            typeWriter.Write(RoomId);
+            typeWriter.Write((byte)Status);
+            typeWriter.Write(CurrentPlayers);
+            typeWriter.Write(MaxPlayers);
+            typeWriter.Write(JoinToExisting);
         }
 
-        protected override void DeserializeBody(ISerializer serializer)
+        protected override void DeserializeBody(ITypeReader typeReader)
         {
-            ServerIpAddress = serializer.ReadString();
-            ServerPort = serializer.ReadUShort();
-            RoomId = new Guid(serializer.ReadBytes());
-            Status = (JoinStatus) serializer.ReadByte();
-            CurrentPlayers = serializer.ReadInt();
-            MaxPlayers = serializer.ReadInt();
+            ServerIpAddress = typeReader.ReadString();
+            ServerPort = typeReader.ReadUShort();
+            RoomId = typeReader.ReadGuid();
+            Status = (JoinStatus) typeReader.ReadByte();
+            CurrentPlayers = typeReader.ReadInt();
+            MaxPlayers = typeReader.ReadInt();
+            JoinToExisting = typeReader.ReadBool();
         }        
         
     }

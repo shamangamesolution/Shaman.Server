@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Net;
 using Hazel;
 using Hazel.Udp;
@@ -8,6 +9,7 @@ using Shaman.Common.Utils.Sockets;
 
 namespace Shaman.HazelAdapter
 {
+    //todo FIX
     public class HazelSock : IReliableSock
     {
         private UdpClientConnection ClientConnection;
@@ -26,7 +28,9 @@ namespace Shaman.HazelAdapter
             //nothing
         }
         
-        public void AddEventCallbacks(Action<PacketInfo> onReceivePacket, Action<IPEndPoint> onConnect, Action<IPEndPoint, string> onDisconnect)
+        public void AddEventCallbacks(Action<IPEndPoint, DataPacket, Action> onReceivePacket,
+            Action<IPEndPoint> onConnect,
+            Action<IPEndPoint, string> onDisconnect)
         {
             listener.NewConnection += args =>
             {
@@ -42,14 +46,12 @@ namespace Shaman.HazelAdapter
 
                 args.Connection.DataReceived += eventArgs =>
                 {
-                    onReceivePacket(new PacketInfo(300)
+                    onReceivePacket(args.Connection.EndPoint,new DataPacket
                     {
-                        EndPoint = args.Connection.EndPoint, 
                         Buffer = eventArgs.Message.Buffer,
                         Length = eventArgs.Message.Length,
-                        Offset = eventArgs.Message.Offset,
-                        RecycleCallback = () => eventArgs.Message.Recycle()
-                    });
+                        Offset = eventArgs.Message.Offset
+                    },eventArgs.Message.Recycle);
                     
                 };
             };
@@ -59,13 +61,12 @@ namespace Shaman.HazelAdapter
         {
             _logger?.Info($"Connect {endPoint.AddressFamily}|{endPoint.Address}:{endPoint.Port}");
             ClientConnection = new UdpClientConnection(endPoint);
-            ClientConnection.DataReceived += args => OnPacketReceived?.Invoke(new PacketInfo(300)
+            ClientConnection.DataReceived += args => OnPacketReceived?.Invoke(endPoint, new DataPacket
             {
-                EndPoint = endPoint, 
                 Buffer = args.Message.Buffer,
                 Length = args.Message.Length,
                 Offset = args.Message.Offset,
-            });
+            }, args.Message.Recycle);
             ClientConnection.Disconnected += (sender, args) => { OnDisconnected?.Invoke(endPoint, args.Reason); }; 
             ClientConnection.Connect();
         }
@@ -83,13 +84,15 @@ namespace Shaman.HazelAdapter
 
         public void Send(byte[] buffer, int offset, int length, bool reliable, bool orderControl, bool returnAfterSend = true)
         {
-            ClientConnection.SendBytes(buffer, reliable ? SendOption.Reliable : SendOption.None);
+            var message = new ArraySegment<byte>(buffer, offset, length).ToArray();
+            ClientConnection.SendBytes(message, reliable ? SendOption.Reliable : SendOption.None);
         }
 
         public void Send(IPEndPoint endPoint, byte[] buffer, int offset, int length, bool reliable, bool orderControl, bool returnAfterSend = true)
         {
+            var message = new ArraySegment<byte>(buffer, offset, length).ToArray();
             if (_endPointReceivers.TryGetValue(endPoint, out var connection))
-                connection.SendBytes(buffer, reliable ? SendOption.Reliable : SendOption.None);
+                connection.SendBytes(message, reliable ? SendOption.Reliable : SendOption.None);
         }
 
         public void Close()
@@ -99,7 +102,7 @@ namespace Shaman.HazelAdapter
             _endPointReceivers.Clear();
         }
 
-        public event Action<PacketInfo> OnPacketReceived;
+        public event Action<IPEndPoint, DataPacket, Action> OnPacketReceived;
         public event Action<IPEndPoint> OnConnected;
         public event Action<IPEndPoint> OnReliablePacketTimeout;
         public event Action<IPEndPoint, string> OnDisconnected;

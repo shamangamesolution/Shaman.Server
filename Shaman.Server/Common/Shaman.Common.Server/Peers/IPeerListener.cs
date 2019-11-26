@@ -11,11 +11,11 @@ namespace Shaman.Common.Server.Peers
     public interface IPeerListener<T> 
         where T : class, IPeer, new()
     {
-        void Initialize(IShamanLogger logger, IPeerCollection<T> peerCollection, ISerializerFactory serializerFactory, IApplicationConfig config, ITaskSchedulerFactory taskSchedulerFactory, ushort port, ISocketFactory socketFactory, IRequestSender requestSender);
+        void Initialize(IShamanLogger logger, IPeerCollection<T> peerCollection, ISerializer serializer, IApplicationConfig config, ITaskSchedulerFactory taskSchedulerFactory, ushort port, ISocketFactory socketFactory, IRequestSender requestSender);
         void Listen();
         ushort GetListenPort();
         void StopListening();
-        void OnReceivePacketFromClient(PacketInfo obj);
+        void OnReceivePacketFromClient(IPEndPoint endPoint, DataPacket dataPacket);
         void OnNewClientConnect(IPEndPoint endPoint);
         void OnClientDisconnect(IPEndPoint endPoint, string reason);
     }

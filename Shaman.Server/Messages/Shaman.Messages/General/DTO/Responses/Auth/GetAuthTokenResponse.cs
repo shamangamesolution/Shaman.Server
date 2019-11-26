@@ -13,16 +13,14 @@ namespace Shaman.Messages.General.DTO.Responses.Auth
         {
         }
 
-        protected override void SerializeResponseBody(ISerializer serializer)
+        protected override void SerializeResponseBody(ITypeWriter typeWriter)
         {
-            serializer.WriteBytes(this.AuthToken.ToByteArray());
-
+            typeWriter.Write(this.AuthToken);
         }
 
-        protected override void DeserializeResponseBody(ISerializer serializer)
+        protected override void DeserializeResponseBody(ITypeReader typeReader)
         {
-            AuthToken = new Guid(serializer.ReadBytes());
-
+            AuthToken = typeReader.ReadGuid();
         }
     }
 }

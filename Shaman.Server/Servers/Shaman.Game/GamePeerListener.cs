@@ -1,15 +1,16 @@
 using System;
 using System.Net;
 using Shaman.Common.Server.Peers;
-using Shaman.Common.Server.Senders;
 using Shaman.Common.Utils.Messages;
+using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Sockets;
+using Shaman.Game.Contract;
 using Shaman.Game.Peers;
 using Shaman.Game.Rooms;
+using Shaman.GameBundleContract;
 using Shaman.ServerSharedUtilities.Backends;
 using Shaman.Messages;
 using Shaman.Messages.Authorization;
-using Shaman.Messages.General;
 using Shaman.Messages.General.DTO.Events;
 using Shaman.Messages.General.DTO.Requests.Auth;
 using Shaman.Messages.General.DTO.Responses;
@@ -22,21 +23,20 @@ namespace Shaman.Game
         private IRoomManager _roomManager;
         private IBackendProvider _backendProvider;
         private IPacketSender _packetSender;
-        
-        public void Initialize(IRoomManager roomManager, IBackendProvider backendProvider, IPacketSender packetSender)
+        private string _authSecret;
+
+        public void Initialize(IRoomManager roomManager, IBackendProvider backendProvider, IPacketSender packetSender,
+            string authSecret)
         {
             _roomManager = roomManager;
             _backendProvider = backendProvider;
             _packetSender = packetSender;
+            _authSecret = authSecret;
         }
 
-        private void ProcessMessage(PacketInfo obj, int offset, int length, GamePeer peer)
+        private void ProcessMessage(IPEndPoint endPoint, byte[] buffer, int offset, int length, GamePeer peer)
         {
-            var endPoint = obj.EndPoint;
-            var message = new ArraySegment<byte>(obj.Buffer, offset, length).ToArray();
-            //recycle buffer
-            //obj.RecycleCallback?.Invoke();
-            var operationCode = MessageBase.GetOperationCode(message);
+            var operationCode = MessageBase.GetOperationCode(buffer, offset);
             _logger.Debug($"Message received. Operation code: {operationCode}");
 
             if (peer == null)
@@ -59,8 +59,7 @@ namespace Shaman.Game
                     OnClientDisconnect(endPoint, "On Disconnect event received");
                     break;
                 case CustomOperationCode.Authorization:
-                    var authMessage =
-                        MessageBase.DeserializeAs<AuthorizationRequest>(SerializerFactory, message);
+                    var authMessage = Serializer.DeserializeAs<AuthorizationRequest>(buffer, offset, length);
                     
                     if (!Config.IsAuthOn())
                     {
@@ -78,12 +77,18 @@ namespace Shaman.Game
                         
                         peer.IsAuthorizing = true;
 
+                        // todo RW
+                        //throw new NotImplementedException("RW");
                         RequestSender.SendRequest<ValidateSessionIdResponse>(
                             _backendProvider.GetBackendUrl(authMessage.BackendId),
-                            new ValidateSessionIdRequest(authMessage.SessionId, "secret"),
+                            new ValidateSessionIdRequest
+                            {
+                                SessionId = authMessage.SessionId,
+                                Secret = _authSecret
+                            },
                             (response) =>
                             {
-                                if (response.ResultCode == ResultCode.OK)
+                                if (response.Success)
                                 {
                                     //if success - send auth success
                                     peer.IsAuthorizing = false;
@@ -110,9 +115,13 @@ namespace Shaman.Game
                     switch (operationCode)
                     {
                         default:
-                            _roomManager.ProcessMessage(
-                                MessageFactory.DeserializeMessage(operationCode, SerializerFactory, message),
-                                peer);
+                            _roomManager.ProcessMessage(operationCode,
+                                new MessageData
+                                {
+                                    Buffer = buffer, 
+                                    Offset = offset, 
+                                    Length = length
+                                }, peer);
                             break;
                     }
 
@@ -120,19 +129,18 @@ namespace Shaman.Game
             }
         }
         
-        public override void OnReceivePacketFromClient(PacketInfo obj)
+        public override void OnReceivePacketFromClient(IPEndPoint endPoint, DataPacket dataPacket)
         {
             GamePeer peer = null;
             try
             {
-                var endPoint = obj.EndPoint;
                 peer = PeerCollection.Get(endPoint);
-                var offsets = PacketInfo.GetOffsetInfo(obj.Buffer, obj.Offset);
+                var offsets = PacketInfo.GetOffsetInfo(dataPacket.Buffer, dataPacket.Offset);
                 foreach (var item in offsets)
                 {
                     try
                     {
-                        ProcessMessage(obj, item.Offset, item.Length, peer);
+                        ProcessMessage(endPoint, dataPacket.Buffer, item.Offset, item.Length, peer);
                     }
                     catch (Exception ex)
                     {
@@ -141,10 +149,10 @@ namespace Shaman.Game
                             _packetSender.AddPacket(new ErrorResponse(ResultCode.MessageProcessingError), peer);
                     }
                 }
-                obj.RecycleCallback?.Invoke();
             }
             catch (Exception ex)
             {
+                _logger.Error($"OnReceivePacketFromClient: Error processing package: {ex}");
                 if (peer != null)
                     _packetSender.AddPacket(new ErrorResponse(ResultCode.MessageProcessingError), peer);
             }
@@ -175,6 +183,8 @@ namespace Shaman.Game
             
             if (_roomManager.IsInRoom(peer.GetSessionId()))
                 _roomManager.PeerDisconnected(peer.GetSessionId());
+            
+            _packetSender.PeerDisconnected(peer);
             
             base.OnClientDisconnect(endPoint, reason);            
         }

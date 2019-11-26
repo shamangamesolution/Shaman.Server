@@ -6,13 +6,20 @@ namespace Shaman.Common.Utils.Exceptions
     public enum StoreExceptionCode
     {
         OK,
-        NotEnoughSc,
-        NotEnoughHc,
+        NotEnoughSilver,
+        NotEnoughGold,
+        NotEnoughPoints,
         DalException,
         GeneralException,
         RouletteFailed,
         VendotTokenIsInvalid,
-        PriceNotFound
+        MaxRentReached,
+        MaxSimultaneousUpgradesReached,
+        MaxBoxesReached,
+        NotEnoughShards,
+        NotEnoughGoldForExchange,
+        DuplicateTransaction,
+        NotEnoughCurrency
     }
 
     public class StoreException : Exception
@@ -23,16 +30,21 @@ namespace Shaman.Common.Utils.Exceptions
         {
             switch (Code)
             {
-                case StoreExceptionCode.NotEnoughSc:
+                case StoreExceptionCode.NotEnoughSilver:
                     return "Not enough silver";
-                case StoreExceptionCode.NotEnoughHc:
+                case StoreExceptionCode.NotEnoughGold:
                     return "Not enough gold";
+                case StoreExceptionCode.NotEnoughPoints:
+                    return "Not enough points";
+                case StoreExceptionCode.DuplicateTransaction:
+                    return "Duplicate transaction";
                 default:
                     return this.Message;
             }
         }
 
         public StoreException(StoreExceptionCode code)
+            :base(code.ToString())
         {
             Code = code;
         }

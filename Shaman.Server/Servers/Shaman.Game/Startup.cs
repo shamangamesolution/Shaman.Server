@@ -1,13 +1,16 @@
 using System;
 using System.Linq;
+using AG.Common.Metrics;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Serialization;
 using Serilog.Events;
 using Shaman.Common.Server.Applications;
 using Shaman.Common.Server.Configuration;
+using Shaman.Common.Server.Providers;
 using Shaman.Common.Server.Senders;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Senders;
@@ -15,14 +18,15 @@ using Shaman.Common.Utils.Serialization;
 using Shaman.Common.Utils.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Game.Configuration;
-using Shaman.Game.Data;
+using Shaman.Game.Contract;
+using Shaman.Game.Metrics;
+using Shaman.Game.Providers;
 using Shaman.Game.Rooms;
-using Shaman.Game.Rooms.GameModeControllers;
 using Shaman.Game.Rooms.RoomProperties;
-using Shaman.HazelAdapter;
-using Shaman.Messages.General.Entity.Storage;
+using Shaman.LiteNetLibAdapter;
 using Shaman.ServerSharedUtilities.Backends;
 using Shaman.ServerSharedUtilities.Logging;
+using LogLevel = Shaman.Common.Utils.Logging.LogLevel;
 
 namespace Shaman.Game
 {
@@ -49,15 +53,23 @@ namespace Shaman.Game
             });
 
             services.Configure<GameApplicationConfig>(Configuration);
+            
+            ConfigureMetrics(services);
 
             //get ports from Config
-            var ports = Configuration["Ports"].Split(',').Select(s => Convert.ToUInt16(s)).ToArray();
+            var ports = Configuration["Ports"].Split(',').Select(s => Convert.ToUInt16(s)).ToList();
 
-            services.AddSingleton<IShamanLogger, SerilogLogger>();//(l => new SerilogLogger(logLevel:LogLevel.Error | LogLevel.Info));            
-            //services.AddSingleton<IShamanLogger, ConsoleLogger>();//(l => new SerilogLogger(logLevel:LogLevel.Error | LogLevel.Info));            
+            services.AddSingleton<IShamanLogger, SerilogLogger>(f=>
+            {
+                var logger = new SerilogLogger(f.GetService<ILogger<SerilogLogger>>());
+                ConfigureLogger(logger);
+                return logger;
+            });
 
-            services.AddSingleton<IApplicationConfig, GameApplicationConfig>(c => 
+            services.AddSingleton<IApplicationConfig>(c => 
                 new GameApplicationConfig(
+                    Configuration["Name"],
+                    Configuration["Region"],
                     Configuration["PublicDomainNameOrAddress"], 
                     ports, 
                     Configuration["RouterUrl"], 
@@ -67,41 +79,71 @@ namespace Shaman.Game
                     Convert.ToInt32(Configuration["ActualizationTimeoutMs"]),
                     Convert.ToInt32(Configuration["BackendListFromRouterIntervalMs"]),
                     Convert.ToBoolean(Configuration["AuthOn"]),
+                    Configuration["Secret"],
                     Convert.ToInt32(Configuration["SocketTickTimeMs"]),
                     Convert.ToInt32(Configuration["ReceiveTickTimeMs"]),
                     Convert.ToInt32(Configuration["SendTickTimeMs"])
-                ));          
-            
+                ));
+            services.AddSingleton<IPacketSenderConfig>(c => c.GetRequiredService<IApplicationConfig>()); 
+
             services.AddTransient<IPacketSender, PacketBatchSender>();
             services.AddScoped<IRoomPropertiesContainer, RoomPropertiesContainer>();            
-            services.AddTransient<IRoomManager, RoomManager>();            
-            services.AddTransient<IGameModeControllerFactory, MsGameModeControllerFactory>();            
-            services.AddTransient<IPacketSender, PacketBatchSender>();
-            services.AddSingleton<ISerializerFactory, SerializerFactory>();            
-            services.AddSingleton<ISocketFactory, HazelSockFactory>();            
+            services.AddSingleton<ISerializer, BinarySerializer>();            
+            services.AddSingleton<IRoomManager, RoomManager>();            
+            //services.AddSingleton<ISocketFactory, HazelSockFactory>();
+            services.AddSingleton<ISocketFactory, LiteNetSockFactory>();            
+
             services.AddTransient<ITaskSchedulerFactory, TaskSchedulerFactory>();            
             services.AddSingleton<IRequestSender, HttpSender>();            
             services.AddSingleton<IApplication, GameApplication>();
             services.AddSingleton<IBackendProvider, BackendProvider>();
-            services.AddSingleton<IStorageContainerUpdater, GameServerStorageUpdater>();
-            services.AddSingleton<IStorageContainer, GameServerStorageContainer>();
             
+//            services.AddSingleton<IStorageContainerUpdater, GameServerStorageUpdater>();
+//            services.AddSingleton<IStorageContainer, GameServerStorageContainer>();
+            services.AddSingleton<IGameServerInfoProvider, GameServerInfoProvider>();
+            services.AddSingleton<IStatisticsProvider, StatisticsProvider>();
+
+            ConfigureBundle(services);
+        }
+
+        private void ConfigureBundle(IServiceCollection services)
+        {
+            var loadGameBundle = BundleLoader.LoadGameBundle();
+            loadGameBundle.Configure(services);
+            services.AddSingleton<IGameResolver>(loadGameBundle);
+        }
+
+        private void ConfigureMetrics(IServiceCollection services)
+        {
+            var metricsSettings = new MetricsSettings();
+            Configuration.GetSection("Metrics").Bind(metricsSettings);
+            var metricsAgent = new MetricsAgent(metricsSettings);
+            services.AddSingleton<IMetricsAgent>(metricsAgent);
+            services.AddSingleton<IGameMetrics, GameMetrics>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplication server, IStorageContainer storageContainer, IShamanLogger logger)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplication server, ITaskSchedulerFactory taskSchedulerFactory, IGameServerInfoProvider serverInfoProvider, IServiceProvider serviceProvider, IGameResolver gameResolver)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
-            else
-            {
-                app.UseHsts();
-            }
 
-            //setup logging based on Serilog params (is not very good, but let it be so)
-            logger.Initialize(SourceType.GameServer, Configuration["ServerVersion"], $"{Configuration["PublicDomainNameOrAddress"]}:{Configuration["BindToPortHttp"]}[{Configuration["Ports"]}]");
+            app.UseMvc();
+
+            server.Start();
+            
+            gameResolver.OnInitialize(serviceProvider);
+            
+//            storageContainer.Start(string.Empty);
+            serverInfoProvider.Start();
+        }
+
+        private void ConfigureLogger(IShamanLogger logger)
+        {
+            logger.Initialize(SourceType.GameServer, Configuration["ServerVersion"],
+                $"{Configuration["PublicDomainNameOrAddress"]}:{Configuration["BindToPortHttp"]}[{Configuration["Ports"]}]");
             var serilogLevel = Enum.Parse<LogEventLevel>(Configuration["Serilog:MinimumLevel"]);
             switch (serilogLevel)
             {
@@ -122,12 +164,6 @@ namespace Shaman.Game
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-            
-            app.UseMvc();
-            
-            server.Start();
-            
-            storageContainer.Start(Configuration["ServerVersion"]);
         }
     }
 }

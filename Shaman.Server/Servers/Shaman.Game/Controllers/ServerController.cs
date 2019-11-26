@@ -13,13 +13,13 @@ namespace Shaman.Game.Controllers
 {
     public class ServerController : Controller
     {
-        protected ISerializerFactory _serializerFactory;
-        protected IApplication Application;
-        protected IShamanLogger _logger;
+        protected readonly ISerializer Serializer;
+        protected readonly IApplication Application;
+        protected readonly IShamanLogger _logger;
 
-        public ServerController(ISerializerFactory serializerFactory, IApplication gameApplication, IShamanLogger logger)
+        public ServerController(ISerializer serializer, IApplication gameApplication, IShamanLogger logger)
         {
-            _serializerFactory = serializerFactory;
+            Serializer = serializer;
             Application = gameApplication;
             _logger = logger;
         }
@@ -39,7 +39,7 @@ namespace Shaman.Game.Controllers
             //Request.Body.Position = 0;            
             var input = await Request.GetRawBodyBytesAsync(); 
 
-            var request = MessageBase.DeserializeAs<CreateRoomRequest>(_serializerFactory, input);
+            var request = Serializer.DeserializeAs<CreateRoomRequest>(input);
             CreateRoomResponse response = new CreateRoomResponse();
 
             try
@@ -53,7 +53,30 @@ namespace Shaman.Game.Controllers
                 response.ResultCode = ResultCode.RequestProcessingError;
             }
             
-            return new FileContentResult(response.Serialize(_serializerFactory), "text/html");
+            return new FileContentResult(Serializer.Serialize(response), "text/html");
+
+        }
+        
+        [HttpPost("updateroom")]
+        public async Task<ActionResult> UpdateRoom()
+        {
+            //Request.Body.Position = 0;            
+            var input = await Request.GetRawBodyBytesAsync(); 
+
+            var request = Serializer.DeserializeAs<UpdateRoomRequest>(input);
+            var response = new UpdateRoomResponse();
+
+            try
+            {
+                ((GameApplication) Application).UpdateRoom(request.RoomId, request.Players);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"Update room error: {ex}");
+                response.ResultCode = ResultCode.RequestProcessingError;
+            }
+            
+            return new FileContentResult(Serializer.Serialize(response), "text/html");
 
         }
     }

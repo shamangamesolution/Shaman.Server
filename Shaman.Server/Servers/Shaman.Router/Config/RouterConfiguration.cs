@@ -15,5 +15,7 @@ namespace Shaman.Router.Config
         public string AllowedSlackChatId { get; set; }
         public string ServerVersion { get; set; }
         public byte Game { get; set; }
+        public int ServerInfoListUpdateIntervalMs { get; set; }
+        public int DbMaxPoolSize { get; set; }
     }
 }

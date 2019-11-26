@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Net;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Utils.Logging;
@@ -16,8 +15,7 @@ namespace Shaman.Common.Server.Peers
     {
         private IReliableSock _reliableSocket;
         private bool _isStopping = false;
-        private object _stateSync = new object();
-        protected ISerializerFactory SerializerFactory;
+        protected ISerializer Serializer;
 
         protected IPeerCollection<T> PeerCollection;
         
@@ -25,50 +23,36 @@ namespace Shaman.Common.Server.Peers
         protected IApplicationConfig Config;
         private ITaskSchedulerFactory _taskSchedulerFactory;
         private ITaskScheduler _taskScheduler;
-        private PendingTask _socketTickTask, _receiveMessagesTask;
+        private PendingTask _socketTickTask;
         
-        private object _queueSync = new object();
-        private Queue<PacketInfo> _packets = new Queue<PacketInfo>();
-        
-        public abstract void OnReceivePacketFromClient(PacketInfo obj);
+        public abstract void OnReceivePacketFromClient(IPEndPoint endPoint, DataPacket dataPacket);
 
         private ushort _port;
         private ISocketFactory _socketFactory;
         protected IRequestSender RequestSender;
 
-        public PacketInfo GetNextPacket()
-        {
-            lock (_queueSync)
-            {
-                if (_packets.Count > 0)
-                    return _packets.Dequeue();
-                else
-                    return null;
-
-            }
-
-        }
         
-        private void OnReceivePacket(PacketInfo obj)
+        private void OnReceivePacket(IPEndPoint endPoint, DataPacket data, Action release)
         {
-            try
+            _taskScheduler.ScheduleOnceOnNow(() =>
             {
-                lock(_queueSync) 
+                try
                 {
-                    _packets.Enqueue(obj);
+                    OnReceivePacketFromClient(endPoint,data);
                 }
-            }
-            catch (Exception ex)
-            {
-                _logger?.Error($"Error adding packet to queue: {ex}");
-            }
+                finally
+                {
+                    release();
+                    _reliableSocket.ReturnBufferToPool(data.Buffer);
+                }
+            });
         }       
         
-        public virtual void Initialize(IShamanLogger logger, IPeerCollection<T> peerCollection, ISerializerFactory serializerFactory, IApplicationConfig config, ITaskSchedulerFactory taskSchedulerFactory, ushort port, ISocketFactory socketFactory, IRequestSender requestSender) 
+        public virtual void Initialize(IShamanLogger logger, IPeerCollection<T> peerCollection, ISerializer serializer, IApplicationConfig config, ITaskSchedulerFactory taskSchedulerFactory, ushort port, ISocketFactory socketFactory, IRequestSender requestSender) 
         {
             _logger = logger;
             PeerCollection = peerCollection;
-            SerializerFactory = serializerFactory;
+            Serializer = serializer;
             Config = config;
             _taskSchedulerFactory = taskSchedulerFactory;
             _taskScheduler = _taskSchedulerFactory.GetTaskScheduler();
@@ -97,45 +81,16 @@ namespace Shaman.Common.Server.Peers
                     throw new ArgumentOutOfRangeException();
             }
             _reliableSocket.Listen(_port);
-
             
             _reliableSocket.AddEventCallbacks(OnReceivePacket, OnNewClientConnect, OnClientDisconnect);
-            
-           
+
             _socketTickTask = _taskScheduler.ScheduleOnInterval(() =>
             {
-                lock (_stateSync)
-                {
-                    if (_isStopping)
-                        return;
+                if (_isStopping)
+                    return;
 
-                    _reliableSocket.Tick();
-                }
-            },  0, Config.GetSocketTickTimeMs());
-            
-            _receiveMessagesTask = _taskScheduler.ScheduleOnInterval(() =>
-            {
-                lock (_stateSync)
-                {
-                    if (_isStopping)
-                        return;
-                }
-
-                PacketInfo item = null;
-                while((item = GetNextPacket()) != null)
-                {
-                    var item1 = item;
-                    _taskScheduler.ScheduleOnceOnNow(() =>
-                    {
-                        OnReceivePacketFromClient(item1);
-                        _reliableSocket.ReturnBufferToPool(item1.Buffer);
-                    });
-                } 
-
-            }, 0, Config.GetReceiveTickTimerMs());
-            
-            
-            
+                _reliableSocket.Tick();
+            }, 0, Config.GetSocketTickTimeMs());
         }
 
         public ushort GetListenPort()
@@ -155,17 +110,13 @@ namespace Shaman.Common.Server.Peers
             _logger.Info($"Disconnected: {endPoint.Address} : {endPoint.Port}. Reason: {reason}");
             PeerCollection.Remove(endPoint);
         }
-        
+
         public void StopListening()
         {
-            lock (_stateSync)
-            {
-                _isStopping = true;
-                _taskScheduler.Remove(_socketTickTask.Id);
-                _taskScheduler.Remove(_receiveMessagesTask.Id);
-                _reliableSocket.Close();
-            }
+            _isStopping = true;
+            _taskScheduler.Remove(_socketTickTask);
+            _taskScheduler.Dispose();
+            _reliableSocket.Close();
         }
-
     }
 }

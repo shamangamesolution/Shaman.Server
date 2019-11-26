@@ -9,13 +9,18 @@ namespace Shaman.Common.Utils.Messages
         MessageProcessingError = 2,
         SendRequestError = 3,
         RequestProcessingError = 4,
-        NotAuthorized = 5
+        NotAuthorized = 5,
+        BadReceipt = 6
     }
     
     public abstract class ResponseBase : MessageBase
     {
+        public override bool IsReliable => true;
+        public override bool IsBroadcasted => false;
+        
         public ResultCode ResultCode { get; set; }
         public string Message { get; set; }
+
         
         public ResponseBase(ushort operationCode) : base(MessageType.Response, operationCode)
         {
@@ -24,28 +29,23 @@ namespace Shaman.Common.Utils.Messages
 
         public bool Success => ResultCode == ResultCode.OK;
 
-        protected abstract void SerializeResponseBody(ISerializer serializer);
-        protected abstract void DeserializeResponseBody(ISerializer serializer);
+        protected abstract void SerializeResponseBody(ITypeWriter typeWriter);
+        protected abstract void DeserializeResponseBody(ITypeReader typeReader);
         
-        protected override void SerializeBody(ISerializer serializer)
+        protected override void SerializeBody(ITypeWriter typeWriter)
         {
-            serializer.WriteUShort((byte)ResultCode);
-            serializer.WriteString(Message);
-            SerializeResponseBody(serializer);
+            typeWriter.Write((byte)ResultCode);
+            typeWriter.Write(Message);
+            if (ResultCode == ResultCode.OK)
+                SerializeResponseBody(typeWriter);
         }
 
-        protected override void DeserializeBody(ISerializer serializer)
+        protected override void DeserializeBody(ITypeReader typeReader)
         {
-            this.ResultCode = (ResultCode)serializer.ReadUShort();
-            this.Message = serializer.ReadString();
-            DeserializeResponseBody(serializer);
-        }
-        
-        protected override void SetMessageParameters()
-        {
-            IsReliable = true;
-            IsOrdered = true;
-            IsBroadcasted = false;
+            this.ResultCode = (ResultCode) typeReader.ReadByte();
+            this.Message = typeReader.ReadString();
+            if (ResultCode == ResultCode.OK)
+                DeserializeResponseBody(typeReader);
         }
 
         public void SetError(string message)
@@ -54,4 +54,5 @@ namespace Shaman.Common.Utils.Messages
             Message = message;
         }
     }
+
 }

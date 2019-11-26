@@ -2,11 +2,12 @@ using System;
 using System.Collections.Generic;
 using Shaman.MM.Peers;
 using Shaman.Messages.RoomFlow;
+using Shaman.MM.Contract;
 
 namespace Shaman.MM.MatchMaking
 {
     
-    public interface IMatchMaker
+    public interface IMatchMaker: IMatchMakingConfigurator
     {
         //init
         void Initialize(List<byte> requiredMatchMakingProperties);       
@@ -18,11 +19,8 @@ namespace Shaman.MM.MatchMaking
         List<byte> GetRequiredProperties();
         
         //dispose
-        void Clear();
-
-        void AddMatchMakingGroup(int totalPlayersNeeded, int matchMakingTickMs, bool addBots, bool addOtherPlayers, int timeBeforeBotsAddedMs,
-            Dictionary<byte, object> roomProperties, Dictionary<byte, object> measures);
 
         void Start();
+        void Stop();
     }
 }

@@ -22,17 +22,17 @@ namespace Shaman.Messages.RoomFlow
         {
         }
 
-        protected override void SerializeRequestBody(ISerializer serializer)
+        protected override void SerializeRequestBody(ITypeWriter typeWriter)
         {
-            serializer.WriteBytes(RoomId.ToByteArray());
-            serializer.WriteDictionary(Properties);
+            typeWriter.Write(RoomId);
+            typeWriter.WriteDictionary(Properties, typeWriter.Write);
 
         }
 
-        protected override void DeserializeRequestBody(ISerializer serializer)
+        protected override void DeserializeRequestBody(ITypeReader typeReader)
         {
-            RoomId = new Guid(serializer.ReadBytes());
-            Properties = serializer.ReadDictionary();
+            RoomId = typeReader.ReadGuid();
+            Properties = typeReader.ReadDictionary(typeReader.ReadByte);
         }
     }
 }

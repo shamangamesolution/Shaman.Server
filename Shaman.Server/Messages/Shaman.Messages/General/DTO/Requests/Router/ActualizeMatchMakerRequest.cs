@@ -27,20 +27,20 @@ namespace Shaman.Messages.General.DTO.Requests.Router
             GameProject = gameProject;
         }
 
-        protected override void SerializeRequestBody(ISerializer serializer)
+        protected override void SerializeRequestBody(ITypeWriter typeWriter)
         {
-            serializer.Write(Name);
-            serializer.Write(IpAddress);
-            serializer.Write(Port);
-            serializer.Write(Secret);
+            typeWriter.Write(Name);
+            typeWriter.Write(IpAddress);
+            typeWriter.Write(Port);
+            typeWriter.Write(Secret);
         }
 
-        protected override void DeserializeRequestBody(ISerializer serializer)
+        protected override void DeserializeRequestBody(ITypeReader typeReader)
         {
-            Name = serializer.ReadString();
-            IpAddress = serializer.ReadString();
-            Port = serializer.ReadUShort();
-            Secret = serializer.ReadString();
+            Name = typeReader.ReadString();
+            IpAddress = typeReader.ReadString();
+            Port = typeReader.ReadUShort();
+            Secret = typeReader.ReadString();
         }
     }
 }

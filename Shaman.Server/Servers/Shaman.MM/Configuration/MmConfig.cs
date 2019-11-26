@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using Shaman.Common.Server.Configuration;
+using Shaman.Common.Utils.Messages;
 using Shaman.Messages.General.Entity;
 
 namespace Shaman.MM.Configuration
@@ -10,33 +12,35 @@ namespace Shaman.MM.Configuration
         
         public int ActualizeMatchmakerIntervalMs { get; set; }
         public GameProject GameProject { get; set; }
-        public string Name { get; set; }
-        public string Secret { get; set; }
+        public int ServerInfoListUpdateIntervalMs { get; set; }
         
         public MmApplicationConfig(
+            string region,
             string publicDomainNameOrIpAddress, 
-            ushort[] ports, 
+            List<ushort> ports, 
             string routerUrl, 
             int serverInactivityTimeoutMs, 
             int serverUnregisterTimeoutMs,
             GameProject gameProject,
             string name,
-            string secret,
             int socketTickTimeMs = 100, 
             int receiveTickTimeMs = 33,
             int sendTickTimeMs = 50,
             int getBackendListFromRouterIntervalMs = 30000,
-            int actualizeMatchmakerIntervalMs = 60000,
+            int actualizeMatchmakerIntervalMs = 15000,
             bool isAuthOn = true,
-            SocketType socketType = SocketType.BareSocket) 
-            : base(publicDomainNameOrIpAddress, ports, routerUrl, socketTickTimeMs, receiveTickTimeMs, sendTickTimeMs, socketType, getBackendListFromRouterIntervalMs:getBackendListFromRouterIntervalMs, isAuthOn:isAuthOn)
+            string authSecret = null,
+            SocketType socketType = SocketType.BareSocket,
+            int serverInfoListUpdateIntervalMs = 60000)
+            : base(name, region, ServerRole.MatchMaker, publicDomainNameOrIpAddress, ports, routerUrl, socketTickTimeMs, receiveTickTimeMs, sendTickTimeMs,
+                socketType, getBackendListFromRouterIntervalMs: getBackendListFromRouterIntervalMs, isAuthOn: isAuthOn,
+                authSecret: authSecret)
         {
             ServerInactivityTimeoutMs = serverInactivityTimeoutMs;
             ServerUnregisterTimeoutMs = serverUnregisterTimeoutMs;
             ActualizeMatchmakerIntervalMs = actualizeMatchmakerIntervalMs;
+            ServerInfoListUpdateIntervalMs = serverInfoListUpdateIntervalMs;
             GameProject = gameProject;
-            Name = name;
-            Secret = secret;
         }
     }
 }

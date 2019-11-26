@@ -4,6 +4,7 @@ using System.Linq;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Serialization;
 using Shaman.Messages.RoomFlow;
+using Shaman.MM.Metrics;
 
 namespace Shaman.MM.Players
 {
@@ -18,12 +19,12 @@ namespace Shaman.MM.Players
         private Dictionary<Guid, Dictionary<byte, object>> _mmGroups = new Dictionary<Guid, Dictionary<byte, object>>();
         private Dictionary<Guid, List<MatchMakingPlayer>> _mmGroupToPlayer;
         private Dictionary<Guid, Guid> _playerToMmGroup = new Dictionary<Guid, Guid>();
-        private ISerializerFactory _serializerFactory;
-            
-        public PlayerCollection(IShamanLogger logger, ISerializerFactory serializerFactory)
+        private readonly IMmMetrics _mmMetrics;
+
+        public PlayerCollection(IShamanLogger logger, IMmMetrics mmMetrics)
         {
             _logger = logger;
-            _serializerFactory = serializerFactory;
+            _mmMetrics = mmMetrics;
             _players = new Dictionary<Guid, MatchMakingPlayer>();
             _mmGroupToPlayer = new Dictionary<Guid, List<MatchMakingPlayer>>();
             _mmGroups = new Dictionary<Guid, Dictionary<byte, object>>();
@@ -64,6 +65,7 @@ namespace Shaman.MM.Players
             lock (_syncCollection)
             {
                 _players.Add(player.Id, player);
+                _mmMetrics.TrackPlayerAdded();
 
                 foreach (var group in _mmGroups)
                 {
@@ -156,7 +158,7 @@ namespace Shaman.MM.Players
             {
                 if (!_players.ContainsKey(peerId))
                 {
-                    _logger.Error($"Matchmaker.PlayerCollection error: Trying to delete non-existing player");
+                    _logger.Info($"Matchmaker.PlayerCollection error: Trying to delete non-existing player");
                     return;
                 }
                 
@@ -180,6 +182,7 @@ namespace Shaman.MM.Players
                 }
 
                 _players.Remove(peerId);
+                _mmMetrics.TrackPlayerRemoved();
             }
         }
 
@@ -210,8 +213,10 @@ namespace Shaman.MM.Players
         {
             lock (_syncCollection)
             {
+                var playersCount = _players.Count;
                 _players.Clear();
                 _mmGroupToPlayer.Clear();
+                _mmMetrics.TrackPlayerCleared(playersCount);
             }
         }
 

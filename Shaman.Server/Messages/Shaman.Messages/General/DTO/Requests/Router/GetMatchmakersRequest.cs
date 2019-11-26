@@ -26,14 +26,14 @@ namespace Shaman.Messages.General.DTO.Requests.Router
                 this.ClientVersion = "";
         }
 
-        protected override void SerializeRequestBody(ISerializer serializer)
+        protected override void SerializeRequestBody(ITypeWriter typeWriter)
         {
-            serializer.Write(this.ClientVersion);
+            typeWriter.Write(this.ClientVersion);
         }
 
-        protected override void DeserializeRequestBody(ISerializer serializer)
+        protected override void DeserializeRequestBody(ITypeReader typeReader)
         {
-            ClientVersion = serializer.ReadString();
+            ClientVersion = typeReader.ReadString();
         }
         
     }

@@ -5,24 +5,18 @@ namespace Shaman.Messages.RoomFlow
 {
     public class LeaveRoomEvent : EventBase
     {
-        
+        public override bool IsReliable => true;
+        public override bool IsBroadcasted => true;
+
         public LeaveRoomEvent() 
             : base(Messages.CustomOperationCode.LeaveRoom)
         {
         }
-
-        protected override void SetMessageParameters()
-        {
-            IsReliable = true;
-            IsOrdered = true;
-            IsBroadcasted = true;
-        }
-
-        protected override void SerializeBody(ISerializer serializer)
+        protected override void SerializeBody(ITypeWriter typeWriter)
         {
         }
 
-        protected override void DeserializeBody(ISerializer serializer)
+        protected override void DeserializeBody(ITypeReader typeReader)
         {
         }
     }

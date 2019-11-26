@@ -14,20 +14,20 @@ namespace Shaman.Common.Server.Peers
         private readonly ConcurrentDictionary<IPEndPoint, T> _peers = new ConcurrentDictionary<IPEndPoint, T>();
         
         private IShamanLogger _logger;
-        private ISerializerFactory _serializerFactory;
+        private ISerializer _serializer;
         private IApplicationConfig _config;
         
-        public PeerCollection(IShamanLogger logger, ISerializerFactory serializerFactory, IApplicationConfig config)
+        public PeerCollection(IShamanLogger logger, ISerializer serializer, IApplicationConfig config)
         {
             _logger = logger;
-            _serializerFactory = serializerFactory;
+            _serializer = serializer;
             _config = config;
         }
         
         public void Add(IPEndPoint endPoint, IReliableSock socket)
         {
             var peer = new T();
-            peer.Initialize(endPoint, Guid.NewGuid(), socket, _serializerFactory, _config, _logger);            
+            peer.Initialize(endPoint, Guid.NewGuid(), socket, _serializer, _config, _logger);            
             _peers.TryAdd(endPoint, peer);
         }
 

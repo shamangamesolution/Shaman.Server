@@ -21,7 +21,13 @@ namespace Shaman.Common.Utils.Extensions
                 throw new Exception($"Property {key} was not found");
             return val.Value;
         }
-        
+        public static float GetFloat(this Dictionary<byte, object> dict, byte key)
+        {
+            var val = dict.GetProperty<float>(key);
+            if (val == null)
+                throw new Exception($"Property {key} was not found");
+            return val.Value;
+        }
         public static byte GetByte(this Dictionary<byte, object> dict, byte key)
         {
             var val = dict.GetProperty<byte>(key);

@@ -2,9 +2,8 @@ using System;
 using System.Collections.Generic;
 using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.TaskScheduling;
-using Shaman.Game.Rooms;
-using Shaman.Game.Rooms.GameModeControllers;
-using Shaman.Messages.General.Entity;
+using Shaman.Game.Contract;
+using Shaman.GameBundleContract;
 using Shaman.Messages.RoomFlow;
 
 namespace Shaman.Tests.GameModeControllers
@@ -33,13 +32,34 @@ namespace Shaman.Tests.GameModeControllers
         {
             return true;
         }
+
+        public bool IsGameFinished()
+        {
+            return false;
+        }
+
+        public TimeSpan GetGameTtl()
+        {
+            return TimeSpan.Zero;
+        }
+
+        public void Cleanup()
+        {
+        }
+
+        public MessageResult ProcessMessage(MessageData message, Guid sessionId)
+        {
+            return new MessageResult {Handled = true};
+        }
     }
     
     public class FakeGameModeControllerFactory : IGameModeControllerFactory
     {
-        public IGameModeController GetGameModeController(GameMode mode, IRoom room, ITaskScheduler taskScheduler)
+        public IGameModeController GetGameModeController(IRoom room, ITaskScheduler taskScheduler,
+            IRoomPropertiesContainer roomPropertiesContainer)
         {
             return new FakeGameModeController(room);
+
         }
     }
 }

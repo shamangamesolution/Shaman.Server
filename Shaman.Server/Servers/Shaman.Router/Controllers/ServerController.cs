@@ -4,23 +4,27 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Shaman.Common.Utils.Logging;
-using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Serialization;
+using Shaman.Messages;
 using Shaman.Messages.General.DTO.Requests.Router;
 using Shaman.Messages.General.DTO.Responses.Router;
+using Shaman.Messages.General.Entity.Router;
 using Shaman.Router.Config;
 using Shaman.Router.Data.Repositories.Interfaces;
 using Shaman.Router.Models;
 using Shaman.Messages.MM;
+using Shaman.Router.Data.Providers;
 using Shaman.ServerSharedUtilities.Extensions;
 
 namespace Shaman.Router.Controllers
 {
     public class ServerController : WebControllerBase
     {
-        public ServerController(IConfigurationRepository configRepo, IShamanLogger logger, IOptions<RouterConfiguration> config, ISerializerFactory serializerFactory) 
-            : base(configRepo, logger, config, serializerFactory)
+        private IRouterServerInfoProvider _serverInfoProvider;
+        public ServerController(IConfigurationRepository configRepo, IShamanLogger logger, IOptions<RouterConfiguration> config, ISerializer serializer, IRouterServerInfoProvider serverInfoProvider) 
+            : base(configRepo, logger, config, serializer)
         {
+            _serverInfoProvider = serverInfoProvider;
         }
 
         [HttpGet]
@@ -28,9 +32,7 @@ namespace Shaman.Router.Controllers
         {
             LogInfo($"Ping");
 
-            var resultErrorInput = new Result { ResultCode = 1 };
-            JsonResult resultErrorInputJson = this.Json(resultErrorInput);
-            return resultErrorInputJson;
+            return this.Json(new Result { ResultCode = 1 });
         }
         
         [HttpPost]
@@ -38,7 +40,7 @@ namespace Shaman.Router.Controllers
         {
             var input = await Request.GetRawBodyBytesAsync();
 
-            var request = MessageBase.DeserializeAs<GetMatchmakersRequest>(SerializerFactory, input);//GetServerConfigurationsRequest.Deserialize(input);
+            var request = Serializer.DeserializeAs<GetMatchmakersRequest>(input);//GetServerConfigurationsRequest.Deserialize(input);
             var response = new GetMatchmakersResponse();
             
             try
@@ -75,7 +77,7 @@ namespace Shaman.Router.Controllers
                 LogError($"{ex.ToString()}");
             }
 
-            return new FileContentResult(response.Serialize(SerializerFactory), "text/html");
+            return new FileContentResult(Serializer.Serialize(response), "text/html");
         }
         
         [HttpPost]
@@ -83,7 +85,7 @@ namespace Shaman.Router.Controllers
         {
             var input = await Request.GetRawBodyBytesAsync();
 
-            var request = MessageBase.DeserializeAs<ActualizeMatchMakerRequest>(SerializerFactory, input);//ActualizeServerRequest.Deserialize(input) as ActualizeServerRequest;
+            var request = Serializer.DeserializeAs<ActualizeMatchMakerRequest>(input);//ActualizeServerRequest.Deserialize(input) as ActualizeServerRequest;
             var response = new ActualizeMatchMakerResponse();
 
             try
@@ -115,7 +117,7 @@ namespace Shaman.Router.Controllers
                 LogError($"{ex.ToString()}");
             }
 
-            return new FileContentResult(response.Serialize(SerializerFactory), "text/html");
+            return new FileContentResult(Serializer.Serialize(response), "text/html");
         }
         
         [HttpPost]
@@ -123,27 +125,18 @@ namespace Shaman.Router.Controllers
         {
             var input = await Request.GetRawBodyBytesAsync();
 
-            var request = MessageBase.DeserializeAs<ActualizeServerRequest>(SerializerFactory, input);//ActualizeServerRequest.Deserialize(input) as ActualizeServerRequest;
-            var response = new ActualizeServerResponse();
+            var request = Serializer.DeserializeAs<ActualizeServerOnRouterRequest>(input);//ActualizeServerRequest.Deserialize(input) as ActualizeServerRequest;
+            var response = new ActualizeServerOnRouterResponse();
             
             try
             {
-                //check secret
-//                if (Config.Value.CustomSecret != request.Secret)
-//                    throw new Exception($"Secret {request.Secret} is not valid");
-//                
-//                var configs = await ConfigRepo.GetAllConfigurations(request.Game, false);
-//                if (configs.Any(c => c.ServerName == request.ServerName))
-//                {
-//                    //update config
-//                    ConfigRepo.UpdateConfiguration(request.Game, request.ServerName, request.MasterPeers, request.GamePeers);
-//                }
-//                else
-//                {
-//                    //create config
-//                    ConfigRepo.CreateConfiguration(request.Game, request.ServerName, "", "0", request.Region, request.MasterPeers,
-//                        request.GamePeers);
-//                }
+                var serverInfoId = await ConfigRepo.GetServerId(request.ServerIdentity);
+                if (serverInfoId == null)
+                {
+                    //create
+                    serverInfoId = await ConfigRepo.CreateServerInfo(new ServerInfo(request.ServerIdentity, request.Name, request.Region, request.HttpPort, request.HttpsPort));
+                }
+                ConfigRepo.UpdateServerInfoActualizedOn(serverInfoId.Value, request.PeersCount, request.Name, request.Region, request.HttpPort, request.HttpsPort);
             }
             catch (Exception ex)
             {
@@ -151,7 +144,7 @@ namespace Shaman.Router.Controllers
                 LogError($"{ex.ToString()}");
             }
 
-            return new FileContentResult(response.Serialize(SerializerFactory), "text/html");
+            return new FileContentResult(Serializer.Serialize(response), "text/html");
         }
    
         [HttpPost]
@@ -159,7 +152,7 @@ namespace Shaman.Router.Controllers
         {
             var input = await Request.GetRawBodyBytesAsync();
 
-            var request = MessageBase.DeserializeAs<GetBackendsListRequest>(SerializerFactory, input);//ActualizeServerRequest.Deserialize(input) as ActualizeServerRequest;
+            var request = Serializer.DeserializeAs<GetBackendsListRequest>(input);//ActualizeServerRequest.Deserialize(input) as ActualizeServerRequest;
             var response = new GetBackendsListResponse();
             
             try
@@ -172,7 +165,30 @@ namespace Shaman.Router.Controllers
                 LogError($"{ex.ToString()}");
             }
 
-            return new FileContentResult(response.Serialize(SerializerFactory), "text/html");
+            return new FileContentResult(Serializer.Serialize(response), "text/html");
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> GetServerInfoList()
+        {
+            var input = await Request.GetRawBodyBytesAsync();
+
+            var request = Serializer.DeserializeAs<GetServerInfoListRequest>(input);
+            var response = new GetServerInfoListResponse();
+            
+            try
+            {
+                response.ServerInfoList = new EntityDictionary<ServerInfo>(_serverInfoProvider.GetAllServers().Where(s =>
+                    !request.ActualOnly || (request.ActualOnly && s.IsApproved && s.IsActual(10000))));
+
+            }
+            catch (Exception ex)
+            {
+                response.SetError(ex.Message);
+                LogError($"{ex.ToString()}");
+            }
+
+            return new FileContentResult(Serializer.Serialize(response), "text/html");
         }
     }
 }

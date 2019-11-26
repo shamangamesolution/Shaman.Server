@@ -8,15 +8,15 @@ namespace Shaman.DAL.MySQL
     public class SqlDal
      {
          private MySqlConnection connection;
-         private string server;
-         private string database;
-         private string uid;
-         private string password;
+         private readonly string server;
+         private readonly string database;
+         private readonly string uid;
+         private readonly string password;
 
-         private Action<string> _logError = null;
+         private readonly Action<string> _logError;
          
          //Constructor
-         public SqlDal(string dbServer, string dbName, string dbUser, string dbPassword, Action<string> logError)
+         public SqlDal(string dbServer, string dbName, string dbUser, string dbPassword, int maxPoolSize, Action<string> logError)
          {
              _logError = logError;
              
@@ -25,20 +25,14 @@ namespace Shaman.DAL.MySQL
              uid = dbUser;
              password = dbPassword;
  
-             Initialize();
+             Initialize(maxPoolSize);
          }
  
          //Initialize values
-         private void Initialize()
+         private void Initialize(int maxPoolSize)
          {
- 
- 
-             string connectionString;
- 
-             connectionString = "SERVER=" + server + ";" + "DATABASE=" +
-             database + ";" + "UID=" + uid + ";" + "PASSWORD=" + password + ";Max Pool Size=4000;";
- 
-             connection = new MySqlConnection(connectionString);
+             connection = new MySqlConnection(
+                 $"SERVER={server};DATABASE={database};UID={uid};PASSWORD={password};Max Pool Size={maxPoolSize};");
          }
  
          //open connection to database

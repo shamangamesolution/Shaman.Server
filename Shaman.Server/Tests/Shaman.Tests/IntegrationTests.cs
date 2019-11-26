@@ -1,30 +1,31 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Moq;
 using NUnit.Framework;
-using Shaman.Common.Server.Senders;
+using Shaman.Common.Server.Providers;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Game;
 using Shaman.Game.Configuration;
-using Shaman.Game.Data;
+using Shaman.Game.Contract;
+using Shaman.Game.Metrics;
 using Shaman.Game.Rooms;
-using Shaman.Game.Rooms.GameModeControllers;
-using Shaman.Game.Rooms.RoomProperties;
 using Shaman.MM;
 using Shaman.MM.Configuration;
 using Shaman.MM.MatchMaking;
 using Shaman.MM.Players;
-using Shaman.MM.Servers;
 using Shaman.ServerSharedUtilities.Backends;
-using Shaman.Tests.ClientPeers;
 using Shaman.Tests.GameModeControllers;
 using Shaman.Messages;
 using Shaman.Messages.Authorization;
-using Shaman.Messages.General.Entity;
-using Shaman.Messages.General.Entity.Storage;
 using Shaman.Messages.MM;
 using Shaman.Messages.RoomFlow;
+using Shaman.MM.Metrics;
+using Shaman.MM.Providers;
+using Shaman.Tests.Providers;
+using Shaman.TestTools.ClientPeers;
+using GameProject = Shaman.Messages.General.Entity.GameProject;
 
 namespace Shaman.Tests
 {
@@ -34,8 +35,8 @@ namespace Shaman.Tests
         private const string CLIENT_CONNECTS_TO_IP = "127.0.0.1";
         private const ushort SERVER_PORT_GAME = 23451;
         private const ushort SERVER_PORT_MM = 23452;
-        private const ushort WAIT_TIMEOUT = 100;
-        private const ushort MM_TICK = 1000;
+        private const ushort WAIT_TIMEOUT = 1000;
+        private const ushort MM_TICK = 250;
         private const ushort CLIENTS_NUMBER_1 = 12;
         private const ushort CLIENTS_NUMBER_2 = 100;
         
@@ -45,72 +46,65 @@ namespace Shaman.Tests
         private GameApplication _gameApplication;
         private MmApplication _mmApplication;
 
-        private IRegisteredServerCollection serverCollection = null; 
         private IPlayerCollection playerCollection = null; 
         private IMatchMaker matchMaker;// = new MatchMaker();
         private List<MatchMakingGroup> matchMakingGroups = new List<MatchMakingGroup>();
         private IRequestSender requestSender = null;
         private List<TestClientPeer> _clients = new List<TestClientPeer>();
         private IBackendProvider _backendProvider;
-        private IStorageContainer _storageContainer;
-        private IRoomPropertiesContainer _roomPropertiesContainer;
         private IRoomManager _roomManager;
         private IGameModeControllerFactory _gameModeControllerFactory;
-        private IPacketSender _packetSender;
+        private IPacketSender _mmPacketSender, _gamePacketSender;
+        private IStatisticsProvider _statsProvider;
+        private IMatchMakerServerInfoProvider _serverProvider;
+        
         private Guid CreateRoomDelegate(Dictionary<byte, object> properties)
         {
             return _gameApplication.CreateRoom(properties, new Dictionary<Guid, Dictionary<byte, object>>());
         }
 
-        private void ActualizeServerDelegate(ActualizeServerRequest request)
+        private void UpdateRoomDelegate(Guid roomId)
         {
-            _mmApplication.ActualizeServer(request);
+            _gameApplication.UpdateRoom(roomId, new Dictionary<Guid, Dictionary<byte, object>>());
         }
         
         [SetUp]
         public void Setup()
         {             
             _clients.Clear();
-            var config = new MmApplicationConfig("127.0.0.1", new ushort[] {SERVER_PORT_MM}, "", 120000, 120000, GameProject.DefaultGame, "", "");
-            playerCollection = new PlayerCollection(_serverLogger, serializerFactory);
+            var config = new MmApplicationConfig("", "127.0.0.1", new List<ushort> {SERVER_PORT_MM}, "", 120000, 120000, GameProject.DefaultGame, "");
+            playerCollection = new PlayerCollection(_serverLogger, Mock.Of<IMmMetrics>());
             taskSchedulerFactory = new TaskSchedulerFactory(_serverLogger);
-            serverCollection = new RegisteredServersCollection(_serverLogger, config, taskSchedulerFactory);
             //fake sender to direct calls of application functions
-            requestSender = new FakeSenderWithGameApplication(new Dictionary<byte, object> {{PropertyCode.RoomProperties.GameMode, (byte) GameMode.DefaultGameMode}}, CreateRoomDelegate, ActualizeServerDelegate);
+            requestSender = new FakeSenderWithGameApplication(new Dictionary<byte, object> {{PropertyCode.RoomProperties.GameMode, (byte) GameMode.SinglePlayer}}, CreateRoomDelegate,  UpdateRoomDelegate);
             _backendProvider = new BackendProvider(taskSchedulerFactory, config, requestSender, _serverLogger);
-            
             var gameConfig = new GameApplicationConfig(
+                "","",
                 "127.0.0.1",
-                new ushort[] {SERVER_PORT_GAME},
+                new List<ushort> {SERVER_PORT_GAME},
                 "",
                 "",
                 7000);
-            _packetSender = new PacketBatchSender(taskSchedulerFactory, gameConfig, serializerFactory);
-            
-            matchMaker = new MatchMaker(serverCollection, playerCollection, _serverLogger, taskSchedulerFactory, serializerFactory, _packetSender);
-            matchMaker.AddMatchMakingGroup(TOTAL_PLAYERS_NEEDED_1, MM_TICK, false, true, 5000, new Dictionary<byte, object>() {{PropertyCode.RoomProperties.GameMode, (byte) GameMode.DefaultGameMode}}, new Dictionary<byte, object> {{PropertyCode.PlayerProperties.Level, 1}});
+            _mmPacketSender = new PacketBatchSender(taskSchedulerFactory, config, serializerFactory);
+            _gamePacketSender = new PacketBatchSender(taskSchedulerFactory, gameConfig, serializerFactory);
+
+            var createdRoomManager = new CreatedRoomManager(taskSchedulerFactory, _serverLogger);
+            _statsProvider = new MM.Providers.StatisticsProvider(playerCollection);
+            //_serverProvider = new MatchMakerServerInfoProvider(requestSender, taskSchedulerFactory, config, _serverLogger, _statsProvider);
+            _serverProvider = new FakeMatchMakerServerInfoProvider(requestSender, "127.0.0.1", $"{SERVER_PORT_GAME}");
+
+            matchMaker = new MatchMaker(playerCollection, _serverLogger, taskSchedulerFactory, serializerFactory, _mmPacketSender, Mock.Of<IMmMetrics>(), createdRoomManager, _serverProvider);
+            matchMaker.AddMatchMakingGroup(TOTAL_PLAYERS_NEEDED_1, MM_TICK, false, true, 5000, 120000, new Dictionary<byte, object>() {{PropertyCode.RoomProperties.GameMode, (byte) GameMode.SinglePlayer}}, new Dictionary<byte, object> {{PropertyCode.PlayerProperties.Level, 1}});
             
             //setup mm server
-            _mmApplication = new MmApplication(_serverLogger, config, serializerFactory, socketFactory, serverCollection, playerCollection, matchMaker,requestSender, taskSchedulerFactory, _backendProvider, _packetSender);
+            _mmApplication = new MmApplication(_serverLogger, config, serializerFactory, socketFactory, playerCollection, matchMaker,requestSender, taskSchedulerFactory, _backendProvider, _mmPacketSender, createdRoomManager, _serverProvider);
             _mmApplication.SetMatchMakerProperties(new List<byte> {PropertyCode.PlayerProperties.Level});
             
             _mmApplication.Start();
-            
-            _storageContainer = new GameServerStorageContainer(
-                requestSender, 
-                new GameServerStorageUpdater(
-                    requestSender,
-                    _serverLogger,
-                    _backendProvider,
-                    serializerFactory),
-                _serverLogger,
-                serializerFactory,
-                taskSchedulerFactory);
-            
-            _roomPropertiesContainer = new RoomPropertiesContainer(_serverLogger);
+
             _gameModeControllerFactory = new FakeGameModeControllerFactory();
 
-            _roomManager = new RoomManager(_serverLogger, serializerFactory, gameConfig, taskSchedulerFactory, requestSender, _backendProvider, _gameModeControllerFactory, _roomPropertiesContainer, _storageContainer, _packetSender);
+            _roomManager = new RoomManager(_serverLogger, serializerFactory, gameConfig, taskSchedulerFactory, _gameModeControllerFactory, _mmPacketSender, Mock.Of<IGameMetrics>());
 
             
             //setup game server
@@ -122,9 +116,8 @@ namespace Shaman.Tests
                 taskSchedulerFactory, 
                 requestSender, 
                 _backendProvider,
-                _storageContainer,
                 _roomManager,
-                _packetSender);
+                _gamePacketSender);
             
             _gameApplication.Start();
             
@@ -148,16 +141,19 @@ namespace Shaman.Tests
                 var client = new TestClientPeer( _clientLogger, taskSchedulerFactory);
                 client.Connect(CLIENT_CONNECTS_TO_IP, SERVER_PORT_MM);
                 _clients.Add(client);
+                EmptyTask.Wait(WAIT_TIMEOUT);
             }
             
             //send auth
             _clients.ForEach(c => c.Send(new AuthorizationRequest(1, Guid.NewGuid())));
-            EmptyTask.Wait(WAIT_TIMEOUT);
+            EmptyTask.Wait(WAIT_TIMEOUT * CLIENTS_NUMBER_1);
+            
             //check auth success
             isSuccess = true;
             _clients.ForEach(c =>
             {
-                if (c.GetCountOfSuccessResponses(CustomOperationCode.Authorization) == 0)
+                var countOfSuccessResponses = c.GetCountOfSuccessResponses(CustomOperationCode.Authorization);
+                if (countOfSuccessResponses == 0)
                     isSuccess = false;
             });
             Assert.IsTrue(isSuccess);
@@ -262,6 +258,7 @@ namespace Shaman.Tests
                 var client = new TestClientPeer(_clientLogger, taskSchedulerFactory);
                 client.Connect(CLIENT_CONNECTS_TO_IP, SERVER_PORT_MM);
                 _clients.Add(client);
+                EmptyTask.Wait(WAIT_TIMEOUT);
             }
             
             //send auth

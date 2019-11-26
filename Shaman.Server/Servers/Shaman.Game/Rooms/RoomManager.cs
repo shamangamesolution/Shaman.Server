@@ -4,67 +4,70 @@ using System.Collections.Generic;
 using System.Linq;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Server.Peers;
-using Shaman.Common.Server.Senders;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Serialization;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Game.Configuration;
-using Shaman.Game.Rooms.GameModeControllers;
+using Shaman.Game.Contract;
+using Shaman.Game.Contract.Stats;
+using Shaman.Game.Metrics;
 using Shaman.Game.Rooms.RoomProperties;
-using Shaman.ServerSharedUtilities.Backends;
+using Shaman.GameBundleContract;
 using Shaman.Messages;
-using Shaman.Messages.General;
-using Shaman.Messages.General.Entity.Storage;
 using Shaman.Messages.RoomFlow;
 
 namespace Shaman.Game.Rooms
 {
     public class RoomManager : IRoomManager
     {
-        private ITaskSchedulerFactory _taskSchedulerFactory;
-        private ITaskScheduler _taskScheduler;
+        private readonly ITaskSchedulerFactory _taskSchedulerFactory;
+        private readonly ITaskScheduler _taskScheduler;
         private readonly ConcurrentDictionary<Guid, IRoom> _rooms = new ConcurrentDictionary<Guid, IRoom>();
         private readonly ConcurrentDictionary<Guid, IRoom> _sessionsToRooms = new ConcurrentDictionary<Guid, IRoom>();
-        private IShamanLogger _logger;
-        private ISerializerFactory _serializerFactory;
-        private object _syncPeersList = new object();
-        private IApplicationConfig _config;
-        private IRequestSender _requestSender;
-        private IBackendProvider _backendProvider;
-        private IGameModeControllerFactory _gameModeControllerFactory;
-        private IRoomPropertiesContainer _roomPropertiesContainer;
-        private IStorageContainer _storageContainer;
-        private IPacketSender _packetSender;
+        private readonly IShamanLogger _logger;
+        private readonly ISerializer _serializer;
+        private readonly object _syncPeersList = new object();
+        private readonly IApplicationConfig _config;
+        private readonly IGameModeControllerFactory _gameModeControllerFactory;
+        private readonly IPacketSender _packetSender;
+        private readonly IGameMetrics _gameMetrics;
+        private static readonly TimeSpan RoomLivingTimeAfterGameEnd = TimeSpan.FromMinutes(15);
+
         public RoomManager(
             IShamanLogger logger, 
-            ISerializerFactory serializerFactory, 
+            ISerializer serializer, 
             IApplicationConfig config, 
             ITaskSchedulerFactory taskSchedulerFactory, 
-            IRequestSender requestSender, 
-            IBackendProvider backendProvider, 
             IGameModeControllerFactory gameModeControllerFactory,
-            IRoomPropertiesContainer roomPropertiesContainer,
-            IStorageContainer storageContainer, IPacketSender packetSender)
+            IPacketSender packetSender, IGameMetrics gameMetrics)
         {
             _logger = logger;
-            _serializerFactory = serializerFactory;
+            _serializer = serializer;
             _taskSchedulerFactory = taskSchedulerFactory;
-            _requestSender = requestSender;
-            _backendProvider = backendProvider;
             _gameModeControllerFactory = gameModeControllerFactory;
             _taskScheduler = _taskSchedulerFactory.GetTaskScheduler();
             _taskScheduler.ScheduleOnInterval(CheckRoomsState, 0, 60000);
             _config = config;
             _taskSchedulerFactory = taskSchedulerFactory;
-            _roomPropertiesContainer = roomPropertiesContainer;
-            _storageContainer = storageContainer;
             _packetSender = packetSender;
+            _gameMetrics = gameMetrics;
         }
 
         private void CheckRoomsState()
         {
+            foreach (var room in _rooms)
+            {
+                var roomValue = room.Value;
+                if (DateTime.UtcNow - (roomValue.GetCreatedOnDateTime() + roomValue.GetRoomTtl()) >
+                    RoomLivingTimeAfterGameEnd)
+                {
+                    _logger?.Error($"Room destroy with peers count {roomValue.GetPeerCount()}");
+                    DeleteRoom(roomValue.GetRoomId());
+                }
+            }
+
             lock (_syncPeersList)
             {
                 _logger.Info($"Rooms state: Room count {GetRoomsCount()}, peers count {GetPlayersCount()}");
@@ -96,17 +99,44 @@ namespace Shaman.Game.Rooms
         {
             lock (_syncPeersList)
             {
-                _roomPropertiesContainer.Initialize(players, properties);
+                var roomPropertiesContainer = new RoomPropertiesContainer(_logger);
+                var packetSender = new PacketBatchSender(_taskSchedulerFactory, _config, _serializer);
+                
+                packetSender.Start(true);
+                
+                roomPropertiesContainer.Initialize(players, properties);
 
-                var room = new Room(_logger, _taskSchedulerFactory, _requestSender, this, _backendProvider, _serializerFactory, _storageContainer, _roomPropertiesContainer, _gameModeControllerFactory, _packetSender);
-                _rooms.TryAdd(room.GetRoomId(), room);
-                //start room self destroy logic if rom is empty
+                var room = new Room(_logger, _taskSchedulerFactory, this, _serializer, roomPropertiesContainer, _gameModeControllerFactory, packetSender);
+
+                if(_rooms.TryAdd(room.GetRoomId(), room))
+                    _gameMetrics.TrackRoomCreated();
+                //start room self destroy logic if room is empty
                 _taskScheduler.Schedule(() =>
                 {
-                    if (room.GetPeerCount() == 0)
+                    var peerCount = room.GetPeerCount();
+                    if (peerCount == 0)
+                    {
                         DeleteRoom(room.GetRoomId());
+                    }
                 }, ((GameApplicationConfig)_config).DestroyEmptyRoomOnMs);
                 return room.GetRoomId();
+            }
+        }
+
+        public void UpdateRoom(Guid roomId, Dictionary<Guid, Dictionary<byte, object>> players)
+        {
+            lock (_syncPeersList)
+            {
+                var room = GetRoomById(roomId);
+                if (room != null)
+                {
+                    room.UpdateRoom(players);
+                }
+                else
+                {
+                    _logger?.Error($"UpdateRoom error: can not find room {roomId} to add new players");
+                    return;
+                }
             }
         }
 
@@ -115,8 +145,38 @@ namespace Shaman.Game.Rooms
             lock (_syncPeersList)
             {
                 var room = GetRoomById(roomId);
+                var roomStats = room?.GetStats();
                 room?.CleanUp();
-                _rooms.TryRemove(roomId, out room);
+                if (_rooms.TryRemove(roomId, out room))
+                    TrackRoomMetricsOnDelete(roomStats);
+            }
+        }
+
+        private void TrackRoomMetricsOnDelete(RoomStats roomStats)
+        {
+            _gameMetrics.TrackRoomDestroyed();
+            if (roomStats != null)
+            {
+                _gameMetrics.TrackMaxSendQueueSize(roomStats.GetMaxQueueSize());
+                _gameMetrics.TrackAvgSendQueueSize((int) (roomStats.GetAvgQueueSize() * 100));
+                
+                _gameMetrics.TrackRoomTotalTrafficSent(roomStats.TotalTrafficSent);
+                _gameMetrics.TrackRoomTotalTrafficReceived(roomStats.TotalTrafficReceived);
+                _gameMetrics.TrackTotalRoomLiveTime(roomStats.TotalLiveTimeSec);
+                var messageStatistics = roomStats.BuildMessageStatistics();
+
+                _gameMetrics.TrackRoomTotalMessagesReceived(messageStatistics.Received.Sum(m => m.Item3));
+                _gameMetrics.TrackRoomTotalMessagesSent(messageStatistics.Sent.Sum(m => m.Item3));
+
+                foreach (var item in messageStatistics.Received)
+                {
+                    _gameMetrics.TrackRoomTotalMessagesReceived(item.Item3, item.Item1.ToString());
+                }
+
+                foreach (var item in messageStatistics.Sent)
+                {
+                    _gameMetrics.TrackRoomTotalMessagesSent(item.Item3, item.Item1.ToString());
+                }
             }
         }
 
@@ -156,12 +216,15 @@ namespace Shaman.Game.Rooms
                 var room = GetRoomById(roomId);
                 if (room == null)
                 {
-                    _logger.Error($"Peer {peer.GetSessionId()} attempted to join to non-exist room {roomId}");
-                    _packetSender.AddPacket(new JoinRoomResponse() {ResultCode = ResultCode.RequestProcessingError}, peer);
-                    return;
+                    var message = $"Peer {peer.GetSessionId()} attempted to join to non-exist room {roomId}";
+                    _logger.Error(message);
+                    throw new Exception(message);
                 }
 
-                room.PeerJoined(peer, "", peerProperties);
+                if (room.PeerJoined(peer, peerProperties))
+                {
+                    _gameMetrics.TrackPeerJoin();
+                }
             }
         }
 
@@ -191,6 +254,7 @@ namespace Shaman.Game.Rooms
 
                 room.PeerDisconnected(sessionId);
                 _sessionsToRooms.TryRemove(sessionId, out var room1);
+                _gameMetrics.TrackPeerDisconnected();
 
                 if (room.GetPeerCount() == 0)
                 {
@@ -199,23 +263,17 @@ namespace Shaman.Game.Rooms
             }
         }
 
-        public void ProcessMessage(MessageBase message, IPeer peer)
+        public void ProcessMessage(ushort operationCode, MessageData message, IPeer peer)
         {
             try
             {
                 //room manager handles only room flow messages, others are sent to particular room
-                switch (message.OperationCode)
+                switch (operationCode)
                 {
                     case CustomOperationCode.JoinRoom:
                         try
                         {
-                            var joinMessage = message as JoinRoomRequest;
-                            if (joinMessage == null)
-                            {
-                                _logger.Error($"Error casting to {typeof(JoinRoomRequest)}");
-                                return;
-                            }
-
+                            var joinMessage = _serializer.DeserializeAs<JoinRoomRequest>(message.Buffer, message.Offset, message.Length);
                             PeerJoined(peer, joinMessage.RoomId, joinMessage.Properties);
                         }
                         catch (Exception ex)
@@ -235,13 +293,13 @@ namespace Shaman.Game.Rooms
                             return;
                         }
 
-                        room.ProcessMessage(message, peer.GetSessionId());
+                        room.ProcessMessage(operationCode, message, peer.GetSessionId());
                         break;
                 }
             }
             catch (Exception ex)
             {
-                _logger.Error($"RoomManager.ProcessMessage: Error processing {message.OperationCode} message: {ex}");
+                _logger.Error($"RoomManager.ProcessMessage: Error processing {operationCode} message: {ex}");
             }
 
         }

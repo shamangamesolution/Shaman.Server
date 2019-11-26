@@ -4,6 +4,7 @@ using System.Net;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
 using Serilog;
 using Serilog.Events;
 using ILogger = Serilog.ILogger;
@@ -13,30 +14,33 @@ namespace Shaman.MM
     
     public class Program
     {
-        public static void Main(string[] args)
+        internal static void Main(string[] args)
         {
-            var isDevelopment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
-
             //read config
-            var configurationBuilder = new ConfigurationBuilder()
+            var config = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: false)
-                .AddEnvironmentVariables();
-            
-            if (isDevelopment)
-            {
-                configurationBuilder.AddJsonFile("appsettings.development.json", true);
-            }
-
-            var config = configurationBuilder.Build();
+                .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", true)
+                .AddEnvironmentVariables()
+                .Build();
 
 
-            var logger = Log.Logger = new LoggerConfiguration()
+            Start(config);
+        }
+
+        public static void Start(IConfigurationRoot config)
+        {
+            var logEventLevel = Enum.Parse<LogEventLevel>(config["Serilog:MinimumLevel"], ignoreCase: true);
+            var consoleLogLevel = Enum.Parse<LogLevel>(config["ConsoleLogLevel"], ignoreCase: true);
+            var loggerConfiguration = new LoggerConfiguration()
                 .Enrich.FromLogContext()
-                .MinimumLevel.Is(Enum.Parse<LogEventLevel>(config["Serilog:MinimumLevel"], ignoreCase: true))
-                .WriteTo.Loggly(customerToken: config["Serilog:customerToken"])
-                .CreateLogger();
-            
+                .MinimumLevel.Is(logEventLevel);
+
+            if (!string.IsNullOrEmpty(config["Serilog:customerToken"]))
+                loggerConfiguration.WriteTo.Loggly(customerToken: config["Serilog:customerToken"]);
+
+            var logger = Log.Logger = loggerConfiguration.CreateLogger();
+
             SubscribeOnUnhandledException(logger);
 
             var ip = config["BindToIP"];
@@ -55,16 +59,14 @@ namespace Shaman.MM
 
             //run host       
             var host = new WebHostBuilder()
-                .UseKestrel(options =>
-                {
-                    options.Listen(IPAddress.Parse(ip), port);
-                })
+                .UseKestrel(options => { options.Listen(IPAddress.Parse(ip), port); })
                 .UseConfiguration(config)
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .ConfigureLogging(builder =>
                 {
                     builder
                         .AddConsole()
+                        .AddFilter<ConsoleLoggerProvider>("Microsoft", consoleLogLevel)
                         .AddSerilog(logger, dispose: true);
                 })
                 .UseStartup<Startup>()

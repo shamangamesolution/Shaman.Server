@@ -8,13 +8,10 @@ using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Serialization;
 using Shaman.Common.Utils.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
-using Shaman.HazelAdapter;
-using Shaman.Messages.General.DTO.Responses;
+using Shaman.LiteNetLibAdapter;
 using Shaman.Messages.General.DTO.Responses.Auth;
 using Shaman.Messages.General.DTO.Responses.Router;
-using Shaman.Messages.General.Entity;
 using Shaman.Messages.General.Entity.Router;
-using Shaman.Messages.MM;
 using Shaman.Messages.RoomFlow;
 
 namespace Shaman.Tests
@@ -32,8 +29,8 @@ namespace Shaman.Tests
             if (typeof(T) == typeof(ValidateSessionIdResponse))
                 return new ValidateSessionIdResponse() {ResultCode = ResultCode.OK} as T;
 
-            if (typeof(T) == typeof(InitializationResponse))
-                return new InitializationResponse(SerializationRules.AllInfo, new Player(), Guid.NewGuid()) {ResultCode = ResultCode.OK} as T;
+//            if (typeof(T) == typeof(InitializationResponse))
+//                return new InitializationResponse(SerializationRules.AllInfo, new Player(), Guid.NewGuid()) {ResultCode = ResultCode.OK} as T;
             
             return new T();
         }
@@ -48,26 +45,27 @@ namespace Shaman.Tests
             else
             if (typeof(T) == typeof(ValidateSessionIdResponse))
                 callback(new ValidateSessionIdResponse() {ResultCode = ResultCode.OK} as T);
-            else         
-            if (typeof(T) == typeof(InitializationResponse))
-                callback(new InitializationResponse(SerializationRules.AllInfo, new Player(), Guid.NewGuid()) as T);
+//            else         
+//            if (typeof(T) == typeof(InitializationResponse))
+//                callback(new InitializationResponse(SerializationRules.AllInfo, new Player(), Guid.NewGuid()) as T);
             else
                 callback(new T());
         }
+
     }
     
     public class FakeSenderWithGameApplication : IRequestSender
     {
         private Func<Dictionary<byte, object>, Guid> _createRoomDelegate;
-        private Action<ActualizeServerRequest> _actualizeDelegate;
+        private Action<Guid> _updateRoomDelegate;
         
         private Dictionary<byte, object> _roomProperties;
         
-        public FakeSenderWithGameApplication( Dictionary<byte, object> roomProperties, Func<Dictionary<byte, object>, Guid> createRoomDelegate, Action<ActualizeServerRequest> actualizeDelegate)
+        public FakeSenderWithGameApplication( Dictionary<byte, object> roomProperties, Func<Dictionary<byte, object>, Guid> createRoomDelegate, Action<Guid> updateRoomDelegate)
         {
             _roomProperties = roomProperties;
             _createRoomDelegate = createRoomDelegate;
-            _actualizeDelegate = actualizeDelegate;
+            _updateRoomDelegate = updateRoomDelegate;
         }
         
         public async Task<T> SendRequest<T>(string url, RequestBase request) where T : ResponseBase, new()
@@ -77,11 +75,11 @@ namespace Shaman.Tests
                 var roomId = _createRoomDelegate(_roomProperties);
                 return new CreateRoomResponse(roomId) as T;
             }
-            
-            if (typeof(T) == typeof(ActualizeServerResponse))
+            if (typeof(T) == typeof(UpdateRoomResponse))
             {
-                _actualizeDelegate(request as ActualizeServerRequest);
-                return new ActualizeServerResponse() as T;
+                var req = request as UpdateRoomRequest;
+                _updateRoomDelegate(req.RoomId);
+                return new UpdateRoomResponse() as T;
             }
             
             if (typeof(T) == typeof(GetBackendsListResponse))
@@ -90,8 +88,8 @@ namespace Shaman.Tests
 //            if (typeof(T) == typeof(ValidateSessionIdResponse))
 //                return new ValidateSessionIdResponse() {ResultCode = ResultCode.OK} as T;
             
-            if (typeof(T) == typeof(InitializationResponse))
-                return new InitializationResponse(SerializationRules.AllInfo, new Player(), Guid.NewGuid()) as T;
+//            if (typeof(T) == typeof(InitializationResponse))
+//                return new InitializationResponse(SerializationRules.AllInfo, new Player(), Guid.NewGuid()) as T;
             
             return new T();
         }
@@ -104,35 +102,28 @@ namespace Shaman.Tests
                 callback(new CreateRoomResponse(roomId) as T);
             }
             else
-            if (typeof(T) == typeof(ActualizeServerResponse))
-            {
-                _actualizeDelegate(request as ActualizeServerRequest);
-                callback(new ActualizeServerResponse() as T);
-            }
-            else
             if (typeof(T) == typeof(GetBackendsListResponse))
                 callback(new GetBackendsListResponse(new List<Backend> {new Backend(1, "", 5555)}) as T);
             else
             if (typeof(T) == typeof(ValidateSessionIdResponse))
                 callback(new ValidateSessionIdResponse() {ResultCode = ResultCode.OK} as T);
-            else
-            if (typeof(T) == typeof(InitializationResponse))
-                callback(new InitializationResponse(SerializationRules.AllInfo, new Player(), Guid.NewGuid()) as T);
+//            else
+//            if (typeof(T) == typeof(InitializationResponse))
+//                callback(new InitializationResponse(SerializationRules.AllInfo, new Player(), Guid.NewGuid()) as T);
             else
                 callback(new T());
         }
     }
-    
     [TestFixture]
     public class TestSetBase
     {
         //protected List<MessageBase> _receivedMessages = new List<MessageBase>();
         protected IShamanLogger _clientLogger = new ConsoleLogger("C ", LogLevel.Error | LogLevel.Info | LogLevel.Debug);
-        protected IShamanLogger _serverLogger = new ConsoleLogger("S ", LogLevel.Error );
-        protected ISerializerFactory serializerFactory;
+        protected IShamanLogger _serverLogger = new ConsoleLogger("S ", LogLevel.Error | LogLevel.Info);
+        protected ISerializer serializerFactory;
         
         //switch Sockets implementation.BEGIN
-        protected ISocketFactory socketFactory = new HazelSockFactory();
+        protected ISocketFactory socketFactory = new LiteNetSockFactory();
         //switch sockets implementation.END
         
         protected ITaskSchedulerFactory taskSchedulerFactory = null;
@@ -142,7 +133,7 @@ namespace Shaman.Tests
 
         public TestSetBase()
         {
-            serializerFactory = new SerializerFactory(_serverLogger);
+            serializerFactory = new BinarySerializer();
             taskSchedulerFactory = new TaskSchedulerFactory(_serverLogger);
         }
         

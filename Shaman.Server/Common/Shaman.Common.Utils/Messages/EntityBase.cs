@@ -1,58 +1,23 @@
-using System.IO;
 using Shaman.Common.Utils.Serialization;
 
 namespace Shaman.Common.Utils.Messages
 {
-    public abstract class EntityBase : SerializableBase
+    public abstract class EntityBase : ISerializable
     {
         public int Id { get; set; }
-        //serialization
-        protected abstract void SerializeBody(ISerializer serializer);        
 
-        public override byte[] Serialize(ISerializer serializer)
+        public void Serialize(ITypeWriter typeWriter)
         {
-            serializer.WriteInt(this.Id);
-            SerializeBody(serializer);
-            var buffer = serializer.GetDataBuffer();
-            serializer.GetLogger().Debug($"Serialized entity {this.GetType()}. Current buffer size {serializer.GetCurrentBufferSize()}");
-            if (ToFlush)
-                serializer.Flush();
-            return buffer;
+            typeWriter.Write(Id);
+            SerializeBody(typeWriter);
         }
-        
-        //deserialization
-        protected abstract void DeserializeBody(ISerializer serializer);
 
-        private void Deserialize(ISerializer serializer, byte[] param)
+        public void Deserialize(ITypeReader typeReader)
         {
-            var stream = new MemoryStream(param, 0, param.Length, true);
-            serializer.SetStream(stream);
-            this.Id = serializer.ReadInt();
-            this.DeserializeBody(serializer);
+            Id = typeReader.ReadInt();
+            DeserializeBody(typeReader);
         }
-        
-        private void Deserialize(ISerializer serializer)
-        {
-            this.Id = serializer.ReadInt();
-            this.DeserializeBody(serializer);
-        }
-        
-        public static T DeserializeAs<T>(ISerializerFactory serializerFactory, byte[] param)
-            where T : EntityBase, new()
-        {
-            var result = new T();
-            var serializer = result.GetSerializer(serializerFactory);
-            result.Deserialize(serializer, param);
-            return result;
-        }   
-        
-        
-        public static T DeserializeAs<T>(ISerializer serializer)
-            where T : EntityBase, new()
-        {
-            var result = new T();
-            result.Deserialize(serializer);
-            return result;
-        } 
+        protected abstract void SerializeBody(ITypeWriter typeWriter);
+        protected abstract void DeserializeBody(ITypeReader typeReader);
     }
 }

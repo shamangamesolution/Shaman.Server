@@ -14,7 +14,7 @@ namespace Shaman.DAL.Repositories
 
         private IShamanLogger Logger;       
         
-        public void Initialize(string dbServer, string dbName, string dbUser, string dbPassword, IShamanLogger logger)
+        public void Initialize(string dbServer, string dbName, string dbUser, string dbPassword, int maxPoolSize, IShamanLogger logger)
         {
             Logger = logger;
             DbServer = dbServer;
@@ -24,12 +24,20 @@ namespace Shaman.DAL.Repositories
             
            
             //init dal
-            dal = new SqlDal(DbServer, DbName, DbUser, DbPassword, (s) =>
+            dal = new SqlDal(DbServer, DbName, DbUser, DbPassword, maxPoolSize, (s) =>
             {
                 Logger.Error("DAL", "dal", s);
             });
         }
 
+        protected int? GetId(DataTable dt)
+        {
+            if (dt == null || dt.Rows.Count == 0)
+                return null;
+
+            return GetNullableInt(dt.Rows[0]["id"]);
+        }
+        
         protected void LogInfo(string source, string message)
         {
             Logger.Info("DAL", source, message);
@@ -105,6 +113,18 @@ namespace Shaman.DAL.Repositories
             try
             {
                 return (obj == null || obj is DBNull) ? 0 : Convert.ToUInt32(obj);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error converting {obj} field", ex);
+            }
+        }
+        
+        protected ulong GetULong(object obj)
+        {
+            try
+            {
+                return (obj == null || obj is DBNull) ? 0 : Convert.ToUInt64(obj);
             }
             catch (Exception ex)
             {

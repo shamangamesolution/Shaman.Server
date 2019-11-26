@@ -8,24 +8,24 @@ namespace Shaman.Messages.RoomFlow
     {
         public Guid RoomId { get; set; }
         
-        public CreateRoomResponse(Guid roomId) : base(Messages.CustomOperationCode.CreateRoom)
+        public CreateRoomResponse(Guid roomId) : base(CustomOperationCode.CreateRoom)
         {
             this.RoomId = roomId;
         }
 
-        public CreateRoomResponse() : base(Messages.CustomOperationCode.CreateRoom)
+        public CreateRoomResponse() : base(CustomOperationCode.CreateRoom)
         {
             
         }
 
-        protected override void SerializeResponseBody(ISerializer serializer)
+        protected override void SerializeResponseBody(ITypeWriter typeWriter)
         {
-            serializer.WriteBytes(RoomId.ToByteArray());
+            typeWriter.Write(RoomId);
         }
 
-        protected override void DeserializeResponseBody(ISerializer serializer)
+        protected override void DeserializeResponseBody(ITypeReader typeReader)
         {
-            this.RoomId = new Guid(serializer.ReadBytes());
+            RoomId = typeReader.ReadGuid();
         }
     }
 }

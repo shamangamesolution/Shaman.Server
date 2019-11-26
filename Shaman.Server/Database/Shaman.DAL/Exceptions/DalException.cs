@@ -8,6 +8,13 @@ namespace Shaman.DAL.Exceptions
         PlayerNotFound,
         GeneralException,
         VersionWasNotFound,
+        ExternalAccountWasNotFound,
+        PlayerRobotNotFound,
+        UpgradeWasNotFound,
+        ShopItemWasNotFound,
+        PackageWasNotFound,
+        MedalsWereNotFound,
+        MatchMakingNotFound
     }
 
     public class DalException : Exception

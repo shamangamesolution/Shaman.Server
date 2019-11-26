@@ -5,7 +5,12 @@ namespace Shaman.Common.Utils.Exceptions
 {
     public enum UpgradeExceptionCode
     {
+        MaxLevelReached,
         GeneralException,
+        PlayerWasNotSet,
+        PlayerRobotCollectionIsEmpty,
+        PlayerRobotWasNotFound,
+        NoUpgradeForThisParameter
     }
 
     public class UpgradeException : Exception

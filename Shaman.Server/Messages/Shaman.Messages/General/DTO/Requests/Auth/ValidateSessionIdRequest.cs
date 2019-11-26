@@ -20,14 +20,14 @@ namespace Shaman.Messages.General.DTO.Requests.Auth
             this.Secret = secret;
         }
         
-        protected override void SerializeRequestBody(ISerializer serializer)
+        protected override void SerializeRequestBody(ITypeWriter typeWriter)
         {
-            serializer.Write(Secret);
+            typeWriter.Write(Secret);
         }
 
-        protected override void DeserializeRequestBody(ISerializer serializer)
+        protected override void DeserializeRequestBody(ITypeReader typeReader)
         {
-            Secret = serializer.ReadString();
+            Secret = typeReader.ReadString();
         }
     }
 }

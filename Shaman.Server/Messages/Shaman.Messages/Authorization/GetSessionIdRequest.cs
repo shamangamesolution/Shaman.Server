@@ -12,14 +12,14 @@ namespace Shaman.Messages.Authorization
         {
         }
         
-        protected override void SerializeRequestBody(ISerializer serializer)
+        protected override void SerializeRequestBody(ITypeWriter typeWriter)
         {
-            serializer.WriteString(AuthToken);
+            typeWriter.Write(AuthToken);
         }
 
-        protected override void DeserializeRequestBody(ISerializer serializer)
+        protected override void DeserializeRequestBody(ITypeReader typeReader)
         {
-            this.AuthToken = serializer.ReadString();
+            this.AuthToken = typeReader.ReadString();
         }
     }
 }

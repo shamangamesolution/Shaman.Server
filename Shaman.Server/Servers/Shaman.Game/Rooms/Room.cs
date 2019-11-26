@@ -3,106 +3,113 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Shaman.Common.Server.Peers;
-using Shaman.Common.Server.Senders;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Serialization;
 using Shaman.Common.Utils.TaskScheduling;
-using Shaman.Game.Rooms.GameModeControllers;
-using Shaman.Game.Rooms.RoomProperties;
-using Shaman.ServerSharedUtilities.Backends;
+using Shaman.Game.Contract;
+using Shaman.GameBundleContract;
 using Shaman.Messages;
-using Shaman.Messages.General;
-using Shaman.Messages.General.DTO.Responses;
-using Shaman.Messages.General.Entity;
-using Shaman.Messages.General.Entity.Storage;
-using Shaman.Messages.Stats;
+using RoomStats = Shaman.Game.Contract.Stats.RoomStats;
 
 namespace Shaman.Game.Rooms
 {
     public class Room : IRoom
     {
-        private IShamanLogger _logger;
+        private readonly IShamanLogger _logger;
         private readonly ConcurrentDictionary<Guid, RoomPlayer> _roomPlayers = new ConcurrentDictionary<Guid, RoomPlayer>();
 
-        private Guid _roomId;
-        private DateTime _createdOn;
-        //private Dictionary<byte, object> _properties;
-        private ITaskSchedulerFactory _taskSchedulerFactory;
-        private ITaskScheduler _taskScheduler;
-        private IRequestSender _requestSender;
-        private IRoomManager _roomManager;
-        private IBackendProvider _backendProvider;
-        private ISerializerFactory _serializerFactory;
-        private IRoomPropertiesContainer _roomPropertiesContainer;
-        private IGameModeControllerFactory _gameModeControllerFactory;
+        private readonly Guid _roomId;
+        private readonly DateTime _createdOn;
+        private readonly ITaskScheduler _taskScheduler;
+        private readonly IRoomManager _roomManager;
+        private readonly ISerializer _serializer;
+        private readonly IRoomPropertiesContainer _roomPropertiesContainer;
+        private readonly IPacketSender _packetSender;
+        private readonly IGameModeController _gameModeController;
+        private readonly RoomStats _roomStats;
 
-        private IPacketSender _packetSender;
-        private IGameModeController _gameModeController = null;
-        private RoomStats _roomStats;
-        private Guid _roomStatTaskId, _testTaskId;
-        public Room(IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory, IRequestSender requestSender, IRoomManager roomManager, IBackendProvider backendProvider, ISerializerFactory serializerFactory, IStorageContainer storageContainer, IRoomPropertiesContainer roomPropertiesContainer, IGameModeControllerFactory gameModeControllerFactory, IPacketSender packetSender)
+        public Room(IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory, IRoomManager roomManager, ISerializer serializer,
+            IRoomPropertiesContainer roomPropertiesContainer,
+            IGameModeControllerFactory gameModeControllerFactory, IPacketSender packetSender)
         {
             _logger = logger;
             _roomId = Guid.NewGuid();
             _createdOn = DateTime.UtcNow;
-            _taskSchedulerFactory = taskSchedulerFactory;
             _taskScheduler = taskSchedulerFactory.GetTaskScheduler();
-            _requestSender = requestSender;
             _roomManager = roomManager;
-            _backendProvider = backendProvider;
-            _serializerFactory = serializerFactory;
+            _serializer = serializer;
             _roomPropertiesContainer = roomPropertiesContainer;
-            _gameModeControllerFactory = gameModeControllerFactory;
             _packetSender = packetSender;
 
-            
-            _roomStats = new RoomStats(GetRoomId(), _roomPropertiesContainer.GetPlayersCount());
-            
-            //init game mode controller
-            if (!_roomPropertiesContainer.IsRoomPropertiesContainsKey(PropertyCode.RoomProperties.GameMode))
+            _roomStats = new RoomStats(GetRoomId(), roomPropertiesContainer.GetPlayersCount());
+
+            if (!roomPropertiesContainer.IsRoomPropertiesContainsKey(PropertyCode.RoomProperties.GameMode))
             {
-                _logger.Error($"There is no GameMode property while creating room");
-                return;
+                throw new Exception($"There is no GameMode property while creating room");
             }
 
-            //setup gameMode controller
+            // todo RW
+            //throw new NotImplementedException("RW");
+//            var league = (League)roomPropertiesContainer.GetRoomProperty<byte>(PropertyCode.RoomProperties.League).Value;
+//
+//            var gameMode = roomPropertiesContainer.IsRoomPropertiesContainsKey(PropertyCode.RoomProperties.GameMode)
+//                ? (GameMode)roomPropertiesContainer.GetRoomProperty<byte>(PropertyCode.RoomProperties.GameMode).Value
+//                : GetRandomGameMode(league);
+            
             _gameModeController =
-                _gameModeControllerFactory.GetGameModeController(
-                    (GameMode) _roomPropertiesContainer.GetRoomProperty<byte>(PropertyCode.RoomProperties.GameMode), this, _taskScheduler);
+                gameModeControllerFactory.GetGameModeController(
+                    this, _taskScheduler, roomPropertiesContainer);
 
-            _roomStatTaskId = _taskScheduler.ScheduleOnInterval(() =>
+            _taskScheduler.ScheduleOnInterval(() =>
             {
-                _roomStats.MaxSendQueueSize.Add(_packetSender.GetMaxQueueSIze());
-                _roomStats.AverageQueueSize.Add(_packetSender.GetAverageQueueSize());
+                var maxQueueSIze = _packetSender.GetMaxQueueSIze();
+//                if (maxQueueSIze > 3)
+//                {
+//                    _logger.Error($"MAX SEND QUEUE: {maxQueueSIze}");
+//                }
+                _roomStats.AddMaxQueueSize(maxQueueSIze);
+                _roomStats.AddAvgQueueSize(_packetSender.GetAverageQueueSize());
                 
-            }, 0, 1000).Id;
+            }, 0, 1000, true);
+        }
+
+        public TimeSpan GetRoomTtl()
+        {
+            return _gameModeController.GetGameTtl();
+        }
+
+        public void UpdateRoom(Dictionary<Guid, Dictionary<byte, object>> players)
+        {
+            _roomPropertiesContainer.AddNewPlayers(players);
         }
         
-        public void SendToAll(MessageBase message, List<Guid> exceptions = null)
+//        private GameMode GetRandomGameMode(League league)
+//        {
+//            var mapLeagues = _saStorageProvider.Data.MapLeagueRules
+//                .Where(r => r.IsRandomizable && r.League == league)
+//                .ToList();
+//
+//            var selectedMode = mapLeagues[new Random().Next(mapLeagues.Count)].GameMode;
+//            _logger.Error($"GetRandomGameMode: {selectedMode.ToString()} selected,  available modes: {string.Join(',', mapLeagues.Select(l=>l.GameMode.ToString()))}");
+//            return selectedMode;
+//        }
+
+        public void SendToAll(MessageBase message, params Guid[] exceptions)
         {
             if (exceptions == null)
-                exceptions = new List<Guid>();
+                exceptions = Array.Empty<Guid>();
 
-            var initMsgArray = message.Serialize(_serializerFactory);
-//            var buf = _bufferPool.Get(initMsgArray.Length);
-//            Array.Copy(initMsgArray, 0, buf, 0, initMsgArray.Length);
-            
-            foreach (var player in _roomPlayers.Where(p => !exceptions.Exists(e => e == p.Value.Peer.GetSessionId())))
+            var initMsgArray = _serializer.Serialize(message);
+
+            foreach (var player in _roomPlayers.Where(p => exceptions.All(e => e != p.Value.Peer.GetSessionId())))
             {
                 AddToSendQueue(initMsgArray, player.Value.Peer, message.IsReliable, message.IsOrdered);
                 //add to stats
-                _roomStats.AddSentMessage(message.OperationCode, initMsgArray.Length, message.IsReliable);
+                _roomStats.TrackSentMessage(initMsgArray.Length, message.IsReliable, message.OperationCode);
             }
         }
-        
-        public void DisposeRoom()
-        {
-            //destroy this room
-            _roomManager.DeleteRoom(_roomId);
-        }
-
         public List<RoomPlayer> GetAllPlayers()
         {
             return _roomPlayers.Select(r => r.Value).ToList();
@@ -118,12 +125,17 @@ namespace Shaman.Game.Rooms
             return _roomStats;
         }
 
+        public bool IsGameFinished()
+        {
+            return _gameModeController.IsGameFinished();
+        }
+
         public Guid GetRoomId()
         {
             return _roomId;
         }
 
-        public bool PeerJoined(IPeer peer, string secret, Dictionary<byte, object> peerProperties)
+        public bool PeerJoined(IPeer peer, Dictionary<byte, object> peerProperties)
         {
             if (!_roomPlayers.TryAdd(peer.GetSessionId(), new RoomPlayer(peer, peerProperties)))
             {
@@ -165,6 +177,14 @@ namespace Shaman.Game.Rooms
         public void PeerDisconnected(Guid sessionId)
         {
             _roomPlayers.TryRemove(sessionId, out var player);
+            try
+            {
+                _gameModeController.CleanupPlayer(sessionId);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"CleanUpPlayer error: {ex}");
+            }
         }
 
         public void AddToSendQueue(MessageBase message, Guid sessionId)
@@ -175,10 +195,10 @@ namespace Shaman.Game.Rooms
             var player = _roomPlayers[sessionId];
             if (player != null)
             {
-                var serialized = message.Serialize(_serializerFactory);
+                var serialized = _serializer.Serialize(message);
                 AddToSendQueue(serialized, player.Peer, message.IsReliable, message.IsOrdered);
                 //add to stats
-                _roomStats.AddSentMessage(message.OperationCode, serialized.Length, message.IsReliable);
+                _roomStats.TrackSentMessage(serialized.Length, message.IsReliable, message.OperationCode);
                 //_taskScheduler.ScheduleOnceOnNow(() => player.Peer.Send(serialized, ));
             }
             else
@@ -197,47 +217,47 @@ namespace Shaman.Game.Rooms
 
         }
         
-        public void ProcessMessage(MessageBase message, Guid sessionId)
+        public void ProcessMessage(ushort operationCode, MessageData message, Guid sessionId)
         {
             try
             {
-                var result = true;
-                _roomStats.AddReceivedMessage(message);
-                
-                //process room message
-                switch (message.OperationCode)
+                var result = _gameModeController.ProcessMessage(message, sessionId);
+                var deserializedMessage = (MessageBase)result.DeserializedMessage;
+                _roomStats.TrackReceivedMessage(operationCode, message.Length, deserializedMessage.IsReliable);
+                if (result.Handled && deserializedMessage.IsBroadcasted)
                 {
-                    case CustomOperationCode.PingRequest:
-                        AddToSendQueue(new PingResponse(), sessionId);
-                        break;
-                    case CustomOperationCode.Test:
-                        break;
-                    default:
-                        result = _gameModeController.ProcessMessage(message, sessionId);
-                        break;
+                    // todo cannot pass initial array because in may be in rent and sending buffer filling in separate thread
+                    SendToAll(deserializedMessage, sessionId);
                 }
-
-                if (message.IsBroadcasted && result)
-                {
-                    SendToAll(message, new List<Guid> {sessionId});
-                }
-
             }
             catch (Exception ex)
             {
-                _logger.Error($"Room.ProcessMessage: Error processing {message.OperationCode} message: {ex}");
+                _logger.Error($"Room.ProcessMessage: Error processing {operationCode} message: {ex}");
             }
         }
 
         public void CleanUp()
         {
-            _logger?.Error($"RoomStats: {_roomStats}");
-            foreach (var player in _roomPlayers)
+            try
             {
-                player.Value.Peer.Disconnect(DisconnectReason.RoomCleanup);
+                foreach (var player in _roomPlayers)
+                {
+                    player.Value.Peer.Disconnect(DisconnectReason.RoomCleanup);
+                }
+
+                _packetSender.Stop();
+                _gameModeController.Cleanup();
+                _taskScheduler.RemoveAll();
+                _roomPlayers.Clear();
             }
-            _taskScheduler.RemoveAll();
-            _roomPlayers.Clear();
+            catch (Exception e)
+            {
+                _logger?.Error($"Error disposing room: {e}");
+            }
+            finally
+            {
+                _logger?.Error($"RoomStats: {_roomStats}");
+            }
         }
 
         public int GetPeerCount()

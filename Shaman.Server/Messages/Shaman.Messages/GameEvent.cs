@@ -14,7 +14,7 @@ namespace Shaman.Messages
 
 		public void Invoke()
 		{
-			if (_eventDelegate != null) _eventDelegate.Invoke();
+			_eventDelegate?.Invoke();
 		}
 
 		public void Subscribe(Action callback)

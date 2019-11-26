@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading;
 
 namespace Shaman.Messages.Extensions
@@ -17,8 +18,6 @@ namespace Shaman.Messages.Extensions
 
     public static class ListExtensions
     {
-
-        
         public static void Shuffle<T>(this IList<T> list)
         {
             int n = list.Count;
@@ -31,5 +30,7 @@ namespace Shaman.Messages.Extensions
                 list[n] = value;
             }
         }
+        
+
     }
 }

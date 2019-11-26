@@ -22,26 +22,26 @@ namespace Shaman.Messages.RoomFlow
             Players = new Dictionary<Guid, Dictionary<byte, object>>();
         }
         
-        protected override void SerializeRequestBody(ISerializer serializer)
+        protected override void SerializeRequestBody(ITypeWriter typeWriter)
         {
-            serializer.WriteDictionary(Properties);
-            serializer.WriteInt(Players.Count);
+            typeWriter.WriteDictionary(Properties, typeWriter.Write);
+            typeWriter.Write(Players.Count);
             foreach (var property in Players)
             {
-                serializer.WriteBytes(property.Key.ToByteArray());
-                serializer.WriteDictionary(property.Value);
+                typeWriter.Write(property.Key);
+                typeWriter.WriteDictionary(property.Value, typeWriter.Write);
             }
         }
 
-        protected override void DeserializeRequestBody(ISerializer serializer)
+        protected override void DeserializeRequestBody(ITypeReader typeReader)
         {
-            Properties = serializer.ReadDictionary();
+            Properties = typeReader.ReadDictionary(typeReader.ReadByte);
             Players = new Dictionary<Guid, Dictionary<byte, object>>();
-            var count = serializer.ReadInt();
+            var count = typeReader.ReadInt();
             for (var i = 0; i < count; i++)
             {
-                var key = new Guid(serializer.ReadBytes());
-                var val = serializer.ReadDictionary();
+                var key = typeReader.ReadGuid();
+                var val = typeReader.ReadDictionary(typeReader.ReadByte);
                 Players.Add(key, val);
             }
         }

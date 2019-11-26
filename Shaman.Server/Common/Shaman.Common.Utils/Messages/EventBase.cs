@@ -2,14 +2,9 @@ namespace Shaman.Common.Utils.Messages
 {
     public abstract class EventBase : MessageBase
     {
+        public override bool IsReliable => true;
+        public override bool IsBroadcasted => true;
 
-        protected override void SetMessageParameters()
-        {
-            IsReliable = true;
-            IsOrdered = true;
-            IsBroadcasted = true;
-        }
-        
         public EventBase(ushort operationCode) : base(MessageType.Event, operationCode)
         {
         }

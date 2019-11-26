@@ -20,14 +20,14 @@ namespace Shaman.Messages.MM
             
         }
 
-        protected override void SerializeRequestBody(ISerializer serializer)
+        protected override void SerializeRequestBody(ITypeWriter typeWriter)
         {
-            serializer.WriteDictionary(MatchMakingProperties);
+            typeWriter.WriteDictionary(MatchMakingProperties, typeWriter.Write);
         }
 
-        protected override void DeserializeRequestBody(ISerializer serializer)
+        protected override void DeserializeRequestBody(ITypeReader typeReader)
         {
-            MatchMakingProperties = serializer.ReadDictionary();
+            MatchMakingProperties = typeReader.ReadDictionary<byte>(typeReader.ReadByte);
         }
     }
 }

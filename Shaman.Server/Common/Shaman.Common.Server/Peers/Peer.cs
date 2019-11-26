@@ -2,6 +2,7 @@ using System;
 using System.Net;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Utils.Logging;
+using Shaman.Common.Utils.Peers;
 using Shaman.Common.Utils.Serialization;
 using Shaman.Common.Utils.Sockets;
 
@@ -13,9 +14,6 @@ namespace Shaman.Common.Server.Peers
         private Guid _peerId;
         private IReliableSock _socket;
         private bool _connected;
-        private ISerializerFactory _serializerFactory;
-        private IApplicationConfig _config;
-        private IShamanLogger _logger;
         public Guid _sessionId;
 
         public Guid GetPeerId()
@@ -33,15 +31,12 @@ namespace Shaman.Common.Server.Peers
             return _sessionId;
         }
 
-        public void Initialize(IPEndPoint endpoint, Guid peerId, IReliableSock socket, ISerializerFactory serializerFactory, IApplicationConfig config, IShamanLogger logger)
+        public void Initialize(IPEndPoint endpoint, Guid peerId, IReliableSock socket, ISerializer serializer, IApplicationConfig config, IShamanLogger logger)
         {
             _endpoint = endpoint;
             _peerId = peerId;
             _socket = socket;
             _connected = true;
-            _serializerFactory = serializerFactory;
-            _config = config;
-            _logger = logger;
         }
 
         public void Disconnect(DisconnectReason reason)
@@ -58,9 +53,10 @@ namespace Shaman.Common.Server.Peers
 //            _socket.Send(_endpoint, initMsgArray, 0, initMsgArray.Length, message.IsReliable, message.IsOrdered);
 //        }
 
-        public void Send(PacketInfo packetInfo, bool isReliable, bool isOrdered)
+        public void Send(PacketInfo packetInfo)
         {
-            _socket.Send(_endpoint, packetInfo.Buffer, 0, packetInfo.Buffer.Length, isReliable, isOrdered);
+            _socket.Send(_endpoint, packetInfo.Buffer, packetInfo.Offset, packetInfo.Length,
+                packetInfo.IsReliable, packetInfo.IsOrdered);
             packetInfo.Dispose();
         }
         

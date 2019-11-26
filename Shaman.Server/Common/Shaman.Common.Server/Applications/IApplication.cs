@@ -9,7 +9,6 @@ namespace Shaman.Common.Server.Applications
 {
     public interface IApplication 
     {
-        void Initialize(IShamanLogger logger, IApplicationConfig config, ISerializerFactory serializerFactory, ISocketFactory socketFactory, ITaskSchedulerFactory taskSchedulerFactory, IRequestSender requestSender);
         void Start();
         void ShutDown();
     }

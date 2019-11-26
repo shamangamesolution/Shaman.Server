@@ -2,23 +2,28 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Shaman.Common.Utils.Logging;
 
 namespace Shaman.Common.Utils.TaskScheduling
 {
-    public class TaskScheduler : ITaskScheduler, IDisposable
+    public class TaskScheduler : ITaskScheduler
     {
-        private Guid _id;
-        List<PendingTask> _tasks = new List<PendingTask>();
-        private object _listLock = new object();
-        private IShamanLogger _logger;
-        private PendingTask _clearTask;
+        private readonly List<PendingTask> _tasks = new List<PendingTask>();
+        private readonly object _listLock = new object();
+        private readonly IShamanLogger _logger;
+
+        private static int _scheduledOnceTasks;
+
+        public static int GetGlobalScheduledOnceTasksCount()
+        {
+            return _scheduledOnceTasks;
+        }
         
         public TaskScheduler(IShamanLogger logger)
         {
             _logger = logger;
-            _id = Guid.NewGuid();
-            _clearTask = ScheduleOnInterval(() =>
+            ScheduleOnInterval(() =>
             {
                 lock (_listLock)
                 {
@@ -30,14 +35,12 @@ namespace Shaman.Common.Utils.TaskScheduling
 
         public PendingTask Schedule(Action action, long firstInMs)
         {
-            return ScheduleOnInterval(action, firstInMs, Timeout.Infinite);
+            return ScheduleOnInterval(action, firstInMs, Timeout.Infinite, true);
         }
 
-        public PendingTask ScheduleOnInterval(Action action, long firstInMs, long regularInMs)
+        public PendingTask ScheduleOnInterval(Action action, long firstInMs, long regularInMs, bool shortLiving = false)
         {
-            _logger.Debug($"ScheduleOnInterval ({_id}) Scheduling: {action.Method.Name} to first in in {firstInMs} ms and repeat every {regularInMs} ms");
-            _logger.Debug($"ScheduleOnInterval ({_id}) Tasks count: {_tasks.Count}");
-            var pending = new PendingTask(action, firstInMs, regularInMs, _logger);
+            var pending = new PendingTask(action, firstInMs, regularInMs, _logger, shortLiving);
             pending.Schedule();
             lock (_listLock)
             {
@@ -49,20 +52,36 @@ namespace Shaman.Common.Utils.TaskScheduling
 
         public void ScheduleOnceOnNow(Action action)
         {
-            ScheduleOnInterval(action, 0, Timeout.Infinite);
+            Interlocked.Increment(ref _scheduledOnceTasks);
+            Task.Factory.StartNew(() =>
+            {
+                try
+                {
+                    action();
+                }
+                catch (Exception e)
+                {
+                    _logger?.Error($"ScheduleOnceOnNow task error: {e}");
+                }
+                finally
+                {
+                    Interlocked.Decrement(ref _scheduledOnceTasks);
+                }
+            });
         }
 
-        public void Remove(Guid taskId)
+        public void Remove(PendingTask task)
         {
-
+            if (task == null)
+                return;
             lock (_listLock)
             {
-                var pendingTask = _tasks.FirstOrDefault(t => t.Id == taskId);
+                var pendingTask = _tasks.FirstOrDefault(t => t == task);
                 if (pendingTask == null)
                     return;
                 _logger?.Debug($"Removing {pendingTask.GetActionName()}");
                 pendingTask.Dispose();
-                _tasks.RemoveAll(t => t.Id == taskId);
+                _tasks.Remove(task);
             }   
         }
 
@@ -80,15 +99,7 @@ namespace Shaman.Common.Utils.TaskScheduling
 
         public void Dispose()
         {
-            lock (_listLock)
-            {
-                foreach (var item in _tasks)
-                {
-                   item.Dispose();
-                }
-
-                _tasks.Clear();
-            }
+            RemoveAll();
         }
     }
 }

@@ -13,26 +13,26 @@ namespace Shaman.Messages.General.Entity.Router
         public string BackendAddress { get; set; }
         public ushort BackendPort { get; set; }
         
-        protected override void SerializeBody(ISerializer serializer)
+        protected override void SerializeBody(ITypeWriter typeWriter)
         {
-            serializer.WriteString(Version);
-            serializer.WriteString(Name);
-            serializer.WriteString(Address);
-            serializer.Write(Port);
-            serializer.WriteString(BackendAddress);
-            serializer.Write(BackendPort);
-            serializer.Write(BackendId);
+            typeWriter.Write(Version);
+            typeWriter.Write(Name);
+            typeWriter.Write(Address);
+            typeWriter.Write(Port);
+            typeWriter.Write(BackendAddress);
+            typeWriter.Write(BackendPort);
+            typeWriter.Write(BackendId);
         }
 
-        protected override void DeserializeBody(ISerializer serializer)
+        protected override void DeserializeBody(ITypeReader typeReader)
         {
-            Version = serializer.ReadString();
-            Name = serializer.ReadString();
-            Address = serializer.ReadString();
-            Port = serializer.ReadUShort();
-            BackendAddress = serializer.ReadString();
-            BackendPort = serializer.ReadUShort();
-            BackendId = serializer.ReadInt();
+            Version = typeReader.ReadString();
+            Name = typeReader.ReadString();
+            Address = typeReader.ReadString();
+            Port = typeReader.ReadUShort();
+            BackendAddress = typeReader.ReadString();
+            BackendPort = typeReader.ReadUShort();
+            BackendId = typeReader.ReadInt();
         }
     }
 }
