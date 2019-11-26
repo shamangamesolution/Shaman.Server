@@ -4,7 +4,6 @@
         <OutputType>Exe</OutputType>
         <TargetFramework>netcoreapp2.2</TargetFramework>
         <IsPackable>true</IsPackable>
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
 
     <ItemGroup>
@@ -14,9 +13,6 @@
         </PackageReference>
         <PackageReference Include="Serilog.Sinks.Loggly">
             <Version>5.4.0-dev-00175</Version>
-        </PackageReference>
-        <PackageReference Include="Ionic.Zip">
-            <Version>1.9.1.8</Version>
         </PackageReference>
         <PackageReference Include="ServiceStack.Common">
           <Version>3.9.71</Version>

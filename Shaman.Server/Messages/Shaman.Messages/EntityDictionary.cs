@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using Shaman.Common.Utils.Messages;
 
 namespace Shaman.Messages
