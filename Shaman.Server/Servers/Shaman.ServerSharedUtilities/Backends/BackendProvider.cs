@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Utils.Logging;
@@ -7,7 +6,6 @@ using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Game.Contract;
-using Shaman.GameBundleContract;
 using Shaman.Messages.General.DTO.Requests.Router;
 using Shaman.Messages.General.DTO.Responses.Router;
 using Shaman.Messages.General.Entity.Router;

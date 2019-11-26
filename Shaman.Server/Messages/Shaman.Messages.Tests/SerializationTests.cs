@@ -8,7 +8,7 @@ using FluentAssertions;
 using NUnit.Framework;
 using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Serialization;
-using Shaman.Messages.RW.DTO.Request;
+using Shaman.Messages.General.DTO.Requests;
 
 namespace Shaman.Messages.Tests
 {
@@ -30,7 +30,7 @@ namespace Shaman.Messages.Tests
         [Test]
         public void TestSerializeDeserialize()
         {
-            var messageBaseType = typeof(BuyRequest);
+            var messageBaseType = typeof(PingRequest);
             var messages = messageBaseType.Assembly.GetTypes().Where(t =>
                 t.IsSubclassOf(typeof(MessageBase)) && !t.IsAbstract &&
                 t.GetConstructor(Array.Empty<Type>()) != null).Select(CreateFromType).OfType<MessageBase>().ToArray();
@@ -44,7 +44,7 @@ namespace Shaman.Messages.Tests
                 deserialized.Should().BeEquivalentTo(message, $"Deserialized type {serialized.GetType()}");
             }
 
-            CreateFromType(typeof(BuyRequest));
+            CreateFromType(typeof(PingRequest));
         }
 
         private object CreateFromType(Type request)

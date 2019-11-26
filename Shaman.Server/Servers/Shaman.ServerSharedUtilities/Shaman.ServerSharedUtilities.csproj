@@ -22,9 +22,6 @@
       <PackageReference Include="Serilog.Sinks.Loggly">
         <Version>5.4.0-dev-00175</Version>
       </PackageReference>
-      <PackageReference Include="Yandex.Metrica">
-        <Version>3.5.1</Version>
-      </PackageReference>
     </ItemGroup>
 
 </Project>

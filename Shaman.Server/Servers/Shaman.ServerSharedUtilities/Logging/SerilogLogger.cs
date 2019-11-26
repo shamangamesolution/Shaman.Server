@@ -8,7 +8,6 @@ namespace Shaman.ServerSharedUtilities.Logging
 {
     public class SerilogLogger: IShamanLogger
     {
-        
         private ILogger _logger;
         private SourceType _source;
         private string _version;
