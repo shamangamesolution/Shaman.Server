@@ -2,6 +2,7 @@
 
     <PropertyGroup>
         <TargetFrameworks>net462;netcoreapp2.2</TargetFrameworks>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
 
     <ItemGroup>

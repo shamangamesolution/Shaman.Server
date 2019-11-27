@@ -14,12 +14,6 @@
         <PackageReference Include="Serilog.Sinks.Loggly">
             <Version>5.4.0-dev-00175</Version>
         </PackageReference>
-        <PackageReference Include="ServiceStack.Common">
-          <Version>3.9.71</Version>
-        </PackageReference>
-        <PackageReference Include="System.Text.Encoding.CodePages">
-          <Version>4.5.1</Version>
-        </PackageReference>
     </ItemGroup>
     
     <ItemGroup>
