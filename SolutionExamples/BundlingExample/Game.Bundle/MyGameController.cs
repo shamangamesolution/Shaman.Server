@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using Shaman.Common.Server.Handling;
 using Shaman.Common.Utils.Serialization;
 using Shaman.Game.Contract;
+using Shaman.Messages.Handling;
 
 namespace Game.Bundle
 {
@@ -39,11 +39,10 @@ namespace Game.Bundle
 
         public MessageResult ProcessMessage(MessageData message, Guid sessionId)
         {
-            var myMessage = _serializer.DeserializeAs<MyMessage>(message.Buffer, message.Offset, message.Length);
             return new MessageResult
             {
                 Handled = false,
-                DeserializedMessage = myMessage
+                DeserializedMessage = _serializer.DeserializeAs<MyMessage>(message.Buffer, message.Offset, message.Length)
             };
         }
     }
