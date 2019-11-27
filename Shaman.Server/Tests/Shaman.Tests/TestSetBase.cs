@@ -9,6 +9,7 @@ using Shaman.Common.Utils.Serialization;
 using Shaman.Common.Utils.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.LiteNetLibAdapter;
+using Shaman.Messages;
 using Shaman.Messages.General.DTO.Responses.Auth;
 using Shaman.Messages.General.DTO.Responses.Router;
 using Shaman.Messages.General.Entity.Router;
@@ -23,8 +24,8 @@ namespace Shaman.Tests
             if (typeof(T) == typeof(CreateRoomResponse))
                 return new CreateRoomResponse(Guid.NewGuid()) as T;
 
-            if (typeof(T) == typeof(GetBackendsListResponse))
-                return new GetBackendsListResponse(new List<Backend> {new Backend(1, "", 5555)}) as T;
+            if (typeof(T) == typeof(GetServerInfoListResponse))
+                return CreateGetServerInfoListResponse<T>() as T;
 
             if (typeof(T) == typeof(ValidateSessionIdResponse))
                 return new ValidateSessionIdResponse() {ResultCode = ResultCode.OK} as T;
@@ -40,10 +41,10 @@ namespace Shaman.Tests
             if (typeof(T) == typeof(CreateRoomResponse))
                 callback(new CreateRoomResponse(Guid.NewGuid()) as T);
             else
-            if (typeof(T) == typeof(GetBackendsListResponse))
-                callback(new GetBackendsListResponse(new List<Backend> {new Backend(1, "", 5555)}) as T);
-            else
-            if (typeof(T) == typeof(ValidateSessionIdResponse))
+
+            if (typeof(T) == typeof(GetServerInfoListResponse))
+                callback(CreateGetServerInfoListResponse<T>() as T);
+            else if (typeof(T) == typeof(ValidateSessionIdResponse))
                 callback(new ValidateSessionIdResponse() {ResultCode = ResultCode.OK} as T);
 //            else         
 //            if (typeof(T) == typeof(InitializationResponse))
@@ -52,6 +53,14 @@ namespace Shaman.Tests
                 callback(new T());
         }
 
+        internal static GetServerInfoListResponse CreateGetServerInfoListResponse<T>() where T : ResponseBase, new()
+        {
+            return new GetServerInfoListResponse(
+                new EntityDictionary<ServerInfo>(new List<ServerInfo>{new ServerInfo
+                {
+                    Address = "", Id = 1, HttpPort = 5555, ServerRole = ServerRole.BackEnd, IsApproved = true
+                }}));
+        }
     }
     
     public class FakeSenderWithGameApplication : IRequestSender
@@ -82,8 +91,8 @@ namespace Shaman.Tests
                 return new UpdateRoomResponse() as T;
             }
             
-            if (typeof(T) == typeof(GetBackendsListResponse))
-                return new GetBackendsListResponse(new List<Backend> {new Backend(1, "", 5555)}) as T;
+            if (typeof(T) == typeof(GetServerInfoListResponse))
+                return FakeSender.CreateGetServerInfoListResponse<T>() as T;;
 
 //            if (typeof(T) == typeof(ValidateSessionIdResponse))
 //                return new ValidateSessionIdResponse() {ResultCode = ResultCode.OK} as T;
@@ -102,8 +111,8 @@ namespace Shaman.Tests
                 callback(new CreateRoomResponse(roomId) as T);
             }
             else
-            if (typeof(T) == typeof(GetBackendsListResponse))
-                callback(new GetBackendsListResponse(new List<Backend> {new Backend(1, "", 5555)}) as T);
+            if (typeof(T) == typeof(GetServerInfoListResponse))
+                callback(FakeSender.CreateGetServerInfoListResponse<T>() as T);
             else
             if (typeof(T) == typeof(ValidateSessionIdResponse))
                 callback(new ValidateSessionIdResponse() {ResultCode = ResultCode.OK} as T);

@@ -28,7 +28,7 @@ namespace Shaman.Router.Controllers
         }
 
         [HttpGet]
-        public async Task<JsonResult> Ping()
+        public JsonResult Ping()
         {
             LogInfo($"Ping");
 
@@ -147,27 +147,6 @@ namespace Shaman.Router.Controllers
             return new FileContentResult(Serializer.Serialize(response), "text/html");
         }
    
-        [HttpPost]
-        public async Task<ActionResult> GetBackendsList()
-        {
-            var input = await Request.GetRawBodyBytesAsync();
-
-            var request = Serializer.DeserializeAs<GetBackendsListRequest>(input);//ActualizeServerRequest.Deserialize(input) as ActualizeServerRequest;
-            var response = new GetBackendsListResponse();
-            
-            try
-            {
-                response.Backends = await ConfigRepo.GetBackends();
-            }
-            catch (Exception ex)
-            {
-                response.SetError(ex.Message);
-                LogError($"{ex.ToString()}");
-            }
-
-            return new FileContentResult(Serializer.Serialize(response), "text/html");
-        }
-
         [HttpPost]
         public async Task<ActionResult> GetServerInfoList()
         {
