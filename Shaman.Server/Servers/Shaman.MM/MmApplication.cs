@@ -10,7 +10,6 @@ using Shaman.Common.Utils.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Game.Contract;
 using Shaman.Game.Contract.Stats;
-using Shaman.GameBundleContract;
 using Shaman.Messages.General.DTO.Requests.Router;
 using Shaman.Messages.General.DTO.Responses.Router;
 using Shaman.MM.Configuration;
