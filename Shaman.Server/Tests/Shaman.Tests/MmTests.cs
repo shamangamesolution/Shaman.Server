@@ -12,7 +12,6 @@ using Shaman.Common.Utils.Servers;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Game.Contract;
 using Shaman.Game.Providers;
-using Shaman.GameBundleContract;
 using Shaman.MM;
 using Shaman.MM.Configuration;
 using Shaman.MM.MatchMaking;

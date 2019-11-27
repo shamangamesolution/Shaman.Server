@@ -27,6 +27,7 @@ using Shaman.Messages;
 using Shaman.MM.Metrics;
 using Shaman.MM.Providers;
 using Shaman.Tests.Providers;
+using Shaman.TestTools.ClientPeers;
 using ClientStatus = Shaman.Client.Peers.ClientStatus;
 using GameProject = Shaman.Messages.General.Entity.GameProject;
 

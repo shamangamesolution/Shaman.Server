@@ -9,7 +9,6 @@ using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Serialization;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Game.Contract;
-using Shaman.GameBundleContract;
 using Shaman.Messages;
 using RoomStats = Shaman.Game.Contract.Stats.RoomStats;
 
@@ -222,7 +221,7 @@ namespace Shaman.Game.Rooms
             try
             {
                 var result = _gameModeController.ProcessMessage(message, sessionId);
-                var deserializedMessage = (MessageBase)result.DeserializedMessage;
+                var deserializedMessage = result.DeserializedMessage;
                 _roomStats.TrackReceivedMessage(operationCode, message.Length, deserializedMessage.IsReliable);
                 if (result.Handled && deserializedMessage.IsBroadcasted)
                 {

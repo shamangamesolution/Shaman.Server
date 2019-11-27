@@ -13,7 +13,6 @@ using Shaman.Game.Contract;
 using Shaman.Game.Contract.Stats;
 using Shaman.Game.Peers;
 using Shaman.Game.Rooms;
-using Shaman.GameBundleContract;
 using Shaman.ServerSharedUtilities.Backends;
 using Shaman.Messages.MM;
 

@@ -6,8 +6,7 @@ using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Serialization;
 using Shaman.Messages.General.DTO.Requests;
 
-
-namespace Shaman.Messages
+namespace Shaman.TestTools.ClientPeers
 {
     public static class MessageFactory
     {

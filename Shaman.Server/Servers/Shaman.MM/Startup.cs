@@ -20,7 +20,6 @@ using Shaman.Common.Utils.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Game;
 using Shaman.Game.Contract;
-using Shaman.GameBundleContract;
 using Shaman.LiteNetLibAdapter;
 using Shaman.MM.Configuration;
 using Shaman.MM.MatchMaking;

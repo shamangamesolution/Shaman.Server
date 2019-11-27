@@ -7,7 +7,6 @@ using Shaman.Common.Utils.Sockets;
 using Shaman.Game.Contract;
 using Shaman.Game.Peers;
 using Shaman.Game.Rooms;
-using Shaman.GameBundleContract;
 using Shaman.ServerSharedUtilities.Backends;
 using Shaman.Messages;
 using Shaman.Messages.Authorization;

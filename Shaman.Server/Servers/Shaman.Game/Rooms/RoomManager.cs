@@ -14,7 +14,6 @@ using Shaman.Game.Contract;
 using Shaman.Game.Contract.Stats;
 using Shaman.Game.Metrics;
 using Shaman.Game.Rooms.RoomProperties;
-using Shaman.GameBundleContract;
 using Shaman.Messages;
 using Shaman.Messages.RoomFlow;
 

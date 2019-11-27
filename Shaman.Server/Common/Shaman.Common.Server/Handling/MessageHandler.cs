@@ -1,9 +1,6 @@
 using System;
-using System.Dynamic;
-using System.Threading.Tasks;
 using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Serialization;
-using Shaman.GameBundleContract;
 
 namespace Shaman.Common.Server.Handling
 {
@@ -18,7 +15,7 @@ namespace Shaman.Common.Server.Handling
     }
 
     public sealed class MessageHandler<TMessage, TContext> : IMessageDataHandler<TContext>
-        where TMessage : ISerializable, new()
+        where TMessage : MessageBase, new()
     {
         private readonly IMessageHandler<TMessage, TContext> _handler;
         public ushort Type { get; set; }

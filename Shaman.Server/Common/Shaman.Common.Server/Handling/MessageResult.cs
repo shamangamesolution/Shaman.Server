@@ -1,9 +1,10 @@
-namespace Shaman.GameBundleContract
+using Shaman.Common.Utils.Messages;
+
+namespace Shaman.Common.Server.Handling
 {
     public struct MessageResult
     {
-        public object DeserializedMessage;
+        public MessageBase DeserializedMessage;
         public bool Handled;
-
     }
 }

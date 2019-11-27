@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Shaman.Common.Server.Peers;
 using Shaman.Common.Utils.Messages;
 using Shaman.Game.Contract;
-using Shaman.GameBundleContract;
 
 namespace Shaman.Game.Rooms
 {

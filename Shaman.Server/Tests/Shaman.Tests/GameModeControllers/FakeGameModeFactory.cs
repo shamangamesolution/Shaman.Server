@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
+using Shaman.Common.Server.Handling;
 using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Game.Contract;
-using Shaman.GameBundleContract;
 using Shaman.Messages.General.DTO.Requests;
 using Shaman.Messages.RoomFlow;
 

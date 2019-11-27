@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Serialization;
-using Shaman.GameBundleContract;
 
 namespace Shaman.Common.Server.Handling
 {

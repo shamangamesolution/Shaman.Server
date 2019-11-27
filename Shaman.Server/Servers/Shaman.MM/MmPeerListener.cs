@@ -5,7 +5,6 @@ using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Sockets;
 using Shaman.Game.Contract;
-using Shaman.GameBundleContract;
 using Shaman.MM.MatchMaking;
 using Shaman.MM.Peers;
 using Shaman.ServerSharedUtilities.Backends;

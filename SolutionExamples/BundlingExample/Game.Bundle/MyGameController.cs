@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
+using Shaman.Common.Server.Handling;
 using Shaman.Common.Utils.Serialization;
 using Shaman.Game.Contract;
-using Shaman.GameBundleContract;
 
 namespace Game.Bundle
 {
