@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using Shaman.Common.Server.Handling;
 using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Game.Contract;
 using Shaman.Messages.General.DTO.Requests;
+using Shaman.Messages.Handling;
 using Shaman.Messages.RoomFlow;
 
 namespace Shaman.Tests.GameModeControllers

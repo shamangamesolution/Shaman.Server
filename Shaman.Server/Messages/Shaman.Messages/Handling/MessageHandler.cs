@@ -2,7 +2,7 @@ using System;
 using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Serialization;
 
-namespace Shaman.Common.Server.Handling
+namespace Shaman.Messages.Handling
 {
     public interface IMessageHandler<in TMessage, in TContext>
     {

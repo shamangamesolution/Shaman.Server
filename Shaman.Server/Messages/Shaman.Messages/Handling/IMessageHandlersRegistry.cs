@@ -1,4 +1,4 @@
-namespace Shaman.Common.Server.Handling
+namespace Shaman.Messages.Handling
 {
     public interface IMessageHandlersRegistry<out TContext>
     {

@@ -1,6 +1,6 @@
 using System;
 
-namespace Shaman.Common.Server.Handling
+namespace Shaman.Messages.Handling
 {
     public class MessageProcessingException : Exception
     {

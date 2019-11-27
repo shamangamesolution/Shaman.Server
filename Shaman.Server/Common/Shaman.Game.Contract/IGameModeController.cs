@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Shaman.Common.Server.Handling;
+using Shaman.Messages.Handling;
 
 namespace Shaman.Game.Contract
 {

@@ -1,11 +1,11 @@
 using System;
 using FluentAssertions;
 using NUnit.Framework;
-using Shaman.Common.Server.Handling;
 using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Serialization;
+using Shaman.Messages.Handling;
 
-namespace Shaman.Common.Server.Tests
+namespace Shaman.Messages.Tests
 {
     public class TestMessage1 : MessageBase
     {

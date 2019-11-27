@@ -3,10 +3,11 @@
     <PropertyGroup>
         <TargetFramework>netcoreapp2.2</TargetFramework>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <PackageVersion>1.0.1</PackageVersion>
+        <PackageVersion>1.0.2</PackageVersion>
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\Messages\Shaman.Messages\Shaman.Messages.csproj" />
       <ProjectReference Include="..\Shaman.Common.Server\Shaman.Common.Server.csproj" />
     </ItemGroup>
 

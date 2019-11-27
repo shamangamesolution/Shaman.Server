@@ -3,7 +3,7 @@ using System.Collections;
 using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Serialization;
 
-namespace Shaman.Common.Server.Handling
+namespace Shaman.Messages.Handling
 {
     public static class MessagesRouterFactory
     {

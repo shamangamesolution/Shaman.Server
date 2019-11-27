@@ -1,6 +1,6 @@
 using Shaman.Common.Utils.Messages;
 
-namespace Shaman.Common.Server.Handling
+namespace Shaman.Messages.Handling
 {
     public struct MessageResult
     {
