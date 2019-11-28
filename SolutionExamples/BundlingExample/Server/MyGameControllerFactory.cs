@@ -4,7 +4,7 @@ using Shaman.Common.Utils.Serialization;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Game.Contract;
 
-namespace Game.Bundle
+namespace Server
 {
     public class MyGameControllerFactory : IGameModeControllerFactory
     {

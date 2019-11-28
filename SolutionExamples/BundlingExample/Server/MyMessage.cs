@@ -1,7 +1,7 @@
 using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Serialization;
 
-namespace Game.Bundle
+namespace Server
 {
     public class MyMessage : MessageBase
     {

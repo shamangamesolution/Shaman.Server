@@ -4,7 +4,7 @@ using Shaman.Common.Utils.Serialization;
 using Shaman.Game.Contract;
 using Shaman.Messages.Handling;
 
-namespace Game.Bundle
+namespace Server
 {
     internal class MyGameController : IGameModeController
     {

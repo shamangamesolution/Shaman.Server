@@ -1,8 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Game.Bundle", "Game.Bundle\Game.Bundle.csproj", "{6C0DF12B-507C-45B6-98F4-9EF7E549617C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "Server\Server.csproj", "{6C0DF12B-507C-45B6-98F4-9EF7E549617C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MM.Bundle", "MM.Bundle\MM.Bundle.csproj", "{A42105F3-0DE4-4DC7-AAA4-D5BDF203C43B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MM", "MM\MM.csproj", "{A42105F3-0DE4-4DC7-AAA4-D5BDF203C43B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

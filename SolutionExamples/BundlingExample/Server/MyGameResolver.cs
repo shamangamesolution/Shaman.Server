@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Shaman.Game.Contract;
 
-namespace Game.Bundle
+namespace Server
 {
     public class MyGameResolver : IGameResolver
     {

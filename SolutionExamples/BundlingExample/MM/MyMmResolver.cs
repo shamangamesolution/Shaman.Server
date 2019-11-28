@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Shaman.MM.Contract;
 
-namespace MM.Bundle
+namespace MM
 {
     public class MyMmResolver : IMmResolver
     {
