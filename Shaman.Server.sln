@@ -68,6 +68,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.MM.Contract", "Shama
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.LocalBundleLauncher", "Shaman.Server\Servers\Shaman.LocalBundleLauncher\Shaman.LocalBundleLauncher.csproj", "{A6C6B4C2-B5FD-41BB-8B94-D50DC4C70772}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.ServerSharedUtilities.Tests", "Shaman.Server\Servers\Shaman.ServerSharedUtilities.Tests\Shaman.ServerSharedUtilities.Tests.csproj", "{5126F62C-1387-4F82-BE3B-FD2BD6F180C5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -366,6 +368,18 @@ Global
 		{A6C6B4C2-B5FD-41BB-8B94-D50DC4C70772}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{A6C6B4C2-B5FD-41BB-8B94-D50DC4C70772}.Release|Win32.ActiveCfg = Release|Any CPU
 		{A6C6B4C2-B5FD-41BB-8B94-D50DC4C70772}.Release|Win32.Build.0 = Release|Any CPU
+		{5126F62C-1387-4F82-BE3B-FD2BD6F180C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5126F62C-1387-4F82-BE3B-FD2BD6F180C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5126F62C-1387-4F82-BE3B-FD2BD6F180C5}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{5126F62C-1387-4F82-BE3B-FD2BD6F180C5}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{5126F62C-1387-4F82-BE3B-FD2BD6F180C5}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{5126F62C-1387-4F82-BE3B-FD2BD6F180C5}.Debug|Win32.Build.0 = Debug|Any CPU
+		{5126F62C-1387-4F82-BE3B-FD2BD6F180C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5126F62C-1387-4F82-BE3B-FD2BD6F180C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5126F62C-1387-4F82-BE3B-FD2BD6F180C5}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{5126F62C-1387-4F82-BE3B-FD2BD6F180C5}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{5126F62C-1387-4F82-BE3B-FD2BD6F180C5}.Release|Win32.ActiveCfg = Release|Any CPU
+		{5126F62C-1387-4F82-BE3B-FD2BD6F180C5}.Release|Win32.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -393,5 +407,6 @@ Global
 		{72CB7E9B-FCCE-4DDC-9ACD-0AFE8F18F7E7} = {0F24BC06-D961-4A3F-9EFD-1B4A96688425}
 		{53AEAC24-25D2-483B-AAA0-9920F3D971E0} = {0F24BC06-D961-4A3F-9EFD-1B4A96688425}
 		{A6C6B4C2-B5FD-41BB-8B94-D50DC4C70772} = {5681CC39-9FAB-4A2F-935B-3BE870EB18B6}
+		{5126F62C-1387-4F82-BE3B-FD2BD6F180C5} = {5681CC39-9FAB-4A2F-935B-3BE870EB18B6}
 	EndGlobalSection
 EndGlobal
