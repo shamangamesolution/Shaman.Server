@@ -54,9 +54,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Common.Utils.Tests",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Messages.Tests", "Shaman.Server\Messages\Shaman.Messages.Tests\Shaman.Messages.Tests.csproj", "{F6404230-1226-4D81-9751-D2E49EA4A1CC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AG.Common.Metrics", "Shaman.Server\Common\AG.Common.Metrics\AG.Common.Metrics.csproj", "{558E206A-F106-4E80-930C-96C0A837045D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Common.Metrics", "Shaman.Server\Common\Shaman.Common.Metrics\Shaman.Common.Metrics.csproj", "{558E206A-F106-4E80-930C-96C0A837045D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AG.Common.Metrics.Tests", "Shaman.Server\Common\AG.Common.Metrics.Tests\AG.Common.Metrics.Tests.csproj", "{4D7884FC-EC3B-4BA2-AAD0-8B7E511A1552}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Common.Metrics.Tests", "Shaman.Server\Common\Shaman.Common.Metrics.Tests\Shaman.Common.Metrics.Tests.csproj", "{4D7884FC-EC3B-4BA2-AAD0-8B7E511A1552}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Common.Server.Tests", "Shaman.Server\Common\Shaman.Common.Server.Tests\Shaman.Common.Server.Tests.csproj", "{342FCEB2-A0D4-4057-BF79-F5BE1FC665E7}"
 EndProject

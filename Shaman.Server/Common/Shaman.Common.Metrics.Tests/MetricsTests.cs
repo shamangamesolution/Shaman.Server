@@ -6,7 +6,7 @@ using App.Metrics.Histogram;
 using App.Metrics.Reporting.Graphite;
 using NUnit.Framework;
 
-namespace AG.Common.Metrics.Tests
+namespace Shaman.Common.Metrics.Tests
 {
     public class MetricsTests
     {

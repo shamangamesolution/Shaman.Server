@@ -6,7 +6,7 @@ using App.Metrics;
 using App.Metrics.Formatters.Graphite;
 using App.Metrics.Formatters.Graphite.Internal;
 
-namespace AG.Common.Metrics
+namespace Shaman.Common.Metrics
 {
     public class CustomGraphitePointTextWriter : IGraphitePointTextWriter
     {

@@ -2,7 +2,7 @@ using System;
 using App.Metrics;
 using App.Metrics.Formatters.Graphite;
 
-namespace AG.Common.Metrics
+namespace Shaman.Common.Metrics
 {
     public static class MetricsFactory
     {
