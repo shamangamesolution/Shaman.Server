@@ -3,7 +3,8 @@
     <PropertyGroup>
         <LangVersion>default</LangVersion>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <TargetFrameworks>net462;netcoreapp2.2</TargetFrameworks>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <PackageVersion>1.0.1</PackageVersion>
     </PropertyGroup>
 
     <ItemGroup>
