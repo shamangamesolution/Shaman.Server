@@ -11,6 +11,11 @@ namespace Shaman.Messages.General.Entity.Router
         public string MatchMakerAddress { get; set; }
         public ushort MatchMakerPort { get; set; }
 
+        public string GetBackendAddress()
+        {
+            return $"{BackendProtocol}://{BackendAddress}:{BackendPort}";
+        }
+        
         public Route(string region, string pingAddress, string backendProtocol, string backendAddress,
             ushort backendPort, int backEndId, string matchMakerAddress, ushort matchMakerPort)
         {

@@ -27,13 +27,15 @@ namespace Shaman.Client.Providers
             return _requestSender.SendRequest<GetServerInfoListResponse>(routerUrl, new GetServerInfoListRequest(actualOnly: false),
                 (response) =>
                 {
+                    var result = new List<Route>();
+
                     if (!response.Success)
                     {
                         _logger.Error($"ClientServerInfoProvider.GetRoutes response error: {response.Message}");
+                        callback(result);
                         return;
                     }
 
-                    var result = new List<Route>();
                     var servers = response.ServerInfoList.Where(s => s.ClientVersion == clientVersion).ToList();
 
                     var regions = servers.Select(s => s.Region).Distinct();

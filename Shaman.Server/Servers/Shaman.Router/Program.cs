@@ -71,8 +71,8 @@ namespace Shaman.Router
                     options.Limits.MinResponseDataRate =
                         new MinDataRate(bytesPerSecond: 10, gracePeriod: TimeSpan.FromSeconds(30));
                     options.Listen(IPAddress.Parse(ip), port);
-                    options.Listen(IPAddress.Parse(ip), httpsPort,
-                        listenOptions => { listenOptions.UseHttps("certificate.pfx", "Ght_67jkQ"); });
+//                    options.Listen(IPAddress.Parse(ip), httpsPort,
+//                        listenOptions => { listenOptions.UseHttps("certificate.pfx", "Ght_67jkQ"); });
                 })
                 .UseConfiguration(config)
                 .UseContentRoot(Directory.GetCurrentDirectory())
