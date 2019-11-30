@@ -251,11 +251,13 @@ namespace Shaman.MM.MatchMaking
                 {
                     lock (_queueSync)
                     {
+                        var matchmakingPlayersCount = _matchmakingPlayers.Count;
+                        
                         var players =
                             _playersCollection.GetPlayersAndSetOnMatchmaking(Id,
                                 _addOtherPlayers
-                                    ? (_totalPlayersNeeded - _matchmakingPlayers.Count)
-                                    : (1 - _matchmakingPlayers.Count));
+                                    ? (_totalPlayersNeeded - matchmakingPlayersCount)
+                                    : (1 - matchmakingPlayersCount));
 
                         foreach (var player in players)
                             AddPlayer(player);
@@ -264,28 +266,31 @@ namespace Shaman.MM.MatchMaking
 
                         var toAddBots = 0;
                         //check bots
-                        if (_matchmakingPlayers.Count < _totalPlayersNeeded && _addBots)
+                        if (matchmakingPlayersCount < _totalPlayersNeeded && _addBots)
                         {
                             if (oldestPlayer != null &&
                                 (DateTime.UtcNow - oldestPlayer.AddedToMmGroupOn.Value).TotalMilliseconds >=
                                 _timeBeforeBotsAddedMs)
                             {
-                                toAddBots = _totalPlayersNeeded - _matchmakingPlayers.Count;
+                                toAddBots = _totalPlayersNeeded - matchmakingPlayersCount;
                             }
                             else
                             {
-                                //we can not add bots because of timer, but we can try to find existing room for players
-                                var room = _createdRoomManager.GetRoomForPlayers(_matchmakingPlayers.Count);
-                                if (room != null)
+                                if (matchmakingPlayersCount > 0)
                                 {
-                                    AddToExistingRoom(room);
-                                    TrackMmTime(oldestPlayer);
-                                    return;
+                                    //we can not add bots because of timer, but we can try to find existing room for players
+                                    var room = _createdRoomManager.GetRoomForPlayers(matchmakingPlayersCount);
+                                    if (room != null)
+                                    {
+                                        AddToExistingRoom(room);
+                                        TrackMmTime(oldestPlayer);
+                                        return;
+                                    }
                                 }
                             }
                         }
 
-                        if (_matchmakingPlayers.Count + toAddBots >= _totalPlayersNeeded)
+                        if (matchmakingPlayersCount + toAddBots >= _totalPlayersNeeded)
                         {
                             AddToNewRoom();
                             TrackMmTime(oldestPlayer);
