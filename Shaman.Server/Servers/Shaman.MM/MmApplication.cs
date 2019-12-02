@@ -26,7 +26,6 @@ namespace Shaman.MM
     {
         private readonly IPlayerCollection _playerCollection;
         private readonly IMatchMaker _matchMaker;
-        private List<byte> _requiredMatchMakingProperties;
         private PendingTask _actualizeTask;
         private readonly IBackendProvider _backendProvider;
         private readonly ICreatedRoomManager _createdRoomManager;
@@ -59,11 +58,6 @@ namespace Shaman.MM
             Logger?.Debug($"MmApplication constructor called. Id = {_id}");
         }
 
-        public void SetMatchMakerProperties(List<byte> requiredMatchMakingProperties)
-        {
-            _requiredMatchMakingProperties = requiredMatchMakingProperties;
-        }
-        
         public MmServerStats GetStats()
         {
             var oldestPlayer = _playerCollection.GetOldestPlayer();
@@ -86,7 +80,6 @@ namespace Shaman.MM
             
             _packetSender.Start(false);
             
-            _matchMaker.Initialize(_requiredMatchMakingProperties);
             _matchMaker.Start();
             _backendProvider.Start();
             var listeners = GetListeners();

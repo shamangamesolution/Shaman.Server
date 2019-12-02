@@ -10,8 +10,6 @@ namespace Shaman.MM.MatchMaking
     public interface IMatchMaker: IMatchMakingConfigurator
     {
         //init
-        void Initialize(List<byte> requiredMatchMakingProperties);       
-        
         //manage players list
         void AddPlayer(MmPeer peer, Dictionary<byte, object> properties);
         void RemovePlayer(Guid peerId);

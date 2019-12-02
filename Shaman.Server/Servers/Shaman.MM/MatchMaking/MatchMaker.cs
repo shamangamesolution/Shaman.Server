@@ -21,7 +21,7 @@ namespace Shaman.MM.MatchMaking
         private readonly List<MatchMakingGroup> _matchMakingGroups;
         private readonly IShamanLogger _logger;
         private readonly IMatchMakerServerInfoProvider _serverProvider;
-        private List<byte> _requiredMatchMakingProperties = new List<byte>();
+        private readonly List<byte> _requiredMatchMakingProperties;
 
         private readonly IPacketSender _packetSender;
 
@@ -42,13 +42,12 @@ namespace Shaman.MM.MatchMaking
             _playerCollection = playerCollection;
             _logger = logger;
             _matchMakingGroups = new List<MatchMakingGroup>();
+            _requiredMatchMakingProperties = new List<byte>();
         }
         
-        public void Initialize(List<byte> requiredMatchMakingProperties)
+        public void AddMatchMakerProperty(byte requiredMatchMakingProperty)
         {
-            _requiredMatchMakingProperties = requiredMatchMakingProperties;
-            
-            //_hashCodeSets = new Dictionary<Guid, int>();
+            _requiredMatchMakingProperties.Add(requiredMatchMakingProperty);
         }
 
         public void AddPlayer(MmPeer peer, Dictionary<byte, object> properties)
