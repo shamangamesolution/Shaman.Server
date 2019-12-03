@@ -149,10 +149,6 @@ namespace Shaman.MM
                     throw new ArgumentOutOfRangeException();
             }
             
-
-            //todo refactor
-            ((MmApplication)server).SetMatchMakerProperties(new List<byte>{ PropertyCode.PlayerProperties.League });
-            
             BundleHelper.LoadTypeFromBundle<IMmResolver>(Configuration["BundlePath"]).Configure(matchMaker);
 
             _globalTaskScheduler = taskSchedulerFactory.GetTaskScheduler();

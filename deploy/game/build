@@ -1,2 +1,2 @@
 #!/bin/bash
-docker build -t rw.game -f ../../../Shaman.Server/Servers/Shaman.Game/Dockerfile ../../../Shaman.Server/
+docker build -t shaman.game -f ../../Shaman.Server/Servers/Shaman.Game/Dockerfile ../../Shaman.Server/
