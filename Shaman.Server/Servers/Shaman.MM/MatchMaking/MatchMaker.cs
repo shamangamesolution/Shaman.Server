@@ -93,7 +93,11 @@ namespace Shaman.MM.MatchMaking
 //            _hashCodeSets.Add(mmGroup.Id, hashCode);
         }
 
-        
+        public void AddRequiredProperty(byte requiredMatchMakingProperty)
+        {
+            _requiredMatchMakingProperties.Add(requiredMatchMakingProperty);
+        }
+
         public void Start()
         {
             //start groups
