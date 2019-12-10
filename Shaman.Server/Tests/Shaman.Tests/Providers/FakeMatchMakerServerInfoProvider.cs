@@ -60,5 +60,10 @@ namespace Shaman.Tests.Providers
         public void UpdateRoom(int serverId, Dictionary<Guid, Dictionary<byte, object>> players, Guid roomId)
         {
         }
+
+        public Task<string> GetBundleUri()
+        {
+            return Task.FromResult(string.Empty);
+        }
     }
 }

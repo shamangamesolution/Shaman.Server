@@ -23,9 +23,9 @@ namespace Shaman.MM.Providers
         private readonly IRequestSender _requestSender;
         private readonly IShamanLogger _logger;
         private readonly IStatisticsProvider _statisticsProvider;
-        private ITaskScheduler _taskScheduler;
-        private MmApplicationConfig _config;
-        private bool _isRequestingNow = false;
+        private readonly ITaskScheduler _taskScheduler;
+        private readonly MmApplicationConfig _config;
+        private bool _isRequestingNow;
         
         private EntityDictionary<ServerInfo> _gameServerList = new EntityDictionary<ServerInfo>();
         private EntityDictionary<ServerInfo> _serverList = new EntityDictionary<ServerInfo>();
@@ -37,6 +37,7 @@ namespace Shaman.MM.Providers
             _statisticsProvider = statisticsProvider;
             _taskScheduler = taskSchedulerFactory.GetTaskScheduler();
             _config = (MmApplicationConfig) config;
+            _isRequestingNow = false;
         }
         
         public void Start()
@@ -50,7 +51,7 @@ namespace Shaman.MM.Providers
 
                 _isRequestingNow = true;
 
-                _requestSender.SendRequest<GetServerInfoListResponse>(_config.GetRouterUrl(),
+                await _requestSender.SendRequest<GetServerInfoListResponse>(_config.GetRouterUrl(),
                     new GetServerInfoListRequest(), (response) =>
                     {
                         if (!response.Success)
@@ -72,13 +73,15 @@ namespace Shaman.MM.Providers
 
             }, 0, _config.ServerInfoListUpdateIntervalMs);
             
+            ActualizeMe().Wait();
+            
             _taskScheduler.ScheduleOnInterval(async () =>
             {
                 //actualize
                 //if (_gameServerList.Any())
-                    ActualizeMe();
+                    await ActualizeMe();
 
-            }, 0, _config.ActualizeMatchmakerIntervalMs);
+            }, _config.ActualizeMatchmakerIntervalMs, _config.ActualizeMatchmakerIntervalMs);
             
         }
 
@@ -94,9 +97,8 @@ namespace Shaman.MM.Providers
 
         public async Task ActualizeMe()
         {
-            _requestSender.SendRequest<ActualizeServerOnRouterResponse>(_config.GetRouterUrl(),
-                new ActualizeServerOnRouterRequest(new ServerIdentity(_config.GetPublicName(),
-                    _config.GetListenPorts(), _config.GetServerRole()), _config.GetServerName(), _config.GetRegion(), _statisticsProvider.GetPeerCount()),
+            await _requestSender.SendRequest<ActualizeServerOnRouterResponse>(_config.GetRouterUrl(),
+                new ActualizeServerOnRouterRequest(GetServerIdentity(), _config.GetServerName(), _config.GetRegion(), _statisticsProvider.GetPeerCount()),
                 (response) =>
                 {
                     if (!response.Success)
@@ -104,6 +106,25 @@ namespace Shaman.MM.Providers
                         _logger.Error($"MatchMakerServerInfoProvider.ActualizeMe error: {response.Message}");
                     }
                 });
+        }
+
+        public async Task<string> GetBundleUri()
+        {
+            var response = await _requestSender.SendRequest<GetBundleUriResponse>(_config.GetRouterUrl(),
+                new GetBundleUriRequest(GetServerIdentity()));
+            
+            if (!response.Success)
+            {
+                _logger.Error($"MatchMakerServerInfoProvider.GetBundleUri error: {response.Message}");
+            }
+
+            return response.BundleUri;
+        }
+
+        private ServerIdentity GetServerIdentity()
+        {
+            return new ServerIdentity(_config.GetPublicName(),
+                _config.GetListenPorts(), _config.GetServerRole());
         }
 
         public ServerInfo GetLessLoadedServer()

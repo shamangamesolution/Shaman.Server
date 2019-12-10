@@ -36,91 +36,6 @@ namespace Shaman.Router.Controllers
         }
         
         [HttpPost]
-        public async Task<ActionResult> GetMatchmakers()
-        {
-            var input = await Request.GetRawBodyBytesAsync();
-
-            var request = Serializer.DeserializeAs<GetMatchmakersRequest>(input);//GetServerConfigurationsRequest.Deserialize(input);
-            var response = new GetMatchmakersResponse();
-            
-            try
-            {
-                LogInfo($"Matchmakers requested: {request.ClientVersion}");
-                //LogInfo("GetServerConfigurations2", $"Get GetConfigsRequest: auth = {getConfigsRequest.AuthCode} version = {getConfigsRequest.ClientVersion} editorId = {getConfigsRequest.EditorID} googleId = {getConfigsRequest.PlayerGooglePlayId}");
-                string version = request.ClientVersion;
-
-                var configs = await ConfigRepo.GetAllMmConfigurations(request.Game);               
-
-                if (!string.IsNullOrEmpty(version))
-                    configs = configs.Where(c => c.Version == request.ClientVersion).ToList();
-                
-                var backends = await ConfigRepo.GetBackends();
-                foreach (var config in configs)
-                {
-                    var backend = backends.FirstOrDefault(b => b.Id == config.BackendId);
-                    if (backend == null)
-                    {
-                        Logger.Error($"Mm config {config.Id} references unavailable backend {config.BackendId}");
-                        continue;
-                    }
-
-                    config.BackendAddress = backend.Address;
-                    config.BackendPort = backend.Port;
-                }
-                
-                //set response
-                response.Matchmakers = configs;
-            }
-            catch (Exception ex)
-            {
-                response.SetError(ex.Message);
-                LogError($"{ex.ToString()}");
-            }
-
-            return new FileContentResult(Serializer.Serialize(response), "text/html");
-        }
-        
-        [HttpPost]
-        public async Task<ActionResult> ActualizeMatchMaker()
-        {
-            var input = await Request.GetRawBodyBytesAsync();
-
-            var request = Serializer.DeserializeAs<ActualizeMatchMakerRequest>(input);//ActualizeServerRequest.Deserialize(input) as ActualizeServerRequest;
-            var response = new ActualizeMatchMakerResponse();
-
-            try
-            {
-                //check secret
-                if (Config.Value.CustomSecret != request.Secret)
-                    throw new Exception($"Secret is not valid");
-//                
-                var configs = await ConfigRepo.GetAllMmConfigurations(request.GameProject, false);
-                if (configs.Any(c => c.Address == request.IpAddress && c.Port == request.Port))
-                {
-                    //update config
-                    //ConfigRepo.UpdateConfiguration(request.Game, request.ServerName, request.MasterPeers, request.GamePeers);
-                    ConfigRepo.UpdateMmConfiguration(request.GameProject, request.Name,
-                        request.IpAddress, request.Port);
-                }
-                else
-                {
-                    //create config
-//                    ConfigRepo.CreateConfiguration(request.Game, request.ServerName, "", "0", request.Region, request.MasterPeers,
-//                        request.GamePeers);
-                    ConfigRepo.CreateMmConfiguration(request.GameProject, request.Name,
-                        request.IpAddress, request.Port);
-                }
-            }
-            catch (Exception ex)
-            {
-                response.SetError(ex.Message);
-                LogError($"{ex.ToString()}");
-            }
-
-            return new FileContentResult(Serializer.Serialize(response), "text/html");
-        }
-        
-        [HttpPost]
         public async Task<ActionResult> ActualizeServer()
         {
             var input = await Request.GetRawBodyBytesAsync();
@@ -136,12 +51,40 @@ namespace Shaman.Router.Controllers
                     //create
                     serverInfoId = await ConfigRepo.CreateServerInfo(new ServerInfo(request.ServerIdentity, request.Name, request.Region, request.HttpPort, request.HttpsPort));
                 }
-                ConfigRepo.UpdateServerInfoActualizedOn(serverInfoId.Value, request.PeersCount, request.Name, request.Region, request.HttpPort, request.HttpsPort);
+                await ConfigRepo.UpdateServerInfoActualizedOn(serverInfoId.Value, request.PeersCount, request.Name, request.Region, request.HttpPort, request.HttpsPort);
             }
             catch (Exception ex)
             {
                 response.SetError(ex.Message);
-                LogError($"{ex.ToString()}");
+                LogError($"{ex}");
+            }
+
+            return new FileContentResult(Serializer.Serialize(response), "text/html");
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> GetBundleUri()
+        {
+            var input = await Request.GetRawBodyBytesAsync();
+
+            var request = Serializer.DeserializeAs<GetBundleUriRequest>(input);
+            var response = new GetBundleUriResponse();
+
+            try
+            {
+                var serverInfoId = await ConfigRepo.GetServerId(request.ServerIdentity);
+                if (!serverInfoId.HasValue)
+                {
+                    throw new Exception($"No server found with specified identity: {request.ServerIdentity}");
+                }
+
+                var bundleInfo = _serverInfoProvider.GetAllBundles().Single(b => b.ServerId == serverInfoId.Value);
+                response.BundleUri = bundleInfo.Uri;
+            }
+            catch (Exception ex)
+            {
+                response.SetError(ex.Message);
+                LogError($"{ex}");
             }
 
             return new FileContentResult(Serializer.Serialize(response), "text/html");

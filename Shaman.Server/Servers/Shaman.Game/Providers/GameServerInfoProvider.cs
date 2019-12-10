@@ -22,8 +22,8 @@ namespace Shaman.Game.Providers
         private readonly IRequestSender _requestSender;
         private readonly IShamanLogger _logger;
         private readonly IStatisticsProvider _statsProvider;
-        private ITaskScheduler _taskScheduler;
-        private GameApplicationConfig _config;
+        private readonly ITaskScheduler _taskScheduler;
+        private readonly GameApplicationConfig _config;
     
         public GameServerInfoProvider(IRequestSender requestSender, ITaskSchedulerFactory taskSchedulerFactory, IApplicationConfig config, IShamanLogger logger, IStatisticsProvider statsProvider)
         {
@@ -36,11 +36,12 @@ namespace Shaman.Game.Providers
         
         public void Start()
         {
+//            ActualizeMe().Wait();
             _taskScheduler.ScheduleOnInterval(async () =>
             {
                 //actualize
-                ActualizeMe();
-            }, 0, _config.ActualizationTimeoutMs);
+//                await ActualizeMe();
+            }, _config.ActualizationTimeoutMs, _config.ActualizationTimeoutMs);
             
         }
 
@@ -51,9 +52,8 @@ namespace Shaman.Game.Providers
 
         public async Task ActualizeMe()
         {
-            _requestSender.SendRequest<ActualizeServerOnRouterResponse>(_config.GetRouterUrl(),
-                new ActualizeServerOnRouterRequest(new ServerIdentity(_config.GetPublicName(),
-                    _config.GetListenPorts(), _config.GetServerRole()), _config.GetServerName(), _config.GetRegion(), _statsProvider.GetPeerCount(), _config.BindToPortHttp),
+            await _requestSender.SendRequest<ActualizeServerOnRouterResponse>(_config.GetRouterUrl(),
+                new ActualizeServerOnRouterRequest(GetServerIdentity(), _config.GetServerName(), _config.GetRegion(), _statsProvider.GetPeerCount(), _config.BindToPortHttp),
                 (response) =>
                 {
                     if (!response.Success)
@@ -61,6 +61,11 @@ namespace Shaman.Game.Providers
                         _logger.Error($"MatchMakerServerInfoProvider.ActualizeMe error: {response.Message}");
                     }
                 });
+        }
+        private ServerIdentity GetServerIdentity()
+        {
+            return new ServerIdentity(_config.GetPublicName(),
+                _config.GetListenPorts(), _config.GetServerRole());
         }
     }
 }

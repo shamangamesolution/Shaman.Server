@@ -44,10 +44,10 @@ namespace Shaman.Game.Rooms
 
             _roomStats = new RoomStats(GetRoomId(), roomPropertiesContainer.GetPlayersCount());
 
-            if (!roomPropertiesContainer.IsRoomPropertiesContainsKey(PropertyCode.RoomProperties.GameMode))
-            {
-                throw new Exception($"There is no GameMode property while creating room");
-            }
+//            if (!roomPropertiesContainer.IsRoomPropertiesContainsKey(PropertyCode.RoomProperties.GameMode))
+//            {
+//                throw new Exception($"There is no GameMode property while creating room");
+//            }
 
             // todo RW
             //throw new NotImplementedException("RW");

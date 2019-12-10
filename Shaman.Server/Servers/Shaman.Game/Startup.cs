@@ -33,6 +33,8 @@ namespace Shaman.Game
 {
     public class Startup
     {
+        private ServiceCollection _serviceCollection;
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -103,17 +105,11 @@ namespace Shaman.Game
 //            services.AddSingleton<IStorageContainer, GameServerStorageContainer>();
             services.AddSingleton<IGameServerInfoProvider, GameServerInfoProvider>();
             services.AddSingleton<IStatisticsProvider, StatisticsProvider>();
+            services.AddSingleton<IShamanComponents, ShamanComponents>();
+            services.AddSingleton<IGameModeControllerFactory, GameModeControllerFactory>();
+            services.AddSingleton<IBundleInfoProvider, BundleInfoProvider>();
 
-            ConfigureBundle(services);
         }
-
-        private void ConfigureBundle(IServiceCollection services)
-        {
-            var loadGameBundle = BundleHelper.LoadTypeFromBundle<IGameResolver>(Configuration["BundlePath"]);
-            loadGameBundle.Configure(services);
-            services.AddSingleton(loadGameBundle);
-        }
-
         private void ConfigureMetrics(IServiceCollection services)
         {
             var metricsSettings = new MetricsSettings();
@@ -124,7 +120,7 @@ namespace Shaman.Game
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplication server, ITaskSchedulerFactory taskSchedulerFactory, IGameServerInfoProvider serverInfoProvider, IServiceProvider serviceProvider, IGameResolver gameResolver)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplication server, IGameServerInfoProvider serverInfoProvider, IGameModeControllerFactory controllerFactory/* init bundle */)
         {
             if (env.IsDevelopment())
             {
@@ -134,10 +130,6 @@ namespace Shaman.Game
             app.UseMvc();
 
             server.Start();
-            
-            gameResolver.OnInitialize(serviceProvider);
-            
-//            storageContainer.Start(string.Empty);
             serverInfoProvider.Start();
         }
 
