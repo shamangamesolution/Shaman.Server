@@ -5,73 +5,79 @@ using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Serialization;
 using Shaman.Common.Utils.TaskScheduling;
+using Shaman.Game.Contract;
 using Shaman.MM.Players;
 using Shaman.Messages;
 using Shaman.Messages.MM;
 using Shaman.Messages.RoomFlow;
+using Shaman.MM.Managers;
 using Shaman.MM.Metrics;
 using Shaman.MM.Providers;
+using Shaman.MM.Rooms;
 
 namespace Shaman.MM.MatchMaking
 {
     public class MatchMakingGroup
     {
-        private const int TIME_TO_KEEP_CREATED_ROOM_SEC = 1800;
-        
-        public readonly Dictionary<byte, object> Measures;
+        public Guid Id { get; set; }
+
+        private readonly Dictionary<byte, object> _measures;
+        private readonly IShamanLogger _logger;
+        private readonly IPlayersManager _playersManager;
+        private readonly ITaskScheduler _taskScheduler;
+        private readonly ISerializer _serializer;
+        private readonly IMmMetrics _mmMetrics;
+        private readonly IRoomManager _roomManager;
+        private readonly IBotManager _botManager;
+        private readonly IPacketSender _packetSender;
+
+        private readonly Dictionary<byte, object> _roomProperties;
         private readonly int _matchMakingTickMs;
         private readonly int _totalPlayersNeeded;
         private readonly bool _addBots;
         private readonly bool _addOtherPlayers;
         private readonly int _timeBeforeBotsAddedMs;
 
-        private readonly IMatchMakerServerInfoProvider _serverProvider;
-        private ICreatedRoomManager _createdRoomManager;
-        private IShamanLogger _logger;
-        private ITaskSchedulerFactory _taskSchedulerFactory;
-        private ITaskScheduler _taskScheduler;
-        private ISerializer _serializer;
-        private IMatchMaker _matchmaker;
         private object _queueSync = new object();
-        Queue<MatchMakingPlayer> _matchmakingPlayers;
-        private Dictionary<byte, object> _roomProperties;
-        private IPlayerCollection _playersCollection;
-//        private IRegisteredServerCollection _serversCollection;
-        private IPacketSender _packetSender;
-        private readonly IMmMetrics _mmMetrics;
+        private Queue<MatchMakingPlayer> _matchmakingPlayers;
         private bool _isGroupWorking;
         private PendingTask _clearTask, _mainTask;
-        public Guid Id { get; set; }
-        private int _roomClosingInMs;
 
-        public MatchMakingGroup(int totalPlayersNeeded, int matchMakingTickMs, bool addBots, bool addOtherPlayers,
-            int timeBeforeBotsAddedMs, int roomClosingInMs, Dictionary<byte, object> roomProperties, Dictionary<byte, object> measures,
-            IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory, IMatchMaker matchmaker,
-            IPlayerCollection playerCollection,
-            ISerializer serializer, IPacketSender packetSender, IMmMetrics mmMetrics, ICreatedRoomManager createdRoomManager, IMatchMakerServerInfoProvider serverProvider)
+        public MatchMakingGroup(Dictionary<byte, object> roomProperties, Dictionary<byte, object> measures,
+            IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory, IPlayersManager playersManager,
+            IPacketSender packetSender, IMmMetrics mmMetrics, IRoomManager roomManager, IBotManager botManager)
         {
-            Measures = measures;
-            _matchMakingTickMs = matchMakingTickMs;
+            _measures = measures;
             _logger = logger;
-            _taskSchedulerFactory = taskSchedulerFactory;
-            _matchmaker = matchmaker;
-            _playersCollection = playerCollection;
-            _serializer = serializer;
+            _playersManager = playersManager;
             _taskScheduler = taskSchedulerFactory.GetTaskScheduler();
-            _totalPlayersNeeded = totalPlayersNeeded;
-            _addBots = addBots;
-            _addOtherPlayers = addOtherPlayers;
-            _timeBeforeBotsAddedMs = timeBeforeBotsAddedMs;
-            _roomClosingInMs = roomClosingInMs;
             _matchmakingPlayers = new Queue<MatchMakingPlayer>();
             _roomProperties = roomProperties;
             Id = Guid.NewGuid();
             _packetSender = packetSender;
             _mmMetrics = mmMetrics;
-            _createdRoomManager = createdRoomManager;
-            _serverProvider = serverProvider;
-        }
+            _roomManager = roomManager;
+            _botManager = botManager;
 
+            //get properties from dict
+            if (!roomProperties.TryGetValue(PropertyCode.RoomProperties.MatchMakingTick, out var tickProperty))
+                throw new Exception($"MatchMakingGroup ctr error: there is no MatchMakingTick property");
+            if (!roomProperties.TryGetValue(PropertyCode.RoomProperties.TotalPlayersNeeded, out var totalPlayersProperty))
+                throw new Exception($"MatchMakingGroup ctr error: there is no TotalPlayersNeeded property");
+            if (!roomProperties.TryGetValue(PropertyCode.RoomProperties.ToAddBots, out var addBotsProperty))
+                throw new Exception($"MatchMakingGroup ctr error: there is no ToAddBots property");
+            if (!roomProperties.TryGetValue(PropertyCode.RoomProperties.ToAddOtherPlayers, out var addOthersProperty))
+                throw new Exception($"MatchMakingGroup ctr error: there is no ToAddOtherPlayers property");
+            if (!roomProperties.TryGetValue(PropertyCode.RoomProperties.TimeBeforeBotsAdded, out var timeBeforeBotsProperty))
+                throw new Exception($"MatchMakingGroup ctr error: there is no TimeBeforeBotsAdded property");
+            
+            _matchMakingTickMs = (int)tickProperty;
+            _totalPlayersNeeded = (int)totalPlayersProperty;
+            _addBots = (bool)addBotsProperty;
+            _addOtherPlayers = (bool)addOthersProperty;
+            _timeBeforeBotsAddedMs = (int)timeBeforeBotsProperty;
+        }
+        
         private void AddPlayer(MatchMakingPlayer player)
         {
             lock (_queueSync)
@@ -81,19 +87,6 @@ namespace Shaman.MM.MatchMaking
             }
         }
 
-        private MatchMakingPlayer GetPlayer()
-        {
-            lock (_queueSync)
-            {
-                if (_matchmakingPlayers.Count == 0)
-                    return null;
-                else
-                {
-                    return _matchmakingPlayers.Dequeue();
-                }
-            }
-        }
-        
         private void SendJoinInfoToCurrentMatchmakingGroup()
         {
             lock (_queueSync)
@@ -101,9 +94,10 @@ namespace Shaman.MM.MatchMaking
                 foreach (var player in _matchmakingPlayers)
                 {
                     _logger.Debug($"Sending prejoin info to {player.Id}");
-                    _playersCollection.SetJoinInfo(player.Id,
+                    _playersManager.SetJoinInfo(player.Id,
                         new JoinInfo("", 0, Guid.Empty, JoinStatus.OnMatchmaking, _matchmakingPlayers.Count(),
                             _totalPlayersNeeded), false);
+                    
                     _packetSender.AddPacket(new JoinInfoEvent(player.JoinInfo), player.Peer);
                 }
             }
@@ -117,113 +111,6 @@ namespace Shaman.MM.MatchMaking
             }
         }
 
-        private void AddToNewRoom()
-        {
-            //create room
-            //var server = _serversCollection.GetLessLoadedServer();
-            var server = _serverProvider.GetLessLoadedServer();
-            if (server == null)
-                return;
-
-            _logger.Info($"MmGroup: players found, creating room on {server.Identity}");
-
-            //prepare players dict to send to room
-            var _playersToSendToRoom = new Dictionary<Guid, Dictionary<byte, object>>();
-            var _playersList = new List<MatchMakingPlayer>();
-
-            var totalHumanPlayers = _matchmakingPlayers.Count;
-            //move player from inner collection to new list
-            for (int i = 0; i < _totalPlayersNeeded; i++)
-            {
-                var player = GetPlayer();
-                if (player != null)
-                {
-                    _playersList.Add(player);
-                    //add additional property
-                    if (!player.Properties.ContainsKey(PropertyCode.PlayerProperties.IsBot))
-                        player.Properties.Add(PropertyCode.PlayerProperties.IsBot, false);
-                    _playersToSendToRoom.Add(player.SessionId, player.Properties);
-                }
-                else
-                {
-                    _playersToSendToRoom.Add(Guid.NewGuid(), new Dictionary<byte, object>()
-                    {
-                        {PropertyCode.PlayerProperties.IsBot, true}
-                    });
-                }
-            }
-
-            Guid roomId = _serverProvider.CreateRoom(server.Id, _roomProperties, _playersToSendToRoom);
-            if (roomId == Guid.Empty)
-            {
-                foreach (var player in _playersList)
-                {
-                    _playersCollection.SetOnMatchmaking(player.Id, false);
-                    _logger.Info($"Sending matchmaking failed info to {player.Id}");
-                    _playersCollection.SetJoinInfo(player.Id,
-                        new JoinInfo("", 0, Guid.Empty, JoinStatus.MatchMakingFailed, 0, 0), false);
-                    _packetSender.AddPacket(new JoinInfoEvent(player.JoinInfo), player.Peer);
-                }
-
-                return;
-            }
-
-            var port = server.GetLessLoadedPort();
-
-            //create room to allow joining during game
-            var createdRoom = new CreatedRoom(roomId, 0, _roomClosingInMs, _playersToSendToRoom, server, _addOtherPlayers);
-            _createdRoomManager.AddCreatedRoom(createdRoom);
-
-            foreach (var player in _playersList)
-            {
-                _logger.Debug($"Sending join info to {player.Id}");
-                _playersCollection.SetJoinInfo(player.Id,
-                    new JoinInfo(server.Identity.Address, port, roomId, JoinStatus.RoomIsReady,
-                        totalHumanPlayers, _totalPlayersNeeded), true);
-
-                _packetSender.AddPacket(new JoinInfoEvent(player.JoinInfo), player.Peer);
-                _playersCollection.Remove(player.Id);
-            }
-        }
-        
-        private void AddToExistingRoom(CreatedRoom createdRoom)
-        {
-            var _playersToSendToRoom = new Dictionary<Guid, Dictionary<byte, object>>();
-            var _playersList = new List<MatchMakingPlayer>();
-            var totalHumanPlayers = _matchmakingPlayers.Count;
-
-            for (int i = 0; i < totalHumanPlayers; i++)
-            {
-                var player = GetPlayer();
-                if (player != null)
-                {
-                    _playersList.Add(player);
-                    //add additional property
-                    player.Properties.Add(PropertyCode.PlayerProperties.IsBot, false);
-                    _playersToSendToRoom.Add(player.SessionId, player.Properties);
-                }
-            }
-            
-            //update room with new players data
-            _serverProvider.UpdateRoom(createdRoom.Server.Id, _playersToSendToRoom, createdRoom.Id);
-
-            var port = createdRoom.Server.GetLessLoadedPort();
-            
-            //add new players to room
-            createdRoom.AddPlayers(_playersToSendToRoom);
-            
-            foreach (var player in _playersList)
-            {
-                _logger.Debug($"Sending join info to {player.Id}");
-                _playersCollection.SetJoinInfo(player.Id,
-                    new JoinInfo(createdRoom.Server.Identity.Address, port, createdRoom.Id, JoinStatus.RoomIsReady,
-                        totalHumanPlayers, _totalPlayersNeeded, true), true);
-
-                _packetSender.AddPacket(new JoinInfoEvent(player.JoinInfo), player.Peer);
-                _playersCollection.Remove(player.Id);
-            }
-        }
-
         private void TrackMmTime(MatchMakingPlayer oldestPlayer)
         {
             if (oldestPlayer != null && oldestPlayer.AddedToMmGroupOn.HasValue)
@@ -234,6 +121,56 @@ namespace Shaman.MM.MatchMaking
             {
                 _logger.Error($"Oldest player not found when tracking MM time");
             }
+        }
+
+        private bool NeedToAddBots(MatchMakingPlayer oldestPlayer)
+        {
+            if (oldestPlayer?.AddedToMmGroupOn == null)
+                return false;
+            
+            return _matchmakingPlayers.Count < _totalPlayersNeeded && _addBots && (DateTime.UtcNow - oldestPlayer.AddedToMmGroupOn.Value).TotalMilliseconds >= _timeBeforeBotsAddedMs;
+        }
+
+        private void SendMatchmakingFailed(MatchMakingPlayer player)
+        {
+            _logger.Error($"Sending matchmaking failed info to {player.Id}");
+            _playersManager.SetOnMatchmaking(player.Id, false);
+            _playersManager.SetJoinInfo(player.Id,
+                new JoinInfo("", 0, Guid.Empty, JoinStatus.MatchMakingFailed, 0, 0), false);
+            _packetSender.AddPacket(new JoinInfoEvent(player.JoinInfo), player.Peer);
+        }
+
+        private void SendMatchMakingComplete(MatchMakingPlayer player, JoinRoomResult result)
+        {
+            _logger.Debug($"Sending join info to {player.Id}");
+            _playersManager.SetJoinInfo(player.Id,
+                new JoinInfo(result.Address, result.Port, result.RoomId, JoinStatus.RoomIsReady,
+                    _matchmakingPlayers.Count, _totalPlayersNeeded, true), true);
+            _packetSender.AddPacket(new JoinInfoEvent(player.JoinInfo), player.Peer);
+            _playersManager.Remove(player.Id);
+        }
+
+        private void ProcessJoinResult(JoinRoomResult result, MatchMakingPlayer oldestPlayer)
+        {
+            switch (result.Result)
+            {
+                case RoomOperationResult.OK:
+                    foreach (var player in _matchmakingPlayers)
+                        SendMatchMakingComplete(player,result);
+                    break;
+                case RoomOperationResult.ServerNotFound:
+                case RoomOperationResult.JoinRoomError:
+                    foreach (var player in _matchmakingPlayers)
+                        SendMatchmakingFailed(player);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+                            
+            _matchmakingPlayers.Clear();
+            if (oldestPlayer != null)
+                TrackMmTime(oldestPlayer);
+            _isGroupWorking = false;
         }
         
         public void Start()
@@ -254,53 +191,52 @@ namespace Shaman.MM.MatchMaking
                         var matchmakingPlayersCount = _matchmakingPlayers.Count;
                         
                         var players =
-                            _playersCollection.GetPlayersAndSetOnMatchmaking(Id,
+                            _playersManager.GetPlayers(Id,
                                 _addOtherPlayers
                                     ? (_totalPlayersNeeded - matchmakingPlayersCount)
                                     : (1 - matchmakingPlayersCount));
 
                         foreach (var player in players)
+                        {
+                            _playersManager.SetOnMatchmaking(player.Id, true);
                             AddPlayer(player);
+                        }
+                        
+                        matchmakingPlayersCount = _matchmakingPlayers.Count;
+
+                        //if noone in collection - continue
+                        if (matchmakingPlayersCount == 0)
+                        {
+                            _isGroupWorking = false;
+                            return;
+                        }
                         
                         var oldestPlayer = GetOldestPlayer();
 
-                        var toAddBots = 0;
-                        //check bots
-                        if (matchmakingPlayersCount < _totalPlayersNeeded && _addBots)
+                        //try to add to existing room
+                        var room = _roomManager.GetRoom(Id, matchmakingPlayersCount);
+                        JoinRoomResult result = null;
+                        
+                        if (room != null)
                         {
-                            if (oldestPlayer != null &&
-                                (DateTime.UtcNow - oldestPlayer.AddedToMmGroupOn.Value).TotalMilliseconds >=
-                                _timeBeforeBotsAddedMs)
-                            {
-                                toAddBots = _totalPlayersNeeded - matchmakingPlayersCount;
-                            }
-                            else
-                            {
-                                if (matchmakingPlayersCount > 0)
-                                {
-                                    //we can not add bots because of timer, but we can try to find existing room for players
-                                    var room = _createdRoomManager.GetRoomForPlayers(matchmakingPlayersCount);
-                                    if (room != null)
-                                    {
-                                        AddToExistingRoom(room);
-                                        TrackMmTime(oldestPlayer);
-                                        return;
-                                    }
-                                }
-                            }
+                            //join to existing
+                            result = _roomManager.JoinRoom(room.Id,
+                                _matchmakingPlayers.ToDictionary(key => key.SessionId, value => value.Properties),
+                                _measures);
+                        }
+                        else if (NeedToAddBots(oldestPlayer))
+                        {
+                            var bots = _botManager.GetBots(_totalPlayersNeeded - matchmakingPlayersCount);
+                            //add new room
+                            result = _roomManager.CreateRoom(Id,
+                                _matchmakingPlayers.ToDictionary(key => key.SessionId, value => value.Properties), bots,
+                                _roomProperties, _measures);
                         }
 
-                        if (matchmakingPlayersCount + toAddBots >= _totalPlayersNeeded)
-                        {
-                            AddToNewRoom();
-                            TrackMmTime(oldestPlayer);
-                        }
+                        if (result != null)
+                            ProcessJoinResult(result, oldestPlayer);
                         else
-                        {
-                            //send matchmaking status
                             SendJoinInfoToCurrentMatchmakingGroup();
-                        }
-
                     }
                 }
                 catch (Exception ex)

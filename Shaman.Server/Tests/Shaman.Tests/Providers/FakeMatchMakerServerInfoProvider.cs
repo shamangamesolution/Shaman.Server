@@ -41,6 +41,14 @@ namespace Shaman.Tests.Providers
             return servers;
         }
 
+        public ServerInfo GetServer(int serverId)
+        {
+            if (!servers.ContainsKey(serverId))
+                return null;
+
+            return servers[serverId];
+        }
+
         public async Task ActualizeMe()
         {
         }

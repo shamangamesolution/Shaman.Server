@@ -92,6 +92,14 @@ namespace Shaman.MM.Providers
             return _gameServerList;
         }
 
+        public ServerInfo GetServer(int serverId)
+        {
+            if (!_serverList.ContainsKey(serverId))
+                return null;
+
+            return _serverList[serverId];
+        }
+
         public async Task ActualizeMe()
         {
             _requestSender.SendRequest<ActualizeServerOnRouterResponse>(_config.GetRouterUrl(),

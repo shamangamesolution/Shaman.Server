@@ -11,6 +11,7 @@ namespace Shaman.MM.Providers
         void Start();
         void Stop();
         EntityDictionary<ServerInfo> GetGameServers();
+        ServerInfo GetServer(int serverId);
         Task ActualizeMe();
         ServerInfo GetLessLoadedServer();
 

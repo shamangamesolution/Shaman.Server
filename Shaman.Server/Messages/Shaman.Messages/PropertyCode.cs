@@ -17,6 +17,13 @@ namespace Shaman.Messages
         {
             public const byte GameMode = 1;
             public const byte League = 2;
+            public const byte GameParametersId = 3;
+            public const byte TotalPlayersNeeded = 4;
+            public const byte MatchMakingTick = 5;
+            public const byte ToAddBots = 6;
+            public const byte ToAddOtherPlayers = 7;
+            public const byte TimeBeforeBotsAdded = 8;
+            public const byte RoomIsClosingIn = 9;
         }
     }
 }
