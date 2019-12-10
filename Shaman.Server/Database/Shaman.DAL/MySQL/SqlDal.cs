@@ -183,6 +183,34 @@ namespace Shaman.DAL.MySQL
              }
  
          }
+         
+          public async Task<int> Execute(string sqlQuery, MySqlParameter[] parameters = null)
+          {
+              try
+              {
+                  await OpenConnection();
+
+                  using (var cmd = new MySqlCommand(sqlQuery, connection))
+                  {
+                      cmd.CommandType = CommandType.Text;
+                      if (parameters != null)
+                      {
+                          cmd.Parameters.AddRange(parameters);
+                      }
+                      return await cmd.ExecuteNonQueryAsync();
+                  }
+              }
+              catch (Exception ex)
+              {
+                  _logError($"Error executing SQL: {ex}");
+                  throw new Exception($"Error executing SQL", ex);
+              }
+              finally
+              {
+                  await CloseConnection();
+              }
+          }
+
 
      }
 }
