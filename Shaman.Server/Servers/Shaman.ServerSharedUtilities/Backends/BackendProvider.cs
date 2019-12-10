@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Utils.Logging;
@@ -20,7 +21,7 @@ namespace Shaman.ServerSharedUtilities.Backends
         private readonly IApplicationConfig _config;
         private readonly IRequestSender _requestSender;
 
-        private ServerInfo[] _backends;
+        private List<ServerInfo> _backends = new List<ServerInfo>();
         private int _getBackendsListRequestCount = 0;
         
         public BackendProvider(ITaskSchedulerFactory taskSchedulerFactory, IApplicationConfig config, IRequestSender requestSender, IShamanLogger logger)
@@ -59,7 +60,7 @@ namespace Shaman.ServerSharedUtilities.Backends
 
         public void Start()
         {
-            _taskScheduler.ScheduleOnInterval(Load, 0, _config.GetBackendListFromRouterIntervalMs());
+            _taskScheduler.ScheduleOnInterval(Load, 2000, _config.GetBackendListFromRouterIntervalMs());
         }
 
         private void Load()
@@ -77,13 +78,13 @@ namespace Shaman.ServerSharedUtilities.Backends
                 return;
             }
 
-            var backends = response.ServerInfoList.Where(s=>s.ServerRole == ServerRole.BackEnd && s.IsApproved).ToArray();
+            var backends = response.ServerInfoList.Where(s=>s.ServerRole == ServerRole.BackEnd && s.IsApproved).ToList();
             if (!backends.Any())
                 _logger.Error($"Received 0 backends from Router!");
             else
             {
                 if (requestNumber == 1)
-                    _logger.Info($"Received {backends.Length} backends from Router");
+                    _logger.Info($"Received {backends.Count} backends from Router");
                 _backends = backends;
             }
         }
