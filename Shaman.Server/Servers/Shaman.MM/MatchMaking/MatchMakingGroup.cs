@@ -25,7 +25,6 @@ namespace Shaman.MM.MatchMaking
         private readonly IShamanLogger _logger;
         private readonly IPlayersManager _playersManager;
         private readonly ITaskScheduler _taskScheduler;
-        private readonly ISerializer _serializer;
         private readonly IMmMetrics _mmMetrics;
         private readonly IRoomManager _roomManager;
         private readonly IBotManager _botManager;
@@ -41,19 +40,20 @@ namespace Shaman.MM.MatchMaking
         private object _queueSync = new object();
         private Queue<MatchMakingPlayer> _matchmakingPlayers;
         private bool _isGroupWorking;
-        private PendingTask _clearTask, _mainTask;
+        private PendingTask _mainTask;
 
         public MatchMakingGroup(Dictionary<byte, object> roomProperties, Dictionary<byte, object> measures,
             IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory, IPlayersManager playersManager,
             IPacketSender packetSender, IMmMetrics mmMetrics, IRoomManager roomManager, IBotManager botManager)
         {
+            Id = Guid.NewGuid();
+
             _measures = measures;
             _logger = logger;
             _playersManager = playersManager;
             _taskScheduler = taskSchedulerFactory.GetTaskScheduler();
             _matchmakingPlayers = new Queue<MatchMakingPlayer>();
             _roomProperties = roomProperties;
-            Id = Guid.NewGuid();
             _packetSender = packetSender;
             _mmMetrics = mmMetrics;
             _roomManager = roomManager;
@@ -78,6 +78,7 @@ namespace Shaman.MM.MatchMaking
             _timeBeforeBotsAddedMs = (int)timeBeforeBotsProperty;
         }
         
+        #region privates
         private void AddPlayer(MatchMakingPlayer player)
         {
             lock (_queueSync)
@@ -131,7 +132,7 @@ namespace Shaman.MM.MatchMaking
             return _matchmakingPlayers.Count < _totalPlayersNeeded && _addBots && (DateTime.UtcNow - oldestPlayer.AddedToMmGroupOn.Value).TotalMilliseconds >= _timeBeforeBotsAddedMs;
         }
 
-        private void SendMatchmakingFailed(MatchMakingPlayer player)
+        private void ProcessFailed(MatchMakingPlayer player)
         {
             _logger.Error($"Sending matchmaking failed info to {player.Id}");
             _playersManager.SetOnMatchmaking(player.Id, false);
@@ -140,7 +141,7 @@ namespace Shaman.MM.MatchMaking
             _packetSender.AddPacket(new JoinInfoEvent(player.JoinInfo), player.Peer);
         }
 
-        private void SendMatchMakingComplete(MatchMakingPlayer player, JoinRoomResult result)
+        private void ProcessSuccess(MatchMakingPlayer player, JoinRoomResult result)
         {
             _logger.Debug($"Sending join info to {player.Id}");
             _playersManager.SetJoinInfo(player.Id,
@@ -156,12 +157,12 @@ namespace Shaman.MM.MatchMaking
             {
                 case RoomOperationResult.OK:
                     foreach (var player in _matchmakingPlayers)
-                        SendMatchMakingComplete(player,result);
+                        ProcessSuccess(player,result);
                     break;
                 case RoomOperationResult.ServerNotFound:
                 case RoomOperationResult.JoinRoomError:
                     foreach (var player in _matchmakingPlayers)
-                        SendMatchmakingFailed(player);
+                        ProcessFailed(player);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -172,6 +173,7 @@ namespace Shaman.MM.MatchMaking
                 TrackMmTime(oldestPlayer);
             _isGroupWorking = false;
         }
+        #endregion
         
         public void Start()
         {
@@ -221,8 +223,7 @@ namespace Shaman.MM.MatchMaking
                         {
                             //join to existing
                             result = _roomManager.JoinRoom(room.Id,
-                                _matchmakingPlayers.ToDictionary(key => key.SessionId, value => value.Properties),
-                                _measures);
+                                _matchmakingPlayers.ToDictionary(key => key.SessionId, value => value.Properties));
                         }
                         else if (NeedToAddBots(oldestPlayer))
                         {
@@ -252,7 +253,8 @@ namespace Shaman.MM.MatchMaking
 
         public void Stop()
         {
-           _taskScheduler.RemoveAll();
+           _taskScheduler.Remove(_mainTask);
+           
         }
     }
 }
