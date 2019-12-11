@@ -15,7 +15,6 @@ namespace Shaman.MM.Players
         void Clear();
         int Count();
         void SetOnMatchmaking(Guid playerId, bool isOnMatchmaking);
-        void SetJoinInfo(Guid playerId, JoinInfo joinInfo, bool isMatchMakingComplete);
         void AddMmGroup(Guid id, Dictionary<byte, object> properties);
 
     }

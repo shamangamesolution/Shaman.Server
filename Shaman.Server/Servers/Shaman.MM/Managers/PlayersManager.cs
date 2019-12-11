@@ -111,19 +111,6 @@ namespace Shaman.MM.Managers
             }
         }
 
-        public void SetJoinInfo(Guid playerId, JoinInfo joinInfo, bool isMatchMakingComplete)
-        {
-            var player = GetPlayer(playerId);
-            lock (_syncCollection)
-            {
-                if (player != null)
-                {
-                    player.JoinInfo = joinInfo;
-                    player.MatchMakingComplete = isMatchMakingComplete;
-                }
-            }
-        }
-
         public void Clear()
         {
             lock (_syncCollection)
@@ -153,14 +140,8 @@ namespace Shaman.MM.Managers
                 
                 if (!_mmGroupToPlayer.ContainsKey(groupId))
                     return new List<MatchMakingPlayer>();
-//                
-                var playersNeeded = _mmGroupToPlayer[groupId].Where(p => p.OnMatchmaking == false).OrderBy(p => p.StartedOn).Take(maxCount).ToList();
-                foreach (var player in playersNeeded)
-                {
-                    player.OnMatchmaking = true;
-                }
-                
-                return playersNeeded;
+
+                return _mmGroupToPlayer[groupId].Where(p => p.OnMatchmaking == false).OrderBy(p => p.StartedOn).Take(maxCount).ToList();
             }
         }
     }

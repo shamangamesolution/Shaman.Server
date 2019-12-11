@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Shaman.Common.Utils.Servers;
+using Shaman.Messages;
 
 namespace Shaman.MM.Rooms
 {
     public class Room
     {
-        public Room(Guid id, int botsAdded, int closingInMs, Dictionary<Guid, Dictionary<byte, object>> players, int serverId, bool addOtherPlayers, Dictionary<byte, object> properties, Dictionary<byte, object> measures)
+        public Room(Guid id, int totalPlayersNeeded,  int botsAdded, int closingInMs, Dictionary<Guid, Dictionary<byte, object>> players, int serverId, bool addOtherPlayers, Dictionary<byte, object> properties, Dictionary<byte, object> measures)
         {
             Id = id;
             BotsAdded = botsAdded;
@@ -17,11 +19,13 @@ namespace Shaman.MM.Rooms
             AddOtherPlayers = addOtherPlayers;
             Properties = properties;
             Measures = measures;
+            TotalPlayersNeeded = totalPlayersNeeded;
         }
 
         public Guid Id { get; set; }
         public DateTime CreatedOn { get; set; }
         public int ClosingInMs { get; set; }
+        public int TotalPlayersNeeded { get; set; }
         public int BotsAdded { get; set; }
         public Dictionary<Guid, Dictionary<byte, object>> Players { get; set; }
         public int ServerId { get; set; }
@@ -36,6 +40,16 @@ namespace Shaman.MM.Rooms
                 Players.Add(player.Key, player.Value);
             }
 
+            //remove bots
+            Players
+                .Where(p =>
+                            p.Value.ContainsKey(PropertyCode.PlayerProperties.IsBot) &&
+                            (bool) p.Value[PropertyCode.PlayerProperties.IsBot] == true)
+                .Select(p => p.Key)
+                .Take(players.Count)
+                .ToList()
+                .ForEach(item => { Players.Remove(item); });
+            
             BotsAdded -= players.Count;
 
             //dirty hack
@@ -49,7 +63,7 @@ namespace Shaman.MM.Rooms
 
         public bool CanJoin(int playersCount)
         {
-            return IsOpen() && BotsAdded >= playersCount && AddOtherPlayers;
+            return IsOpen() && (BotsAdded >= playersCount || ((TotalPlayersNeeded - (Players.Count - BotsAdded)) >= playersCount)) && AddOtherPlayers;
         }
     }
 }

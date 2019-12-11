@@ -23,8 +23,11 @@ namespace Shaman.MM.Managers
         
         private Dictionary<Guid, MatchMakingGroup> _groups = new Dictionary<Guid, MatchMakingGroup>();
         private Dictionary<Guid, Dictionary<byte, object>> _groupsToProperties = new Dictionary<Guid, Dictionary<byte, object>>();
+        private bool _isStarted = false;
         
-        public MatchMakingGroupManager(IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory, IPlayersManager playersManager, IPacketSender packetSender, IMmMetrics mmMetrics, IMatchMakerServerInfoProvider serverInfoProvider, IRoomManager roomManager, IBotManager botManager)
+        public MatchMakingGroupManager(IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory,
+            IPlayersManager playersManager, IPacketSender packetSender, IMmMetrics mmMetrics,
+            IMatchMakerServerInfoProvider serverInfoProvider, IRoomManager roomManager, IBotManager botManager)
         {
             _logger = logger;
             _taskSchedulerFactory = taskSchedulerFactory;
@@ -62,6 +65,8 @@ namespace Shaman.MM.Managers
             var group = new MatchMakingGroup(roomProperties, measures, _logger, _taskSchedulerFactory, _playersManager, _packetSender, _mmMetrics, _roomManager, _botManager);
             _groups.Add(group.Id, group);
             _groupsToProperties.Add(group.Id, measures);
+            if (_isStarted)
+                group.Start();
             return group.Id;
         }
 
@@ -74,16 +79,24 @@ namespace Shaman.MM.Managers
             return result;
         }
 
-        public void Start()
+        public void Start(int timeToKeepCreatedRoomSec = 1800)
         {
             foreach(var group in _groups)
                 group.Value.Start();
+            
+            _roomManager.Start(timeToKeepCreatedRoomSec);
+
+            _isStarted = true;
         }
 
         public void Stop()
         {
             foreach(var group in _groups)
                 group.Value.Stop();
+            _groups.Clear();
+            _groupsToProperties.Clear();
+            _roomManager.Stop();
+            _isStarted = false;
         }
     }
 }

@@ -1,0 +1,370 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
+using Newtonsoft.Json.Bson;
+using NUnit.Framework;
+using Shaman.Common.Utils.Logging;
+using Shaman.Common.Utils.TaskScheduling;
+using Shaman.Messages;
+using Shaman.MM.Managers;
+using Shaman.MM.Metrics;
+using Shaman.MM.Providers;
+using Shaman.MM.Tests.Fakes;
+
+namespace Shaman.MM.Tests
+{
+    [TestFixture]
+    public class RoomManagerTests
+    {
+        private IMatchMakerServerInfoProvider _serverProvider;
+        private IRoomManager _roomManager;
+        private IShamanLogger _logger;
+        private ITaskSchedulerFactory _taskSchedulerFactory;
+        private Task emptyTask = new Task(() => {});
+        private Guid _group1Id = Guid.NewGuid();
+        
+        [SetUp]
+        public void Setup()
+        {
+            _logger = new ConsoleLogger();
+            _serverProvider = new FakeServerProvider();
+            _taskSchedulerFactory = new TaskSchedulerFactory(_logger);
+            _roomManager = new RoomManager(_serverProvider, _logger, _taskSchedulerFactory.GetTaskScheduler());
+            _roomManager.Start(5);
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            _roomManager.Stop();
+        }
+
+        [Test]
+        public void CreateRoomTest()
+        {
+            var players = new Dictionary<Guid, Dictionary<byte, object>>
+            {
+                {Guid.NewGuid(), new Dictionary<byte, object>()}
+            };
+            var bots = new Dictionary<Guid, Dictionary<byte, object>>
+            {
+                {Guid.NewGuid(), new Dictionary<byte, object>()}
+            };
+            var properties = new Dictionary<byte, object>();
+            var measures = new Dictionary<byte, object>();
+            var success = true;
+            Exception ex = null;
+            JoinRoomResult result = null;
+            try
+            {
+                result = _roomManager.CreateRoom(_group1Id, players, bots, properties, measures);
+            }
+            catch (Exception e)
+            {
+                success = false;
+                ex = e;
+            }
+            Assert.IsNull(result);
+            Assert.AreEqual(false, success);
+            Assert.AreEqual("MatchMakingGroup ctr error: there is no RoomIsClosingIn property", ex.Message);
+            Assert.AreEqual(0, _roomManager.GetRoomsCount());
+            
+            properties.Add(PropertyCode.RoomProperties.RoomIsClosingIn, 0);
+            
+            success = true;
+            ex = null;
+            result = null;
+            try
+            {
+                result = _roomManager.CreateRoom(_group1Id, players, bots, properties, measures);
+            }
+            catch (Exception e)
+            {
+                success = false;
+                ex = e;
+            }
+            Assert.IsNull(result);
+            Assert.AreEqual(false, success);
+            Assert.AreEqual("MatchMakingGroup ctr error: there is no ToAddOtherPlayers property", ex.Message);
+            Assert.AreEqual(0, _roomManager.GetRoomsCount());
+            
+            properties.Add(PropertyCode.RoomProperties.ToAddOtherPlayers, false);
+            
+            success = true;
+            ex = null;
+            result = null;
+            try
+            {
+                result = _roomManager.CreateRoom(_group1Id, players, bots, properties, measures);
+            }
+            catch (Exception e)
+            {
+                success = false;
+                ex = e;
+            }
+            Assert.IsNull(result);
+            Assert.AreEqual(false, success);
+            Assert.AreEqual("MatchMakingGroup ctr error: there is no TotalPlayersNeeded property", ex.Message);
+            Assert.AreEqual(0, _roomManager.GetRoomsCount());
+
+            properties.Add(PropertyCode.RoomProperties.TotalPlayersNeeded, 3);
+            
+            success = true;
+            ex = null;
+            result = null;
+            try
+            {
+                result = _roomManager.CreateRoom(_group1Id, players, bots, properties, measures);
+            }
+            catch (Exception e)
+            {
+                success = false;
+                ex = e;
+            }
+            Assert.IsNotNull(result);
+            Assert.AreEqual(result.Result, RoomOperationResult.OK);
+            Assert.AreEqual(result.Address, "0.0.0.0");
+            Assert.AreEqual(result.Port, 7777);
+            Assert.AreEqual(true, success);
+            Assert.AreEqual(null, ex);
+            Assert.AreEqual(1, _roomManager.GetRoomsCount());
+        }
+
+        [Test]
+        public void CreateRoomNoServersTest()
+        {
+            _serverProvider = new FakeServerProvider(false, true);
+            _roomManager = new RoomManager(_serverProvider, _logger, _taskSchedulerFactory.GetTaskScheduler());
+
+            var players = new Dictionary<Guid, Dictionary<byte, object>>();
+            var bots = new Dictionary<Guid, Dictionary<byte, object>>();
+            var properties = new Dictionary<byte, object>();
+            var measures = new Dictionary<byte, object>();
+            var success = true;
+            Exception ex = null;
+            JoinRoomResult result = null;
+            
+            properties.Add(PropertyCode.RoomProperties.RoomIsClosingIn, 0);
+            properties.Add(PropertyCode.RoomProperties.ToAddOtherPlayers, false);
+            properties.Add(PropertyCode.RoomProperties.TotalPlayersNeeded, 3);
+            try
+            {
+                result = _roomManager.CreateRoom(_group1Id, players, bots, properties, measures);
+            }
+            catch (Exception e)
+            {
+                success = false;
+                ex = e;
+            }
+            
+            Assert.IsNotNull(result);
+            Assert.AreEqual(result.Result, RoomOperationResult.ServerNotFound);
+            Assert.AreEqual(true, success);
+            Assert.AreEqual(null, ex);
+            Assert.AreEqual(0, _roomManager.GetRoomsCount());
+        }
+        
+        [Test]
+        public void CreateRoomRoomEmptyTest()
+        {
+            _serverProvider = new FakeServerProvider(returnEmptyGuid: true);
+            _roomManager = new RoomManager(_serverProvider, _logger, _taskSchedulerFactory.GetTaskScheduler());
+
+            var players = new Dictionary<Guid, Dictionary<byte, object>>();
+            var bots = new Dictionary<Guid, Dictionary<byte, object>>();
+            var properties = new Dictionary<byte, object>();
+            var measures = new Dictionary<byte, object>();
+            var success = true;
+            Exception ex = null;
+            JoinRoomResult result = null;
+            
+            properties.Add(PropertyCode.RoomProperties.RoomIsClosingIn, 0);
+            properties.Add(PropertyCode.RoomProperties.ToAddOtherPlayers, false);
+            properties.Add(PropertyCode.RoomProperties.TotalPlayersNeeded, 3);
+            try
+            {
+                result = _roomManager.CreateRoom(_group1Id, players, bots, properties, measures);
+            }
+            catch (Exception e)
+            {
+                success = false;
+                ex = e;
+            }
+            
+            Assert.IsNotNull(result);
+            Assert.AreEqual(result.Result, RoomOperationResult.CreateRoomError);
+            Assert.AreEqual(true, success);
+            Assert.AreEqual(null, ex);
+            Assert.AreEqual(0, _roomManager.GetRoomsCount());
+        }
+
+        [Test]
+        public void GetRoomTest()
+        {
+            //create room
+            var players = new Dictionary<Guid, Dictionary<byte, object>>
+            {
+                {Guid.NewGuid(), new Dictionary<byte, object>()}
+            };
+            var bots = new Dictionary<Guid, Dictionary<byte, object>>
+            {
+                {Guid.NewGuid(), new Dictionary<byte, object>()}
+            };
+            var properties = new Dictionary<byte, object>();
+            var measures = new Dictionary<byte, object>();
+            
+            properties.Add(PropertyCode.RoomProperties.RoomIsClosingIn, 3000);
+            properties.Add(PropertyCode.RoomProperties.ToAddOtherPlayers, true);
+            properties.Add(PropertyCode.RoomProperties.TotalPlayersNeeded, 3);
+            
+            var result = _roomManager.CreateRoom(_group1Id, players, bots, properties, measures);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(result.Result, RoomOperationResult.OK);
+            Assert.AreEqual(result.Address, "0.0.0.0");
+            Assert.AreEqual(result.Port, 7777);
+            
+            emptyTask.Wait(1000);
+            //success
+            var room = _roomManager.GetRoom(_group1Id, 1);
+            Assert.IsNotNull(room);
+            //success
+            room = _roomManager.GetRoom(_group1Id, 2);
+            Assert.IsNotNull(room);
+            //no such room
+            room = _roomManager.GetRoom(_group1Id, 3);
+            Assert.IsNull(room);
+
+            var rooms = _roomManager.GetRooms(_group1Id, true);
+            Assert.AreEqual(1, rooms.Count());
+            
+            emptyTask.Wait(2100);
+            
+            //room is closed by this time
+            //no such room
+            room = _roomManager.GetRoom(_group1Id, 1);
+            Assert.IsNull(room);
+            //no such room
+            room = _roomManager.GetRoom(_group1Id, 2);
+            Assert.IsNull(room);
+            //no such room
+            room = _roomManager.GetRoom(_group1Id, 3);
+            Assert.IsNull(room);
+            room = _roomManager.GetRoom(Guid.NewGuid(), 3);
+            Assert.IsNull(room);
+            rooms = _roomManager.GetRooms(_group1Id, true);
+            Assert.AreEqual(0, rooms.Count());
+            rooms = _roomManager.GetRooms(_group1Id, false);
+            Assert.AreEqual(1, rooms.Count());
+            rooms = _roomManager.GetRooms(Guid.NewGuid(), false);
+            Assert.AreEqual(0, rooms.Count());
+            emptyTask.Wait(3000);
+            //room should be deleted
+            rooms = _roomManager.GetRooms(_group1Id, false);
+            Assert.AreEqual(0, rooms.Count()); 
+        }
+
+        [Test]
+        public void JoinNoServersTest()
+        {
+            var players = new Dictionary<Guid, Dictionary<byte, object>>
+            {
+                {Guid.NewGuid(), new Dictionary<byte, object>()}
+            };
+            var bots = new Dictionary<Guid, Dictionary<byte, object>>
+            {
+                {Guid.NewGuid(), new Dictionary<byte, object>()}
+            };
+            var properties = new Dictionary<byte, object>();
+            var measures = new Dictionary<byte, object>();
+            
+            properties.Add(PropertyCode.RoomProperties.RoomIsClosingIn, 3000);
+            properties.Add(PropertyCode.RoomProperties.ToAddOtherPlayers, true);
+            properties.Add(PropertyCode.RoomProperties.TotalPlayersNeeded, 2);
+            
+            var result = _roomManager.CreateRoom(_group1Id, players, bots, properties, measures);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(result.Result, RoomOperationResult.OK);
+            Assert.AreEqual(result.Address, "0.0.0.0");
+            Assert.AreEqual(result.Port, 7777);
+            
+            var room = _roomManager.GetRoom(_group1Id, 1);
+            Assert.IsNotNull(room);
+
+            players = new Dictionary<Guid, Dictionary<byte, object>>
+            {
+                {Guid.NewGuid(), new Dictionary<byte, object>()}
+            };
+            result = _roomManager.JoinRoom(result.RoomId, players);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(result.Result, RoomOperationResult.OK);
+            Assert.AreEqual(result.Address, "0.0.0.0");
+            Assert.AreEqual(result.Port, 7777);
+            
+            //no empty room anymore
+            room = _roomManager.GetRoom(_group1Id, 1);
+            Assert.IsNull(room);
+            
+            //join to closed room
+            players = new Dictionary<Guid, Dictionary<byte, object>>
+            {
+                {Guid.NewGuid(), new Dictionary<byte, object>()}
+            };
+            result = _roomManager.JoinRoom(result.RoomId, players);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(RoomOperationResult.JoinRoomError, result.Result);
+        }
+        
+        [Test]
+        public void JoinTest()
+        {
+            var players = new Dictionary<Guid, Dictionary<byte, object>>
+            {
+                {Guid.NewGuid(), new Dictionary<byte, object>()}
+            };
+            var bots = new Dictionary<Guid, Dictionary<byte, object>>
+            {
+                {Guid.NewGuid(), new Dictionary<byte, object>()}
+            };
+            var properties = new Dictionary<byte, object>();
+            var measures = new Dictionary<byte, object>();
+            
+            properties.Add(PropertyCode.RoomProperties.RoomIsClosingIn, 3000);
+            properties.Add(PropertyCode.RoomProperties.ToAddOtherPlayers, true);
+            properties.Add(PropertyCode.RoomProperties.TotalPlayersNeeded, 2);
+            
+            var result = _roomManager.CreateRoom(_group1Id, players, bots, properties, measures);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(result.Result, RoomOperationResult.OK);
+            Assert.AreEqual(result.Address, "0.0.0.0");
+            Assert.AreEqual(result.Port, 7777);
+            
+            var room = _roomManager.GetRoom(_group1Id, 1);
+            Assert.IsNotNull(room);
+
+            players = new Dictionary<Guid, Dictionary<byte, object>>
+            {
+                {Guid.NewGuid(), new Dictionary<byte, object>()}
+            };
+            result = _roomManager.JoinRoom(result.RoomId, players);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(result.Result, RoomOperationResult.OK);
+            Assert.AreEqual(result.Address, "0.0.0.0");
+            Assert.AreEqual(result.Port, 7777);
+            
+            //no empty room anymore
+            room = _roomManager.GetRoom(_group1Id, 1);
+            Assert.IsNull(room);
+            
+            //join to closed room
+            players = new Dictionary<Guid, Dictionary<byte, object>>
+            {
+                {Guid.NewGuid(), new Dictionary<byte, object>()}
+            };
+            result = _roomManager.JoinRoom(result.RoomId, players);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(RoomOperationResult.JoinRoomError, result.Result);
+        }
+    }
+}

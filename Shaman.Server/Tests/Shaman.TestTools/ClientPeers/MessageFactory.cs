@@ -12,15 +12,33 @@ namespace Shaman.TestTools.ClientPeers
     {
         private static readonly Lazy<Dictionary<int, Type>> TypesMap = new Lazy<Dictionary<int, Type>>(CreateMessageMap);
 
+//        static Dictionary<int, Type> CreateMessageMap()
+//        {
+//            var messageBaseType = typeof(PingRequest);
+//            var messageTypes = messageBaseType.Assembly.GetTypes().Where(t =>
+//                    t.IsSubclassOf(typeof(MessageBase)) && !t.IsAbstract &&
+//                    t.GetConstructor(Array.Empty<Type>()) != null)
+//                .ToArray();
+//            return messageTypes.Select(Activator.CreateInstance).OfType<MessageBase>()
+//                .ToDictionary(k => k.OperationCode << 8 | (int) k.Type, v => v.GetType());
+//        }
+
         static Dictionary<int, Type> CreateMessageMap()
         {
             var messageBaseType = typeof(PingRequest);
+            
             var messageTypes = messageBaseType.Assembly.GetTypes().Where(t =>
-                    t.IsSubclassOf(typeof(MessageBase)) && !t.IsAbstract &&
-                    t.GetConstructor(Array.Empty<Type>()) != null)
-                .ToArray();
-            return messageTypes.Select(Activator.CreateInstance).OfType<MessageBase>()
-                .ToDictionary(k => k.OperationCode << 8 | (int) k.Type, v => v.GetType());
+                t.IsSubclassOf(typeof(MessageBase)) && !t.IsAbstract &&
+                t.GetConstructor(Array.Empty<Type>()) != null).ToList();
+
+            var instances = messageTypes.Select(Activator.CreateInstance).OfType<MessageBase>();
+
+            var result = new Dictionary<int, Type>();
+            foreach(var item in instances)
+                if (!result.ContainsKey(item.OperationCode << 8 | (int) item.Type))
+                    result.Add(item.OperationCode << 8 | (int) item.Type, item.GetType());
+            
+            return result;
         }
 
         public static MessageBase DeserializeMessageForTest(ushort operationCode, ISerializer serializer,

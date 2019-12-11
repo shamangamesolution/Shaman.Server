@@ -30,7 +30,8 @@ namespace Shaman.MM.MatchMaking
 
         public MatchMaker(IPlayerCollection playerCollection,
             IShamanLogger logger,
-            IPacketSender packetSender, IMmMetrics mmMetrics, ICreatedRoomManager createdRoomManager, IPlayersManager playersManager, IMatchMakingGroupsManager groupManager)
+            IPacketSender packetSender, IMmMetrics mmMetrics, ICreatedRoomManager createdRoomManager,
+            IPlayersManager playersManager, IMatchMakingGroupsManager groupManager)
         {
             _packetSender = packetSender;
             _mmMetrics = mmMetrics;
@@ -53,8 +54,9 @@ namespace Shaman.MM.MatchMaking
             _playerCollection.Add(player);
             var groups = _groupManager.GetMatchmakingGroupIds(properties);
             if (groups == null || groups.Count == 0)
-                throw new Exception($"MatchMaker.AddPlayer error: no groups for player");
-            _playersManager.Add(player, groups);
+                _logger.Error($"MatchMaker.AddPlayer error: no groups for player");
+            else
+                _playersManager.Add(player, groups);
         }
 
         public void RemovePlayer(Guid peerId)
@@ -63,23 +65,10 @@ namespace Shaman.MM.MatchMaking
             _playersManager.Remove(peerId);
         }
 
-        public JoinInfo GetJoinInfo(Guid peerId)
-        {
-            var player = _playerCollection.GetPlayer(peerId);
-            if (player == null)
-            {
-                _logger.Error($"GetJoinInfo error: there is no player in collection");
-                return null;
-            }
-
-            return player.JoinInfo;
-        }
-
         public List<byte> GetRequiredProperties()
         {
             return _requiredMatchMakingProperties;
         }
-
 
         public void Clear()
         {
@@ -91,17 +80,17 @@ namespace Shaman.MM.MatchMaking
             _groupManager.AddMatchMakingGroup(roomProperties, measures);
         }
         
-        public void AddMatchMakingGroup(int totalPlayersNeeded, int matchMakingTickMs, bool addBots, bool addOtherPlayers, int timeBeforeBotsAddedMs, int roomClosingIn, Dictionary<byte, object> roomProperties, Dictionary<byte, object> measures)
-        {
-//            var mmGroup = new MatchMakingGroup(totalPlayersNeeded, matchMakingTickMs, addBots, addOtherPlayers,
-//                timeBeforeBotsAddedMs, roomClosingIn, roomProperties, measures, _logger, _taskSchedulerFactory, this,
-//                _playerCollection, _serializer, _packetSender, _mmMetrics, _createdRoomManager, _serverProvider);
-//            _matchMakingGroups.Add(mmGroup);
-            
-            
-//            var hashCode = measures.GetHashCode();
-//            _hashCodeSets.Add(mmGroup.Id, hashCode);
-        }
+//        public void AddMatchMakingGroup(int totalPlayersNeeded, int matchMakingTickMs, bool addBots, bool addOtherPlayers, int timeBeforeBotsAddedMs, int roomClosingIn, Dictionary<byte, object> roomProperties, Dictionary<byte, object> measures)
+//        {
+////            var mmGroup = new MatchMakingGroup(totalPlayersNeeded, matchMakingTickMs, addBots, addOtherPlayers,
+////                timeBeforeBotsAddedMs, roomClosingIn, roomProperties, measures, _logger, _taskSchedulerFactory, this,
+////                _playerCollection, _serializer, _packetSender, _mmMetrics, _createdRoomManager, _serverProvider);
+////            _matchMakingGroups.Add(mmGroup);
+//            
+//            
+////            var hashCode = measures.GetHashCode();
+////            _hashCodeSets.Add(mmGroup.Id, hashCode);
+//        }
 
         public void AddRequiredProperty(byte requiredMatchMakingProperty)
         {

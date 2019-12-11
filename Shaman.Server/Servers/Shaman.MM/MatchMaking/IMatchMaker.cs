@@ -13,7 +13,6 @@ namespace Shaman.MM.MatchMaking
         //manage players list
         void AddPlayer(MmPeer peer, Dictionary<byte, object> properties);
         void RemovePlayer(Guid peerId);
-        JoinInfo GetJoinInfo(Guid peerId);
         List<byte> GetRequiredProperties();
         
         //dispose

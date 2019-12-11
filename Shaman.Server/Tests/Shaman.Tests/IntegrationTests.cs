@@ -10,7 +10,6 @@ using Shaman.Game;
 using Shaman.Game.Configuration;
 using Shaman.Game.Contract;
 using Shaman.Game.Metrics;
-using Shaman.Game.Rooms;
 using Shaman.MM;
 using Shaman.MM.Configuration;
 using Shaman.MM.MatchMaking;
@@ -21,11 +20,14 @@ using Shaman.Messages;
 using Shaman.Messages.Authorization;
 using Shaman.Messages.MM;
 using Shaman.Messages.RoomFlow;
+using Shaman.MM.Managers;
 using Shaman.MM.Metrics;
 using Shaman.MM.Providers;
 using Shaman.Tests.Providers;
 using Shaman.TestTools.ClientPeers;
 using GameProject = Shaman.Messages.General.Entity.GameProject;
+using IRoomManager = Shaman.Game.Rooms.IRoomManager;
+using RoomManager = Shaman.Game.Rooms.RoomManager;
 
 namespace Shaman.Tests
 {
@@ -36,12 +38,12 @@ namespace Shaman.Tests
         private const ushort SERVER_PORT_GAME = 23451;
         private const ushort SERVER_PORT_MM = 23452;
         private const ushort WAIT_TIMEOUT = 1000;
-        private const ushort MM_TICK = 250;
-        private const ushort CLIENTS_NUMBER_1 = 12;
-        private const ushort CLIENTS_NUMBER_2 = 100;
+        private const int MM_TICK = 250;
+        private const int CLIENTS_NUMBER_1 = 12;
+        private const int CLIENTS_NUMBER_2 = 100;
         
-        private const ushort TOTAL_PLAYERS_NEEDED_1 = 12;
-        private const ushort EVENTS_SENT = 100;
+        private const int TOTAL_PLAYERS_NEEDED_1 = 12;
+        private const int EVENTS_SENT = 100;
         
         private GameApplication _gameApplication;
         private MmApplication _mmApplication;
@@ -57,7 +59,12 @@ namespace Shaman.Tests
         private IPacketSender _mmPacketSender, _gamePacketSender;
         private IStatisticsProvider _statsProvider;
         private IMatchMakerServerInfoProvider _serverProvider;
-        
+        private IPlayersManager _playerManager;
+        private IMatchMakingGroupsManager _mmGroupManager;
+        private MM.Managers.IRoomManager _mmRoomManager;
+        private IBotManager _botManager;
+        private Dictionary<byte, object> _roomProperties = new Dictionary<byte, object>();
+        private Dictionary<byte, object> _measures = new Dictionary<byte, object>();
         private Guid CreateRoomDelegate(Dictionary<byte, object> properties)
         {
             return _gameApplication.CreateRoom(properties, new Dictionary<Guid, Dictionary<byte, object>>());
@@ -92,13 +99,31 @@ namespace Shaman.Tests
             _statsProvider = new MM.Providers.StatisticsProvider(playerCollection);
             //_serverProvider = new MatchMakerServerInfoProvider(requestSender, taskSchedulerFactory, config, _serverLogger, _statsProvider);
             _serverProvider = new FakeMatchMakerServerInfoProvider(requestSender, "127.0.0.1", $"{SERVER_PORT_GAME}");
+            _playerManager = new PlayersManager( Mock.Of<IMmMetrics>(), _serverLogger);
+            _mmRoomManager =
+                new MM.Managers.RoomManager(_serverProvider, _serverLogger, taskSchedulerFactory.GetTaskScheduler());
+            _botManager = new BotManager();
 
-            matchMaker = new MatchMaker(playerCollection, _serverLogger, taskSchedulerFactory, serializerFactory, _mmPacketSender, Mock.Of<IMmMetrics>(), createdRoomManager, _serverProvider);
-            matchMaker.AddMatchMakingGroup(TOTAL_PLAYERS_NEEDED_1, MM_TICK, false, true, 5000, 120000, new Dictionary<byte, object>() {{PropertyCode.RoomProperties.GameMode, (byte) GameMode.SinglePlayer}}, new Dictionary<byte, object> {{PropertyCode.PlayerProperties.Level, 1}});
+            _mmGroupManager = new MatchMakingGroupManager(_serverLogger, taskSchedulerFactory, _playerManager, _mmPacketSender,  Mock.Of<IMmMetrics>(), _serverProvider, _mmRoomManager, _botManager);
+            
+            matchMaker = new MatchMaker(playerCollection, _serverLogger, _mmPacketSender, Mock.Of<IMmMetrics>(), createdRoomManager, _playerManager,_mmGroupManager);
+            
+            _roomProperties = new Dictionary<byte, object>();
+            _roomProperties.Add(PropertyCode.RoomProperties.MatchMakingTick, MM_TICK);
+            _roomProperties.Add(PropertyCode.RoomProperties.TotalPlayersNeeded, TOTAL_PLAYERS_NEEDED_1);
+            _roomProperties.Add(PropertyCode.RoomProperties.ToAddBots, false);
+            _roomProperties.Add(PropertyCode.RoomProperties.ToAddOtherPlayers, true);
+            _roomProperties.Add(PropertyCode.RoomProperties.TimeBeforeBotsAdded, 5000);
+            _roomProperties.Add(PropertyCode.RoomProperties.RoomIsClosingIn, 120000);
+            _measures = new Dictionary<byte, object>();
+            _measures.Add(PropertyCode.PlayerProperties.Level, 1);
+            //matchMaker.AddMatchMakingGroup(TOTAL_PLAYERS_NEEDED_1, MM_TICK, false, true, 5000, 120000, new Dictionary<byte, object>() {{PropertyCode.RoomProperties.GameMode, (byte) GameMode.SinglePlayer}}, new Dictionary<byte, object> {{PropertyCode.PlayerProperties.Level, 1}});
+            matchMaker.AddMatchMakingGroup(_roomProperties, _measures);
+            
+            matchMaker.AddRequiredProperty(PropertyCode.PlayerProperties.Level);
             
             //setup mm server
-            _mmApplication = new MmApplication(_serverLogger, config, serializerFactory, socketFactory, playerCollection, matchMaker,requestSender, taskSchedulerFactory, _backendProvider, _mmPacketSender, createdRoomManager, _serverProvider);
-            _mmApplication.SetMatchMakerProperties(new List<byte> {PropertyCode.PlayerProperties.Level});
+            _mmApplication = new MmApplication(_serverLogger, config, serializerFactory, socketFactory, playerCollection, matchMaker,requestSender, taskSchedulerFactory, _backendProvider, _mmPacketSender, createdRoomManager, _serverProvider, _mmRoomManager);
             
             _mmApplication.Start();
 

@@ -12,10 +12,8 @@ namespace Shaman.MM.Managers
         MatchMakingPlayer GetPlayer(Guid peerId);
         MatchMakingPlayer GetOldestPlayer();
         void SetOnMatchmaking(Guid playerId, bool isOnMatchmaking);
-        void SetJoinInfo(Guid playerId, JoinInfo joinInfo, bool isMatchMakingComplete);
         void Clear();
         int Count();
         IEnumerable<MatchMakingPlayer> GetPlayers(Guid groupId, int maxCount);
-//        void AddMmGroup(Guid id, Dictionary<byte, object> properties);
     }
 }

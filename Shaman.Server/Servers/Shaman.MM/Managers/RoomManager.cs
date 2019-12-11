@@ -17,12 +17,9 @@ namespace Shaman.MM.Managers
 {
     public class RoomManager : IRoomManager
     {
-        private const int TIME_TO_KEEP_CREATED_ROOM_SEC = 1800;
-
         private readonly IMatchMakerServerInfoProvider _serverProvider;
         private readonly IShamanLogger _logger;
         private readonly IPlayersManager _playersManager;
-        private readonly IPacketSender _packetSender;
         private readonly ITaskScheduler _taskScheduler;
         
         private ConcurrentDictionary<Guid, Room> _rooms = new ConcurrentDictionary<Guid, Room>();
@@ -30,6 +27,13 @@ namespace Shaman.MM.Managers
         private ConcurrentDictionary<Guid, Guid> _roomToGroupId = new ConcurrentDictionary<Guid, Guid>();
         private Queue<Room> _roomsQueue = new Queue<Room>();
         private PendingTask _clearTask;
+
+        public RoomManager(IMatchMakerServerInfoProvider serverProvider, IShamanLogger logger, ITaskScheduler taskScheduler)
+        {
+            _serverProvider = serverProvider;
+            _logger = logger;
+            _taskScheduler = taskScheduler;
+        }
 
         public JoinRoomResult CreateRoom(Guid groupId, Dictionary<Guid, Dictionary<byte, object>> players,
             Dictionary<Guid, Dictionary<byte, object>> bots, Dictionary<byte, object> roomProperties,
@@ -41,8 +45,7 @@ namespace Shaman.MM.Managers
             if (server == null)
                 return new JoinRoomResult {Result = RoomOperationResult.ServerNotFound};
 
-
-            _logger.Info($"MmGroup: players found, creating room on {server.Identity}");
+            _logger.Info($"MmGroup: creating room on {server.Identity}");
 
             //prepare players dict to send to room
             var _playersToSendToRoom = new Dictionary<Guid, Dictionary<byte, object>>();
@@ -78,7 +81,7 @@ namespace Shaman.MM.Managers
             if (!roomProperties.TryGetValue(PropertyCode.RoomProperties.TotalPlayersNeeded, out var totalPlayersProperty))
                 throw new Exception($"MatchMakingGroup ctr error: there is no TotalPlayersNeeded property");
             
-            var createdRoom = new Room(roomId, bots.Count, (int)roomClosingInProperty, _playersToSendToRoom, server.Id, (bool)addOthersProperty, roomProperties, measures);
+            var createdRoom = new Room(roomId, (int)totalPlayersProperty, bots.Count, (int)roomClosingInProperty, _playersToSendToRoom, server.Id, (bool)addOthersProperty, roomProperties, measures);
             //add to main collection
             _rooms.TryAdd(roomId, createdRoom);
             //add to group-to-room list
@@ -100,7 +103,7 @@ namespace Shaman.MM.Managers
 
             var room = _rooms[roomId];
 
-            if (!room.IsOpen())
+            if (!room.CanJoin(players.Count))
                 return new JoinRoomResult() {Result = RoomOperationResult.JoinRoomError};
             
             //update room with new players data
@@ -139,7 +142,7 @@ namespace Shaman.MM.Managers
             return _rooms.Count;
         }
 
-        public void Start()
+        public void Start(int timeToKeepCreatedRoomSec)
         {
             _rooms = new ConcurrentDictionary<Guid, Room>();
             _groupToRoom = new ConcurrentDictionary<Guid, List<Room>>();
@@ -154,7 +157,7 @@ namespace Shaman.MM.Managers
                 
                 var cnt = 0;
                 while (_roomsQueue.Any() && (DateTime.UtcNow - _roomsQueue.First().CreatedOn).TotalSeconds >
-                       TIME_TO_KEEP_CREATED_ROOM_SEC)
+                       timeToKeepCreatedRoomSec)
                 {
                     var room = _roomsQueue.Dequeue();
                     _rooms.TryRemove(room.Id, out var room1);
@@ -169,7 +172,7 @@ namespace Shaman.MM.Managers
                 }
                 
                 _logger?.Info($"Cleaned {cnt} rooms");
-            }, 10000, 10000);
+            }, 0, timeToKeepCreatedRoomSec/2);
         }
 
         public void Stop()

@@ -31,7 +31,7 @@ namespace Shaman.MM.Managers
         Room GetRoom(Guid groupId, int playersCount);
         IEnumerable<Room> GetRooms(Guid groupId, bool openOnly = true);
         int GetRoomsCount();
-        void Start();
+        void Start(int timeToKeepCreatedRoomSec);
         void Stop();
     }
 }

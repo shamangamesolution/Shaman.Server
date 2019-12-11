@@ -1,11 +1,15 @@
 using System;
 using System.Collections.Generic;
 using Shaman.Common.Utils.Messages;
+using Shaman.Common.Utils.Serialization;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Game.Contract;
+using Shaman.Messages;
 using Shaman.Messages.General.DTO.Requests;
 using Shaman.Messages.Handling;
 using Shaman.Messages.RoomFlow;
+using Shaman.MM.Rooms;
+using Shaman.TestTools.ClientPeers;
 
 namespace Shaman.Tests.GameModeControllers
 {
@@ -50,6 +54,19 @@ namespace Shaman.Tests.GameModeControllers
 
         public MessageResult ProcessMessage(MessageData message, Guid sessionId)
         {
+            var operationCode = MessageBase.GetOperationCode(message.Buffer, message.Offset);
+
+            var deserMessage =
+                MessageFactory.DeserializeMessageForTest(operationCode, new BinarySerializer(), message.Buffer, message.Offset, message.Length);
+                
+            //process room message
+            switch (operationCode)
+            {
+                case CustomOperationCode.Test:
+                    _room.SendToAll(deserMessage, new[] {sessionId});
+                    break;
+            }
+
             return new MessageResult {Handled = false, DeserializedMessage = new PingRequest()};
         }
     }

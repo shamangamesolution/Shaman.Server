@@ -95,11 +95,10 @@ namespace Shaman.MM.MatchMaking
                 foreach (var player in _matchmakingPlayers)
                 {
                     _logger.Debug($"Sending prejoin info to {player.Id}");
-                    _playersManager.SetJoinInfo(player.Id,
-                        new JoinInfo("", 0, Guid.Empty, JoinStatus.OnMatchmaking, _matchmakingPlayers.Count(),
-                            _totalPlayersNeeded), false);
+                    var joinInfo = new JoinInfo("", 0, Guid.Empty, JoinStatus.OnMatchmaking, _matchmakingPlayers.Count(),
+                            _totalPlayersNeeded);
                     
-                    _packetSender.AddPacket(new JoinInfoEvent(player.JoinInfo), player.Peer);
+                    _packetSender.AddPacket(new JoinInfoEvent(joinInfo), player.Peer);
                 }
             }
         }
@@ -132,22 +131,25 @@ namespace Shaman.MM.MatchMaking
             return _matchmakingPlayers.Count < _totalPlayersNeeded && _addBots && (DateTime.UtcNow - oldestPlayer.AddedToMmGroupOn.Value).TotalMilliseconds >= _timeBeforeBotsAddedMs;
         }
 
+        private bool IsEnoughPlayers()
+        {
+            return _matchmakingPlayers.Count == _totalPlayersNeeded;
+        }
+        
         private void ProcessFailed(MatchMakingPlayer player)
         {
             _logger.Error($"Sending matchmaking failed info to {player.Id}");
             _playersManager.SetOnMatchmaking(player.Id, false);
-            _playersManager.SetJoinInfo(player.Id,
-                new JoinInfo("", 0, Guid.Empty, JoinStatus.MatchMakingFailed, 0, 0), false);
-            _packetSender.AddPacket(new JoinInfoEvent(player.JoinInfo), player.Peer);
+            var joinInfo = new JoinInfo("", 0, Guid.Empty, JoinStatus.MatchMakingFailed, 0, 0);
+            _packetSender.AddPacket(new JoinInfoEvent(joinInfo), player.Peer);
         }
 
         private void ProcessSuccess(MatchMakingPlayer player, JoinRoomResult result)
         {
             _logger.Debug($"Sending join info to {player.Id}");
-            _playersManager.SetJoinInfo(player.Id,
-                new JoinInfo(result.Address, result.Port, result.RoomId, JoinStatus.RoomIsReady,
-                    _matchmakingPlayers.Count, _totalPlayersNeeded, true), true);
-            _packetSender.AddPacket(new JoinInfoEvent(player.JoinInfo), player.Peer);
+            var joinInfo = new JoinInfo(result.Address, result.Port, result.RoomId, JoinStatus.RoomIsReady,
+                    _matchmakingPlayers.Count, _totalPlayersNeeded, true);
+            _packetSender.AddPacket(new JoinInfoEvent(joinInfo), player.Peer);
             _playersManager.Remove(player.Id);
         }
 
@@ -225,7 +227,8 @@ namespace Shaman.MM.MatchMaking
                             result = _roomManager.JoinRoom(room.Id,
                                 _matchmakingPlayers.ToDictionary(key => key.SessionId, value => value.Properties));
                         }
-                        else if (NeedToAddBots(oldestPlayer))
+                        else 
+                        if (NeedToAddBots(oldestPlayer) || IsEnoughPlayers())
                         {
                             var bots = _botManager.GetBots(_totalPlayersNeeded - matchmakingPlayersCount);
                             //add new room

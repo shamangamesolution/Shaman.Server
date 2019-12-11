@@ -18,6 +18,7 @@ using Shaman.MM.Peers;
 using Shaman.MM.Players;
 using Shaman.ServerSharedUtilities.Backends;
 using Shaman.Messages.MM;
+using Shaman.MM.Managers;
 using Shaman.MM.Providers;
 
 namespace Shaman.MM
@@ -31,6 +32,8 @@ namespace Shaman.MM
         private readonly IPacketSender _packetSender;
 
         private readonly IMatchMakerServerInfoProvider _serverProvider;
+        private readonly IRoomManager _roomManager;
+
         //debug
         private readonly Guid _id;
 
@@ -46,13 +49,15 @@ namespace Shaman.MM
             IBackendProvider backendProvider, 
             IPacketSender packetSender, 
             ICreatedRoomManager createdRoomManager,
-            IMatchMakerServerInfoProvider serverProvider) : base(logger, config, serializer,
+            IMatchMakerServerInfoProvider serverProvider,
+            IRoomManager roomManager) : base(logger, config, serializer,
             socketFactory, taskSchedulerFactory, requestSender)
         {
             _backendProvider = backendProvider;
             _packetSender = packetSender;
             _createdRoomManager = createdRoomManager;
             _serverProvider = serverProvider;
+            _roomManager = roomManager;
             _playerCollection = playerCollection;
             _matchMaker = matchMaker;
             _id = Guid.NewGuid();
@@ -72,7 +77,7 @@ namespace Shaman.MM
                 }).ToList(),
                 TotalPlayers = _playerCollection.Count(),
                 OldestPlayerInMatchMaking = oldestPlayer?.StartedOn,
-                CreatedRoomsCount = _createdRoomManager.GetCreatedRoomsCount()
+                CreatedRoomsCount = _roomManager.GetRoomsCount()
             };
         }
         

@@ -7,7 +7,7 @@ namespace Shaman.MM.Managers
     {
         Guid AddMatchMakingGroup(Dictionary<byte, object> roomProperties, Dictionary<byte, object> measures);
         List<Guid> GetMatchmakingGroupIds(Dictionary<byte, object> playerProperties);
-        void Start();
+        void Start(int timeToKeepCreatedRoomSec = 1800);
         void Stop();
     }
 }

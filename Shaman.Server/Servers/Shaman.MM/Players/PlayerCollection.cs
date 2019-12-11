@@ -238,17 +238,6 @@ namespace Shaman.MM.Players
             }
         }
 
-        public void SetJoinInfo(Guid playerId, JoinInfo joinInfo, bool isMatchMakingComplete)
-        {
-            var player = GetPlayer(playerId);
-            lock (_syncCollection)
-            {
-                if (player != null)
-                {
-                    player.JoinInfo = joinInfo;
-                    player.MatchMakingComplete = isMatchMakingComplete;
-                }
-            }
-        }
+
     }
 }
