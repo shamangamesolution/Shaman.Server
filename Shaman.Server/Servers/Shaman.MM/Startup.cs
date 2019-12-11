@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -12,13 +11,11 @@ using Shaman.Common.Server.Applications;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Server.Providers;
 using Shaman.Common.Server.Senders;
-using Shaman.Common.Utils.Extensions;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Serialization;
 using Shaman.Common.Utils.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
-using Shaman.Game;
 using Shaman.Game.Contract;
 using Shaman.LiteNetLibAdapter;
 using Shaman.MM.Configuration;
@@ -26,7 +23,6 @@ using Shaman.MM.MatchMaking;
 using Shaman.MM.Players;
 using Shaman.ServerSharedUtilities.Backends;
 using Shaman.ServerSharedUtilities.Logging;
-using Shaman.Messages;
 using Shaman.MM.Contract;
 using Shaman.MM.Metrics;
 using Shaman.MM.Providers;
@@ -149,11 +145,13 @@ namespace Shaman.MM
                     throw new ArgumentOutOfRangeException();
             }
             
-            BundleHelper.LoadTypeFromBundle<IMmResolver>(Configuration["BundlePath"]).Configure(matchMaker);
+            serverInfoProvider.Start();
+            var bundleUri = serverInfoProvider.GetBundleUri().Result;
+
+            BundleHelper.LoadTypeFromBundle<IMmResolver>(bundleUri).Configure(matchMaker);
 
             _globalTaskScheduler = taskSchedulerFactory.GetTaskScheduler();
             server.Start();
-            serverInfoProvider.Start();
         }
         
     }

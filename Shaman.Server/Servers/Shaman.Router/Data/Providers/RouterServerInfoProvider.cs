@@ -22,6 +22,7 @@ namespace Shaman.Router.Data.Providers
 
         private bool _isRequestingNow = false;
         private EntityDictionary<ServerInfo> _serverList = new EntityDictionary<ServerInfo>();
+        private EntityDictionary<BundleInfo> _bundlesList = new EntityDictionary<BundleInfo>();
         
         public RouterServerInfoProvider(IConfigurationRepository configRepo, ITaskSchedulerFactory taskSchedulerFactory, IOptions<RouterConfiguration> config, ISerializer serializer, IShamanLogger logger)
         {
@@ -43,6 +44,7 @@ namespace Shaman.Router.Data.Providers
                 _isRequestingNow = true;
 
                 _serverList = await _configRepo.GetAllServerInfo();
+                _bundlesList = await _configRepo.GetBundlesInfo();
                 
                 _isRequestingNow = false;
                 _logger.Info($"Received {_serverList.Count()} server info records");
@@ -59,6 +61,11 @@ namespace Shaman.Router.Data.Providers
         public EntityDictionary<ServerInfo> GetAllServers()
         {
             return _serverList;
+        }
+        
+        public EntityDictionary<BundleInfo> GetAllBundles()
+        {
+            return _bundlesList;
         }
     }
 }

@@ -47,8 +47,8 @@
         public const string ChangeBalance = "Tools/ChangeBalance";
         
         #region router
+        public const string GetBundleUri = "Server/GetBundleUri";
         public const string ActualizeServer = "Server/ActualizeServer";
-        public const string GetOnline = "Server/GetOnline";
         public const string GetServerInfoList = "Server/GetServerInfoList";
         #endregion
         

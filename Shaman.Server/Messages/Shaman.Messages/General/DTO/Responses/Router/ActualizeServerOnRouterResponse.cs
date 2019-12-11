@@ -1,5 +1,6 @@
 using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Serialization;
+using Shaman.Messages.General.Entity.Router;
 
 namespace Shaman.Messages.General.DTO.Responses.Router
 {
@@ -8,7 +9,6 @@ namespace Shaman.Messages.General.DTO.Responses.Router
         public ActualizeServerOnRouterResponse() : base(CustomOperationCode.ActualizeServer)
         {
         }
-
         protected override void SerializeResponseBody(ITypeWriter typeWriter)
         {
         }

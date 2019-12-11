@@ -8,6 +8,7 @@ namespace Shaman.Router.Data.Providers
     {
         void Start();
         void Stop();
-        EntityDictionary<ServerInfo> GetAllServers(); 
+        EntityDictionary<ServerInfo> GetAllServers();
+        EntityDictionary<BundleInfo> GetAllBundles();
     }
 }

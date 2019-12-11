@@ -26,7 +26,6 @@ namespace Shaman.MM
     {
         private readonly IPlayerCollection _playerCollection;
         private readonly IMatchMaker _matchMaker;
-        private PendingTask _actualizeTask;
         private readonly IBackendProvider _backendProvider;
         private readonly ICreatedRoomManager _createdRoomManager;
         private readonly IPacketSender _packetSender;
@@ -44,7 +43,10 @@ namespace Shaman.MM
             IMatchMaker matchMaker,
             IRequestSender requestSender,
             ITaskSchedulerFactory taskSchedulerFactory,
-            IBackendProvider backendProvider, IPacketSender packetSender, ICreatedRoomManager createdRoomManager, IMatchMakerServerInfoProvider serverProvider) : base(logger, config, serializer,
+            IBackendProvider backendProvider, 
+            IPacketSender packetSender, 
+            ICreatedRoomManager createdRoomManager,
+            IMatchMakerServerInfoProvider serverProvider) : base(logger, config, serializer,
             socketFactory, taskSchedulerFactory, requestSender)
         {
             _backendProvider = backendProvider;
@@ -87,13 +89,6 @@ namespace Shaman.MM
             {
                 listener.Initialize(_matchMaker, _backendProvider, _packetSender, Config.GetAuthSecret());
             }
-
-            _actualizeTask = TaskScheduler.ScheduleOnInterval(() =>
-            {
-                //send actualization request to router
-                RequestSender.SendRequest<ActualizeMatchMakerResponse>(Config.GetRouterUrl(),
-                    new ActualizeMatchMakerRequest(config.GameProject, config.GetServerName(), config.GetPublicName(), config.GetListenPorts().First(), config.GetAuthSecret()));
-            }, 0, config.ActualizeMatchmakerIntervalMs);
         }
 
         public override void OnShutDown()

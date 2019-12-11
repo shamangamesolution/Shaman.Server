@@ -14,7 +14,6 @@ using Shaman.Router.Config;
 using Shaman.Router.Data.Providers;
 using Shaman.Router.Data.Repositories;
 using Shaman.Router.Data.Repositories.Interfaces;
-using Shaman.ServerSharedUtilities.Logging;
 using LogLevel = Shaman.Common.Utils.Logging.LogLevel;
 
 namespace Shaman.Router
@@ -98,7 +97,6 @@ namespace Shaman.Router
             }
             
             serverInfoProvider.Start();
-            
         }
     }
 }
