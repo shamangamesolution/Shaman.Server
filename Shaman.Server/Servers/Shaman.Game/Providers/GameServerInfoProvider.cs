@@ -36,11 +36,11 @@ namespace Shaman.Game.Providers
         
         public void Start()
         {
-//            ActualizeMe().Wait();
+            ActualizeMe().Wait();
             _taskScheduler.ScheduleOnInterval(async () =>
             {
                 //actualize
-//                await ActualizeMe();
+                await ActualizeMe();
             }, _config.ActualizationTimeoutMs, _config.ActualizationTimeoutMs);
             
         }
