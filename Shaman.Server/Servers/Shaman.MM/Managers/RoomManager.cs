@@ -28,11 +28,11 @@ namespace Shaman.MM.Managers
         private Queue<Room> _roomsQueue = new Queue<Room>();
         private PendingTask _clearTask;
 
-        public RoomManager(IMatchMakerServerInfoProvider serverProvider, IShamanLogger logger, ITaskScheduler taskScheduler)
+        public RoomManager(IMatchMakerServerInfoProvider serverProvider, IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory)
         {
             _serverProvider = serverProvider;
             _logger = logger;
-            _taskScheduler = taskScheduler;
+            _taskScheduler = taskSchedulerFactory.GetTaskScheduler();
         }
 
         public JoinRoomResult CreateRoom(Guid groupId, Dictionary<Guid, Dictionary<byte, object>> players,

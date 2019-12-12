@@ -24,8 +24,10 @@ using Shaman.MM.Players;
 using Shaman.ServerSharedUtilities.Backends;
 using Shaman.ServerSharedUtilities.Logging;
 using Shaman.MM.Contract;
+using Shaman.MM.Managers;
 using Shaman.MM.Metrics;
 using Shaman.MM.Providers;
+using Shaman.MM.Rooms;
 using Shaman.ServerSharedUtilities;
 using GameProject = Shaman.Messages.General.Entity.GameProject;
 
@@ -98,6 +100,10 @@ namespace Shaman.MM
             services.AddSingleton<IApplication, MmApplication>();
             services.AddSingleton<IBackendProvider, BackendProvider>();
             services.AddSingleton<IStatisticsProvider, StatisticsProvider>();
+            services.AddSingleton<IMatchMakingGroupsManager, MatchMakingGroupManager>();
+            services.AddSingleton<IPlayersManager, PlayersManager>();
+            services.AddSingleton<IRoomManager, RoomManager>();
+            services.AddSingleton<IBotManager, BotManager>();
         }
         
         private void ConfigureMetrics(IServiceCollection services)

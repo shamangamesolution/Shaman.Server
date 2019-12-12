@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -45,13 +46,17 @@ namespace Shaman.Router.Controllers
             
             try
             {
-                var serverInfoId = await ConfigRepo.GetServerId(request.ServerIdentity);
-                if (serverInfoId == null)
+                var serverInfoIdList = await ConfigRepo.GetServerId(request.ServerIdentity);
+                
+                if (serverInfoIdList == null || serverInfoIdList.Count == 0)
                 {
                     //create
-                    serverInfoId = await ConfigRepo.CreateServerInfo(new ServerInfo(request.ServerIdentity, request.Name, request.Region, request.HttpPort, request.HttpsPort));
+                    serverInfoIdList = new List<int>();
+                    var id = await ConfigRepo.CreateServerInfo(new ServerInfo(request.ServerIdentity, request.Name, request.Region, request.HttpPort, request.HttpsPort));
+                    serverInfoIdList.Add(id);
                 }
-                await ConfigRepo.UpdateServerInfoActualizedOn(serverInfoId.Value, request.PeersCount, request.Name, request.Region, request.HttpPort, request.HttpsPort);
+                foreach(var item in serverInfoIdList)
+                    await ConfigRepo.UpdateServerInfoActualizedOn(item, request.PeersCount, request.Name, request.Region, request.HttpPort, request.HttpsPort);
             }
             catch (Exception ex)
             {
@@ -72,13 +77,13 @@ namespace Shaman.Router.Controllers
 
             try
             {
-                var serverInfoId = await ConfigRepo.GetServerId(request.ServerIdentity);
-                if (!serverInfoId.HasValue)
+                var serverInfoIdList = await ConfigRepo.GetServerId(request.ServerIdentity);
+                if (serverInfoIdList == null || serverInfoIdList.Count == 0)
                 {
                     throw new Exception($"No server found with specified identity: {request.ServerIdentity}");
                 }
 
-                var bundleInfo = _serverInfoProvider.GetAllBundles().Single(b => b.ServerId == serverInfoId.Value);
+                var bundleInfo = _serverInfoProvider.GetAllBundles().Single(b => b.ServerId == serverInfoIdList.First());
                 response.BundleUri = bundleInfo.Uri;
             }
             catch (Exception ex)

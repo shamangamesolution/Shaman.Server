@@ -142,7 +142,7 @@ namespace Shaman.Router.Data.Repositories
             }
         }
 
-        public async Task<int?> GetServerId(ServerIdentity identity)
+        public async Task<List<int>> GetServerId(ServerIdentity identity)
         {
             try
             {
@@ -150,7 +150,7 @@ namespace Shaman.Router.Data.Repositories
                             FROM `{DbName}`.`servers`
                             WHERE `servers`.`address` = {Value(identity.Address)} and `servers`.`ports` = {Value(identity.PortsString)}";
 
-                return GetId(await dal.Select(sql));
+                return GetIdList(await dal.Select(sql));
             }
             catch (DalException ex)
             {
