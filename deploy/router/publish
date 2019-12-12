@@ -1,2 +1,0 @@
-#!/bin/bash
-sh build && sh login && sh push && sh update
