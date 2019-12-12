@@ -32,11 +32,11 @@ namespace Shaman.Game.Providers
             _statsProvider = statsProvider;
             _taskScheduler = taskSchedulerFactory.GetTaskScheduler();
             _config = (GameApplicationConfig) config;
+            ActualizeMe().Wait();
         }
         
         public void Start()
         {
-            ActualizeMe().Wait();
             _taskScheduler.ScheduleOnInterval(async () =>
             {
                 //actualize

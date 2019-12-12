@@ -38,6 +38,7 @@ namespace Shaman.MM.Providers
             _taskScheduler = taskSchedulerFactory.GetTaskScheduler();
             _config = (MmApplicationConfig) config;
             _isRequestingNow = false;
+            ActualizeMe().Wait();
         }
         
         public void Start()
@@ -73,7 +74,6 @@ namespace Shaman.MM.Providers
 
             }, 0, _config.ServerInfoListUpdateIntervalMs);
             
-            ActualizeMe().Wait();
             
             _taskScheduler.ScheduleOnInterval(async () =>
             {
