@@ -31,7 +31,7 @@ namespace Shaman.MM.Tests
             _logger = new ConsoleLogger();
             _serverProvider = new FakeServerProvider();
             _taskSchedulerFactory = new TaskSchedulerFactory(_logger);
-            _roomManager = new RoomManager(_serverProvider, _logger, _taskSchedulerFactory.GetTaskScheduler());
+            _roomManager = new RoomManager(_serverProvider, _logger, _taskSchedulerFactory);
             _roomManager.Start(5);
         }
 
@@ -136,7 +136,7 @@ namespace Shaman.MM.Tests
         public void CreateRoomNoServersTest()
         {
             _serverProvider = new FakeServerProvider(false, true);
-            _roomManager = new RoomManager(_serverProvider, _logger, _taskSchedulerFactory.GetTaskScheduler());
+            _roomManager = new RoomManager(_serverProvider, _logger, _taskSchedulerFactory);
 
             var players = new Dictionary<Guid, Dictionary<byte, object>>();
             var bots = new Dictionary<Guid, Dictionary<byte, object>>();
@@ -170,7 +170,7 @@ namespace Shaman.MM.Tests
         public void CreateRoomRoomEmptyTest()
         {
             _serverProvider = new FakeServerProvider(returnEmptyGuid: true);
-            _roomManager = new RoomManager(_serverProvider, _logger, _taskSchedulerFactory.GetTaskScheduler());
+            _roomManager = new RoomManager(_serverProvider, _logger, _taskSchedulerFactory);
 
             var players = new Dictionary<Guid, Dictionary<byte, object>>();
             var bots = new Dictionary<Guid, Dictionary<byte, object>>();

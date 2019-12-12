@@ -101,7 +101,7 @@ namespace Shaman.Tests
             _serverProvider = new FakeMatchMakerServerInfoProvider(requestSender, "127.0.0.1", $"{SERVER_PORT_GAME}");
             _playerManager = new PlayersManager( Mock.Of<IMmMetrics>(), _serverLogger);
             _mmRoomManager =
-                new MM.Managers.RoomManager(_serverProvider, _serverLogger, taskSchedulerFactory.GetTaskScheduler());
+                new MM.Managers.RoomManager(_serverProvider, _serverLogger, taskSchedulerFactory);
             _botManager = new BotManager();
 
             _mmGroupManager = new MatchMakingGroupManager(_serverLogger, taskSchedulerFactory, _playerManager, _mmPacketSender,  Mock.Of<IMmMetrics>(), _serverProvider, _mmRoomManager, _botManager);

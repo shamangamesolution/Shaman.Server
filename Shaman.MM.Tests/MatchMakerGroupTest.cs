@@ -42,7 +42,7 @@ namespace Shaman.MM.Tests
             _playersManager = new PlayersManager(Mock.Of<IMmMetrics>(), _logger);
             _packetSender = new FakePacketSender();
             _serverProvider = new FakeServerProvider();
-            _roomManager = new RoomManager(_serverProvider, _logger, _taskSchedulerFactory.GetTaskScheduler());
+            _roomManager = new RoomManager(_serverProvider, _logger, _taskSchedulerFactory);
             _botManager = new BotManager();
             
             _roomProperties.Add(PropertyCode.RoomProperties.MatchMakingTick, 250);
