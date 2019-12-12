@@ -104,6 +104,7 @@ namespace Shaman.MM
             services.AddSingleton<IPlayersManager, PlayersManager>();
             services.AddSingleton<IRoomManager, RoomManager>();
             services.AddSingleton<IBotManager, BotManager>();
+            services.AddSingleton<IServerActualizer, ServerActualizer>();
         }
         
         private void ConfigureMetrics(IServiceCollection services)

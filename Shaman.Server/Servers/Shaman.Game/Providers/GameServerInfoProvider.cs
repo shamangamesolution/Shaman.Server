@@ -1,38 +1,27 @@
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Shaman.Common.Server.Configuration;
-using Shaman.Common.Server.Peers;
 using Shaman.Common.Server.Providers;
-using Shaman.Common.Utils.Logging;
-using Shaman.Common.Utils.Messages;
-using Shaman.Common.Utils.Senders;
-using Shaman.Common.Utils.Servers;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Game.Configuration;
-using Shaman.Messages;
-using Shaman.Messages.General.DTO.Requests.Router;
-using Shaman.Messages.General.DTO.Responses.Router;
-using Shaman.Messages.General.Entity.Router;
+using Shaman.ServerSharedUtilities;
 
 namespace Shaman.Game.Providers
 {
     public class GameServerInfoProvider : IGameServerInfoProvider
     {
-        private readonly IRequestSender _requestSender;
-        private readonly IShamanLogger _logger;
         private readonly IStatisticsProvider _statsProvider;
+        private readonly IServerActualizer _serverActualizer;
         private readonly ITaskScheduler _taskScheduler;
         private readonly GameApplicationConfig _config;
-    
-        public GameServerInfoProvider(IRequestSender requestSender, ITaskSchedulerFactory taskSchedulerFactory, IApplicationConfig config, IShamanLogger logger, IStatisticsProvider statsProvider)
+
+        public GameServerInfoProvider(ITaskSchedulerFactory taskSchedulerFactory,
+            IApplicationConfig config, IStatisticsProvider statsProvider,
+            IServerActualizer serverActualizer)
         {
-            _requestSender = requestSender;
-            _logger = logger;
             _statsProvider = statsProvider;
+            _serverActualizer = serverActualizer;
             _taskScheduler = taskSchedulerFactory.GetTaskScheduler();
             _config = (GameApplicationConfig) config;
-            ActualizeMe().Wait();
         }
         
         public void Start()
@@ -41,7 +30,7 @@ namespace Shaman.Game.Providers
             {
                 //actualize
                 await ActualizeMe();
-            }, _config.ActualizationTimeoutMs, _config.ActualizationTimeoutMs);
+            }, 0, _config.ActualizationTimeoutMs);
             
         }
 
@@ -52,20 +41,7 @@ namespace Shaman.Game.Providers
 
         public async Task ActualizeMe()
         {
-            await _requestSender.SendRequest<ActualizeServerOnRouterResponse>(_config.GetRouterUrl(),
-                new ActualizeServerOnRouterRequest(GetServerIdentity(), _config.GetServerName(), _config.GetRegion(), _statsProvider.GetPeerCount(), _config.BindToPortHttp),
-                (response) =>
-                {
-                    if (!response.Success)
-                    {
-                        _logger.Error($"MatchMakerServerInfoProvider.ActualizeMe error: {response.Message}");
-                    }
-                });
-        }
-        private ServerIdentity GetServerIdentity()
-        {
-            return new ServerIdentity(_config.GetPublicName(),
-                _config.GetListenPorts(), _config.GetServerRole());
+            await _serverActualizer.Actualize(_statsProvider.GetPeerCount(), _config.BindToPortHttp);
         }
     }
 }

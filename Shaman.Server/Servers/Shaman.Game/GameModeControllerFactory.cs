@@ -10,8 +10,10 @@ namespace Shaman.Game
         private readonly IGameBundle _gameBundle;
         private readonly IGameModeControllerFactory _bundledGameModeControllerFactory;
 
-        public GameModeControllerFactory(IBundleInfoProvider bundleInfoProvider, IShamanComponents shamanComponents)
+        public GameModeControllerFactory(IBundleInfoProvider bundleInfoProvider, IServerActualizer serverActualizer, IShamanComponents shamanComponents)
         {
+            // in case of first time actualization
+            serverActualizer.Actualize(0);
             _gameBundle = BundleHelper.LoadTypeFromBundle<IGameBundle>(bundleInfoProvider.GetBundleUri().Result);
             _gameBundle.OnInitialize(shamanComponents);
             _bundledGameModeControllerFactory = _gameBundle.GetGameModeControllerFactory();

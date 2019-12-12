@@ -15,6 +15,7 @@ using Shaman.Messages.General.DTO.Responses.Router;
 using Shaman.Messages.General.Entity.Router;
 using Shaman.Messages.RoomFlow;
 using Shaman.MM.Configuration;
+using Shaman.ServerSharedUtilities;
 
 namespace Shaman.MM.Providers
 {
@@ -23,6 +24,7 @@ namespace Shaman.MM.Providers
         private readonly IRequestSender _requestSender;
         private readonly IShamanLogger _logger;
         private readonly IStatisticsProvider _statisticsProvider;
+        private readonly IServerActualizer _serverActualizer;
         private readonly ITaskScheduler _taskScheduler;
         private readonly MmApplicationConfig _config;
         private bool _isRequestingNow;
@@ -30,11 +32,14 @@ namespace Shaman.MM.Providers
         private EntityDictionary<ServerInfo> _gameServerList = new EntityDictionary<ServerInfo>();
         private EntityDictionary<ServerInfo> _serverList = new EntityDictionary<ServerInfo>();
 
-        public MatchMakerServerInfoProvider(IRequestSender requestSender, ITaskSchedulerFactory taskSchedulerFactory, IApplicationConfig config, IShamanLogger logger, IStatisticsProvider statisticsProvider)
+        public MatchMakerServerInfoProvider(IRequestSender requestSender, ITaskSchedulerFactory taskSchedulerFactory,
+            IApplicationConfig config, IShamanLogger logger, IStatisticsProvider statisticsProvider,
+            IServerActualizer serverActualizer)
         {
             _requestSender = requestSender;
             _logger = logger;
             _statisticsProvider = statisticsProvider;
+            _serverActualizer = serverActualizer;
             _taskScheduler = taskSchedulerFactory.GetTaskScheduler();
             _config = (MmApplicationConfig) config;
             _isRequestingNow = false;
@@ -105,15 +110,7 @@ namespace Shaman.MM.Providers
 
         public async Task ActualizeMe()
         {
-            await _requestSender.SendRequest<ActualizeServerOnRouterResponse>(_config.GetRouterUrl(),
-                new ActualizeServerOnRouterRequest(GetServerIdentity(), _config.GetServerName(), _config.GetRegion(), _statisticsProvider.GetPeerCount()),
-                (response) =>
-                {
-                    if (!response.Success)
-                    {
-                        _logger.Error($"MatchMakerServerInfoProvider.ActualizeMe error: {response.Message}");
-                    }
-                });
+            await _serverActualizer.Actualize(_statisticsProvider.GetPeerCount());
         }
 
         public async Task<string> GetBundleUri()
