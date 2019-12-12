@@ -43,8 +43,15 @@ namespace Shaman.Client.Peers
         JoiningRoom = 8,
         InRoom = 9,
         LeavingRoom = 10,
+        JoinFailed = 11
     }
 
+    public enum JoinType
+    {
+        RandomJoin = 1,
+        DirectJoin = 2
+    }
+    
     public class EventHandler
     {
         public Action<MessageBase> Handler;
@@ -76,13 +83,16 @@ namespace Shaman.Client.Peers
         private Dictionary<byte, object> _matchMakingProperties;
         private Dictionary<byte, object> _joinGameProperties;
         private Action<ConnectionStatus, JoinInfo> _statusCallback;
+        private Action<List<RoomInfo>> _getRoomsCallback;
+        
 
         private Guid _joinInfoEventId;
         private PendingTask _pingTask;
         private PendingTask _resetPingTask;
         private bool _isPinging = false;
         private DateTime? _pingRequestSentOn = null;
-
+        private JoinType _joinType;
+        
         private int _rtt = int.MaxValue;
         //public Action<MessageBase> OnMessageReceived;
         
@@ -183,7 +193,17 @@ namespace Shaman.Client.Peers
             _logger.Debug($"JoinGame: Entering matchmaking");
 
             //calling next stage
-            _taskScheduler.ScheduleOnceOnNow(EnterMatchMaking);
+            switch(_joinType)
+            {
+                case JoinType.RandomJoin:
+                    _taskScheduler.ScheduleOnceOnNow(EnterMatchMaking);
+                    break;
+                case JoinType.DirectJoin:
+                    _taskScheduler.ScheduleOnceOnNow(GetRooms);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
 
         private void OnEnterMatchmakingResponse(MessageBase message)
@@ -297,19 +317,10 @@ namespace Shaman.Client.Peers
             //calling next stage
             _taskScheduler.ScheduleOnceOnNow(JoinRoom);
         }
-        
-        private void OnJoinInfoEvent(MessageBase joinInfoMessage)
-        {
-            _logger.Debug($"OnJoinInfoReceived: JoinInfo event received");
-            var eve = joinInfoMessage as JoinInfoEvent;
-            if (eve == null)
-            {
-                _logger.Debug($"OnJoinInfoReceived: Error casting JoinInfoEvent");
-                SetAndReportStatus(_status, _statusCallback, false, $"Error casting JoinInfoEvent");
-                return;
-            }
 
-            JoinInfo = eve.JoinInfo;
+        private void JoinInfoReceived(JoinInfo joinInfo)
+        {
+            JoinInfo = joinInfo;
             _logger.Debug($"OnJoinInfoReceived: JoinInfo.Status {JoinInfo.Status}, JoinInfo.CurrentPlayers {JoinInfo.CurrentPlayers}, JoinInfo.MaxPlayers {JoinInfo.MaxPlayers}");
             
             SetAndReportStatus(_status, _statusCallback);
@@ -330,6 +341,20 @@ namespace Shaman.Client.Peers
                     ConnectToGameServer(JoinInfo.ServerIpAddress, JoinInfo.ServerPort);
                 });
             }
+        }
+        
+        private void OnJoinInfoEvent(MessageBase joinInfoMessage)
+        {
+            _logger.Debug($"OnJoinInfoReceived: JoinInfo event received");
+            var eve = joinInfoMessage as JoinInfoEvent;
+            if (eve == null)
+            {
+                _logger.Debug($"OnJoinInfoReceived: Error casting JoinInfoEvent");
+                SetAndReportStatus(_status, _statusCallback, false, $"Error casting JoinInfoEvent");
+                return;
+            }
+
+            JoinInfoReceived(eve.JoinInfo);
         }
 
         private void ResetState()
@@ -546,7 +571,35 @@ namespace Shaman.Client.Peers
             //authorizing matchmaker
             SendRequest(new AuthorizationRequest(_backendId, SessionId), OmMmAuthorizationResponse);
         }
-        public void JoinGame(string matchMakerAddress, ushort matchMakerPort, int backendId, Guid sessionId, Dictionary<byte, object> matchMakingProperties, Dictionary<byte, object> joinGameProperties, Action<ConnectionStatus, JoinInfo> statusCallback)
+
+        public void GetRooms()
+        {
+            SendRequest(new GetRoomListRequest(_matchMakingProperties), message =>
+            {
+                var response = message as GetRoomListResponse;
+                if (response == null)
+                {
+                    var error = "GetRooms: Error casting GetRoomListResponse";
+                    _logger.Error(error);
+                    _getRoomsCallback(new List<RoomInfo>());
+                    return;
+                }
+
+                if (!response.Success)
+                {
+                    var error = $"GetRooms: Error response {response.Message}";
+                    _logger.Error(error);
+                    _getRoomsCallback(new List<RoomInfo>());
+                    return;
+                }
+
+                _getRoomsCallback(response.Rooms);
+            });
+        }
+
+        private void StartConnect(string matchMakerAddress, ushort matchMakerPort, int backendId, Guid sessionId,
+            Dictionary<byte, object> matchMakingProperties, Dictionary<byte, object> joinGameProperties,
+            Action<ConnectionStatus, JoinInfo> statusCallback)
         {
             try
             {
@@ -568,6 +621,62 @@ namespace Shaman.Client.Peers
                 _logger.Error($"JoinGame error: {ex}");
             }
         }
+        
+        
+        public void JoinGame(string matchMakerAddress, ushort matchMakerPort, int backendId, Guid sessionId,
+            Dictionary<byte, object> matchMakingProperties, Dictionary<byte, object> joinGameProperties,
+            Action<ConnectionStatus, JoinInfo> statusCallback)
+        {
+            _joinType = JoinType.RandomJoin;
+            StartConnect(matchMakerAddress, matchMakerPort, backendId, sessionId, matchMakingProperties,
+                joinGameProperties, statusCallback);
+        }
+        
+        public void GetRooms(string matchMakerAddress, ushort matchMakerPort, int backendId, Guid sessionId,
+            Dictionary<byte, object> matchMakingProperties, Dictionary<byte, object> joinGameProperties,
+            Action<List<RoomInfo>> getRoomsCallback)
+        {
+            _getRoomsCallback = getRoomsCallback;
+            _joinType = JoinType.DirectJoin;
+            StartConnect(matchMakerAddress, matchMakerPort, backendId, sessionId, matchMakingProperties,
+                joinGameProperties, null);
+        }
+
+        public void JoinRoom(Guid roomId, Action<ConnectionStatus, JoinInfo> statusCallback)
+        {
+            _statusCallback = statusCallback;
+            SendRequest(new DirectJoinRequest(roomId, _matchMakingProperties), message =>
+            {
+                var response = message as DirectJoinResponse;
+                if (response == null)
+                {
+                    var error = "JoinRoom: Error casting DirectJoinResponse";
+                    _logger.Error(error);
+                    SetAndReportStatus(ClientStatus.JoinFailed, statusCallback, false, error);
+                    return;
+                }
+
+                if (!response.Success)
+                {
+                    var error = $"JoinRoom: Error response {response.Message}";
+                    _logger.Error(error);
+                    SetAndReportStatus(ClientStatus.JoinFailed, statusCallback, false, error);
+                    return;
+                }
+
+                JoinInfoReceived(response.JoinInfo);
+            });
+        }
+        
+        public void JoinRandomGame(string matchMakerAddress, ushort matchMakerPort, int backendId, Guid sessionId,
+            Dictionary<byte, object> matchMakingProperties, Dictionary<byte, object> joinGameProperties,
+            Action<ConnectionStatus, JoinInfo> statusCallback)
+        {
+            _joinType = JoinType.RandomJoin;
+            StartConnect(matchMakerAddress, matchMakerPort, backendId, sessionId, matchMakingProperties,
+                joinGameProperties, statusCallback);
+        }
+        
         public void Disconnect()
         {
             _clientPeer.Disconnect();

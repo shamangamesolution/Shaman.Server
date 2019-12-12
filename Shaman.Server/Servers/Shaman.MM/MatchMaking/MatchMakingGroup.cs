@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Shaman.Common.Server.Peers;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Serialization;
@@ -176,6 +177,8 @@ namespace Shaman.MM.MatchMaking
             _isGroupWorking = false;
         }
         #endregion
+
+
         
         public void Start()
         {

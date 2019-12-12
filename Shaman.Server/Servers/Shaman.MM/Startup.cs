@@ -87,7 +87,6 @@ namespace Shaman.MM
             services.AddSingleton<IPacketSenderConfig>(c => c.GetRequiredService<IApplicationConfig>()); 
             services.AddSingleton<IMatchMakerServerInfoProvider, MatchMakerServerInfoProvider>();
 
-            services.AddSingleton<ICreatedRoomManager, CreatedRoomManager>();
             services.AddSingleton<IPacketSender, PacketBatchSender>();
             services.AddSingleton<ISerializer, BinarySerializer>();            
             //services.AddSingleton<ISocketFactory, HazelSockFactory>();
@@ -95,7 +94,6 @@ namespace Shaman.MM
 
             services.AddSingleton<ITaskSchedulerFactory, TaskSchedulerFactory>();            
             services.AddSingleton<IRequestSender, HttpSender>();            
-            services.AddSingleton<IPlayerCollection, PlayerCollection>();    
             services.AddSingleton<IMatchMaker, MatchMaker>();    
             services.AddSingleton<IApplication, MmApplication>();
             services.AddSingleton<IBackendProvider, BackendProvider>();
@@ -117,7 +115,7 @@ namespace Shaman.MM
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplication server,
-            IShamanLogger logger, IPlayerCollection playerColelction, ITaskSchedulerFactory taskSchedulerFactory,
+            IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory,
             IMatchMaker matchMaker,
             IMatchMakerServerInfoProvider serverInfoProvider)
         {

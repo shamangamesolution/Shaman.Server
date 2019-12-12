@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using Shaman.Common.Server.Peers;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.TaskScheduling;
@@ -129,12 +130,20 @@ namespace Shaman.MM.Managers
             return _groupToRoom[groupId].FirstOrDefault(r => r.CanJoin(playersCount));
         }
 
-        public IEnumerable<Room> GetRooms(Guid groupId, bool openOnly = true)
+        public Room GetRoom(Guid roomId)
+        {
+            if (!_rooms.TryGetValue(roomId, out var room))
+                return null;
+
+            return room;
+        }
+        
+        public IEnumerable<Room> GetRooms(Guid groupId, bool openOnly = true, int limit = 10)
         {
             if (!_groupToRoom.ContainsKey(groupId))
                 return new List<Room>();
 
-            return _groupToRoom[groupId].Where(r => (r.IsOpen() && openOnly) || (!openOnly));
+            return _groupToRoom[groupId].Where(r => (r.IsOpen() && openOnly) || (!openOnly)).OrderBy(r => r.ClosingInMs).Take(limit);
         }
 
         public int GetRoomsCount()

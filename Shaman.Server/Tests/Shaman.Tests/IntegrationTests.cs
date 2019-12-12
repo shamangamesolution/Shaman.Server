@@ -48,7 +48,6 @@ namespace Shaman.Tests
         private GameApplication _gameApplication;
         private MmApplication _mmApplication;
 
-        private IPlayerCollection playerCollection = null; 
         private IMatchMaker matchMaker;// = new MatchMaker();
         private List<MatchMakingGroup> matchMakingGroups = new List<MatchMakingGroup>();
         private IRequestSender requestSender = null;
@@ -80,7 +79,6 @@ namespace Shaman.Tests
         {             
             _clients.Clear();
             var config = new MmApplicationConfig("", "127.0.0.1", new List<ushort> {SERVER_PORT_MM}, "", 120000, 120000, GameProject.DefaultGame, "");
-            playerCollection = new PlayerCollection(_serverLogger, Mock.Of<IMmMetrics>());
             taskSchedulerFactory = new TaskSchedulerFactory(_serverLogger);
             //fake sender to direct calls of application functions
             requestSender = new FakeSenderWithGameApplication(new Dictionary<byte, object> {{PropertyCode.RoomProperties.GameMode, (byte) GameMode.SinglePlayer}}, CreateRoomDelegate,  UpdateRoomDelegate);
@@ -94,19 +92,18 @@ namespace Shaman.Tests
                 7000);
             _mmPacketSender = new PacketBatchSender(taskSchedulerFactory, config, serializerFactory);
             _gamePacketSender = new PacketBatchSender(taskSchedulerFactory, gameConfig, serializerFactory);
-
-            var createdRoomManager = new CreatedRoomManager(taskSchedulerFactory, _serverLogger);
-            _statsProvider = new MM.Providers.StatisticsProvider(playerCollection);
+            
+            _playerManager = new PlayersManager( Mock.Of<IMmMetrics>(), _serverLogger);
+            _statsProvider = new MM.Providers.StatisticsProvider(_playerManager);
             //_serverProvider = new MatchMakerServerInfoProvider(requestSender, taskSchedulerFactory, config, _serverLogger, _statsProvider);
             _serverProvider = new FakeMatchMakerServerInfoProvider(requestSender, "127.0.0.1", $"{SERVER_PORT_GAME}");
-            _playerManager = new PlayersManager( Mock.Of<IMmMetrics>(), _serverLogger);
             _mmRoomManager =
                 new MM.Managers.RoomManager(_serverProvider, _serverLogger, taskSchedulerFactory);
             _botManager = new BotManager();
 
             _mmGroupManager = new MatchMakingGroupManager(_serverLogger, taskSchedulerFactory, _playerManager, _mmPacketSender,  Mock.Of<IMmMetrics>(), _serverProvider, _mmRoomManager, _botManager);
             
-            matchMaker = new MatchMaker(playerCollection, _serverLogger, _mmPacketSender, Mock.Of<IMmMetrics>(), createdRoomManager, _playerManager,_mmGroupManager);
+            matchMaker = new MatchMaker(_serverLogger, _mmPacketSender, Mock.Of<IMmMetrics>(), _playerManager,_mmGroupManager);
             
             _roomProperties = new Dictionary<byte, object>();
             _roomProperties.Add(PropertyCode.RoomProperties.MatchMakingTick, MM_TICK);
@@ -123,7 +120,7 @@ namespace Shaman.Tests
             matchMaker.AddRequiredProperty(PropertyCode.PlayerProperties.Level);
             
             //setup mm server
-            _mmApplication = new MmApplication(_serverLogger, config, serializerFactory, socketFactory, playerCollection, matchMaker,requestSender, taskSchedulerFactory, _backendProvider, _mmPacketSender, createdRoomManager, _serverProvider, _mmRoomManager);
+            _mmApplication = new MmApplication(_serverLogger, config, serializerFactory, socketFactory, matchMaker,requestSender, taskSchedulerFactory, _backendProvider, _mmPacketSender, _serverProvider, _mmRoomManager, _mmGroupManager, _playerManager);
             
             _mmApplication.Start();
 

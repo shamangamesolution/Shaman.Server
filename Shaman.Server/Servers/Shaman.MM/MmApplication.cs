@@ -25,14 +25,13 @@ namespace Shaman.MM
 {
     public class MmApplication : ApplicationBase<MmPeerListener, MmPeer>
     {
-        private readonly IPlayerCollection _playerCollection;
         private readonly IMatchMaker _matchMaker;
         private readonly IBackendProvider _backendProvider;
-        private readonly ICreatedRoomManager _createdRoomManager;
         private readonly IPacketSender _packetSender;
-
+        private readonly IPlayersManager _playersManager;
         private readonly IMatchMakerServerInfoProvider _serverProvider;
         private readonly IRoomManager _roomManager;
+        private readonly IMatchMakingGroupsManager _matchMakingGroupManager;
 
         //debug
         private readonly Guid _id;
@@ -42,23 +41,21 @@ namespace Shaman.MM
             IApplicationConfig config,
             ISerializer serializer,
             ISocketFactory socketFactory,
-            IPlayerCollection playerCollection,
             IMatchMaker matchMaker,
             IRequestSender requestSender,
             ITaskSchedulerFactory taskSchedulerFactory,
             IBackendProvider backendProvider, 
             IPacketSender packetSender, 
-            ICreatedRoomManager createdRoomManager,
             IMatchMakerServerInfoProvider serverProvider,
-            IRoomManager roomManager) : base(logger, config, serializer,
+            IRoomManager roomManager, IMatchMakingGroupsManager matchMakingGroupManager, IPlayersManager playersManager) : base(logger, config, serializer,
             socketFactory, taskSchedulerFactory, requestSender)
         {
             _backendProvider = backendProvider;
             _packetSender = packetSender;
-            _createdRoomManager = createdRoomManager;
             _serverProvider = serverProvider;
             _roomManager = roomManager;
-            _playerCollection = playerCollection;
+            _matchMakingGroupManager = matchMakingGroupManager;
+            _playersManager = playersManager;
             _matchMaker = matchMaker;
             _id = Guid.NewGuid();
 
@@ -67,7 +64,7 @@ namespace Shaman.MM
 
         public MmServerStats GetStats()
         {
-            var oldestPlayer = _playerCollection.GetOldestPlayer();
+            var oldestPlayer = _playersManager.GetOldestPlayer();
             return new MmServerStats
             {
                 RegisteredServers = _serverProvider.GetGameServers().Select(s => new RegisteredServerStat
@@ -75,7 +72,7 @@ namespace Shaman.MM
                     ActualizedOn = s.ActualizedOn,
                     Address = s.Identity.ToString()
                 }).ToList(),
-                TotalPlayers = _playerCollection.Count(),
+                TotalPlayers = _playersManager.Count(),
                 OldestPlayerInMatchMaking = oldestPlayer?.StartedOn,
                 CreatedRoomsCount = _roomManager.GetRoomsCount()
             };
@@ -92,13 +89,13 @@ namespace Shaman.MM
             var listeners = GetListeners();
             foreach (var listener in listeners)
             {
-                listener.Initialize(_matchMaker, _backendProvider, _packetSender, Config.GetAuthSecret());
+                listener.Initialize(_matchMaker, _backendProvider, _packetSender, _roomManager, _matchMakingGroupManager, Config.GetAuthSecret());
             }
         }
 
         public override void OnShutDown()
         {
-            _playerCollection.Clear();
+            _playersManager.Clear();
             _matchMaker.Stop();
         }
     }

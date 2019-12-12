@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using Shaman.Common.Server.Peers;
 using Shaman.Common.Utils.Messages;
@@ -15,6 +17,8 @@ using Shaman.Messages.General.DTO.Requests.Auth;
 using Shaman.Messages.General.DTO.Responses;
 using Shaman.Messages.General.DTO.Responses.Auth;
 using Shaman.Messages.MM;
+using Shaman.Messages.RoomFlow;
+using Shaman.MM.Managers;
 
 namespace Shaman.MM
 {
@@ -23,15 +27,19 @@ namespace Shaman.MM
         private IMatchMaker _matchMaker;
         private IBackendProvider _backendProvider;
         private IPacketSender _packetSender;
+        private IRoomManager _roomManager;
+        private IMatchMakingGroupsManager _matchMakingGroupsManager;
         private string _authSecret;
 
-        public void Initialize(IMatchMaker matchMaker, IBackendProvider backendProvider, IPacketSender packetSender,
+        public void Initialize(IMatchMaker matchMaker, IBackendProvider backendProvider, IPacketSender packetSender, IRoomManager roomManager, IMatchMakingGroupsManager matchMakingGroupsManager,
             string authSecret)
         {
             _matchMaker = matchMaker;
             _backendProvider = backendProvider;
             _packetSender = packetSender;
             _authSecret = authSecret;
+            _roomManager = roomManager;
+            _matchMakingGroupsManager = matchMakingGroupsManager;
         }
 
         private void ProcessMessage(IPEndPoint endPoint, byte[] buffer, int offset, int length, MmPeer peer)
@@ -115,6 +123,45 @@ namespace Shaman.MM
 
                     switch (operationCode)
                     {
+                        case CustomOperationCode.DirectJoin:
+                            var joinRequest = Serializer.DeserializeAs<DirectJoinRequest>(buffer, offset, length);
+                            var joinResult = _roomManager.JoinRoom(joinRequest.RoomId,
+                                new Dictionary<Guid, Dictionary<byte, object>>
+                                    {{ peer.GetSessionId(), joinRequest.MatchMakingProperties}});
+                            var room = _roomManager.GetRoom(joinRequest.RoomId);
+                            if (room == null)
+                                throw new Exception($"DirectJoin error: room {joinRequest.RoomId} is not exists");
+                            var joinResponse = new DirectJoinResponse();
+                            switch (joinResult.Result)
+                            {
+                                case RoomOperationResult.OK:
+                                    joinResponse.JoinInfo = new JoinInfo(joinResult.Address, joinResult.Port, joinResult.RoomId, JoinStatus.RoomIsReady,
+                                        room.Players.Count, room.TotalPlayersNeeded, true);
+                                    break;
+                                case RoomOperationResult.ServerNotFound:
+                                case RoomOperationResult.CreateRoomError:
+                                case RoomOperationResult.JoinRoomError:
+                                    _logger.Error($"DirectJoin error: JoinResult = {joinResult.Result}, SessionId = {peer.GetSessionId()}");
+                                    joinResponse.JoinInfo = new JoinInfo("", 0, Guid.Empty, JoinStatus.MatchMakingFailed, 0, 0);
+                                    break;
+                                default:
+                                    throw new ArgumentException();
+                            }
+                            _packetSender.AddPacket(joinResponse, peer);
+                            break;
+                        case CustomOperationCode.GetRoomList:
+                            var request = Serializer.DeserializeAs<GetRoomListRequest>(buffer, offset, length);
+                            var groups = _matchMakingGroupsManager.GetMatchmakingGroupIds(request.MatchMakingProperties);
+                            var getRoomsResponse = new GetRoomListResponse();
+                            getRoomsResponse.Rooms = new List<RoomInfo>();
+                            foreach(var group in groups)
+                                getRoomsResponse.Rooms.AddRange(
+                                    _roomManager
+                                        .GetRooms(group)
+                                        .Select(r => new RoomInfo(r.Id, r.TotalPlayersNeeded, r.Players.Count - r.BotsAdded, r.ClosingInMs, r.Properties))
+                                );
+                            _packetSender.AddPacket(getRoomsResponse, peer);
+                            break;
                         case CustomOperationCode.EnterMatchMaking:
                             var enterMessage =  Serializer.DeserializeAs<EnterMatchMakingRequest>(buffer, offset, length);
                             if (enterMessage == null)

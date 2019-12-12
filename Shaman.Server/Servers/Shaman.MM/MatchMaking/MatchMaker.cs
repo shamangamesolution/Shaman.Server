@@ -15,8 +15,6 @@ namespace Shaman.MM.MatchMaking
 {
     public class MatchMaker : IMatchMaker
     {
-        private readonly ICreatedRoomManager _createdRoomManager;
-        private readonly IPlayerCollection _playerCollection;
         private readonly IShamanLogger _logger;
         private readonly List<byte> _requiredMatchMakingProperties;
         private readonly IPlayersManager _playersManager;
@@ -28,17 +26,14 @@ namespace Shaman.MM.MatchMaking
         //hashcodes lists
         //private Dictionary<Guid, int> _hashCodeSets = new Dictionary<Guid, int>();
 
-        public MatchMaker(IPlayerCollection playerCollection,
-            IShamanLogger logger,
-            IPacketSender packetSender, IMmMetrics mmMetrics, ICreatedRoomManager createdRoomManager,
+        public MatchMaker(IShamanLogger logger,
+            IPacketSender packetSender, IMmMetrics mmMetrics, 
             IPlayersManager playersManager, IMatchMakingGroupsManager groupManager)
         {
             _packetSender = packetSender;
             _mmMetrics = mmMetrics;
-            _createdRoomManager = createdRoomManager;
             _playersManager = playersManager;
             _groupManager = groupManager;
-            _playerCollection = playerCollection;
             _logger = logger;
             _requiredMatchMakingProperties = new List<byte>();
         }
@@ -51,7 +46,6 @@ namespace Shaman.MM.MatchMaking
         public void AddPlayer(MmPeer peer, Dictionary<byte, object> properties)
         {
             var player = new MatchMakingPlayer(peer, properties);
-            _playerCollection.Add(player);
             var groups = _groupManager.GetMatchmakingGroupIds(properties);
             if (groups == null || groups.Count == 0)
                 _logger.Error($"MatchMaker.AddPlayer error: no groups for player");
@@ -61,7 +55,6 @@ namespace Shaman.MM.MatchMaking
 
         public void RemovePlayer(Guid peerId)
         {
-            _playerCollection.Remove(peerId);
             _playersManager.Remove(peerId);
         }
 
@@ -72,7 +65,7 @@ namespace Shaman.MM.MatchMaking
 
         public void Clear()
         {
-            _playerCollection.Clear();
+            _playersManager.Clear();
         }
 
         public void AddMatchMakingGroup(Dictionary<byte, object> roomProperties, Dictionary<byte, object> measures)
@@ -99,14 +92,12 @@ namespace Shaman.MM.MatchMaking
 
         public void Start()
         {
-            _createdRoomManager.Start();
             
             _groupManager.Start();
         }
 
         public void Stop()
         {
-            _createdRoomManager.Stop();
             _groupManager.Stop();
 
             Clear();

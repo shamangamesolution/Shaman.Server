@@ -1,19 +1,20 @@
 using Shaman.Common.Server.Providers;
+using Shaman.MM.Managers;
 using Shaman.MM.Players;
 
 namespace Shaman.MM.Providers
 {
     public class StatisticsProvider : IStatisticsProvider
     {
-        private readonly IPlayerCollection _playerCollection;
-        public StatisticsProvider(IPlayerCollection playerCollection)
+        private readonly IPlayersManager _playersManager;
+        public StatisticsProvider(IPlayersManager playersManager)
         {
-            _playerCollection = playerCollection;
+            _playersManager = playersManager;
         }
 
         public int GetPeerCount()
         {
-            return _playerCollection.Count();
+            return _playersManager.Count();
         }
     }
 }

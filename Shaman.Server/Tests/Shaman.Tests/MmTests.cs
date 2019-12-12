@@ -46,7 +46,6 @@ namespace Shaman.Tests
 
         private TestClientPeer _client1, _client2, _client3;
 
-        private IPlayerCollection playerCollection = null; 
         private IMatchMaker matchMaker;
         private List<MatchMakingGroup> matchMakingGroups = new List<MatchMakingGroup>();
         private IRequestSender requestSender = null;
@@ -74,16 +73,14 @@ namespace Shaman.Tests
             _serverProvider = new FakeMatchMakerServerInfoProvider(requestSender, "127.0.0.1", "222");
             
             _backendProvider = new BackendProvider(taskSchedulerFactory, config, requestSender, _serverLogger);
-            playerCollection = new PlayerCollection(_serverLogger, Mock.Of<IMmMetrics>());
             _packetSender = new PacketBatchSender(taskSchedulerFactory, config, serializerFactory);
-            var createdRoomManager = new CreatedRoomManager(taskSchedulerFactory, _serverLogger);
             _playerManager = new PlayersManager( Mock.Of<IMmMetrics>(), _serverLogger);
             _mmRoomManager =
                 new MM.Managers.RoomManager(_serverProvider, _serverLogger, taskSchedulerFactory);
             _botManager = new BotManager();
             _mmGroupManager = new MatchMakingGroupManager(_serverLogger, taskSchedulerFactory, _playerManager, _packetSender,  Mock.Of<IMmMetrics>(), _serverProvider, _mmRoomManager, _botManager);
             
-            matchMaker = new MatchMaker(playerCollection, _serverLogger,  _packetSender,Mock.Of<IMmMetrics>(), createdRoomManager, _playerManager, _mmGroupManager);
+            matchMaker = new MatchMaker(_serverLogger,  _packetSender,Mock.Of<IMmMetrics>(), _playerManager, _mmGroupManager);
             _roomProperties = new Dictionary<byte, object>();
             _roomProperties.Add(PropertyCode.RoomProperties.MatchMakingTick, MM_TICK);
             _roomProperties.Add(PropertyCode.RoomProperties.TotalPlayersNeeded, TOTAL_PLAYERS_NEEDED_1);
@@ -126,7 +123,7 @@ namespace Shaman.Tests
             matchMaker.AddRequiredProperty(PropertyCode.PlayerProperties.Level);
 
             //setup server
-            _mmApplication = new MmApplication(_serverLogger, config, serializerFactory, socketFactory, playerCollection, matchMaker,requestSender, taskSchedulerFactory, _backendProvider, _packetSender, createdRoomManager, _serverProvider, _mmRoomManager);
+            _mmApplication = new MmApplication(_serverLogger, config, serializerFactory, socketFactory,  matchMaker,requestSender, taskSchedulerFactory, _backendProvider, _packetSender,  _serverProvider, _mmRoomManager, _mmGroupManager, _playerManager);
 
             _mmApplication.Start();
             
