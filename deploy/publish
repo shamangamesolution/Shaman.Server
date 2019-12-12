@@ -1,0 +1,2 @@
+#!/bin/bash
+sh $1/build && sh login && sh $1/push && sh $1/update
