@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Microsoft.IdentityModel.Tokens;
 using Shaman.Common.Utils.Extensions;
 using Shaman.Common.Utils.Logging;
 using Shaman.Game.Contract;
