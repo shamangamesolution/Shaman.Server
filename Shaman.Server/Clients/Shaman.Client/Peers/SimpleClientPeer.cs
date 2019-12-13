@@ -43,13 +43,15 @@ namespace Shaman.Client.Peers
         JoiningRoom = 8,
         InRoom = 9,
         LeavingRoom = 10,
-        JoinFailed = 11
+        JoinFailed = 11,
+        CreateGameError = 12
     }
 
     public enum JoinType
     {
         RandomJoin = 1,
-        DirectJoin = 2
+        DirectJoin = 2,
+        CreateGame = 3
     }
     
     public class EventHandler
@@ -146,6 +148,139 @@ namespace Shaman.Client.Peers
         #endregion
 
         #region private and protected
+        private void OnConnectedToMatchMaker(MessageBase eve)
+        {
+            SetAndReportStatus(ClientStatus.AuthorizingMatchMaking, _statusCallback);
+                
+            //authorizing matchmaker
+            SendRequest(new AuthorizationRequest(_backendId, SessionId), OmMmAuthorizationResponse);
+        }
+
+        private void GetRooms()
+        {
+            SendRequest(new GetRoomListRequest(_matchMakingProperties), message =>
+            {
+                var response = message as GetRoomListResponse;
+                if (response == null)
+                {
+                    var error = "GetRooms: Error casting GetRoomListResponse";
+                    _logger.Error(error);
+                    _getRoomsCallback(new List<RoomInfo>());
+                    return;
+                }
+
+                if (!response.Success)
+                {
+                    var error = $"GetRooms: Error response {response.Message}";
+                    _logger.Error(error);
+                    _getRoomsCallback(new List<RoomInfo>());
+                    return;
+                }
+
+                _getRoomsCallback(response.Rooms);
+            });
+        }
+
+        private void CreateGame()
+        {
+            SendRequest(new CreateRoomFromClientRequest(_matchMakingProperties), message =>
+            {
+                var response = message as CreateRoomFromClientResponse;
+                if (response == null)
+                {
+                    var error = "GetRooms: Error casting CreateRoomFromClientResponse";
+                    _logger.Error(error);
+                    SetAndReportStatus(ClientStatus.CreateGameError, _statusCallback, false, error);
+                    return;
+                }
+
+                if (!response.Success)
+                {
+                    var error = $"GetRooms: Error response {response.Message}";
+                    _logger.Error(error);
+                    SetAndReportStatus(ClientStatus.CreateGameError, _statusCallback, false, error);
+                    return;
+                }
+                
+                JoinInfoReceived(response.JoinInfo);
+            });
+        }
+        
+        private void StartConnect(string matchMakerAddress, ushort matchMakerPort, int backendId, Guid sessionId,
+            Dictionary<byte, object> matchMakingProperties, Dictionary<byte, object> joinGameProperties,
+            Action<ConnectionStatus, JoinInfo> statusCallback)
+        {
+            try
+            {
+                _matchMakingProperties = matchMakingProperties;
+                _joinGameProperties = joinGameProperties;
+                _statusCallback = statusCallback;
+                SessionId = sessionId;
+                _backendId = backendId;
+                //waiting for join Info
+                _joinInfoEventId = RegisterOperationHandler(CustomOperationCode.JoinInfo, OnJoinInfoEvent);
+                
+                SetAndReportStatus(ClientStatus.ConnectingMatchMaking, statusCallback);
+                RegisterOperationHandler(CustomOperationCode.Connect, OnConnectedToMatchMaker, true);
+                
+                _clientPeer.Connect(matchMakerAddress, matchMakerPort);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"JoinGame error: {ex}");
+            }
+        }
+        private void ProcessMessage(byte[] buffer, int offset, int length)
+        {
+            MessageBase deserialized = null;
+            ushort operationCode = 0;
+            try
+            {
+                //probably bad kind of using
+                var message = new ArraySegment<byte>(buffer, offset, length).ToArray();
+
+                operationCode = MessageBase.GetOperationCode(message);
+                
+                _logger.Debug($"Message received. Operation code: {operationCode}");
+
+                deserialized = _messageDeserializer.DeserializeMessage(operationCode, _serializer, message);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"ClientOnPackageReceived error: {ex}");
+            }
+            
+            //calling registered handlers
+            lock (_syncCollections)
+            {
+                if (deserialized != null && operationCode != 0 && _handlers.ContainsKey(operationCode))
+                {
+                    var callbacksToUnregister = new List<Guid>();
+                    foreach (var item in _handlers[operationCode])
+                    {
+                        try
+                        {
+                            item.Value.Handler.Invoke(deserialized);
+                            if (item.Value.CallOnce)
+                                callbacksToUnregister.Add(item.Key);
+                        }
+                        catch (Exception ex)
+                        {
+                            string targetName = item.Value == null ? "" : item.Value.Handler.Method.ToString();
+                            _logger.Error($"ClientOnPackageReceived error: processing message {deserialized.OperationCode} in handler {targetName} {ex}");
+                        }
+                    }
+                    
+                    //unregister
+                    foreach(var item in callbacksToUnregister)
+                        UnregisterOperationHandler(item);
+                }
+                else
+                {
+                    _logger.Debug($"No handler for message {operationCode}");
+                }
+            }
+        }   
         //in unity this should be overriden to process messages inside the main thread
         protected virtual void StartProcessingMessagesLoop()
         {
@@ -200,6 +335,9 @@ namespace Shaman.Client.Peers
                     break;
                 case JoinType.DirectJoin:
                     _taskScheduler.ScheduleOnceOnNow(GetRooms);
+                    break;
+                case JoinType.CreateGame:
+                    _taskScheduler.ScheduleOnceOnNow(CreateGame);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -429,58 +567,6 @@ namespace Shaman.Client.Peers
             return _status;
         }
 
-        private void ProcessMessage(byte[] buffer, int offset, int length)
-        {
-            MessageBase deserialized = null;
-            ushort operationCode = 0;
-            try
-            {
-                //probably bad kind of using
-                var message = new ArraySegment<byte>(buffer, offset, length).ToArray();
-
-                operationCode = MessageBase.GetOperationCode(message);
-                
-                _logger.Debug($"Message received. Operation code: {operationCode}");
-
-                deserialized = _messageDeserializer.DeserializeMessage(operationCode, _serializer, message);
-            }
-            catch (Exception ex)
-            {
-                _logger.Error($"ClientOnPackageReceived error: {ex}");
-            }
-            
-            //calling registered handlers
-            lock (_syncCollections)
-            {
-                if (deserialized != null && operationCode != 0 && _handlers.ContainsKey(operationCode))
-                {
-                    var callbacksToUnregister = new List<Guid>();
-                    foreach (var item in _handlers[operationCode])
-                    {
-                        try
-                        {
-                            item.Value.Handler.Invoke(deserialized);
-                            if (item.Value.CallOnce)
-                                callbacksToUnregister.Add(item.Key);
-                        }
-                        catch (Exception ex)
-                        {
-                            string targetName = item.Value == null ? "" : item.Value.Handler.Method.ToString();
-                            _logger.Error($"ClientOnPackageReceived error: processing message {deserialized.OperationCode} in handler {targetName} {ex}");
-                        }
-                    }
-                    
-                    //unregister
-                    foreach(var item in callbacksToUnregister)
-                        UnregisterOperationHandler(item);
-                }
-                else
-                {
-                    _logger.Debug($"No handler for message {operationCode}");
-                }
-            }
-        }    
-
         public void ClientOnPackageReceived(IPacketInfo packet)
         {
             try
@@ -503,7 +589,6 @@ namespace Shaman.Client.Peers
                 packet.Dispose();
             }
         }
-                
         public Guid RegisterOperationHandler(ushort operationCode, Action<MessageBase> handler, bool callOnce = false)
         {
             _logger.Debug($"Registering OperationHandler {handler.Method} for operation {operationCode} (callOnce = {callOnce})");
@@ -559,69 +644,11 @@ namespace Shaman.Client.Peers
         {
             _requestSender.SendRequest<T>(url, request, callback);
         }
+        
         public void SendEvent(EventBase eve)
         {
             _taskScheduler.ScheduleOnceOnNow(() => _clientPeer.Send(eve));
         }
-        
-        private void OnConnectedToMatchMaker(MessageBase eve)
-        {
-            SetAndReportStatus(ClientStatus.AuthorizingMatchMaking, _statusCallback);
-                
-            //authorizing matchmaker
-            SendRequest(new AuthorizationRequest(_backendId, SessionId), OmMmAuthorizationResponse);
-        }
-
-        public void GetRooms()
-        {
-            SendRequest(new GetRoomListRequest(_matchMakingProperties), message =>
-            {
-                var response = message as GetRoomListResponse;
-                if (response == null)
-                {
-                    var error = "GetRooms: Error casting GetRoomListResponse";
-                    _logger.Error(error);
-                    _getRoomsCallback(new List<RoomInfo>());
-                    return;
-                }
-
-                if (!response.Success)
-                {
-                    var error = $"GetRooms: Error response {response.Message}";
-                    _logger.Error(error);
-                    _getRoomsCallback(new List<RoomInfo>());
-                    return;
-                }
-
-                _getRoomsCallback(response.Rooms);
-            });
-        }
-
-        private void StartConnect(string matchMakerAddress, ushort matchMakerPort, int backendId, Guid sessionId,
-            Dictionary<byte, object> matchMakingProperties, Dictionary<byte, object> joinGameProperties,
-            Action<ConnectionStatus, JoinInfo> statusCallback)
-        {
-            try
-            {
-                _matchMakingProperties = matchMakingProperties;
-                _joinGameProperties = joinGameProperties;
-                _statusCallback = statusCallback;
-                SessionId = sessionId;
-                _backendId = backendId;
-                //waiting for join Info
-                _joinInfoEventId = RegisterOperationHandler(CustomOperationCode.JoinInfo, OnJoinInfoEvent);
-                
-                SetAndReportStatus(ClientStatus.ConnectingMatchMaking, statusCallback);
-                RegisterOperationHandler(CustomOperationCode.Connect, OnConnectedToMatchMaker, true);
-                
-                _clientPeer.Connect(matchMakerAddress, matchMakerPort);
-            }
-            catch (Exception ex)
-            {
-                _logger.Error($"JoinGame error: {ex}");
-            }
-        }
-        
         
         public void JoinGame(string matchMakerAddress, ushort matchMakerPort, int backendId, Guid sessionId,
             Dictionary<byte, object> matchMakingProperties, Dictionary<byte, object> joinGameProperties,
@@ -632,7 +659,7 @@ namespace Shaman.Client.Peers
                 joinGameProperties, statusCallback);
         }
         
-        public void GetRooms(string matchMakerAddress, ushort matchMakerPort, int backendId, Guid sessionId,
+        public void GetGames(string matchMakerAddress, ushort matchMakerPort, int backendId, Guid sessionId,
             Dictionary<byte, object> matchMakingProperties, Dictionary<byte, object> joinGameProperties,
             Action<List<RoomInfo>> getRoomsCallback)
         {
@@ -642,7 +669,7 @@ namespace Shaman.Client.Peers
                 joinGameProperties, null);
         }
 
-        public void JoinRoom(Guid roomId, Action<ConnectionStatus, JoinInfo> statusCallback)
+        public void JoinGame(Guid roomId, Action<ConnectionStatus, JoinInfo> statusCallback)
         {
             _statusCallback = statusCallback;
             SendRequest(new DirectJoinRequest(roomId, _matchMakingProperties), message =>
@@ -668,6 +695,15 @@ namespace Shaman.Client.Peers
             });
         }
         
+        public void CreateGame(string matchMakerAddress, ushort matchMakerPort, int backendId, Guid sessionId,
+            Dictionary<byte, object> matchMakingProperties, Dictionary<byte, object> joinGameProperties,
+            Action<ConnectionStatus, JoinInfo> statusCallback)
+        {
+            _joinType = JoinType.CreateGame;
+            StartConnect(matchMakerAddress, matchMakerPort, backendId, sessionId, matchMakingProperties,
+                joinGameProperties, statusCallback);
+        }
+        
         public void JoinRandomGame(string matchMakerAddress, ushort matchMakerPort, int backendId, Guid sessionId,
             Dictionary<byte, object> matchMakingProperties, Dictionary<byte, object> joinGameProperties,
             Action<ConnectionStatus, JoinInfo> statusCallback)
@@ -689,6 +725,5 @@ namespace Shaman.Client.Peers
             return _clientPeer.GetSendQueueLength();
         }
         #endregion
-        
     }
 }

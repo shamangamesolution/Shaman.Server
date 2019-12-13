@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Shaman.Common.Server.Peers;
+using Shaman.Messages.MM;
 using Shaman.MM.Rooms;
 
 namespace Shaman.MM.Managers
@@ -24,14 +25,16 @@ namespace Shaman.MM.Managers
     public interface IRoomManager
     {
         JoinRoomResult CreateRoom(Guid groupId, Dictionary<Guid, Dictionary<byte, object>> players,
-            Dictionary<Guid, Dictionary<byte, object>> bots, Dictionary<byte, object> roomProperties,
-            Dictionary<byte, object> measures);
+            Dictionary<byte, object> roomProperties);
         
         JoinRoomResult JoinRoom(Guid roomId, Dictionary<Guid, Dictionary<byte, object>> players);
+
+        void UpdateRoomState(Guid roomId, int currentPlayers, int closingInMs, RoomState roomState);
         
         Room GetRoom(Guid groupId, int playersCount);
         Room GetRoom(Guid roomId);
-        
+
+        IEnumerable<Room> GetAllRooms();
         IEnumerable<Room> GetRooms(Guid groupId, bool openOnly = true, int limit = 10);
         int GetRoomsCount();
         void Start(int timeToKeepCreatedRoomSec);

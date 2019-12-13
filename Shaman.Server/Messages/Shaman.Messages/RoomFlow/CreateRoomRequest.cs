@@ -10,13 +10,13 @@ namespace Shaman.Messages.RoomFlow
         public Dictionary<byte, object> Properties { get; private set; }
         public Dictionary<Guid, Dictionary<byte, object>> Players { get; private set; }
         
-        public CreateRoomRequest(Dictionary<byte, object> properties, Dictionary<Guid, Dictionary<byte, object>> players) : base(Messages.CustomOperationCode.CreateRoom, "createroom")
+        public CreateRoomRequest(Dictionary<byte, object> properties, Dictionary<Guid, Dictionary<byte, object>> players) : base(Messages.CustomOperationCode.CreateRoomFromMm, "createroom")
         {
             Players = players;
             Properties = properties;
         }
 
-        public CreateRoomRequest() : base(Messages.CustomOperationCode.CreateRoom)
+        public CreateRoomRequest() : base(Messages.CustomOperationCode.CreateRoomFromMm)
         {
             Properties = new Dictionary<byte, object>();
             Players = new Dictionary<Guid, Dictionary<byte, object>>();

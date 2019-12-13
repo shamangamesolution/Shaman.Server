@@ -11,7 +11,7 @@ namespace Shaman.MM.Managers
     public class PlayersManager : IPlayersManager
     {
         private readonly IMmMetrics _mmMetrics;
-        private IShamanLogger _logger;
+        private readonly IShamanLogger _logger;
         
         private object _syncCollection = new object();
         private Dictionary<Guid, MatchMakingPlayer> _players = new Dictionary<Guid, MatchMakingPlayer>();

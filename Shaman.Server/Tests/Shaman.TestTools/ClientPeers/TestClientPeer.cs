@@ -131,7 +131,10 @@ namespace Shaman.TestTools.ClientPeers
 
             //save join info
             if (deserialized is JoinInfoEvent joinInfoEvent)
+            {
                 _joinInfo = joinInfoEvent.JoinInfo;
+                _logger.Info($"Received joinInfo. Status = {_joinInfo.Status}");
+            }
         }
         
         private void ClientOnPackageReceived(IPacketInfo packet)

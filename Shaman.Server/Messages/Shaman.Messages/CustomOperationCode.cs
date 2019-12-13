@@ -16,11 +16,13 @@ namespace Shaman.Messages
         //matchmaking.BEGIN
         public const ushort EnterMatchMaking = 11012;
         public const ushort LeaveMatchMaking = 11013;
-        public const ushort CreateRoom = 11014;
+        public const ushort CreateRoomFromMm = 11014;
         public const ushort JoinInfo = 11015;
         public const ushort UpdateRoom = 11018;
         public const ushort GetRoomList = 11019;
         public const ushort DirectJoin = 11020;
+        public const ushort UpdateRoomState = 11021;
+        public const ushort CreateRoomFromClient = 11022;
 
         //matchmaking.END
         

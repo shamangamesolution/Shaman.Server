@@ -40,14 +40,6 @@ namespace Shaman.Game.Rooms.RoomProperties
 
         public void CheckIsBotForPlayers()
         {
-            foreach (var player in _playersCameFromMatchMaker)
-            {
-                if (!player.Value.ContainsKey(PropertyCode.PlayerProperties.IsBot))
-                {
-                    _logger.Error($"No IsBot property in player {player.Key} record");
-                    continue;
-                }
-            }
         }
 
         public int GetPlayersCount()
@@ -57,17 +49,9 @@ namespace Shaman.Game.Rooms.RoomProperties
 
         public int GetBotsNumber()
         {
-            var botsNumber = 0;
-            foreach (var player in _playersCameFromMatchMaker)
-            {
-                //skip bots
-                if (player.Value.GetBool(PropertyCode.PlayerProperties.IsBot))
-                {
-                    botsNumber++;
-                }
-            }
-
-            return botsNumber;
+            if (!_roomProperties.TryGetValue(PropertyCode.RoomProperties.TotalPlayersNeeded, out var maximumPlayers))
+                return 0;
+            return (int)maximumPlayers - _playersCameFromMatchMaker.Count;
         }
 
         public bool IsRoomPropertiesContainsKey(byte key)
