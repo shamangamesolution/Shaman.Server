@@ -8,6 +8,7 @@ using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Messages;
+using Shaman.Messages.MM;
 using Shaman.MM.Managers;
 using Shaman.MM.MatchMaking;
 using Shaman.MM.Metrics;
@@ -25,33 +26,25 @@ namespace Shaman.MM.Tests
         private IPlayersManager _playersManager;
         private IPacketSender _packetSender;
         private IRoomManager _roomManager;
-        private IBotManager _botManager;
         private IMatchMakerServerInfoProvider _serverProvider;
         private IMatchMakingGroupsManager _matchMakingGroupManager;
+        private IRoomPropertiesProvider _roomPropertiesProvider;
         
         private Task emptyTask = new Task(() => {});
-        private Dictionary<byte, object> _roomProperties = new Dictionary<byte, object>();
         private Dictionary<byte, object> _measures = new Dictionary<byte, object>();
         private Dictionary<byte, object> _playerProperties;
-        private List<Guid> _groupIds = new List<Guid>();
         
         [SetUp]
         public void Setup()
         {
             _logger = new ConsoleLogger();
+            _roomPropertiesProvider = new FakeRoomPropertiesProvider(3, 500, 250);
+            
             _taskSchedulerFactory = new TaskSchedulerFactory(_logger);
             _playersManager = new PlayersManager(Mock.Of<IMmMetrics>(), _logger);
             _packetSender = new FakePacketSender();
             _serverProvider = new FakeServerProvider();
             _roomManager = new RoomManager(_serverProvider, _logger, _taskSchedulerFactory);
-            _botManager = new BotManager();
-            
-            _roomProperties.Add(PropertyCode.RoomProperties.MatchMakingTick, 250);
-            _roomProperties.Add(PropertyCode.RoomProperties.TotalPlayersNeeded, 3);
-            _roomProperties.Add(PropertyCode.RoomProperties.ToAddBots, true);
-            _roomProperties.Add(PropertyCode.RoomProperties.ToAddOtherPlayers, true);
-            _roomProperties.Add(PropertyCode.RoomProperties.TimeBeforeBotsAdded, 500);
-            _roomProperties.Add(PropertyCode.RoomProperties.RoomIsClosingIn, 5000);
 
             _measures.Add(PropertyCode.PlayerProperties.GameMode, 1);
             
@@ -59,16 +52,14 @@ namespace Shaman.MM.Tests
                 {{PropertyCode.PlayerProperties.GameMode, 1}};
             
             _matchMakingGroupManager = new MatchMakingGroupManager(_logger, _taskSchedulerFactory, _playersManager,
-                _packetSender, Mock.Of<IMmMetrics>(), _serverProvider, _roomManager, _botManager);
-            _matchMakingGroupManager.AddMatchMakingGroup(_roomProperties, _measures);
-            _groupIds = _matchMakingGroupManager.GetMatchmakingGroupIds(_playerProperties);
+                _packetSender, Mock.Of<IMmMetrics>(), _roomManager, _roomPropertiesProvider);
+            _matchMakingGroupManager.AddMatchMakingGroup(_measures);
             _matchMakingGroupManager.Start(10000);
         }
 
         [TearDown]
         public void TearDown()
         {
-            _roomProperties.Clear();
             _measures.Clear();
             _matchMakingGroupManager.Stop();
         }
@@ -78,13 +69,17 @@ namespace Shaman.MM.Tests
         {
             //one player two bots
             var player = new MatchMakingPlayer(new FakePeer(), _playerProperties);
-            _playersManager.Add(player, _groupIds);
+            _matchMakingGroupManager.AddPlayerToMatchMaking(player);
+            
             emptyTask.Wait(1500);
-            var rooms = _roomManager.GetRooms(_groupIds[0]);
+            var rooms = _matchMakingGroupManager.GetRooms(_playerProperties);
+            Assert.AreEqual(0, rooms.Count());
+            rooms = _roomManager.GetAllRooms();
+            _roomManager.UpdateRoomState(rooms.First().Id, 1, 3000, RoomState.Open);
+            rooms = _matchMakingGroupManager.GetRooms(_playerProperties);
             Assert.AreEqual(1, rooms.Count());
             var room = rooms.FirstOrDefault();
-            Assert.AreEqual(3, room.Players.Count);
-            Assert.AreEqual(2, room.BotsAdded);
+            Assert.AreEqual(1, room.CurrentPlayersCount);
             Assert.AreEqual(true, room.IsOpen());
             Assert.AreEqual(true, room.CanJoin(2));
         }
@@ -95,14 +90,17 @@ namespace Shaman.MM.Tests
             //one player two bots
             var player1 = new MatchMakingPlayer(new FakePeer(), _playerProperties);
             var player2 = new MatchMakingPlayer(new FakePeer(), _playerProperties);
-            _playersManager.Add(player1, _groupIds);
-            _playersManager.Add(player2, _groupIds);
+            _matchMakingGroupManager.AddPlayerToMatchMaking(player1);
+            _matchMakingGroupManager.AddPlayerToMatchMaking(player2);
             emptyTask.Wait(1500);
-            var rooms = _roomManager.GetRooms(_groupIds[0]);
+            var rooms = _matchMakingGroupManager.GetRooms(_playerProperties);
+            Assert.AreEqual(0, rooms.Count());
+            rooms = _roomManager.GetAllRooms();
+            _roomManager.UpdateRoomState(rooms.First().Id, 2, 3000, RoomState.Open);
+            rooms = _matchMakingGroupManager.GetRooms(_playerProperties);
             Assert.AreEqual(1, rooms.Count());
             var room = rooms.FirstOrDefault();
-            Assert.AreEqual(3, room.Players.Count);
-            Assert.AreEqual(1, room.BotsAdded);
+            Assert.AreEqual(2, room.CurrentPlayersCount);
             Assert.AreEqual(true, room.IsOpen());
             Assert.AreEqual(true, room.CanJoin(1));
         }
@@ -113,24 +111,26 @@ namespace Shaman.MM.Tests
             //one player two bots
             var player1 = new MatchMakingPlayer(new FakePeer(), _playerProperties);
             var player2 = new MatchMakingPlayer(new FakePeer(), _playerProperties);
-            _playersManager.Add(player1, _groupIds);
+            _matchMakingGroupManager.AddPlayerToMatchMaking(player1);
             emptyTask.Wait(1500);
-            var rooms = _roomManager.GetRooms(_groupIds[0]);
+            var rooms = _matchMakingGroupManager.GetRooms(_playerProperties);
+            Assert.AreEqual(0, rooms.Count());
+            rooms = _roomManager.GetAllRooms();
+            _roomManager.UpdateRoomState(rooms.First().Id, 1, 3000, RoomState.Open);
+            rooms = _matchMakingGroupManager.GetRooms(_playerProperties);
             Assert.AreEqual(1, rooms.Count());
             var room = rooms.FirstOrDefault();
-            Assert.AreEqual(3, room.Players.Count);
-            Assert.AreEqual(2, room.BotsAdded);
+            Assert.AreEqual(1, room.CurrentPlayersCount);
             Assert.AreEqual(true, room.IsOpen());
             Assert.AreEqual(true, room.CanJoin(1));
             
             //join second 
-            _playersManager.Add(player2, new List<Guid> {_groupIds[0]});
+            _matchMakingGroupManager.AddPlayerToMatchMaking(player2);
             emptyTask.Wait(500);
-            rooms = _roomManager.GetRooms(_groupIds[0]);
+            rooms = _matchMakingGroupManager.GetRooms(_playerProperties);
             Assert.AreEqual(1, rooms.Count());
             room = rooms.FirstOrDefault();
-            Assert.AreEqual(3, room.Players.Count);
-            Assert.AreEqual(1, room.BotsAdded);
+            Assert.AreEqual(2, room.CurrentPlayersCount);
             Assert.AreEqual(true, room.IsOpen());
             Assert.AreEqual(true, room.CanJoin(1));
         }

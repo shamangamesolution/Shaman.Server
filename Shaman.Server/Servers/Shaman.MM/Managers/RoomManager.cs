@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Shaman.Common.Server.Peers;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Senders;
@@ -20,14 +21,14 @@ namespace Shaman.MM.Managers
     {
         private readonly IMatchMakerServerInfoProvider _serverProvider;
         private readonly IShamanLogger _logger;
-        private readonly IPlayersManager _playersManager;
         private readonly ITaskScheduler _taskScheduler;
         
         private ConcurrentDictionary<Guid, Room> _rooms = new ConcurrentDictionary<Guid, Room>();
         private ConcurrentDictionary<Guid, List<Room>> _groupToRoom = new ConcurrentDictionary<Guid, List<Room>>();
         private ConcurrentDictionary<Guid, Guid> _roomToGroupId = new ConcurrentDictionary<Guid, Guid>();
+        private ConcurrentDictionary<Guid, DateTime> _romIdToCloseTime = new ConcurrentDictionary<Guid, DateTime>();
         private Queue<Room> _roomsQueue = new Queue<Room>();
-        private PendingTask _clearTask;
+        private PendingTask _clearTask, _closeTask;
 
         public RoomManager(IMatchMakerServerInfoProvider serverProvider, IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory)
         {
@@ -37,8 +38,7 @@ namespace Shaman.MM.Managers
         }
 
         public JoinRoomResult CreateRoom(Guid groupId, Dictionary<Guid, Dictionary<byte, object>> players,
-            Dictionary<Guid, Dictionary<byte, object>> bots, Dictionary<byte, object> roomProperties,
-            Dictionary<byte, object> measures)
+            Dictionary<byte, object> roomProperties)
         {
             //create room
             //var server = _serversCollection.GetLessLoadedServer();
@@ -56,14 +56,7 @@ namespace Shaman.MM.Managers
             foreach(var player in players)
             {
                 //add additional property
-                if (!player.Value.ContainsKey(PropertyCode.PlayerProperties.IsBot))
-                    player.Value.Add(PropertyCode.PlayerProperties.IsBot, false);
                 _playersToSendToRoom.Add(player.Key, player.Value);
-            }
-
-            foreach (var bot in bots)
-            {
-                _playersToSendToRoom.Add(bot.Key, bot.Value);
             }
 
             Guid roomId = _serverProvider.CreateRoom(server.Id, roomProperties, _playersToSendToRoom);
@@ -75,14 +68,13 @@ namespace Shaman.MM.Managers
             var port = server.GetLessLoadedPort();
 
             //create room to allow joining during game
-            if (!roomProperties.TryGetValue(PropertyCode.RoomProperties.RoomIsClosingIn, out var roomClosingInProperty))
-                throw new Exception($"MatchMakingGroup ctr error: there is no RoomIsClosingIn property");
-            if (!roomProperties.TryGetValue(PropertyCode.RoomProperties.ToAddOtherPlayers, out var addOthersProperty))
-                throw new Exception($"MatchMakingGroup ctr error: there is no ToAddOtherPlayers property");
             if (!roomProperties.TryGetValue(PropertyCode.RoomProperties.TotalPlayersNeeded, out var totalPlayersProperty))
                 throw new Exception($"MatchMakingGroup ctr error: there is no TotalPlayersNeeded property");
             
-            var createdRoom = new Room(roomId, (int)totalPlayersProperty, bots.Count, (int)roomClosingInProperty, _playersToSendToRoom, server.Id, (bool)addOthersProperty, roomProperties, measures);
+            var createdRoom = new Room(roomId, (int)totalPlayersProperty, server.Id, roomProperties);
+            createdRoom.UpdateState(RoomState.Closed);
+            createdRoom.AddPlayers(_playersToSendToRoom.Count);
+            
             //add to main collection
             _rooms.TryAdd(roomId, createdRoom);
             //add to group-to-room list
@@ -94,8 +86,8 @@ namespace Shaman.MM.Managers
             //add to room-to-group
             _roomToGroupId.TryAdd(roomId, groupId);
 
-            return new JoinRoomResult {Address = server.Address, Port = port, RoomId = roomId, Result = RoomOperationResult.OK};
 
+            return new JoinRoomResult {Address = server.Address, Port = port, RoomId = roomId, Result = RoomOperationResult.OK};
         }
 
         public JoinRoomResult JoinRoom(Guid roomId, Dictionary<Guid, Dictionary<byte, object>> players)
@@ -117,9 +109,27 @@ namespace Shaman.MM.Managers
             var port = server.GetLessLoadedPort();
             
             //add new players to room
-            room.AddPlayers(players);
+            room.AddPlayers(players.Count);
             
             return new JoinRoomResult {Address = server.Address, Port = port, RoomId = roomId, Result = RoomOperationResult.OK};
+        }
+
+        public void UpdateRoomState(Guid roomId, int currentPlayers, int closingInMs, RoomState roomState)
+        {
+            var room = GetRoom(roomId);
+            if (room == null)
+            {
+                _logger.Error($"UpdateRoomState error: no room with id {roomId}");
+                return;
+            }
+
+            room.CurrentPlayersCount = currentPlayers;
+            room.UpdateState(roomState);
+            if (closingInMs > 0)
+            {
+                _romIdToCloseTime.TryRemove(roomId, out var prevRoom);
+                _romIdToCloseTime.TryAdd(roomId, DateTime.UtcNow.AddMilliseconds(closingInMs));
+            }
         }
 
         public Room GetRoom(Guid groupId, int playersCount)
@@ -137,19 +147,25 @@ namespace Shaman.MM.Managers
 
             return room;
         }
-        
+
+        public IEnumerable<Room> GetAllRooms()
+        {
+            return _rooms.Select(l => l.Value).ToList();
+        }
+
         public IEnumerable<Room> GetRooms(Guid groupId, bool openOnly = true, int limit = 10)
         {
             if (!_groupToRoom.ContainsKey(groupId))
                 return new List<Room>();
 
-            return _groupToRoom[groupId].Where(r => (r.IsOpen() && openOnly) || (!openOnly)).OrderBy(r => r.ClosingInMs).Take(limit);
+            return _groupToRoom[groupId].Where(r => (r.IsOpen() && openOnly) || (!openOnly)).Take(limit);
         }
 
         public int GetRoomsCount()
         {
             return _rooms.Count;
         }
+        
 
         public void Start(int timeToKeepCreatedRoomSec)
         {
@@ -157,6 +173,19 @@ namespace Shaman.MM.Managers
             _groupToRoom = new ConcurrentDictionary<Guid, List<Room>>();
             _roomToGroupId = new ConcurrentDictionary<Guid, Guid>();
             _roomsQueue = new Queue<Room>();
+            
+            //start created rooms close task
+            _closeTask = _taskScheduler.ScheduleOnInterval(() =>
+            {
+                var toCloseNow = _romIdToCloseTime.Where(c => c.Value <= DateTime.UtcNow).ToList();
+                foreach (var roomId in toCloseNow)
+                {
+                    if (_rooms.TryGetValue(roomId.Key, out var room))
+                        room.UpdateState(RoomState.Closed);
+                    else
+                        _romIdToCloseTime.TryRemove(roomId.Key, out var dt);
+                }
+            }, 0, 1000);
             
             //start created rooms clear task
             _clearTask = _taskScheduler.ScheduleOnInterval(() =>
@@ -182,11 +211,14 @@ namespace Shaman.MM.Managers
                 
                 _logger?.Info($"Cleaned {cnt} rooms");
             }, 0, timeToKeepCreatedRoomSec/2);
+            
+            
         }
 
         public void Stop()
         {
             _taskScheduler.Remove(_clearTask);
+            _taskScheduler.Remove(_closeTask);
             _rooms.Clear();
             _groupToRoom.Clear();
             _roomsQueue.Clear();

@@ -102,7 +102,6 @@ namespace Shaman.MM
             services.AddSingleton<IMatchMakingGroupsManager, MatchMakingGroupManager>();
             services.AddSingleton<IPlayersManager, PlayersManager>();
             services.AddSingleton<IRoomManager, RoomManager>();
-            services.AddSingleton<IBotManager, BotManager>();
             services.AddSingleton<IServerActualizer, ServerActualizer>();
             services.AddSingleton<IBundleInfoProvider, BundleInfoProvider>();
         }

@@ -8,12 +8,12 @@ namespace Shaman.Messages.RoomFlow
     {
         public Guid RoomId { get; set; }
         
-        public CreateRoomResponse(Guid roomId) : base(CustomOperationCode.CreateRoom)
+        public CreateRoomResponse(Guid roomId) : base(CustomOperationCode.CreateRoomFromMm)
         {
             this.RoomId = roomId;
         }
 
-        public CreateRoomResponse() : base(CustomOperationCode.CreateRoom)
+        public CreateRoomResponse() : base(CustomOperationCode.CreateRoomFromMm)
         {
             
         }

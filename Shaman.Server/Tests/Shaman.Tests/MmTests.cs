@@ -54,10 +54,9 @@ namespace Shaman.Tests
         private IPlayersManager _playerManager;
         private IMatchMakingGroupsManager _mmGroupManager;
         private MM.Managers.IRoomManager _mmRoomManager;
-        private IBotManager _botManager;
-        
+        private IRoomPropertiesProvider _roomPropertiesProvider;
+
         private IMatchMakerServerInfoProvider _serverProvider;
-        private Dictionary<byte, object> _roomProperties = new Dictionary<byte, object>();
         private Dictionary<byte, object> _measures = new Dictionary<byte, object>();
 
         [SetUp]
@@ -65,7 +64,7 @@ namespace Shaman.Tests
         {
             _measures = new Dictionary<byte, object>();
             _measures.Add(PropertyCode.PlayerProperties.Level, 1);
-
+            _roomPropertiesProvider = new FakeRoomPropertiesProvider1();
 
             var config = new MmApplicationConfig("", "127.0.0.1", new List<ushort> {MM_SERVER_PORT}, "", 120000, 120000, GameProject.DefaultGame, "");
             taskSchedulerFactory = new TaskSchedulerFactory(_serverLogger);
@@ -77,48 +76,26 @@ namespace Shaman.Tests
             _playerManager = new PlayersManager( Mock.Of<IMmMetrics>(), _serverLogger);
             _mmRoomManager =
                 new MM.Managers.RoomManager(_serverProvider, _serverLogger, taskSchedulerFactory);
-            _botManager = new BotManager();
-            _mmGroupManager = new MatchMakingGroupManager(_serverLogger, taskSchedulerFactory, _playerManager, _packetSender,  Mock.Of<IMmMetrics>(), _serverProvider, _mmRoomManager, _botManager);
+            _mmGroupManager = new MatchMakingGroupManager(_serverLogger, taskSchedulerFactory, _playerManager, _packetSender,  Mock.Of<IMmMetrics>(), _mmRoomManager, _roomPropertiesProvider);
             
             matchMaker = new MatchMaker(_serverLogger,  _packetSender,Mock.Of<IMmMetrics>(), _playerManager, _mmGroupManager);
-            _roomProperties = new Dictionary<byte, object>();
-            _roomProperties.Add(PropertyCode.RoomProperties.MatchMakingTick, MM_TICK);
-            _roomProperties.Add(PropertyCode.RoomProperties.TotalPlayersNeeded, TOTAL_PLAYERS_NEEDED_1);
-            _roomProperties.Add(PropertyCode.RoomProperties.ToAddBots, true);
-            _roomProperties.Add(PropertyCode.RoomProperties.ToAddOtherPlayers, true);
-            _roomProperties.Add(PropertyCode.RoomProperties.TimeBeforeBotsAdded, 5000);
-            _roomProperties.Add(PropertyCode.RoomProperties.RoomIsClosingIn, 120000);
             _measures = new Dictionary<byte, object>();
             _measures.Add(PropertyCode.PlayerProperties.Level, 1);
             
             //matchMaker.AddMatchMakingGroup(TOTAL_PLAYERS_NEEDED_1, MM_TICK, true, true, 5000, 120000, new Dictionary<byte, object>(), new Dictionary<byte, object> {{PropertyCode.PlayerProperties.Level, 1}});
-            matchMaker.AddMatchMakingGroup(_roomProperties, _measures);
+            matchMaker.AddMatchMakingGroup(_measures);
             
-            _roomProperties = new Dictionary<byte, object>();
-            _roomProperties.Add(PropertyCode.RoomProperties.MatchMakingTick, MM_TICK);
-            _roomProperties.Add(PropertyCode.RoomProperties.TotalPlayersNeeded, TOTAL_PLAYERS_NEEDED_2);
-            _roomProperties.Add(PropertyCode.RoomProperties.ToAddBots, true);
-            _roomProperties.Add(PropertyCode.RoomProperties.ToAddOtherPlayers, true);
-            _roomProperties.Add(PropertyCode.RoomProperties.TimeBeforeBotsAdded, 5000);
-            _roomProperties.Add(PropertyCode.RoomProperties.RoomIsClosingIn, 120000);
             _measures = new Dictionary<byte, object>();
             _measures.Add(PropertyCode.PlayerProperties.Level, 2);
             
             //matchMaker.AddMatchMakingGroup(TOTAL_PLAYERS_NEEDED_2, MM_TICK, true, true, 5000, 120000, new Dictionary<byte, object>(), new Dictionary<byte, object> {{PropertyCode.PlayerProperties.Level, 2}});
-            matchMaker.AddMatchMakingGroup(_roomProperties, _measures);
+            matchMaker.AddMatchMakingGroup(_measures);
 
-            _roomProperties = new Dictionary<byte, object>();
-            _roomProperties.Add(PropertyCode.RoomProperties.MatchMakingTick, MM_TICK);
-            _roomProperties.Add(PropertyCode.RoomProperties.TotalPlayersNeeded, TOTAL_PLAYERS_NEEDED_2);
-            _roomProperties.Add(PropertyCode.RoomProperties.ToAddBots, true);
-            _roomProperties.Add(PropertyCode.RoomProperties.ToAddOtherPlayers, true);
-            _roomProperties.Add(PropertyCode.RoomProperties.TimeBeforeBotsAdded, 1000);
-            _roomProperties.Add(PropertyCode.RoomProperties.RoomIsClosingIn, 10000);
             _measures = new Dictionary<byte, object>();
             _measures.Add(PropertyCode.PlayerProperties.Level, 3);
             
             //matchMaker.AddMatchMakingGroup(TOTAL_PLAYERS_NEEDED_2, MM_TICK, true, true, 1000, 10000, new Dictionary<byte, object>(), new Dictionary<byte, object> {{PropertyCode.PlayerProperties.Level, 3}});
-            matchMaker.AddMatchMakingGroup(_roomProperties, _measures);
+            matchMaker.AddMatchMakingGroup(_measures);
 
             matchMaker.AddRequiredProperty(PropertyCode.PlayerProperties.Level);
 
@@ -212,26 +189,26 @@ namespace Shaman.Tests
         }
         
         
-        //player joining with level which is not included in matchmaking rules
-        [Test]
-        public void UnsuccessfulJoinBecauseOfIncorrectLevel()
-        {
-
-            //11 level is not included in MM rules 
-            JoinMm(11);
-            var stats = _mmApplication.GetStats();
-            
-            //wait for MM_TICK*2 ms
-            EmptyTask.Wait(MM_TICK*2);
-            //check if we received join info event
-            var joinInfoCount = _client1.GetCountOf(CustomOperationCode.JoinInfo);
-            Assert.AreEqual(0, joinInfoCount);
-            
-            _client1.Send(new LeaveMatchMakingRequest());
-            EmptyTask.Wait(WAIT_TIMEOUT*2);
-            stats = _mmApplication.GetStats();
-            Assert.AreEqual(0, stats.TotalPlayers);
-        }
+        // //player joining with level which is not included in matchmaking rules
+        // [Test]
+        // public void UnsuccessfulJoinBecauseOfIncorrectLevel()
+        // {
+        //
+        //     //11 level is not included in MM rules 
+        //     JoinMm(11);
+        //     var stats = _mmApplication.GetStats();
+        //     
+        //     //wait for MM_TICK*2 ms
+        //     EmptyTask.Wait(MM_TICK*2);
+        //     //check if we received join info event
+        //     var joinInfoCount = _client1.GetCountOf(CustomOperationCode.JoinInfo);
+        //     Assert.AreEqual(0, joinInfoCount);
+        //     
+        //     _client1.Send(new LeaveMatchMakingRequest());
+        //     EmptyTask.Wait(WAIT_TIMEOUT*2);
+        //     stats = _mmApplication.GetStats();
+        //     Assert.AreEqual(0, stats.TotalPlayers);
+        // }
         
         //player joining to group where 2 players are required
         [Test]

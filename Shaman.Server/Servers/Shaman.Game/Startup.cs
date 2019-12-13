@@ -102,8 +102,6 @@ namespace Shaman.Game
             services.AddSingleton<IApplication, GameApplication>();
             services.AddSingleton<IBackendProvider, BackendProvider>();
             
-//            services.AddSingleton<IStorageContainerUpdater, GameServerStorageUpdater>();
-//            services.AddSingleton<IStorageContainer, GameServerStorageContainer>();
             services.AddSingleton<IGameServerInfoProvider, GameServerInfoProvider>();
             services.AddSingleton<IStatisticsProvider, StatisticsProvider>();
             services.AddSingleton<IShamanComponents, ShamanComponents>();

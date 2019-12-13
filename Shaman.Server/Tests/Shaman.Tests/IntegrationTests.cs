@@ -61,8 +61,8 @@ namespace Shaman.Tests
         private IPlayersManager _playerManager;
         private IMatchMakingGroupsManager _mmGroupManager;
         private MM.Managers.IRoomManager _mmRoomManager;
-        private IBotManager _botManager;
-        private Dictionary<byte, object> _roomProperties = new Dictionary<byte, object>();
+        private IRoomPropertiesProvider _roomPropertiesProvider;
+
         private Dictionary<byte, object> _measures = new Dictionary<byte, object>();
         private Guid CreateRoomDelegate(Dictionary<byte, object> properties)
         {
@@ -79,6 +79,7 @@ namespace Shaman.Tests
         {             
             _clients.Clear();
             var config = new MmApplicationConfig("", "127.0.0.1", new List<ushort> {SERVER_PORT_MM}, "", 120000, 120000, GameProject.DefaultGame, "");
+            _roomPropertiesProvider = new FakeRoomPropertiesProvider3();
             taskSchedulerFactory = new TaskSchedulerFactory(_serverLogger);
             //fake sender to direct calls of application functions
             requestSender = new FakeSenderWithGameApplication(new Dictionary<byte, object> {{PropertyCode.RoomProperties.GameMode, (byte) GameMode.SinglePlayer}}, CreateRoomDelegate,  UpdateRoomDelegate);
@@ -99,23 +100,15 @@ namespace Shaman.Tests
             _serverProvider = new FakeMatchMakerServerInfoProvider(requestSender, "127.0.0.1", $"{SERVER_PORT_GAME}");
             _mmRoomManager =
                 new MM.Managers.RoomManager(_serverProvider, _serverLogger, taskSchedulerFactory);
-            _botManager = new BotManager();
 
-            _mmGroupManager = new MatchMakingGroupManager(_serverLogger, taskSchedulerFactory, _playerManager, _mmPacketSender,  Mock.Of<IMmMetrics>(), _serverProvider, _mmRoomManager, _botManager);
+            _mmGroupManager = new MatchMakingGroupManager(_serverLogger, taskSchedulerFactory, _playerManager, _mmPacketSender,  Mock.Of<IMmMetrics>(),  _mmRoomManager, _roomPropertiesProvider);
             
             matchMaker = new MatchMaker(_serverLogger, _mmPacketSender, Mock.Of<IMmMetrics>(), _playerManager,_mmGroupManager);
-            
-            _roomProperties = new Dictionary<byte, object>();
-            _roomProperties.Add(PropertyCode.RoomProperties.MatchMakingTick, MM_TICK);
-            _roomProperties.Add(PropertyCode.RoomProperties.TotalPlayersNeeded, TOTAL_PLAYERS_NEEDED_1);
-            _roomProperties.Add(PropertyCode.RoomProperties.ToAddBots, false);
-            _roomProperties.Add(PropertyCode.RoomProperties.ToAddOtherPlayers, true);
-            _roomProperties.Add(PropertyCode.RoomProperties.TimeBeforeBotsAdded, 5000);
-            _roomProperties.Add(PropertyCode.RoomProperties.RoomIsClosingIn, 120000);
+
             _measures = new Dictionary<byte, object>();
             _measures.Add(PropertyCode.PlayerProperties.Level, 1);
             //matchMaker.AddMatchMakingGroup(TOTAL_PLAYERS_NEEDED_1, MM_TICK, false, true, 5000, 120000, new Dictionary<byte, object>() {{PropertyCode.RoomProperties.GameMode, (byte) GameMode.SinglePlayer}}, new Dictionary<byte, object> {{PropertyCode.PlayerProperties.Level, 1}});
-            matchMaker.AddMatchMakingGroup(_roomProperties, _measures);
+            matchMaker.AddMatchMakingGroup(_measures);
             
             matchMaker.AddRequiredProperty(PropertyCode.PlayerProperties.Level);
             
@@ -300,7 +293,9 @@ namespace Shaman.Tests
             _clients.ForEach(c => c.Send(new EnterMatchMakingRequest(new Dictionary<byte, object> { {PropertyCode.PlayerProperties.Level, 1} })));
             
             EmptyTask.Wait(MM_TICK* (CLIENTS_NUMBER_2 / 8));
-            
+            //wait maximum mm time
+            EmptyTask.Wait(6000);
+
             //check joininfo existance
             isSuccess = true;
             int notJoinedCount = 0;
@@ -309,19 +304,21 @@ namespace Shaman.Tests
             {
                 if (c.GetJoinInfo() == null || c.GetJoinInfo().Status != JoinStatus.RoomIsReady)
                 {
+                    if (c.GetJoinInfo() != null)
+                        _clientLogger.Info($"Checking joinInfo. Status = {c.GetJoinInfo().Status}");
                     notJoinedCount++;
                     isSuccess = false;
                 }
                 else
                 {
+                    if (c.GetJoinInfo() != null)
+                        _clientLogger.Info($"Checking joinInfo. Status = {c.GetJoinInfo().Status}");
                     joinedCount++;
                 }
             });
-            var roomsCount = CLIENTS_NUMBER_2 / TOTAL_PLAYERS_NEEDED_1;
-            var totalPlayersJoined = roomsCount * TOTAL_PLAYERS_NEEDED_1;
+            var roomsCount = CLIENTS_NUMBER_2 / TOTAL_PLAYERS_NEEDED_1 + (CLIENTS_NUMBER_2 % TOTAL_PLAYERS_NEEDED_1 > 0 ? 1: 0);
             
-            Assert.AreEqual(totalPlayersJoined, joinedCount);
-            Assert.AreEqual(CLIENTS_NUMBER_2 - totalPlayersJoined, notJoinedCount);
+            Assert.AreEqual(CLIENTS_NUMBER_2 - joinedCount, notJoinedCount);
             
             var mmStats = _mmApplication.GetStats();
             Assert.AreEqual(1, mmStats.RegisteredServers.Count);
@@ -340,7 +337,7 @@ namespace Shaman.Tests
             EmptyTask.Wait(MM_TICK*20);
             var stats = _gameApplication.GetStats();
             Assert.AreEqual(joinedCount, stats.PeerCount);
-            Assert.AreEqual(CLIENTS_NUMBER_2 / TOTAL_PLAYERS_NEEDED_1, stats.RoomCount);
+            Assert.AreEqual(roomsCount, stats.RoomCount);
             
             //authing
             _clients.ForEach(c => c.Send(new AuthorizationRequest(1, Guid.NewGuid())));

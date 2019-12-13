@@ -5,26 +5,31 @@ using Shaman.Common.Utils.Serialization;
 
 namespace Shaman.Messages.MM
 {
+    public enum RoomState : byte
+    {
+        Open,
+        Closed
+    }
+    
     public class RoomInfo : EntityBase
     {
         public Guid RoomId { get; set; }
         public int MaxPlayers { get; set; }
         public int CurrentPlayers { get; set; }
-        public int ClosingInMs { get; set; }
+        public RoomState State { get; set; }
         public Dictionary<byte, object> RoomProperties { get; set; }
         
-        public RoomInfo(Guid roomId, int maxPlayers, int currentPlayers, int closingInMs, Dictionary<byte, object> roomProperties)
+        public RoomInfo(Guid roomId, int maxPlayers, int currentPlayers, Dictionary<byte, object> roomProperties, RoomState state)
         {
             RoomId = roomId;
             MaxPlayers = maxPlayers;
             CurrentPlayers = currentPlayers;
-            ClosingInMs = closingInMs;
             RoomProperties = roomProperties;
+            State = state;
         }
 
         public RoomInfo()
         {
-            
         }
 
         protected override void SerializeBody(ITypeWriter typeWriter)
@@ -32,8 +37,8 @@ namespace Shaman.Messages.MM
             typeWriter.Write(RoomId);
             typeWriter.Write(MaxPlayers);
             typeWriter.Write(CurrentPlayers);
-            typeWriter.Write(ClosingInMs);
             typeWriter.WriteDictionary(RoomProperties, typeWriter.Write);
+            typeWriter.Write((byte)State);
         }
 
         protected override void DeserializeBody(ITypeReader typeReader)
@@ -41,8 +46,8 @@ namespace Shaman.Messages.MM
             RoomId = typeReader.ReadGuid();
             MaxPlayers = typeReader.ReadInt();
             CurrentPlayers = typeReader.ReadInt();
-            ClosingInMs = typeReader.ReadInt();
             RoomProperties = typeReader.ReadDictionary<byte>(typeReader.ReadByte);
+            State = (RoomState)typeReader.ReadByte();
         }
     }
 }

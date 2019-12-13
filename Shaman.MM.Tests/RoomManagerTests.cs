@@ -8,6 +8,7 @@ using NUnit.Framework;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Messages;
+using Shaman.Messages.MM;
 using Shaman.MM.Managers;
 using Shaman.MM.Metrics;
 using Shaman.MM.Providers;
@@ -48,56 +49,14 @@ namespace Shaman.MM.Tests
             {
                 {Guid.NewGuid(), new Dictionary<byte, object>()}
             };
-            var bots = new Dictionary<Guid, Dictionary<byte, object>>
-            {
-                {Guid.NewGuid(), new Dictionary<byte, object>()}
-            };
             var properties = new Dictionary<byte, object>();
-            var measures = new Dictionary<byte, object>();
+           
             var success = true;
             Exception ex = null;
             JoinRoomResult result = null;
             try
             {
-                result = _roomManager.CreateRoom(_group1Id, players, bots, properties, measures);
-            }
-            catch (Exception e)
-            {
-                success = false;
-                ex = e;
-            }
-            Assert.IsNull(result);
-            Assert.AreEqual(false, success);
-            Assert.AreEqual("MatchMakingGroup ctr error: there is no RoomIsClosingIn property", ex.Message);
-            Assert.AreEqual(0, _roomManager.GetRoomsCount());
-            
-            properties.Add(PropertyCode.RoomProperties.RoomIsClosingIn, 0);
-            
-            success = true;
-            ex = null;
-            result = null;
-            try
-            {
-                result = _roomManager.CreateRoom(_group1Id, players, bots, properties, measures);
-            }
-            catch (Exception e)
-            {
-                success = false;
-                ex = e;
-            }
-            Assert.IsNull(result);
-            Assert.AreEqual(false, success);
-            Assert.AreEqual("MatchMakingGroup ctr error: there is no ToAddOtherPlayers property", ex.Message);
-            Assert.AreEqual(0, _roomManager.GetRoomsCount());
-            
-            properties.Add(PropertyCode.RoomProperties.ToAddOtherPlayers, false);
-            
-            success = true;
-            ex = null;
-            result = null;
-            try
-            {
-                result = _roomManager.CreateRoom(_group1Id, players, bots, properties, measures);
+                result = _roomManager.CreateRoom(_group1Id, players, properties);
             }
             catch (Exception e)
             {
@@ -116,7 +75,7 @@ namespace Shaman.MM.Tests
             result = null;
             try
             {
-                result = _roomManager.CreateRoom(_group1Id, players, bots, properties, measures);
+                result = _roomManager.CreateRoom(_group1Id, players, properties);
             }
             catch (Exception e)
             {
@@ -139,19 +98,15 @@ namespace Shaman.MM.Tests
             _roomManager = new RoomManager(_serverProvider, _logger, _taskSchedulerFactory);
 
             var players = new Dictionary<Guid, Dictionary<byte, object>>();
-            var bots = new Dictionary<Guid, Dictionary<byte, object>>();
             var properties = new Dictionary<byte, object>();
-            var measures = new Dictionary<byte, object>();
             var success = true;
             Exception ex = null;
             JoinRoomResult result = null;
             
-            properties.Add(PropertyCode.RoomProperties.RoomIsClosingIn, 0);
-            properties.Add(PropertyCode.RoomProperties.ToAddOtherPlayers, false);
             properties.Add(PropertyCode.RoomProperties.TotalPlayersNeeded, 3);
             try
             {
-                result = _roomManager.CreateRoom(_group1Id, players, bots, properties, measures);
+                result = _roomManager.CreateRoom(_group1Id, players, properties);
             }
             catch (Exception e)
             {
@@ -173,19 +128,15 @@ namespace Shaman.MM.Tests
             _roomManager = new RoomManager(_serverProvider, _logger, _taskSchedulerFactory);
 
             var players = new Dictionary<Guid, Dictionary<byte, object>>();
-            var bots = new Dictionary<Guid, Dictionary<byte, object>>();
             var properties = new Dictionary<byte, object>();
-            var measures = new Dictionary<byte, object>();
             var success = true;
             Exception ex = null;
             JoinRoomResult result = null;
             
-            properties.Add(PropertyCode.RoomProperties.RoomIsClosingIn, 0);
-            properties.Add(PropertyCode.RoomProperties.ToAddOtherPlayers, false);
             properties.Add(PropertyCode.RoomProperties.TotalPlayersNeeded, 3);
             try
             {
-                result = _roomManager.CreateRoom(_group1Id, players, bots, properties, measures);
+                result = _roomManager.CreateRoom(_group1Id, players, properties);
             }
             catch (Exception e)
             {
@@ -208,18 +159,12 @@ namespace Shaman.MM.Tests
             {
                 {Guid.NewGuid(), new Dictionary<byte, object>()}
             };
-            var bots = new Dictionary<Guid, Dictionary<byte, object>>
-            {
-                {Guid.NewGuid(), new Dictionary<byte, object>()}
-            };
+
             var properties = new Dictionary<byte, object>();
-            var measures = new Dictionary<byte, object>();
             
-            properties.Add(PropertyCode.RoomProperties.RoomIsClosingIn, 3000);
-            properties.Add(PropertyCode.RoomProperties.ToAddOtherPlayers, true);
             properties.Add(PropertyCode.RoomProperties.TotalPlayersNeeded, 3);
             
-            var result = _roomManager.CreateRoom(_group1Id, players, bots, properties, measures);
+            var result = _roomManager.CreateRoom(_group1Id, players, properties);
             Assert.IsNotNull(result);
             Assert.AreEqual(result.Result, RoomOperationResult.OK);
             Assert.AreEqual(result.Address, "0.0.0.0");
@@ -228,6 +173,9 @@ namespace Shaman.MM.Tests
             emptyTask.Wait(1000);
             //success
             var room = _roomManager.GetRoom(_group1Id, 1);
+            Assert.IsNull(room);
+            _roomManager.UpdateRoomState(result.RoomId, 1, 3000, RoomState.Open);
+            room = _roomManager.GetRoom(_group1Id, 1);
             Assert.IsNotNull(room);
             //success
             room = _roomManager.GetRoom(_group1Id, 2);
@@ -239,9 +187,10 @@ namespace Shaman.MM.Tests
             var rooms = _roomManager.GetRooms(_group1Id, true);
             Assert.AreEqual(1, rooms.Count());
             
-            emptyTask.Wait(2100);
+            emptyTask.Wait(3100);
             
             //room is closed by this time
+            _roomManager.UpdateRoomState(result.RoomId, 1, 0, RoomState.Closed);
             //no such room
             room = _roomManager.GetRoom(_group1Id, 1);
             Assert.IsNull(room);
@@ -272,24 +221,20 @@ namespace Shaman.MM.Tests
             {
                 {Guid.NewGuid(), new Dictionary<byte, object>()}
             };
-            var bots = new Dictionary<Guid, Dictionary<byte, object>>
-            {
-                {Guid.NewGuid(), new Dictionary<byte, object>()}
-            };
             var properties = new Dictionary<byte, object>();
-            var measures = new Dictionary<byte, object>();
             
-            properties.Add(PropertyCode.RoomProperties.RoomIsClosingIn, 3000);
-            properties.Add(PropertyCode.RoomProperties.ToAddOtherPlayers, true);
             properties.Add(PropertyCode.RoomProperties.TotalPlayersNeeded, 2);
             
-            var result = _roomManager.CreateRoom(_group1Id, players, bots, properties, measures);
+            var result = _roomManager.CreateRoom(_group1Id, players, properties);
             Assert.IsNotNull(result);
             Assert.AreEqual(result.Result, RoomOperationResult.OK);
             Assert.AreEqual(result.Address, "0.0.0.0");
             Assert.AreEqual(result.Port, 7777);
             
             var room = _roomManager.GetRoom(_group1Id, 1);
+            Assert.IsNull(room);
+            _roomManager.UpdateRoomState(result.RoomId, 1, 3000, RoomState.Open);
+            room = _roomManager.GetRoom(_group1Id, 1);
             Assert.IsNotNull(room);
 
             players = new Dictionary<Guid, Dictionary<byte, object>>
@@ -323,24 +268,21 @@ namespace Shaman.MM.Tests
             {
                 {Guid.NewGuid(), new Dictionary<byte, object>()}
             };
-            var bots = new Dictionary<Guid, Dictionary<byte, object>>
-            {
-                {Guid.NewGuid(), new Dictionary<byte, object>()}
-            };
+
             var properties = new Dictionary<byte, object>();
-            var measures = new Dictionary<byte, object>();
             
-            properties.Add(PropertyCode.RoomProperties.RoomIsClosingIn, 3000);
-            properties.Add(PropertyCode.RoomProperties.ToAddOtherPlayers, true);
             properties.Add(PropertyCode.RoomProperties.TotalPlayersNeeded, 2);
             
-            var result = _roomManager.CreateRoom(_group1Id, players, bots, properties, measures);
+            var result = _roomManager.CreateRoom(_group1Id, players, properties);
             Assert.IsNotNull(result);
             Assert.AreEqual(result.Result, RoomOperationResult.OK);
             Assert.AreEqual(result.Address, "0.0.0.0");
             Assert.AreEqual(result.Port, 7777);
             
             var room = _roomManager.GetRoom(_group1Id, 1);
+            Assert.IsNull(room);
+            _roomManager.UpdateRoomState(result.RoomId, 1, 3000, RoomState.Open);
+            room = _roomManager.GetRoom(_group1Id, 1);
             Assert.IsNotNull(room);
 
             players = new Dictionary<Guid, Dictionary<byte, object>>

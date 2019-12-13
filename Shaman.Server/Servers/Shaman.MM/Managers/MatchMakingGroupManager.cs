@@ -1,11 +1,15 @@
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.TaskScheduling;
+using Shaman.Messages;
 using Shaman.MM.MatchMaking;
 using Shaman.MM.Metrics;
+using Shaman.MM.Players;
 using Shaman.MM.Providers;
+using Shaman.MM.Rooms;
 
 namespace Shaman.MM.Managers
 {
@@ -18,25 +22,24 @@ namespace Shaman.MM.Managers
         private readonly IPacketSender _packetSender;
         private readonly IMmMetrics _mmMetrics;
         private readonly IRoomManager _roomManager;
-        private readonly IMatchMakerServerInfoProvider _serverInfoProvider;
-        private readonly IBotManager _botManager;
+        private readonly IRoomPropertiesProvider _roomPropertiesProvider;
         
         private Dictionary<Guid, MatchMakingGroup> _groups = new Dictionary<Guid, MatchMakingGroup>();
         private Dictionary<Guid, Dictionary<byte, object>> _groupsToProperties = new Dictionary<Guid, Dictionary<byte, object>>();
+        private object _mutex = new object();
         private bool _isStarted = false;
         
         public MatchMakingGroupManager(IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory,
-            IPlayersManager playersManager, IPacketSender packetSender, IMmMetrics mmMetrics,
-            IMatchMakerServerInfoProvider serverInfoProvider, IRoomManager roomManager, IBotManager botManager)
+            IPlayersManager playersManager, IPacketSender packetSender, IMmMetrics mmMetrics, IRoomManager roomManager, 
+            IRoomPropertiesProvider roomPropertiesProvider)
         {
             _logger = logger;
             _taskSchedulerFactory = taskSchedulerFactory;
             _playersManager = playersManager;
             _packetSender = packetSender;
             _mmMetrics = mmMetrics;
-            _serverInfoProvider = serverInfoProvider;
             _roomManager = roomManager;
-            _botManager = botManager;
+            _roomPropertiesProvider = roomPropertiesProvider;
         }
 
         private bool AreDictionariesEqual(Dictionary<byte, object> dict1, Dictionary<byte, object> dict2)
@@ -60,23 +63,106 @@ namespace Shaman.MM.Managers
             return true;
         }
         
-        public Guid AddMatchMakingGroup(Dictionary<byte, object> roomProperties, Dictionary<byte, object> measures)
+        public Guid AddMatchMakingGroup(Dictionary<byte, object> measures)
         {
-            var group = new MatchMakingGroup(roomProperties, measures, _logger, _taskSchedulerFactory, _playersManager, _packetSender, _mmMetrics, _roomManager, _botManager);
-            _groups.Add(group.Id, group);
-            _groupsToProperties.Add(group.Id, measures);
-            if (_isStarted)
-                group.Start();
-            return group.Id;
+            lock (_mutex)
+            {
+                var roomProperties = new Dictionary<byte, object>();
+                roomProperties.Add(PropertyCode.RoomProperties.MatchMakingTick,
+                    _roomPropertiesProvider.GetMatchMakingTick(measures));
+                roomProperties.Add(PropertyCode.RoomProperties.MaximumMmTime,
+                    _roomPropertiesProvider.GetMaximumMatchMakingTime(measures));
+                roomProperties.Add(PropertyCode.RoomProperties.TotalPlayersNeeded,
+                    _roomPropertiesProvider.GetMaximumPlayers(measures));
+                foreach (var add in _roomPropertiesProvider.GetAdditionalRoomProperties())
+                    roomProperties.Add(add.Key, add.Value);
+
+                var group = new MatchMakingGroup(roomProperties, _logger, _taskSchedulerFactory, _playersManager,
+                    _packetSender, _mmMetrics, _roomManager);
+                _groups.Add(group.Id, group);
+                _groupsToProperties.Add(group.Id, measures);
+                if (_isStarted)
+                    group.Start();
+                return group.Id;
+            }
         }
 
         public List<Guid> GetMatchmakingGroupIds(Dictionary<byte, object> playerProperties)
         {
-            var result = new List<Guid>();
-            foreach(var group in _groupsToProperties)
-                if (AreDictionariesEqual(group.Value, playerProperties))
-                    result.Add(group.Key);
-            return result;
+            lock (_mutex)
+            {
+                var result = new List<Guid>();
+                foreach (var group in _groupsToProperties)
+                    if (AreDictionariesEqual(group.Value, playerProperties))
+                        result.Add(group.Key);
+                return result;
+            }
+        }
+
+        public Dictionary<byte, object> GetRoomProperties(Guid groupId)
+        {
+            lock (_mutex)
+            {
+                if (!_groups.TryGetValue(groupId, out var group))
+                    throw new Exception($"GetRoomProperties error: there is no MmGroup {groupId}");
+
+                return group.RoomProperties;
+            }
+        }
+
+        public IEnumerable<Room> GetRooms(Dictionary<byte, object> playerProperties)
+        {
+            lock (_mutex)
+            {
+                var groups = GetMatchmakingGroupIds(playerProperties);
+                var rooms = new List<Room>();
+                foreach (var group in groups)
+                    rooms.AddRange(
+                        _roomManager
+                            .GetRooms(group)
+                    );
+                return rooms;
+            }
+        }
+
+        public void AddPlayerToMatchMaking(MatchMakingPlayer player)
+        {
+            lock (_mutex)
+            {
+                var groups = GetMatchmakingGroupIds(player.Properties);
+                if (groups == null || groups.Count == 0)
+                {
+                    _logger.Error($"AddPlayerToMatchMaking error: no groups for player");
+                    //TODO auto create group
+                    groups = new List<Guid>();
+                    groups.Add(AddMatchMakingGroup(player.Properties));
+                }
+
+                _playersManager.Add(player, groups);
+            }
+        }
+
+        public JoinRoomResult CreateRoom(Guid sessionId, Dictionary<byte, object> playerProperties)
+        {
+            Guid groupId;
+            lock (_mutex)
+            {
+                //get supported group IDs
+                var groupIds =
+                    GetMatchmakingGroupIds(playerProperties);
+                if (groupIds == null || groupIds.Count == 0)
+                {
+                    //TODO auto create group
+                    //throw new Exception($"CreateRoomFromClient error: no group for requested properties is not exists");
+                    groupIds = new List<Guid>();
+                    groupIds.Add(AddMatchMakingGroup(playerProperties));
+                }
+
+                groupId = groupIds[0];
+            }
+
+            //create room in chosen group
+            return _roomManager.CreateRoom(groupId, new Dictionary<Guid, Dictionary<byte, object>> {{sessionId, playerProperties}}, GetRoomProperties(groupId));
         }
 
         public void Start(int timeToKeepCreatedRoomSec = 1800)

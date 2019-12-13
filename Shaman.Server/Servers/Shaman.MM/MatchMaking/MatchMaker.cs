@@ -46,11 +46,12 @@ namespace Shaman.MM.MatchMaking
         public void AddPlayer(MmPeer peer, Dictionary<byte, object> properties)
         {
             var player = new MatchMakingPlayer(peer, properties);
-            var groups = _groupManager.GetMatchmakingGroupIds(properties);
-            if (groups == null || groups.Count == 0)
-                _logger.Error($"MatchMaker.AddPlayer error: no groups for player");
-            else
-                _playersManager.Add(player, groups);
+            _groupManager.AddPlayerToMatchMaking(player);
+            // var groups = _groupManager.GetMatchmakingGroupIds(properties);
+            // if (groups == null || groups.Count == 0)
+            //     _logger.Error($"MatchMaker.AddPlayer error: no groups for player");
+            // else
+            //     _playersManager.Add(player, groups);
         }
 
         public void RemovePlayer(Guid peerId)
@@ -68,23 +69,11 @@ namespace Shaman.MM.MatchMaking
             _playersManager.Clear();
         }
 
-        public void AddMatchMakingGroup(Dictionary<byte, object> roomProperties, Dictionary<byte, object> measures)
+        public void AddMatchMakingGroup(Dictionary<byte, object> measures)
         {
-            _groupManager.AddMatchMakingGroup(roomProperties, measures);
+            //_groupManager.AddMatchMakingGroup(measures);
         }
         
-//        public void AddMatchMakingGroup(int totalPlayersNeeded, int matchMakingTickMs, bool addBots, bool addOtherPlayers, int timeBeforeBotsAddedMs, int roomClosingIn, Dictionary<byte, object> roomProperties, Dictionary<byte, object> measures)
-//        {
-////            var mmGroup = new MatchMakingGroup(totalPlayersNeeded, matchMakingTickMs, addBots, addOtherPlayers,
-////                timeBeforeBotsAddedMs, roomClosingIn, roomProperties, measures, _logger, _taskSchedulerFactory, this,
-////                _playerCollection, _serializer, _packetSender, _mmMetrics, _createdRoomManager, _serverProvider);
-////            _matchMakingGroups.Add(mmGroup);
-//            
-//            
-////            var hashCode = measures.GetHashCode();
-////            _hashCodeSets.Add(mmGroup.Id, hashCode);
-//        }
-
         public void AddRequiredProperty(byte requiredMatchMakingProperty)
         {
             _requiredMatchMakingProperties.Add(requiredMatchMakingProperty);

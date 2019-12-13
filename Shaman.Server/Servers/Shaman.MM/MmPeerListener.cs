@@ -42,6 +42,26 @@ namespace Shaman.MM
             _matchMakingGroupsManager = matchMakingGroupsManager;
         }
 
+        private JoinInfo GetJoinInfo(JoinRoomResult joinResult)
+        {
+            var room = _roomManager.GetRoom(joinResult.RoomId);
+            if (room == null)
+                throw new Exception($"CreateRoomFromClient error: room {joinResult.RoomId} is not exists");
+            switch (joinResult.Result)
+            {
+                case RoomOperationResult.OK:
+                    return new JoinInfo(joinResult.Address, joinResult.Port, joinResult.RoomId, JoinStatus.RoomIsReady,
+                        room.CurrentPlayersCount, room.TotalPlayersNeeded, true);
+                case RoomOperationResult.ServerNotFound:
+                case RoomOperationResult.CreateRoomError:
+                case RoomOperationResult.JoinRoomError:
+                    _logger.Error($"DirectJoin error: JoinResult = {joinResult.Result},");
+                    return new JoinInfo("", 0, Guid.Empty, JoinStatus.MatchMakingFailed, 0, 0);
+                default:
+                    throw new ArgumentException();
+            }
+        }
+
         private void ProcessMessage(IPEndPoint endPoint, byte[] buffer, int offset, int length, MmPeer peer)
         {
             //probably bad kind of using
@@ -123,43 +143,34 @@ namespace Shaman.MM
 
                     switch (operationCode)
                     {
+                        case CustomOperationCode.CreateRoomFromClient:
+                            var createRequest = Serializer.DeserializeAs<CreateRoomFromClientRequest>(buffer, offset, length);
+                            var createResult = _matchMakingGroupsManager.CreateRoom(peer.GetSessionId(), createRequest.MatchMakingProperties);
+                            //parse create result and create response
+                            var createResponse = new CreateRoomFromClientResponse(GetJoinInfo(createResult));
+                            if (createResult.Result == RoomOperationResult.OK)
+                                _logger.Info($"Room {createResult.RoomId} created");
+                            _packetSender.AddPacket(createResponse, peer);
+                            break;
                         case CustomOperationCode.DirectJoin:
                             var joinRequest = Serializer.DeserializeAs<DirectJoinRequest>(buffer, offset, length);
+                            //join existing room
                             var joinResult = _roomManager.JoinRoom(joinRequest.RoomId,
                                 new Dictionary<Guid, Dictionary<byte, object>>
                                     {{ peer.GetSessionId(), joinRequest.MatchMakingProperties}});
-                            var room = _roomManager.GetRoom(joinRequest.RoomId);
-                            if (room == null)
-                                throw new Exception($"DirectJoin error: room {joinRequest.RoomId} is not exists");
-                            var joinResponse = new DirectJoinResponse();
-                            switch (joinResult.Result)
-                            {
-                                case RoomOperationResult.OK:
-                                    joinResponse.JoinInfo = new JoinInfo(joinResult.Address, joinResult.Port, joinResult.RoomId, JoinStatus.RoomIsReady,
-                                        room.Players.Count, room.TotalPlayersNeeded, true);
-                                    break;
-                                case RoomOperationResult.ServerNotFound:
-                                case RoomOperationResult.CreateRoomError:
-                                case RoomOperationResult.JoinRoomError:
-                                    _logger.Error($"DirectJoin error: JoinResult = {joinResult.Result}, SessionId = {peer.GetSessionId()}");
-                                    joinResponse.JoinInfo = new JoinInfo("", 0, Guid.Empty, JoinStatus.MatchMakingFailed, 0, 0);
-                                    break;
-                                default:
-                                    throw new ArgumentException();
-                            }
+                            //parse join result and create response
+                            var joinResponse = new DirectJoinResponse(GetJoinInfo(joinResult));
+                            if (joinResult.Result == RoomOperationResult.OK)
+                                _logger.Info($"Player direct joined room {joinResult.RoomId}");
                             _packetSender.AddPacket(joinResponse, peer);
                             break;
                         case CustomOperationCode.GetRoomList:
                             var request = Serializer.DeserializeAs<GetRoomListRequest>(buffer, offset, length);
-                            var groups = _matchMakingGroupsManager.GetMatchmakingGroupIds(request.MatchMakingProperties);
+                            var rooms = _matchMakingGroupsManager.GetRooms(request.MatchMakingProperties)
+                                .Select(r => new RoomInfo(r.Id, r.TotalPlayersNeeded, r.CurrentPlayersCount, r.Properties, r.State))
+                                .ToList();
                             var getRoomsResponse = new GetRoomListResponse();
-                            getRoomsResponse.Rooms = new List<RoomInfo>();
-                            foreach(var group in groups)
-                                getRoomsResponse.Rooms.AddRange(
-                                    _roomManager
-                                        .GetRooms(group)
-                                        .Select(r => new RoomInfo(r.Id, r.TotalPlayersNeeded, r.Players.Count - r.BotsAdded, r.ClosingInMs, r.Properties))
-                                );
+                            getRoomsResponse.Rooms = rooms;
                             _packetSender.AddPacket(getRoomsResponse, peer);
                             break;
                         case CustomOperationCode.EnterMatchMaking:

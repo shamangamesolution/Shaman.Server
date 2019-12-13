@@ -28,55 +28,44 @@ namespace Shaman.MM.MatchMaking
         private readonly ITaskScheduler _taskScheduler;
         private readonly IMmMetrics _mmMetrics;
         private readonly IRoomManager _roomManager;
-        private readonly IBotManager _botManager;
         private readonly IPacketSender _packetSender;
 
-        private readonly Dictionary<byte, object> _roomProperties;
+        public readonly Dictionary<byte, object> RoomProperties;
         private readonly int _matchMakingTickMs;
         private readonly int _totalPlayersNeeded;
-        private readonly bool _addBots;
-        private readonly bool _addOtherPlayers;
-        private readonly int _timeBeforeBotsAddedMs;
+        private readonly int _maximumMmTime;
 
         private object _queueSync = new object();
         private Queue<MatchMakingPlayer> _matchmakingPlayers;
         private bool _isGroupWorking;
         private PendingTask _mainTask;
 
-        public MatchMakingGroup(Dictionary<byte, object> roomProperties, Dictionary<byte, object> measures,
+        public MatchMakingGroup(Dictionary<byte, object> roomProperties, 
             IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory, IPlayersManager playersManager,
-            IPacketSender packetSender, IMmMetrics mmMetrics, IRoomManager roomManager, IBotManager botManager)
+            IPacketSender packetSender, IMmMetrics mmMetrics, IRoomManager roomManager)
         {
             Id = Guid.NewGuid();
 
-            _measures = measures;
             _logger = logger;
             _playersManager = playersManager;
             _taskScheduler = taskSchedulerFactory.GetTaskScheduler();
             _matchmakingPlayers = new Queue<MatchMakingPlayer>();
-            _roomProperties = roomProperties;
+            RoomProperties = roomProperties;
             _packetSender = packetSender;
             _mmMetrics = mmMetrics;
             _roomManager = roomManager;
-            _botManager = botManager;
 
             //get properties from dict
             if (!roomProperties.TryGetValue(PropertyCode.RoomProperties.MatchMakingTick, out var tickProperty))
                 throw new Exception($"MatchMakingGroup ctr error: there is no MatchMakingTick property");
             if (!roomProperties.TryGetValue(PropertyCode.RoomProperties.TotalPlayersNeeded, out var totalPlayersProperty))
                 throw new Exception($"MatchMakingGroup ctr error: there is no TotalPlayersNeeded property");
-            if (!roomProperties.TryGetValue(PropertyCode.RoomProperties.ToAddBots, out var addBotsProperty))
-                throw new Exception($"MatchMakingGroup ctr error: there is no ToAddBots property");
-            if (!roomProperties.TryGetValue(PropertyCode.RoomProperties.ToAddOtherPlayers, out var addOthersProperty))
-                throw new Exception($"MatchMakingGroup ctr error: there is no ToAddOtherPlayers property");
-            if (!roomProperties.TryGetValue(PropertyCode.RoomProperties.TimeBeforeBotsAdded, out var timeBeforeBotsProperty))
+            if (!roomProperties.TryGetValue(PropertyCode.RoomProperties.MaximumMmTime, out var timeBeforeBotsProperty))
                 throw new Exception($"MatchMakingGroup ctr error: there is no TimeBeforeBotsAdded property");
             
             _matchMakingTickMs = (int)tickProperty;
             _totalPlayersNeeded = (int)totalPlayersProperty;
-            _addBots = (bool)addBotsProperty;
-            _addOtherPlayers = (bool)addOthersProperty;
-            _timeBeforeBotsAddedMs = (int)timeBeforeBotsProperty;
+            _maximumMmTime = (int)timeBeforeBotsProperty;
         }
         
         #region privates
@@ -124,14 +113,15 @@ namespace Shaman.MM.MatchMaking
             }
         }
 
-        private bool NeedToAddBots(MatchMakingPlayer oldestPlayer)
+
+        private bool EnoughWaiting(MatchMakingPlayer oldestPlayer)
         {
             if (oldestPlayer?.AddedToMmGroupOn == null)
                 return false;
             
-            return _matchmakingPlayers.Count < _totalPlayersNeeded && _addBots && (DateTime.UtcNow - oldestPlayer.AddedToMmGroupOn.Value).TotalMilliseconds >= _timeBeforeBotsAddedMs;
+            return (DateTime.UtcNow - oldestPlayer.AddedToMmGroupOn.Value).TotalMilliseconds >= _maximumMmTime;
         }
-
+        
         private bool IsEnoughPlayers()
         {
             return _matchmakingPlayers.Count == _totalPlayersNeeded;
@@ -198,10 +188,7 @@ namespace Shaman.MM.MatchMaking
                         var matchmakingPlayersCount = _matchmakingPlayers.Count;
                         
                         var players =
-                            _playersManager.GetPlayers(Id,
-                                _addOtherPlayers
-                                    ? (_totalPlayersNeeded - matchmakingPlayersCount)
-                                    : (1 - matchmakingPlayersCount));
+                            _playersManager.GetPlayers(Id, _totalPlayersNeeded - matchmakingPlayersCount);
 
                         foreach (var player in players)
                         {
@@ -231,13 +218,12 @@ namespace Shaman.MM.MatchMaking
                                 _matchmakingPlayers.ToDictionary(key => key.SessionId, value => value.Properties));
                         }
                         else 
-                        if (NeedToAddBots(oldestPlayer) || IsEnoughPlayers())
+                        if (EnoughWaiting(oldestPlayer) || IsEnoughPlayers())
                         {
-                            var bots = _botManager.GetBots(_totalPlayersNeeded - matchmakingPlayersCount);
                             //add new room
                             result = _roomManager.CreateRoom(Id,
-                                _matchmakingPlayers.ToDictionary(key => key.SessionId, value => value.Properties), bots,
-                                _roomProperties, _measures);
+                                _matchmakingPlayers.ToDictionary(key => key.SessionId, value => value.Properties),
+                                RoomProperties);
                         }
 
                         if (result != null)
