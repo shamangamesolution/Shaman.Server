@@ -1,26 +1,27 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Servers;
-using Shaman.Game.Configuration;
 using Shaman.Messages.General.DTO.Requests.Router;
 using Shaman.Messages.General.DTO.Responses.Router;
 
-namespace Shaman.Game.Providers
+namespace Shaman.ServerSharedUtilities
 {
     public class BundleInfoProvider : IBundleInfoProvider
     {
+        private const int BundleRetryMsec = 1500;
         private readonly IRequestSender _requestSender;
         private readonly IShamanLogger _logger;
-        private readonly GameApplicationConfig _config;
+        private readonly IApplicationConfig _config;
 
         public BundleInfoProvider(IRequestSender requestSender, IApplicationConfig config, IShamanLogger logger)
         {
             _requestSender = requestSender;
             _logger = logger;
-            _config = (GameApplicationConfig) config;
+            _config = config;
         }
 
         private ServerIdentity GetServerIdentity()
@@ -31,16 +32,39 @@ namespace Shaman.Game.Providers
 
         public async Task<string> GetBundleUri()
         {
+            var messageSent = false;
+            while (true)
+            {
+                try
+                {
+                    return await GetBundleUriImpl();
+                }
+                catch (BundleNotFoundException e)
+                {
+                    if (!messageSent)
+                    {
+                        _logger.Error($"Retry bundle in 3 sec: {e.Message}");
+                        messageSent = true;
+                    }
+
+                    Thread.Sleep(BundleRetryMsec);
+                }
+            }
+        }
+
+
+        private async Task<string> GetBundleUriImpl()
+        {
             var serverIdentity = GetServerIdentity();
             var response = await _requestSender.SendRequest<GetBundleUriResponse>(_config.GetRouterUrl(),
                 new GetBundleUriRequest(serverIdentity));
 
             if (!response.Success)
             {
-                _logger.Error($"MatchMakerServerInfoProvider.GetBundleUri error: {response.Message}");
                 throw new BundleNotFoundException($"Bundle not found for: {serverIdentity}");
             }
 
+            _logger.Error($"Bandle uri received for '{serverIdentity}': {response.BundleUri}");
             return response.BundleUri;
         }
     }

@@ -14,7 +14,8 @@ namespace Shaman.Game
         {
             // in case of first time actualization
             serverActualizer.Actualize(0);
-            _gameBundle = BundleHelper.LoadTypeFromBundle<IGameBundle>(bundleInfoProvider.GetBundleUri().Result);
+            var bundleUri = bundleInfoProvider.GetBundleUri().Result;
+            _gameBundle = BundleHelper.LoadTypeFromBundle<IGameBundle>(bundleUri);
             _gameBundle.OnInitialize(shamanComponents);
             _bundledGameModeControllerFactory = _gameBundle.GetGameModeControllerFactory();
         }

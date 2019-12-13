@@ -102,6 +102,7 @@ namespace Shaman.MM
             services.AddSingleton<IPlayersManager, PlayersManager>();
             services.AddSingleton<IRoomManager, RoomManager>();
             services.AddSingleton<IServerActualizer, ServerActualizer>();
+            services.AddSingleton<IBundleInfoProvider, BundleInfoProvider>();
         }
         
         private void ConfigureMetrics(IServiceCollection services)
@@ -117,7 +118,7 @@ namespace Shaman.MM
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplication server,
             IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory,
             IMatchMaker matchMaker,
-            IMatchMakerServerInfoProvider serverInfoProvider)
+            IBundleInfoProvider bundleInfoProvider, IServerActualizer serverActualizer, IMatchMakerServerInfoProvider serverInfoProvider)
         {
             if (env.IsDevelopment())
             {
@@ -148,11 +149,13 @@ namespace Shaman.MM
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+
+
+            
+            var bundleUri = bundleInfoProvider.GetBundleUri().Result;
+            BundleHelper.LoadTypeFromBundle<IMmResolver>(bundleUri).Configure(matchMaker);
             
             serverInfoProvider.Start();
-            var bundleUri = serverInfoProvider.GetBundleUri().Result;
-
-            BundleHelper.LoadTypeFromBundle<IMmResolver>(bundleUri).Configure(matchMaker);
 
             _globalTaskScheduler = taskSchedulerFactory.GetTaskScheduler();
             server.Start();
