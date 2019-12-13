@@ -15,4 +15,5 @@
   &amp;lt;inspection_tool class="UnnecessaryReturnJS" enabled="false" level="WARNING" enabled_by_default="false" /&amp;gt;
   &amp;lt;inspection_tool class="UnterminatedStatementJS" enabled="false" level="WARNING" enabled_by_default="false" /&amp;gt;
   &amp;lt;inspection_tool class="WrongPropertyKeyValueDelimiter" enabled="false" level="WEAK WARNING" enabled_by_default="false" /&amp;gt;
-&amp;lt;/profile&amp;gt;&lt;/IDEA_SETTINGS&gt;&lt;/Profile&gt;</s:String></wpf:ResourceDictionary>
+&amp;lt;/profile&amp;gt;&lt;/IDEA_SETTINGS&gt;&lt;/Profile&gt;</s:String>
+	<s:Boolean x:Key="/Default/UserDictionary/Words/=Actualizer/@EntryIndexedValue">True</s:Boolean></wpf:ResourceDictionary>

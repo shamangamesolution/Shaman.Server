@@ -5,7 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 
-namespace Shaman.ServerSharedUtilities
+namespace Shaman.ServerSharedUtilities.Bunlding
 {
     public class BundleHelper
     {

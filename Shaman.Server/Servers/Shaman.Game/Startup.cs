@@ -26,12 +26,13 @@ using Shaman.Game.Rooms.RoomProperties;
 using Shaman.LiteNetLibAdapter;
 using Shaman.ServerSharedUtilities;
 using Shaman.ServerSharedUtilities.Backends;
+using Shaman.ServerSharedUtilities.Bunlding;
 using Shaman.ServerSharedUtilities.Logging;
 using LogLevel = Shaman.Common.Utils.Logging.LogLevel;
 
 namespace Shaman.Game
 {
-    public class Startup
+    class Startup
     {
         private ServiceCollection _serviceCollection;
 

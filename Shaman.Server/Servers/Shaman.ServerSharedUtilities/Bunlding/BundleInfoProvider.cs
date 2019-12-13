@@ -8,7 +8,7 @@ using Shaman.Common.Utils.Servers;
 using Shaman.Messages.General.DTO.Requests.Router;
 using Shaman.Messages.General.DTO.Responses.Router;
 
-namespace Shaman.ServerSharedUtilities
+namespace Shaman.ServerSharedUtilities.Bunlding
 {
     public class BundleInfoProvider : IBundleInfoProvider
     {

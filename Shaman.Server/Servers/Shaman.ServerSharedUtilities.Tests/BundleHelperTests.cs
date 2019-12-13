@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using Shaman.MM.Contract;
+using Shaman.ServerSharedUtilities.Bunlding;
 
 namespace Shaman.ServerSharedUtilities.Tests
 {
