@@ -1,6 +1,5 @@
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Game.Contract;
-using Shaman.Game.Providers;
 using Shaman.ServerSharedUtilities;
 
 namespace Shaman.Game

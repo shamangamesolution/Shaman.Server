@@ -7,10 +7,6 @@ namespace Shaman.Game.Contract.DI
     {
         private ServiceProvider _serviceProvider;
 
-        public GameBundleBase()
-        {
-        }
-
         public IGameModeControllerFactory GetGameModeControllerFactory()
         {
             return _serviceProvider.GetService<IGameModeControllerFactory>();
