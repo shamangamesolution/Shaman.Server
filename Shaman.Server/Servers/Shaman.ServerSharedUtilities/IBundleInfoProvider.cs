@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace Shaman.Game.Providers
+namespace Shaman.ServerSharedUtilities
 {
     public interface IBundleInfoProvider
     {

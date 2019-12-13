@@ -19,6 +19,5 @@ namespace Shaman.MM.Providers
             Dictionary<Guid, Dictionary<byte, object>> players);
 
         void UpdateRoom(int serverId, Dictionary<Guid, Dictionary<byte, object>> players, Guid roomId);
-        Task<string> GetBundleUri();
     }
 }
