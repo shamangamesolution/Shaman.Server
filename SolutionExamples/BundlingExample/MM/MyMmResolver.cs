@@ -7,17 +7,17 @@ namespace MM
     {
         public void Configure(IMatchMakingConfigurator matchMaker)
         {
-            matchMaker.AddMatchMakingGroup(12, 250, true, true, 5000, 90,
-                new Dictionary<byte, object>
-                {
-                    {1, 2},
-                    {2, 3}
-                },
+            matchMaker.AddMatchMakingGroup(
                 new Dictionary<byte, object>
                 {
                     {1, 2},
                     {2, 3}
                 });
+        }
+
+        public IRoomPropertiesProvider GetRoomPropertiesProvider()
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

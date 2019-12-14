@@ -1,17 +1,18 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
 using Shaman.Game.Contract;
+using Shaman.Game.Contract.DI;
 
 namespace Server
 {
-    public class MyGameResolver : IGameResolver
+    public class MyGameResolver : GameBundleBase
     {
-        public void Configure(IServiceCollection services)
+        protected override void OnConfigureServices(IServiceCollection serviceCollection)
         {
-            services.AddTransient<IGameModeControllerFactory, MyGameControllerFactory>();
+            serviceCollection.AddTransient<IGameModeControllerFactory, MyGameControllerFactory>();
         }
 
-        public void OnInitialize(IServiceProvider serviceProvider)
+        protected override void OnStart(IServiceProvider serviceProvider)
         {
             // todo here you can start some background tasks  
         }

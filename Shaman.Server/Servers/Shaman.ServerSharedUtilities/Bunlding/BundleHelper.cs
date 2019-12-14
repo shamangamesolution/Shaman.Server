@@ -36,12 +36,26 @@ namespace Shaman.ServerSharedUtilities.Bunlding
 
             Console.Out.WriteLine($"Using bundle from {newBundleFolder}");
             
-            return (T) Activator.CreateInstance(LoadAndGet<T>(newBundleFolder));
+            return GetTypeInstance<T>(newBundleFolder);
+        }
+
+        private static T GetTypeInstance<T>(string newBundleFolder)
+        {
+            var type = LoadAndGet<T>(newBundleFolder);
+            Console.Out.WriteLine($"Bundle mapped as {typeof(T).FullName}: {type.FullName}");
+            try
+            {
+                return (T) Activator.CreateInstance(type);
+            }
+            catch (Exception e)
+            {
+                throw new BundleLoadException($"Error activating {typeof(T).FullName} as {type.FullName}", e);
+            }
         }
 
         private static T LoadTypeFromLocalBundle<T>(string publishDir)
         {
-            return (T) Activator.CreateInstance(LoadAndGet<T>(publishDir));
+            return GetTypeInstance<T>(publishDir);
         }
 
         private static Type LoadAndGet<T>(string publishDir)
@@ -57,7 +71,7 @@ namespace Shaman.ServerSharedUtilities.Bunlding
                     if (targetType == null)
                     {
                         targetType = assembly.GetTypes()
-                            .SingleOrDefault(t => t.GetInterfaces().Any(obj => obj == typeof(T)));
+                            .SingleOrDefault(t => !t.IsAbstract && t.GetInterfaces().Any(obj => obj == typeof(T)));
                     }
 
                     Console.Out.WriteLine("Assembly = {0}", assembly.FullName);
@@ -89,6 +103,9 @@ namespace Shaman.ServerSharedUtilities.Bunlding
     public class BundleLoadException : Exception
     {
         public BundleLoadException(string msg) : base(msg)
+        {
+        }
+        public BundleLoadException(string msg, Exception e) : base(msg, e)
         {
         }
     }
