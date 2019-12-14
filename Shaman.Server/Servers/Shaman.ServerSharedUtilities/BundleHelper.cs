@@ -41,7 +41,16 @@ namespace Shaman.ServerSharedUtilities
 
         private static T LoadTypeFromLocalBundle<T>(string publishDir)
         {
-            return (T) Activator.CreateInstance(LoadAndGet<T>(publishDir));
+
+            try
+            {
+                return (T) Activator.CreateInstance(LoadAndGet<T>(publishDir));
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
 
         private static Type LoadAndGet<T>(string publishDir)

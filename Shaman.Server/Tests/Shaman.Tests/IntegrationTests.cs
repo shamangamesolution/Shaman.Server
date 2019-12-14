@@ -20,6 +20,7 @@ using Shaman.Messages;
 using Shaman.Messages.Authorization;
 using Shaman.Messages.MM;
 using Shaman.Messages.RoomFlow;
+using Shaman.MM.Contract;
 using Shaman.MM.Managers;
 using Shaman.MM.Metrics;
 using Shaman.MM.Providers;
