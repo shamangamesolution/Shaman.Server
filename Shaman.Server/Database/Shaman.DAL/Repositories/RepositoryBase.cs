@@ -143,6 +143,18 @@ namespace Shaman.DAL.Repositories
                 throw new Exception($"Error converting {obj} field", ex);
             }
         }
+        
+        protected float? GetNullableFloat(object obj)
+        {
+            try
+            {
+                return (obj == null || obj is DBNull) ? (float?)null : Convert.ToSingle(obj);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error converting {obj} field", ex);
+            }
+        }
 
         protected byte? GetNullableByte(object obj)
         {
