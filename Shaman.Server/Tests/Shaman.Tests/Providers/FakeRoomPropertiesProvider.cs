@@ -67,7 +67,7 @@ namespace Shaman.Tests.Providers
             throw new ArgumentException();
         }
 
-        public Dictionary<byte, object> GetAdditionalRoomProperties()
+        public Dictionary<byte, object> GetAdditionalRoomProperties(Dictionary<byte, object> playerMatchMakingProperties)
         {
             return new Dictionary<byte, object>();
         }
@@ -128,7 +128,7 @@ namespace Shaman.Tests.Providers
             throw new ArgumentException();
         }
 
-        public Dictionary<byte, object> GetAdditionalRoomProperties()
+        public Dictionary<byte, object> GetAdditionalRoomProperties(Dictionary<byte, object> playerMatchMakingProperties)
         {
             return new Dictionary<byte, object>();
         }
@@ -151,7 +151,7 @@ namespace Shaman.Tests.Providers
             return 5000;
         }
 
-        public Dictionary<byte, object> GetAdditionalRoomProperties()
+        public Dictionary<byte, object> GetAdditionalRoomProperties(Dictionary<byte, object> playerMatchMakingProperties)
         {
             return new Dictionary<byte, object>();
         }

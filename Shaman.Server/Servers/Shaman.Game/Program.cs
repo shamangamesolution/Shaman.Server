@@ -13,7 +13,7 @@ using ILogger = Serilog.ILogger;
 
 namespace Shaman.Game
 {
-    class Program
+    public class Program
     {
         internal static void Main(string[] args)
         {

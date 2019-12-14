@@ -32,7 +32,7 @@ namespace Shaman.MM.Tests.Fakes
             return _mmTime;
         }
 
-        public Dictionary<byte, object> GetAdditionalRoomProperties()
+        public Dictionary<byte, object> GetAdditionalRoomProperties(Dictionary<byte, object> playerMatchMakingProperties)
         {
             return new Dictionary<byte, object>();
         }

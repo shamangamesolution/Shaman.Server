@@ -75,7 +75,7 @@ namespace Shaman.MM.Managers
                     _roomPropertiesProvider.GetMaximumMatchMakingTime(measures));
                 roomProperties.Add(PropertyCode.RoomProperties.TotalPlayersNeeded,
                     _roomPropertiesProvider.GetMaximumPlayers(measures));
-                foreach (var add in _roomPropertiesProvider.GetAdditionalRoomProperties())
+                foreach (var add in _roomPropertiesProvider.GetAdditionalRoomProperties(measures))
                     roomProperties.Add(add.Key, add.Value);
 
                 var group = new MatchMakingGroup(roomProperties, _logger, _taskSchedulerFactory, _playersManager,

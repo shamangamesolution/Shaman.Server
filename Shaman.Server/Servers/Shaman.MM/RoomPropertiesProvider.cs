@@ -21,9 +21,9 @@ namespace Shaman.MM
             return RoomPropertiesProviderImplementation.GetMaximumMatchMakingTime(playerMatchMakingProperties);
         }
 
-        public Dictionary<byte, object> GetAdditionalRoomProperties()
+        public Dictionary<byte, object> GetAdditionalRoomProperties(Dictionary<byte, object> playerMatchMakingProperties)
         {
-            return RoomPropertiesProviderImplementation.GetAdditionalRoomProperties();
+            return RoomPropertiesProviderImplementation.GetAdditionalRoomProperties(playerMatchMakingProperties);
         }
     }
 }
