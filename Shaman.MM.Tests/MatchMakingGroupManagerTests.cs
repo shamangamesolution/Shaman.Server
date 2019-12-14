@@ -9,6 +9,7 @@ using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Messages;
 using Shaman.Messages.MM;
+using Shaman.MM.Contract;
 using Shaman.MM.Managers;
 using Shaman.MM.MatchMaking;
 using Shaman.MM.Metrics;

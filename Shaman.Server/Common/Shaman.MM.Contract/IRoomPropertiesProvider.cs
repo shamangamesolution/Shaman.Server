@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Shaman.MM.Providers
+namespace Shaman.MM.Contract
 {
     public interface IRoomPropertiesProvider
     {

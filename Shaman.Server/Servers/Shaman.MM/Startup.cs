@@ -104,6 +104,7 @@ namespace Shaman.MM
             services.AddSingleton<IRoomManager, RoomManager>();
             services.AddSingleton<IServerActualizer, ServerActualizer>();
             services.AddSingleton<IBundleInfoProvider, BundleInfoProvider>();
+            services.AddSingleton<IRoomPropertiesProvider, RoomPropertiesProvider>();
         }
         
         private void ConfigureMetrics(IServiceCollection services)
@@ -150,11 +151,11 @@ namespace Shaman.MM
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-
-
             
             var bundleUri = bundleInfoProvider.GetBundleUri().Result;
-            BundleHelper.LoadTypeFromBundle<IMmResolver>(bundleUri).Configure(matchMaker);
+            var resolver = BundleHelper.LoadTypeFromBundle<IMmResolver>(bundleUri);
+            RoomPropertiesProvider.RoomPropertiesProviderImplementation = resolver.GetRoomPropertiesProvider();
+            resolver.Configure(matchMaker);
             
             serverInfoProvider.Start();
 
