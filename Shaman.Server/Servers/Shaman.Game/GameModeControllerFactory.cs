@@ -1,3 +1,4 @@
+using System;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Game.Contract;
 using Shaman.ServerSharedUtilities;
@@ -18,6 +19,10 @@ namespace Shaman.Game
             _gameBundle = BundleHelper.LoadTypeFromBundle<IGameBundle>(bundleUri);
             _gameBundle.OnInitialize(shamanComponents);
             _bundledGameModeControllerFactory = _gameBundle.GetGameModeControllerFactory();
+            if (_bundledGameModeControllerFactory == null)
+            {
+                throw new NullReferenceException("Game bundle returned null factory");
+            }
         }
 
         public IGameModeController GetGameModeController(IRoom room, ITaskScheduler taskScheduler,
