@@ -29,7 +29,7 @@ namespace Shaman.Game
         {
             StandaloneBundle = bundle;
             Config = new GameApplicationConfig(name, regionName, publicDomainNameOrIpAddress, ports, String.Empty,
-                String.Empty, httpPort);
+                String.Empty, httpPort, isAuthOn: false);
             var config = BuildConfig();
             Program.Start(config);
         }

@@ -1,5 +1,3 @@
-using Shaman.Common.Utils.Logging;
-using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Serialization;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Game.Contract;
@@ -10,9 +8,7 @@ namespace Server
     {
         private readonly ISerializer _serializer;
 
-        //todo most of injected types should be passed through method GetGameModeController
-        public MyGameControllerFactory(IRequestSender requestSender, IShamanLogger logger,
-            IBackendProvider backendProvider, ISerializer serializer)
+        public MyGameControllerFactory(ISerializer serializer)
         {
             _serializer = serializer;
         }
