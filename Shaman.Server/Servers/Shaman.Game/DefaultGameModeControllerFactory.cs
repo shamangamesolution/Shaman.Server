@@ -6,12 +6,14 @@ using Shaman.ServerSharedUtilities.Bunlding;
 
 namespace Shaman.Game
 {
-    public class GameModeControllerFactory : IGameModeControllerFactory
+    public class DefaultGameModeControllerFactory : IGameModeControllerFactory
     {
+        // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
         private readonly IGameBundle _gameBundle;
         private readonly IGameModeControllerFactory _bundledGameModeControllerFactory;
 
-        public GameModeControllerFactory(IBundleInfoProvider bundleInfoProvider, IServerActualizer serverActualizer, IShamanComponents shamanComponents)
+        public DefaultGameModeControllerFactory(IBundleInfoProvider bundleInfoProvider,
+            IServerActualizer serverActualizer, IShamanComponents shamanComponents)
         {
             // in case of first time actualization
             serverActualizer.Actualize(0);
