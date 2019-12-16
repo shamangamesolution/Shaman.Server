@@ -7,7 +7,7 @@ using Shaman.Messages.MM;
 
 namespace Shaman.Messages.General.DTO.Requests.Router
 {
-    public class ActualizeServerOnRouterRequest : RequestBase
+    public class ActualizeServerOnRouterRequest : HttpRequestBase
     {
         public ServerIdentity ServerIdentity { get; set; }
         public string Name { get; set; }
@@ -16,7 +16,7 @@ namespace Shaman.Messages.General.DTO.Requests.Router
         public ushort HttpPort { get; set; }
         public ushort HttpsPort { get; set; }
         
-        public ActualizeServerOnRouterRequest() : base(CustomOperationCode.ActualizeServer, BackEndEndpoints.ActualizeServer)
+        public ActualizeServerOnRouterRequest() : base(BackEndEndpoints.ActualizeServer)
         {
             
         }

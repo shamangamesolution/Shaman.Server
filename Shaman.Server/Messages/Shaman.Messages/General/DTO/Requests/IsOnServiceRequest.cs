@@ -3,10 +3,10 @@ using Shaman.Common.Utils.Serialization;
 
 namespace Shaman.Messages.General.DTO.Requests
 {
-    public class IsOnServiceRequest : RequestBase
+    public class IsOnServiceRequest : HttpRequestBase
     {
         public IsOnServiceRequest()
-            :base(CustomOperationCode.IsOnServiceHttp, BackEndEndpoints.IsOnService)
+            :base(BackEndEndpoints.IsOnService)
         {
 
         }

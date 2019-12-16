@@ -5,11 +5,11 @@ using Shaman.Messages.Extensions;
 
 namespace Shaman.Messages.General.DTO.Requests.Router
 {
-    public class GetBundleUriRequest : RequestBase
+    public class GetBundleUriRequest : HttpRequestBase
     {
         public ServerIdentity ServerIdentity { get; set; }
         
-        public GetBundleUriRequest() : base(CustomOperationCode.ActualizeServer, BackEndEndpoints.GetBundleUri)
+        public GetBundleUriRequest() : base(BackEndEndpoints.GetBundleUri)
         {
             
         }

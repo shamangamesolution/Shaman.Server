@@ -3,9 +3,9 @@ using Shaman.Common.Utils.Serialization;
 
 namespace Shaman.Messages.General.DTO.Responses.Router
 {
-    public class GetBundleUriResponse : ResponseBase
+    public class GetBundleUriResponse : HttpResponseBase
     {
-        public GetBundleUriResponse() : base(CustomOperationCode.ActualizeServer)
+        public GetBundleUriResponse() : base()
         {
         }
 

@@ -6,9 +6,9 @@ namespace Shaman.Common.Utils.Senders
 {
     public interface IRequestSender
     {
-        Task<T> SendRequest<T>(string url, RequestBase request) where T: ResponseBase, new();
+        Task<T> SendRequest<T>(string url, HttpRequestBase request) where T: HttpResponseBase, new();
         
-        Task SendRequest<T>(string url, RequestBase request, Action<T> callback) where T: ResponseBase, new();
+        Task SendRequest<T>(string url, HttpRequestBase request, Action<T> callback) where T: HttpResponseBase, new();
 
     }
 }

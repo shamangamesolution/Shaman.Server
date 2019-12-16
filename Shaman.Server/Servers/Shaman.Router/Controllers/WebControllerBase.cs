@@ -30,7 +30,7 @@ namespace Shaman.Router.Controllers
             this.Config = config;
         }
         
-        protected async Task SendRequest(string url, RequestBase request)
+        protected async Task SendRequest(string url, HttpRequestBase request)
         {            
             using (var client = new HttpClient())
             {

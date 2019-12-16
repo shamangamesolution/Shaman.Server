@@ -639,8 +639,8 @@ namespace Shaman.Client.Peers
             RegisterOperationHandler(request.OperationCode, callback, true);
             _taskScheduler.ScheduleOnceOnNow(() => _clientPeer.Send(request));
         }
-        public void SendWebRequest<T>(string url, RequestBase request, Action<T> callback)
-            where T: ResponseBase,new()
+        public void SendWebRequest<T>(string url, HttpRequestBase request, Action<T> callback)
+            where T: HttpResponseBase,new()
         {
             _requestSender.SendRequest<T>(url, request, callback);
         }

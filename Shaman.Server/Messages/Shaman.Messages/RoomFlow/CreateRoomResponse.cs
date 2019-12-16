@@ -4,16 +4,16 @@ using Shaman.Common.Utils.Serialization;
 
 namespace Shaman.Messages.RoomFlow
 {
-    public class CreateRoomResponse : ResponseBase
+    public class CreateRoomResponse : HttpResponseBase
     {
         public Guid RoomId { get; set; }
         
-        public CreateRoomResponse(Guid roomId) : base(CustomOperationCode.CreateRoomFromMm)
+        public CreateRoomResponse(Guid roomId) 
         {
             this.RoomId = roomId;
         }
 
-        public CreateRoomResponse() : base(CustomOperationCode.CreateRoomFromMm)
+        public CreateRoomResponse()
         {
             
         }

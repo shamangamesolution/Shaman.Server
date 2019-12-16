@@ -3,10 +3,10 @@ using Shaman.Common.Utils.Serialization;
 
 namespace Shaman.Messages.General.DTO.Requests.Auth
 {
-    public class GetAuthTokenRequest : RequestBase
+    public class GetAuthTokenRequest : HttpRequestBase
     {
         public GetAuthTokenRequest()
-            :base(CustomOperationCode.GetAuthToken, BackEndEndpoints.GetAuthToken)
+            :base(BackEndEndpoints.GetAuthToken)
         {
 
         }

@@ -5,22 +5,21 @@ using Shaman.Common.Utils.Serialization;
 
 namespace Shaman.Messages.RoomFlow
 {
-    public class UpdateRoomRequest : RequestBase
+    public class UpdateRoomRequest : HttpRequestBase
     {
         public Guid RoomId { get; set; }
         public Dictionary<Guid, Dictionary<byte, object>> Players { get; private set; }
         
-        public UpdateRoomRequest(Guid roomId, Dictionary<Guid, Dictionary<byte, object>> players) : base(Messages.CustomOperationCode.UpdateRoom, "updateroom")
+        public UpdateRoomRequest(Guid roomId, Dictionary<Guid, Dictionary<byte, object>> players) : base("updateroom")
         {
             RoomId = roomId;
             Players = players;
         }
 
-        public UpdateRoomRequest() : base(Messages.CustomOperationCode.UpdateRoom)
+        public UpdateRoomRequest() : base("updateroom")
         {
-            Players = new Dictionary<Guid, Dictionary<byte, object>>();
         }
-        
+
         protected override void SerializeRequestBody(ITypeWriter typeWriter)
         {
             typeWriter.Write(RoomId);

@@ -19,7 +19,7 @@ namespace Shaman.Tests
 {
     public class FakeSender : IRequestSender
     {        
-        public async Task<T> SendRequest<T>(string url, RequestBase request) where T : ResponseBase, new()
+        public async Task<T> SendRequest<T>(string url, HttpRequestBase request) where T : HttpResponseBase, new()
         {
             if (typeof(T) == typeof(CreateRoomResponse))
                 return new CreateRoomResponse(Guid.NewGuid()) as T;
@@ -36,7 +36,7 @@ namespace Shaman.Tests
             return new T();
         }
 
-        public async Task SendRequest<T>(string url, RequestBase request, Action<T> callback) where T : ResponseBase, new()
+        public async Task SendRequest<T>(string url, HttpRequestBase request, Action<T> callback) where T : HttpResponseBase, new()
         {
             if (typeof(T) == typeof(CreateRoomResponse))
                 callback(new CreateRoomResponse(Guid.NewGuid()) as T);
@@ -53,7 +53,7 @@ namespace Shaman.Tests
                 callback(new T());
         }
 
-        internal static GetServerInfoListResponse CreateGetServerInfoListResponse<T>() where T : ResponseBase, new()
+        internal static GetServerInfoListResponse CreateGetServerInfoListResponse<T>() where T : HttpResponseBase, new()
         {
             return new GetServerInfoListResponse(
                 new EntityDictionary<ServerInfo>(new List<ServerInfo>{new ServerInfo
@@ -77,7 +77,7 @@ namespace Shaman.Tests
             _updateRoomDelegate = updateRoomDelegate;
         }
         
-        public async Task<T> SendRequest<T>(string url, RequestBase request) where T : ResponseBase, new()
+        public async Task<T> SendRequest<T>(string url, HttpRequestBase request) where T : HttpResponseBase, new()
         {
             if (typeof(T) == typeof(CreateRoomResponse))
             {
@@ -103,7 +103,7 @@ namespace Shaman.Tests
             return new T();
         }
 
-        public async Task SendRequest<T>(string url, RequestBase request, Action<T> callback) where T : ResponseBase, new()
+        public async Task SendRequest<T>(string url, HttpRequestBase request, Action<T> callback) where T : HttpResponseBase, new()
         {
             if (typeof(T) == typeof(CreateRoomResponse))
             {

@@ -3,11 +3,11 @@ using Shaman.Common.Utils.Serialization;
 
 namespace Shaman.Messages.General.DTO.Requests.Router
 {
-    public class GetServerInfoListRequest : RequestBase
+    public class GetServerInfoListRequest : HttpRequestBase
     {
         public bool ActualOnly { get; set; }
 
-        public GetServerInfoListRequest() : base(CustomOperationCode.GetServerInfoList, BackEndEndpoints.GetServerInfoList)
+        public GetServerInfoListRequest() : base(BackEndEndpoints.GetServerInfoList)
         {
             
         }
