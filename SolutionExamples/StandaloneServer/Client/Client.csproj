@@ -6,8 +6,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Shaman.Client" Version="1.0.4" />
-      <PackageReference Include="Shaman.Messages" Version="1.0.5" />
+      <PackageReference Include="Shaman.Client" Version="1.0.5" />
+      <PackageReference Include="Shaman.Messages" Version="1.0.6" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Messages\Messages.csproj" />
     </ItemGroup>
 
 </Project>
