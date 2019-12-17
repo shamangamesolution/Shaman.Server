@@ -48,7 +48,7 @@ namespace Shaman.Common.Utils.Senders
                     _peerToPackets.TryAdd(peer, packetsQueue);
                 }
 
-                packetsQueue.Enqueue(data, isReliable, isOrdered);
+                packetsQueue.Enqueue(data, offset, length, isReliable, isOrdered);
             }
         }
 
