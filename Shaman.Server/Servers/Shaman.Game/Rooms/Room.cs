@@ -9,7 +9,6 @@ using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Serialization;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Game.Contract;
-using Shaman.Messages;
 using RoomStats = Shaman.Game.Contract.Stats.RoomStats;
 
 namespace Shaman.Game.Rooms
@@ -205,22 +204,20 @@ namespace Shaman.Game.Rooms
                 _logger.Error($"Trying to send message {message.GetType()} to non-existing player {sessionId}");
             }
         }
-        
-        public void AddToSendQueue(byte[] bytes, IPeer peer, bool isReliable, bool isOrdered)
+        private void AddToSendQueue(byte[] bytes, IPeer peer, bool isReliable, bool isOrdered)
         {
             //_taskScheduler.ScheduleOnceOnNow(() => peer.Send(bytes, isReliable, isOrdered));
             _taskScheduler.ScheduleOnceOnNow(() =>
             {
                 _packetSender.AddPacket(peer, bytes, isReliable, isOrdered);
             });
-
         }
         
         public void ProcessMessage(ushort operationCode, MessageData message, Guid sessionId)
         {
             try
             {
-                var result = _gameModeController.ProcessMessage(message, sessionId);
+                var result = _gameModeController.ProcessMessage(operationCode, message, sessionId);
                 var deserializedMessage = result.DeserializedMessage;
                 _roomStats.TrackReceivedMessage(operationCode, message.Length, deserializedMessage.IsReliable);
                 if (result.Handled && deserializedMessage.IsBroadcasted)

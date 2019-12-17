@@ -11,7 +11,8 @@ namespace Shaman.Messages.Handling
 
     public interface IMessageDataHandler<in TContext>
     {
-        MessageResult Handle(ISerializer serializer, byte[] data, int offset, int length, Guid sessionId, TContext ctx);
+        MessageResult Handle(ISerializer serializer, byte[] data, int offset, int length, Guid sessionId,
+            TContext ctx);
     }
 
     public sealed class MessageHandler<TMessage, TContext> : IMessageDataHandler<TContext>

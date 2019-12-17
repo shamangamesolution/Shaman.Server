@@ -33,17 +33,16 @@ namespace Shaman.Messages.Handling
             return messageCode << 8 | messageType;
         }
 
-        public MessageResult Route(ISerializer serializer, byte[] data,
+        public MessageResult Route(ISerializer serializer, ushort opCode, byte[] data,
             int offset, int length, Guid sessionId, TContext ctx)
         {
-            var operationCode = MessageBase.GetOperationCode(data, offset);
             var messageType = MessageBase.GetMessageType(data, offset);
 
-            var handler = (IMessageDataHandler<TContext>) _handlersMap[BuildKey(operationCode, (byte) messageType)];
+            var handler = (IMessageDataHandler<TContext>) _handlersMap[BuildKey(opCode, (byte) messageType)];
             if (handler == null)
             {
                 throw new MessageProcessingException(
-                    $"Message with code {operationCode} and type {messageType} not supported.");
+                    $"Message with code {opCode} and type {messageType} not supported.");
             }
 
             try
@@ -53,7 +52,7 @@ namespace Shaman.Messages.Handling
             catch (Exception e)
             {
                 throw new MessageProcessingException(
-                    $"Error processing with code {operationCode} and type {messageType}", e);
+                    $"Error processing with code {opCode} and type {messageType}", e);
             }
         }
     }
