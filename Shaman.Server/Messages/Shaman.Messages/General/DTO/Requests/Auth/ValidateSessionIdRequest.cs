@@ -4,11 +4,11 @@ using Shaman.Common.Utils.Serialization;
 
 namespace Shaman.Messages.General.DTO.Requests.Auth
 {
-    public class ValidateSessionIdRequest : RequestBase
+    public class ValidateSessionIdRequest : HttpRequestBase
     {
         public string Secret { get; set; }
         public ValidateSessionIdRequest()
-            :base(CustomOperationCode.ValidateSessionId, BackEndEndpoints.ValidateSessionId)
+            :base(BackEndEndpoints.ValidateSessionId)
         {
 
         }

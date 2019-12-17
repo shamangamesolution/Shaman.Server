@@ -34,8 +34,6 @@ namespace Shaman.Game
 {
     class Startup
     {
-        private ServiceCollection _serviceCollection;
-
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -56,12 +54,40 @@ namespace Shaman.Game
                 };
             });
 
-            services.Configure<GameApplicationConfig>(Configuration);
-            
-            ConfigureMetrics(services);
-
-            //get ports from Config
-            var ports = Configuration["Ports"].Split(',').Select(s => Convert.ToUInt16(s)).ToList();
+            if (StandaloneServerLauncher.IsStandaloneMode)
+            {
+                services.AddSingleton<IGameModeControllerFactory, StandaloneModeGameModeControllerFactory>();
+                services.AddSingleton<IBackendProvider, BackendProviderStub>();
+                services.AddSingleton<IApplicationConfig>(c => StandaloneServerLauncher.Config);
+                services.AddSingleton<IGameMetrics, GameMetricsStub>();
+            }
+            else
+            {
+                services.AddSingleton<IGameModeControllerFactory, DefaultGameModeControllerFactory>();
+                services.AddSingleton<IBackendProvider, BackendProvider>();
+                
+                services.Configure<GameApplicationConfig>(Configuration);
+                var ports = Configuration["Ports"].Split(',').Select(s => Convert.ToUInt16(s)).ToList();
+                services.AddSingleton<IApplicationConfig>(c => 
+                    new GameApplicationConfig(
+                        Configuration["Name"],
+                        Configuration["Region"],
+                        Configuration["PublicDomainNameOrAddress"], 
+                        ports, 
+                        Configuration["RouterUrl"], 
+                        Configuration["MatchMakerUrl"],
+                        Convert.ToUInt16(Configuration["BindToPortHttp"]),
+                        Convert.ToInt32(Configuration["DestroyEmptyRoomOnMs"]), 
+                        Convert.ToInt32(Configuration["ActualizationTimeoutMs"]),
+                        Convert.ToInt32(Configuration["BackendListFromRouterIntervalMs"]),
+                        Convert.ToBoolean(Configuration["AuthOn"]),
+                        Configuration["Secret"],
+                        Convert.ToInt32(Configuration["SocketTickTimeMs"]),
+                        Convert.ToInt32(Configuration["ReceiveTickTimeMs"]),
+                        Convert.ToInt32(Configuration["SendTickTimeMs"])
+                    ));
+                ConfigureMetrics(services);
+            }
 
             services.AddSingleton<IShamanLogger, SerilogLogger>(f=>
             {
@@ -70,24 +96,7 @@ namespace Shaman.Game
                 return logger;
             });
 
-            services.AddSingleton<IApplicationConfig>(c => 
-                new GameApplicationConfig(
-                    Configuration["Name"],
-                    Configuration["Region"],
-                    Configuration["PublicDomainNameOrAddress"], 
-                    ports, 
-                    Configuration["RouterUrl"], 
-                    Configuration["MatchMakerUrl"],
-                    Convert.ToUInt16(Configuration["BindToPortHttp"]),
-                    Convert.ToInt32(Configuration["DestroyEmptyRoomOnMs"]), 
-                    Convert.ToInt32(Configuration["ActualizationTimeoutMs"]),
-                    Convert.ToInt32(Configuration["BackendListFromRouterIntervalMs"]),
-                    Convert.ToBoolean(Configuration["AuthOn"]),
-                    Configuration["Secret"],
-                    Convert.ToInt32(Configuration["SocketTickTimeMs"]),
-                    Convert.ToInt32(Configuration["ReceiveTickTimeMs"]),
-                    Convert.ToInt32(Configuration["SendTickTimeMs"])
-                ));
+           
             services.AddSingleton<IPacketSenderConfig>(c => c.GetRequiredService<IApplicationConfig>()); 
 
             services.AddTransient<IPacketSender, PacketBatchSender>();
@@ -100,12 +109,10 @@ namespace Shaman.Game
             services.AddTransient<ITaskSchedulerFactory, TaskSchedulerFactory>();            
             services.AddSingleton<IRequestSender, HttpSender>();            
             services.AddSingleton<IApplication, GameApplication>();
-            services.AddSingleton<IBackendProvider, BackendProvider>();
             
             services.AddSingleton<IGameServerInfoProvider, GameServerInfoProvider>();
             services.AddSingleton<IStatisticsProvider, StatisticsProvider>();
             services.AddSingleton<IShamanComponents, ShamanComponents>();
-            services.AddSingleton<IGameModeControllerFactory, GameModeControllerFactory>();
             services.AddSingleton<IBundleInfoProvider, BundleInfoProvider>();
             services.AddSingleton<IServerActualizer, ServerActualizer>();
 
@@ -130,7 +137,8 @@ namespace Shaman.Game
             app.UseMvc();
 
             server.Start();
-            serverInfoProvider.Start();
+            if (!StandaloneServerLauncher.IsStandaloneMode)
+                serverInfoProvider.Start();
         }
 
         private void ConfigureLogger(IShamanLogger logger)

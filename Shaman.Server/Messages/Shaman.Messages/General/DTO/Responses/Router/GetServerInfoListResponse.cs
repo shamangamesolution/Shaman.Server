@@ -5,11 +5,11 @@ using Shaman.Messages.General.Entity.Router;
 
 namespace Shaman.Messages.General.DTO.Responses.Router
 {
-    public class GetServerInfoListResponse : ResponseBase
+    public class GetServerInfoListResponse : HttpResponseBase
     {
         public EntityDictionary<ServerInfo> ServerInfoList { get; set; }
 
-        public GetServerInfoListResponse(): base(CustomOperationCode.GetServerInfoList)
+        public GetServerInfoListResponse(): base()
         {
             
         }

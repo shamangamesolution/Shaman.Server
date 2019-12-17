@@ -2,17 +2,6 @@ using Shaman.Common.Utils.Serialization;
 
 namespace Shaman.Common.Utils.Messages
 {
-    public enum ResultCode : ushort
-    {
-        OK = 0,
-        UnknownOperation = 1,
-        MessageProcessingError = 2,
-        SendRequestError = 3,
-        RequestProcessingError = 4,
-        NotAuthorized = 5,
-        BadReceipt = 6
-    }
-    
     public abstract class ResponseBase : MessageBase
     {
         public override bool IsReliable => true;

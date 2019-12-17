@@ -150,34 +150,38 @@ namespace Shaman.Messages.Tests
 
             var serializer = new BinarySerializer();
 
-            var testMessage1Data = serializer.Serialize(new TestMessage1());
-            var testMessage2Data = serializer.Serialize(new TestMessage2());
-            var testMessage2ResponseData = serializer.Serialize(new TestMessage2Response());
-            var testFailMessage = serializer.Serialize(new TestFailMessage());
+            var testMessage1 = new TestMessage1();
+            var testMessage2 = new TestMessage2();
+            var testMessage2Response = new TestMessage2Response();
+            var testFailMessage = new TestFailMessage();
+            var testMessage1Data = serializer.Serialize(testMessage1);
+            var testMessage2Data = serializer.Serialize(testMessage2);
+            var testMessage2ResponseData = serializer.Serialize(testMessage2Response);
+            var testFailMessageData = serializer.Serialize(testFailMessage);
 
 
-            processor.Route(serializer, testMessage1Data, 0, testMessage1Data.Length, Guid.Empty,
+            processor.Route(serializer, testMessage1.OperationCode, testMessage1Data, 0, testMessage1Data.Length, Guid.Empty,
                     handler).Handled
                 .Should().BeTrue();
             handler.TestMessage1Processed.Should().BeTrue();
             handler.TestMessage2Processed.Should().BeFalse();
             handler.TestMessage2ResponseProcessed.Should().BeFalse();
 
-            processor.Route(serializer, testMessage2Data, 0, testMessage2Data.Length, Guid.Empty,
+            processor.Route(serializer, testMessage2.OperationCode, testMessage2Data, 0, testMessage2Data.Length, Guid.Empty,
                     handler).Handled
                 .Should().BeTrue();
             handler.TestMessage1Processed.Should().BeTrue();
             handler.TestMessage2Processed.Should().BeTrue();
             handler.TestMessage2ResponseProcessed.Should().BeFalse();
 
-            processor.Route(serializer, testMessage2ResponseData, 0, testMessage2ResponseData.Length,
+            processor.Route(serializer, testMessage2Response.OperationCode, testMessage2ResponseData, 0, testMessage2ResponseData.Length,
                     Guid.Empty, handler).Handled
                 .Should().BeTrue();
             handler.TestMessage1Processed.Should().BeTrue();
             handler.TestMessage2Processed.Should().BeTrue();
             handler.TestMessage2ResponseProcessed.Should().BeTrue();
 
-            processor.Route(serializer, testFailMessage, 0, testFailMessage.Length, Guid.Empty,
+            processor.Route(serializer, testFailMessage.OperationCode, testFailMessageData, 0, testFailMessageData.Length, Guid.Empty,
                     handler).Handled
                 .Should().BeFalse();
         }

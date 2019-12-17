@@ -4,12 +4,12 @@ using Shaman.Common.Utils.Serialization;
 
 namespace Shaman.Messages.General.DTO.Responses.Auth
 {
-    public class GetAuthTokenResponse : ResponseBase
+    public class GetAuthTokenResponse : HttpResponseBase
     {
         public Guid AuthToken { get; set; }
 
         public GetAuthTokenResponse()
-            :base(CustomOperationCode.GetAuthToken)
+            :base()
         {
         }
 

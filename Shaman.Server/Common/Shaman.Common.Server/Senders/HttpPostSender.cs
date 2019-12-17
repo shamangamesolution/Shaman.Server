@@ -20,8 +20,8 @@ namespace Shaman.Common.Server.Senders
             _serializer = serializer;
         }
         
-        public async Task<T> SendRequest<T>(string url, RequestBase request)
-            where T : ResponseBase, new()
+        public async Task<T> SendRequest<T>(string url, HttpRequestBase request)
+            where T : HttpResponseBase, new()
         {
             T responseObject = new T();
             try
@@ -66,7 +66,7 @@ namespace Shaman.Common.Server.Senders
             return responseObject;
         }
 
-        public async Task SendRequest<T>(string url, RequestBase request, Action<T> callback) where T : ResponseBase, new()
+        public async Task SendRequest<T>(string url, HttpRequestBase request, Action<T> callback) where T : HttpResponseBase, new()
         {
             T responseObject = new T();
             var requestUrl = $"{url}/{request.EndPoint}";

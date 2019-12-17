@@ -4,9 +4,9 @@ using Shaman.Messages.General.Entity.Router;
 
 namespace Shaman.Messages.General.DTO.Responses.Router
 {
-    public class ActualizeServerOnRouterResponse : ResponseBase
+    public class ActualizeServerOnRouterResponse : HttpResponseBase
     {
-        public ActualizeServerOnRouterResponse() : base(CustomOperationCode.ActualizeServer)
+        public ActualizeServerOnRouterResponse() : base()
         {
         }
         protected override void SerializeResponseBody(ITypeWriter typeWriter)
