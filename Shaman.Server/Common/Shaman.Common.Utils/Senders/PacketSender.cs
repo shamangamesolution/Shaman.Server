@@ -9,20 +9,22 @@ using Shaman.Common.Utils.TaskScheduling;
 
 namespace Shaman.Common.Utils.Senders
 {
-    public class PacketBatchSender: IPacketSender
+    public class PacketBatchSender : IPacketSender
     {
         private readonly object _sync = new object();
         private readonly ITaskScheduler _taskScheduler;
-        private readonly ConcurrentDictionary<IPeerSender, ConcurrentQueue<PacketInfo>> _peerToPackets;
+        private readonly ConcurrentDictionary<IPeerSender, IPacketQueue> _peerToPackets;
         private readonly IPacketSenderConfig _config;
         private readonly ISerializer _serializer;
         private PendingTask _sendTaskId;
-        public PacketBatchSender(ITaskSchedulerFactory taskSchedulerFactory, IPacketSenderConfig config, ISerializer serializer)
+
+        public PacketBatchSender(ITaskSchedulerFactory taskSchedulerFactory, IPacketSenderConfig config,
+            ISerializer serializer)
         {
             _config = config;
             _serializer = serializer;
             _taskScheduler = taskSchedulerFactory.GetTaskScheduler();
-            _peerToPackets = new ConcurrentDictionary<IPeerSender, ConcurrentQueue<PacketInfo>>();
+            _peerToPackets = new ConcurrentDictionary<IPeerSender, IPacketQueue>();
         }
 
         public void AddPacket(MessageBase message, IPeerSender peer)
@@ -33,30 +35,20 @@ namespace Shaman.Common.Utils.Senders
 
         public void AddPacket(IPeerSender peer, byte[] data, bool isReliable, bool isOrdered)
         {
+            AddPacket(peer, data, 0, data.Length, isReliable, isOrdered);
+        }
+
+        public void AddPacket(IPeerSender peer, byte[] data, int offset, int length, bool isReliable, bool isOrdered)
+        {
             lock (_sync)
             {
                 if (!_peerToPackets.TryGetValue(peer, out var packetsQueue))
                 {
-                    packetsQueue = new ConcurrentQueue<PacketInfo>();
+                    packetsQueue = new PacketQueue(_config.GetMaxPacketSize());
                     _peerToPackets.TryAdd(peer, packetsQueue);
                 }
 
-                if (!packetsQueue.IsEmpty)
-                {
-                    var prevPacket = packetsQueue.Last();
-                    if (prevPacket.Length + data.Length <= _config.GetMaxPacketSize()
-                        && prevPacket.IsReliable == isReliable
-                        && prevPacket.IsOrdered == isOrdered)
-                    {
-                        //add to previous
-                        prevPacket.Append(data);
-                        return;
-                    }
-                }
-                
-                //add new packet
-                var newPacket = new PacketInfo(data, isReliable, isOrdered, _config.GetMaxPacketSize());
-                packetsQueue.Enqueue(newPacket);
+                packetsQueue.Enqueue(data, isReliable, isOrdered);
             }
         }
 
@@ -78,16 +70,15 @@ namespace Shaman.Common.Utils.Senders
         {
             if (!_peerToPackets.Any())
                 return 0;
-            
-            return _peerToPackets.Max(p => p.Value.Count);
 
+            return _peerToPackets.Max(p => p.Value.Count);
         }
 
         public int GetAverageQueueSize()
         {
             if (!_peerToPackets.Any())
                 return 0;
-            
+
             return (int) (_peerToPackets.Average(p => p.Value.Count));
         }
 
@@ -111,6 +102,7 @@ namespace Shaman.Common.Utils.Senders
             {
                 throw new Exception("PacketSender already started");
             }
+
             //start send
             _sendTaskId = _taskScheduler.ScheduleOnInterval(Send, 0, _config.GetSendTickTimerMs(), shortLiving);
         }
