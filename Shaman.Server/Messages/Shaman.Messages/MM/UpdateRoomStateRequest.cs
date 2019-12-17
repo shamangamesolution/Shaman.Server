@@ -4,25 +4,23 @@ using Shaman.Common.Utils.Serialization;
 
 namespace Shaman.Messages.MM
 {
-    public class UpdateRoomStateRequest : RequestBase
+    public class UpdateRoomStateRequest : HttpRequestBase
     {
         public Guid RoomId { get; set; }
         public int CurrentPlayerCount { get; set; }
-        public int ClosingIn { get; set; }
         public RoomState State { get; set; }
 
         public UpdateRoomStateRequest()
-            : base(CustomOperationCode.UpdateRoomState, "updateroomstate")
+            : base("updateroomstate")
         {
             
         }
         
-        public UpdateRoomStateRequest(Guid roomId, int currentPlayerCount, int closingIn, RoomState state) 
+        public UpdateRoomStateRequest(Guid roomId, int currentPlayerCount, RoomState state) 
             : this()
         {
             RoomId = roomId;
             CurrentPlayerCount = currentPlayerCount;
-            ClosingIn = closingIn;
             State = state;
         }
 
@@ -30,7 +28,6 @@ namespace Shaman.Messages.MM
         {
             typeWriter.Write(RoomId);
             typeWriter.Write(CurrentPlayerCount);
-            typeWriter.Write(ClosingIn);
             typeWriter.Write((byte)State);
         }
 
@@ -38,7 +35,6 @@ namespace Shaman.Messages.MM
         {
             RoomId = typeReader.ReadGuid();
             CurrentPlayerCount = typeReader.ReadInt();
-            ClosingIn = typeReader.ReadInt();
             State = (RoomState) typeReader.ReadByte();
         }
     }

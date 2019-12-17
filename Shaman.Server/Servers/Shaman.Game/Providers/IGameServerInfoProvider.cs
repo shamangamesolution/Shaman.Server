@@ -7,5 +7,6 @@ namespace Shaman.Game.Providers
         void Start();
         void Stop();
         Task ActualizeMe();
+        string GetMatchMakerWebUrl(int matchMakerId);
     }
 }

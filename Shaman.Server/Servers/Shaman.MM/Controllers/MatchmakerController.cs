@@ -51,7 +51,7 @@ namespace Shaman.MM.Controllers
 
             try
             {
-                _roomManager.UpdateRoomState(request.RoomId, request.CurrentPlayerCount, request.ClosingIn, request.State);
+                _roomManager.UpdateRoomState(request.RoomId, request.CurrentPlayerCount, request.State);
             }
             catch (Exception ex)
             {
