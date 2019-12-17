@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Messages;
-using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Serialization;
 using Shaman.Game.Contract;
 using Shaman.Messages;
@@ -54,9 +53,8 @@ namespace Server
             Console.WriteLine("Cleanup");
         }
 
-        public MessageResult ProcessMessage(MessageData message, Guid sessionId)
+        public MessageResult ProcessMessage(ushort operationCode, MessageData message, Guid sessionId)
         {
-            var operationCode = MessageBase.GetOperationCode(message.Buffer, message.Offset);
             Console.WriteLine($"Message from {sessionId}: {operationCode} in room {_room.GetRoomId()}.");
             if (operationCode == CustomOperationCode.PingRequest)
             {
