@@ -42,19 +42,6 @@ namespace Shaman.Game.Rooms
             _packetSender = packetSender;
 
             _roomStats = new RoomStats(GetRoomId(), roomPropertiesContainer.GetPlayersCount());
-
-//            if (!roomPropertiesContainer.IsRoomPropertiesContainsKey(PropertyCode.RoomProperties.GameMode))
-//            {
-//                throw new Exception($"There is no GameMode property while creating room");
-//            }
-
-            // todo RW
-            //throw new NotImplementedException("RW");
-//            var league = (League)roomPropertiesContainer.GetRoomProperty<byte>(PropertyCode.RoomProperties.League).Value;
-//
-//            var gameMode = roomPropertiesContainer.IsRoomPropertiesContainsKey(PropertyCode.RoomProperties.GameMode)
-//                ? (GameMode)roomPropertiesContainer.GetRoomProperty<byte>(PropertyCode.RoomProperties.GameMode).Value
-//                : GetRandomGameMode(league);
             
             _gameModeController =
                 gameModeControllerFactory.GetGameModeController(
@@ -82,17 +69,6 @@ namespace Shaman.Game.Rooms
         {
             _roomPropertiesContainer.AddNewPlayers(players);
         }
-        
-//        private GameMode GetRandomGameMode(League league)
-//        {
-//            var mapLeagues = _saStorageProvider.Data.MapLeagueRules
-//                .Where(r => r.IsRandomizable && r.League == league)
-//                .ToList();
-//
-//            var selectedMode = mapLeagues[new Random().Next(mapLeagues.Count)].GameMode;
-//            _logger.Error($"GetRandomGameMode: {selectedMode.ToString()} selected,  available modes: {string.Join(',', mapLeagues.Select(l=>l.GameMode.ToString()))}");
-//            return selectedMode;
-//        }
 
         public void SendToAll(MessageBase message, params Guid[] exceptions)
         {
@@ -202,6 +178,28 @@ namespace Shaman.Game.Rooms
             else
             {
                 _logger.Error($"Trying to send message {message.GetType()} to non-existing player {sessionId}");
+            }
+        }
+        
+        public void AddToSendQueue(MessageData messageData, ushort opCode, Guid sessionId, bool isReliable, bool isOrdered)
+        {
+            if (!_roomPlayers.ContainsKey(sessionId))
+                return;
+            
+            var player = _roomPlayers[sessionId];
+            if (player != null)
+            {
+                _taskScheduler.ScheduleOnceOnNow(() =>
+                {
+                    _packetSender.AddPacket(player.Peer, messageData.Buffer, isReliable, isOrdered);
+                });
+
+                //add to stats
+                _roomStats.TrackSentMessage(messageData.Length, isReliable, opCode);
+            }
+            else
+            {
+                _logger.Error($"Trying to send message with code {opCode} to non-existing player {sessionId}");
             }
         }
         private void AddToSendQueue(byte[] bytes, IPeer peer, bool isReliable, bool isOrdered)

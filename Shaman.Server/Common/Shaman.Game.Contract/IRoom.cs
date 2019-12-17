@@ -26,6 +26,7 @@ namespace Shaman.Game.Contract
         bool IsGameFinished();
         TimeSpan GetRoomTtl();
         void UpdateRoom(Dictionary<Guid, Dictionary<byte, object>> players);
+        void AddToSendQueue(MessageData messageData, ushort opCode, Guid sessionId, bool isReliable, bool isOrdered);
     }
     
 //    public class ClientInfo
