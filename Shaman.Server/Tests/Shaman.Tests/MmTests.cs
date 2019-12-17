@@ -67,7 +67,7 @@ namespace Shaman.Tests
             _measures.Add(PropertyCode.PlayerProperties.Level, 1);
             _roomPropertiesProvider = new FakeRoomPropertiesProvider1();
 
-            var config = new MmApplicationConfig("", "127.0.0.1", new List<ushort> {MM_SERVER_PORT}, "", 120000, 120000, GameProject.DefaultGame, "");
+            var config = new MmApplicationConfig("", "127.0.0.1", new List<ushort> {MM_SERVER_PORT}, "", 120000, 120000, GameProject.DefaultGame, "", 7002);
             taskSchedulerFactory = new TaskSchedulerFactory(_serverLogger);
             requestSender = new FakeSender();
             _serverProvider = new FakeMatchMakerServerInfoProvider(requestSender, "127.0.0.1", "222");
@@ -77,7 +77,7 @@ namespace Shaman.Tests
             _playerManager = new PlayersManager( Mock.Of<IMmMetrics>(), _serverLogger);
             _mmRoomManager =
                 new MM.Managers.RoomManager(_serverProvider, _serverLogger, taskSchedulerFactory);
-            _mmGroupManager = new MatchMakingGroupManager(_serverLogger, taskSchedulerFactory, _playerManager, _packetSender,  Mock.Of<IMmMetrics>(), _mmRoomManager, _roomPropertiesProvider);
+            _mmGroupManager = new MatchMakingGroupManager(_serverLogger, taskSchedulerFactory, _playerManager, _packetSender,  Mock.Of<IMmMetrics>(), _mmRoomManager, _roomPropertiesProvider, config);
             
             matchMaker = new MatchMaker(_serverLogger,  _packetSender,Mock.Of<IMmMetrics>(), _playerManager, _mmGroupManager);
             _measures = new Dictionary<byte, object>();

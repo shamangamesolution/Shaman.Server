@@ -4,14 +4,14 @@ using Shaman.Common.Utils.Serialization;
 
 namespace Shaman.Messages.MM
 {
-    public class UpdateRoomStateRequest : RequestBase
+    public class UpdateRoomStateRequest : HttpRequestBase
     {
         public Guid RoomId { get; set; }
         public int CurrentPlayerCount { get; set; }
         public RoomState State { get; set; }
 
         public UpdateRoomStateRequest()
-            : base(CustomOperationCode.UpdateRoomState, "updateroomstate")
+            : base("updateroomstate")
         {
             
         }

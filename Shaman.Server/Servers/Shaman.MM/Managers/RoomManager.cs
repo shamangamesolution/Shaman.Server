@@ -2,10 +2,13 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using Shaman.Common.Server.Configuration;
+using Shaman.Common.Utils.Helpers;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Messages;
 using Shaman.Messages.MM;
+using Shaman.MM.Configuration;
 using Shaman.MM.Providers;
 using Shaman.MM.Rooms;
 
@@ -38,7 +41,7 @@ namespace Shaman.MM.Managers
             var server = _serverProvider.GetLessLoadedServer();
             if (server == null)
                 return new JoinRoomResult {Result = RoomOperationResult.ServerNotFound};
-
+            
             _logger.Info($"MmGroup: creating room on {server.Identity}");
 
             //prepare players dict to send to room

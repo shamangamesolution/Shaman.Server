@@ -37,7 +37,7 @@ namespace Shaman.Messages.General.Entity.Router
         {
             
         }
-
+        
         public bool IsActual(int actualTimeoutMs)
         {
             return IsApproved && ActualizedOn != null &&

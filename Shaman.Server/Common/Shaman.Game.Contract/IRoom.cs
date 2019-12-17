@@ -26,6 +26,8 @@ namespace Shaman.Game.Contract
         bool IsGameFinished();
         TimeSpan GetRoomTtl();
         void UpdateRoom(Dictionary<Guid, Dictionary<byte, object>> players);
+        void Open();
+        void Close();
     }
     
 //    public class ClientInfo

@@ -14,6 +14,7 @@ namespace Shaman.Game.Contract
         int GetBotsNumber();
         bool IsRoomPropertiesContainsKey(byte key);
         T? GetRoomProperty<T>(byte key) where T : struct;
+        string GetRoomPropertyAsString(byte key);
         int GetPlayerCountToStartGame();
         void RemovePlayer(Guid sessionId);
     }

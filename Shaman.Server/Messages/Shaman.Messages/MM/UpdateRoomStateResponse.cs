@@ -3,9 +3,9 @@ using Shaman.Common.Utils.Serialization;
 
 namespace Shaman.Messages.MM
 {
-    public class UpdateRoomStateResponse : ResponseBase
+    public class UpdateRoomStateResponse : HttpResponseBase
     {
-        public UpdateRoomStateResponse() : base(Messages.CustomOperationCode.UpdateRoomState)
+        public UpdateRoomStateResponse() 
         {
             
         }

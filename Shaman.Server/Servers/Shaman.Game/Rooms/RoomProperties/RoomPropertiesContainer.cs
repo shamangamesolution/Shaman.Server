@@ -65,6 +65,11 @@ namespace Shaman.Game.Rooms.RoomProperties
             return (T?)(_roomProperties.GetProperty<T>(key));
         }
         
+        public string GetRoomPropertyAsString(byte key)
+        {
+            return _roomProperties.GetString(key);
+        }
+        
         public int GetPlayerCountToStartGame()
         {
             return _playersCameFromMatchMaker.Count;

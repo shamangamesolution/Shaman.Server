@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Server.Providers;
+using Shaman.Common.Utils.Helpers;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Senders;
@@ -147,10 +148,7 @@ namespace Shaman.MM.Providers
             if (server == null)
                 throw new Exception($"GetUrl error: there is no game server with id = {gameServerId}");
 
-            var protocol = (server.HttpsPort > 0) ? "https" : "http";
-            var port = (server.HttpsPort > 0) ? server.HttpsPort : server.HttpPort;
-            
-            return $"{protocol}://{server.Address}:{port}";
+            return UrlHelper.GetUrl(server.HttpPort, server.HttpsPort, server.Address);
         }
         
         public Guid CreateRoom(int serverId, Dictionary<byte, object> properties, Dictionary<Guid, Dictionary<byte, object>> players)

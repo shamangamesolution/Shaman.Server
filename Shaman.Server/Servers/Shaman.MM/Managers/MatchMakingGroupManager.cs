@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
+using Shaman.Common.Server.Configuration;
+using Shaman.Common.Utils.Helpers;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Messages;
+using Shaman.MM.Configuration;
 using Shaman.MM.Contract;
 using Shaman.MM.MatchMaking;
 using Shaman.MM.Metrics;
@@ -24,7 +27,8 @@ namespace Shaman.MM.Managers
         private readonly IMmMetrics _mmMetrics;
         private readonly IRoomManager _roomManager;
         private readonly IRoomPropertiesProvider _roomPropertiesProvider;
-        
+        private readonly MmApplicationConfig _config;
+
         private Dictionary<Guid, MatchMakingGroup> _groups = new Dictionary<Guid, MatchMakingGroup>();
         private Dictionary<Guid, Dictionary<byte, object>> _groupsToProperties = new Dictionary<Guid, Dictionary<byte, object>>();
         private object _mutex = new object();
@@ -32,7 +36,7 @@ namespace Shaman.MM.Managers
         
         public MatchMakingGroupManager(IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory,
             IPlayersManager playersManager, IPacketSender packetSender, IMmMetrics mmMetrics, IRoomManager roomManager, 
-            IRoomPropertiesProvider roomPropertiesProvider)
+            IRoomPropertiesProvider roomPropertiesProvider, IApplicationConfig config)
         {
             _logger = logger;
             _taskSchedulerFactory = taskSchedulerFactory;
@@ -41,6 +45,7 @@ namespace Shaman.MM.Managers
             _mmMetrics = mmMetrics;
             _roomManager = roomManager;
             _roomPropertiesProvider = roomPropertiesProvider;
+            _config = (MmApplicationConfig) config;
         }
 
         private bool AreDictionariesEqual(Dictionary<byte, object> dict1, Dictionary<byte, object> dict2)
@@ -75,6 +80,9 @@ namespace Shaman.MM.Managers
                     _roomPropertiesProvider.GetMaximumMatchMakingTime(measures));
                 roomProperties.Add(PropertyCode.RoomProperties.TotalPlayersNeeded,
                     _roomPropertiesProvider.GetMaximumPlayers(measures));
+                roomProperties.Add(PropertyCode.RoomProperties.MatchMakerUrl,
+                    UrlHelper.GetUrl(_config.BindToPortHttp, 0, _config.GetPublicName()));
+
                 foreach (var add in _roomPropertiesProvider.GetAdditionalRoomProperties(measures))
                     roomProperties.Add(add.Key, add.Value);
 

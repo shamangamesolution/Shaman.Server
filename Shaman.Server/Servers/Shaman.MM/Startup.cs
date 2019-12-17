@@ -75,6 +75,7 @@ namespace Shaman.MM
                     Convert.ToInt32(Configuration["ServerUnregisterTimeoutMs"]),
                     (GameProject)Convert.ToInt32(Configuration["GameProject"]), 
                     Configuration["name"], 
+                    Convert.ToUInt16(Configuration["BindToPortHttp"]),
                     Convert.ToInt32(Configuration["SocketTickTimeMs"]),
                     Convert.ToInt32(Configuration["ReceiveTickTimeMs"]),
                     Convert.ToInt32(Configuration["SendTickTimeMs"]),

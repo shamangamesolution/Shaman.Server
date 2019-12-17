@@ -9,7 +9,7 @@ namespace Shaman.MM.Configuration
     {
         public int ServerInactivityTimeoutMs { get; set; }
         public int ServerUnregisterTimeoutMs { get; set; }
-        
+        public ushort BindToPortHttp { get; set; }
         public int ActualizeMatchmakerIntervalMs { get; set; }
         public GameProject GameProject { get; set; }
         public int ServerInfoListUpdateIntervalMs { get; set; }
@@ -23,6 +23,7 @@ namespace Shaman.MM.Configuration
             int serverUnregisterTimeoutMs,
             GameProject gameProject,
             string name,
+            ushort httpPort,
             int socketTickTimeMs = 100, 
             int receiveTickTimeMs = 33,
             int sendTickTimeMs = 50,
@@ -41,6 +42,7 @@ namespace Shaman.MM.Configuration
             ActualizeMatchmakerIntervalMs = actualizeMatchmakerIntervalMs;
             ServerInfoListUpdateIntervalMs = serverInfoListUpdateIntervalMs;
             GameProject = gameProject;
+            BindToPortHttp = httpPort;
         }
     }
 }

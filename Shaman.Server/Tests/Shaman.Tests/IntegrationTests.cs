@@ -79,7 +79,7 @@ namespace Shaman.Tests
         public void Setup()
         {             
             _clients.Clear();
-            var config = new MmApplicationConfig("", "127.0.0.1", new List<ushort> {SERVER_PORT_MM}, "", 120000, 120000, GameProject.DefaultGame, "");
+            var config = new MmApplicationConfig("", "127.0.0.1", new List<ushort> {SERVER_PORT_MM}, "", 120000, 120000, GameProject.DefaultGame, "", 7002);
             _roomPropertiesProvider = new FakeRoomPropertiesProvider3();
             taskSchedulerFactory = new TaskSchedulerFactory(_serverLogger);
             //fake sender to direct calls of application functions
@@ -102,7 +102,7 @@ namespace Shaman.Tests
             _mmRoomManager =
                 new MM.Managers.RoomManager(_serverProvider, _serverLogger, taskSchedulerFactory);
 
-            _mmGroupManager = new MatchMakingGroupManager(_serverLogger, taskSchedulerFactory, _playerManager, _mmPacketSender,  Mock.Of<IMmMetrics>(),  _mmRoomManager, _roomPropertiesProvider);
+            _mmGroupManager = new MatchMakingGroupManager(_serverLogger, taskSchedulerFactory, _playerManager, _mmPacketSender,  Mock.Of<IMmMetrics>(),  _mmRoomManager, _roomPropertiesProvider, config);
             
             matchMaker = new MatchMaker(_serverLogger, _mmPacketSender, Mock.Of<IMmMetrics>(), _playerManager,_mmGroupManager);
 

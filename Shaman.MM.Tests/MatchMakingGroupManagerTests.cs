@@ -8,7 +8,9 @@ using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Messages;
+using Shaman.Messages.General.Entity;
 using Shaman.Messages.MM;
+using Shaman.MM.Configuration;
 using Shaman.MM.Contract;
 using Shaman.MM.Managers;
 using Shaman.MM.MatchMaking;
@@ -38,6 +40,7 @@ namespace Shaman.MM.Tests
         [SetUp]
         public void Setup()
         {
+            var config = new MmApplicationConfig("", "127.0.0.1", new List<ushort> {0}, "", 120000, 120000, GameProject.DefaultGame,"", 7002, isAuthOn:false);
             _logger = new ConsoleLogger();
             _roomPropertiesProvider = new FakeRoomPropertiesProvider(3, 500, 250);
             
@@ -53,7 +56,7 @@ namespace Shaman.MM.Tests
                 {{PropertyCode.PlayerProperties.GameMode, 1}};
             
             _matchMakingGroupManager = new MatchMakingGroupManager(_logger, _taskSchedulerFactory, _playersManager,
-                _packetSender, Mock.Of<IMmMetrics>(), _roomManager, _roomPropertiesProvider);
+                _packetSender, Mock.Of<IMmMetrics>(), _roomManager, _roomPropertiesProvider, config);
             _matchMakingGroupManager.AddMatchMakingGroup(_measures);
             _matchMakingGroupManager.Start(10000);
         }

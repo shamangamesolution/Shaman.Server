@@ -36,6 +36,16 @@ namespace Shaman.Common.Utils.Extensions
             return val.Value;
         }
         
+        public static string GetString(this Dictionary<byte, object> dict, byte key)
+        {
+            if (!dict.TryGetValue(key, out var val))
+                return null;
+            else
+            {
+                return (string)val;
+            }
+        }
+        
         public static T? GetProperty<T>(this Dictionary<byte, object> dict, byte key)
             where T : struct 
         {
