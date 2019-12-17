@@ -124,7 +124,7 @@ namespace Shaman.Tests
             _gameModeControllerFactory = new FakeGameModeControllerFactory();
 
             _roomManager = new RoomManager(_serverLogger, serializerFactory, gameConfig, taskSchedulerFactory,
-                _gameModeControllerFactory, _mmPacketSender, Mock.Of<IGameMetrics>());
+                _gameModeControllerFactory, _mmPacketSender, Mock.Of<IGameMetrics>(), requestSender);
 
             _gameApplication = new GameApplication(_serverLogger, gameConfig, serializerFactory, socketFactory, taskSchedulerFactory, requestSender, _backendProvider, _roomManager, _gamePacketSender);
             _gameApplication.Start();
@@ -229,7 +229,7 @@ namespace Shaman.Tests
             Assert.AreEqual(1, _mmRoomManager.GetRoomsCount());
             Assert.AreEqual(1, _roomManager.GetRoomsCount());
             var roomsList = _roomManager.GetAllRooms();
-            _mmRoomManager.UpdateRoomState(roomsList[0].GetRoomId(), 1, 3000, RoomState.Open);
+            _mmRoomManager.UpdateRoomState(roomsList[0].GetRoomId(), 1, RoomState.Open);
             var client1 = new ShamanClientPeer(new TestMessageDeserializer(), _clientLogger, taskSchedulerFactory, 20, serializerFactory, requestSender);
             var sessionId1 = Guid.NewGuid();
             var success = false;

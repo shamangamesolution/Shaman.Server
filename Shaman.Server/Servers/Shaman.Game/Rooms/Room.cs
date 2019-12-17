@@ -9,7 +9,9 @@ using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Serialization;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Game.Contract;
+using Shaman.Game.Providers;
 using Shaman.Messages;
+using Shaman.Messages.MM;
 using RoomStats = Shaman.Game.Contract.Stats.RoomStats;
 
 namespace Shaman.Game.Rooms
@@ -28,10 +30,11 @@ namespace Shaman.Game.Rooms
         private readonly IPacketSender _packetSender;
         private readonly IGameModeController _gameModeController;
         private readonly RoomStats _roomStats;
+        private readonly IRequestSender _requestSender;
 
         public Room(IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory, IRoomManager roomManager, ISerializer serializer,
             IRoomPropertiesContainer roomPropertiesContainer,
-            IGameModeControllerFactory gameModeControllerFactory, IPacketSender packetSender)
+            IGameModeControllerFactory gameModeControllerFactory, IPacketSender packetSender, IRequestSender requestSender)
         {
             _logger = logger;
             _roomId = Guid.NewGuid();
@@ -41,6 +44,7 @@ namespace Shaman.Game.Rooms
             _serializer = serializer;
             _roomPropertiesContainer = roomPropertiesContainer;
             _packetSender = packetSender;
+            _requestSender = requestSender;
 
             _roomStats = new RoomStats(GetRoomId(), roomPropertiesContainer.GetPlayersCount());
 
@@ -82,6 +86,12 @@ namespace Shaman.Game.Rooms
         public void UpdateRoom(Dictionary<Guid, Dictionary<byte, object>> players)
         {
             _roomPropertiesContainer.AddNewPlayers(players);
+        }
+
+        public void SendRoomStateUpdate()
+        {
+            //var matchMakerId = _roomPropertiesContainer.GetRoomProperty<int>(PropertyCode)
+            //_requestSender.SendRequest<UpdateRoomStateResponse>(_serverInfoProvider.GetMatchMakerWebUrl())
         }
         
 //        private GameMode GetRandomGameMode(League league)

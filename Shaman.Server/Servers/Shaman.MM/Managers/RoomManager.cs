@@ -26,9 +26,8 @@ namespace Shaman.MM.Managers
         private ConcurrentDictionary<Guid, Room> _rooms = new ConcurrentDictionary<Guid, Room>();
         private ConcurrentDictionary<Guid, List<Room>> _groupToRoom = new ConcurrentDictionary<Guid, List<Room>>();
         private ConcurrentDictionary<Guid, Guid> _roomToGroupId = new ConcurrentDictionary<Guid, Guid>();
-        private ConcurrentDictionary<Guid, DateTime> _romIdToCloseTime = new ConcurrentDictionary<Guid, DateTime>();
         private Queue<Room> _roomsQueue = new Queue<Room>();
-        private PendingTask _clearTask, _closeTask;
+        private PendingTask _clearTask;
 
         public RoomManager(IMatchMakerServerInfoProvider serverProvider, IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory)
         {
@@ -114,7 +113,7 @@ namespace Shaman.MM.Managers
             return new JoinRoomResult {Address = server.Address, Port = port, RoomId = roomId, Result = RoomOperationResult.OK};
         }
 
-        public void UpdateRoomState(Guid roomId, int currentPlayers, int closingInMs, RoomState roomState)
+        public void UpdateRoomState(Guid roomId, int currentPlayers, RoomState roomState)
         {
             var room = GetRoom(roomId);
             if (room == null)
@@ -125,11 +124,6 @@ namespace Shaman.MM.Managers
 
             room.CurrentPlayersCount = currentPlayers;
             room.UpdateState(roomState);
-            if (closingInMs > 0)
-            {
-                _romIdToCloseTime.TryRemove(roomId, out var prevRoom);
-                _romIdToCloseTime.TryAdd(roomId, DateTime.UtcNow.AddMilliseconds(closingInMs));
-            }
         }
 
         public Room GetRoom(Guid groupId, int playersCount)
@@ -174,19 +168,6 @@ namespace Shaman.MM.Managers
             _roomToGroupId = new ConcurrentDictionary<Guid, Guid>();
             _roomsQueue = new Queue<Room>();
             
-            //start created rooms close task
-            _closeTask = _taskScheduler.ScheduleOnInterval(() =>
-            {
-                var toCloseNow = _romIdToCloseTime.Where(c => c.Value <= DateTime.UtcNow).ToList();
-                foreach (var roomId in toCloseNow)
-                {
-                    if (_rooms.TryGetValue(roomId.Key, out var room))
-                        room.UpdateState(RoomState.Closed);
-                    else
-                        _romIdToCloseTime.TryRemove(roomId.Key, out var dt);
-                }
-            }, 0, 1000);
-            
             //start created rooms clear task
             _clearTask = _taskScheduler.ScheduleOnInterval(() =>
             {
@@ -218,7 +199,6 @@ namespace Shaman.MM.Managers
         public void Stop()
         {
             _taskScheduler.Remove(_clearTask);
-            _taskScheduler.Remove(_closeTask);
             _rooms.Clear();
             _groupToRoom.Clear();
             _roomsQueue.Clear();

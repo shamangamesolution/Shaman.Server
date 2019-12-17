@@ -174,7 +174,7 @@ namespace Shaman.MM.Tests
             //success
             var room = _roomManager.GetRoom(_group1Id, 1);
             Assert.IsNull(room);
-            _roomManager.UpdateRoomState(result.RoomId, 1, 3000, RoomState.Open);
+            _roomManager.UpdateRoomState(result.RoomId, 1, RoomState.Open);
             room = _roomManager.GetRoom(_group1Id, 1);
             Assert.IsNotNull(room);
             //success
@@ -190,7 +190,7 @@ namespace Shaman.MM.Tests
             emptyTask.Wait(3100);
             
             //room is closed by this time
-            _roomManager.UpdateRoomState(result.RoomId, 1, 0, RoomState.Closed);
+            _roomManager.UpdateRoomState(result.RoomId, 1, RoomState.Closed);
             //no such room
             room = _roomManager.GetRoom(_group1Id, 1);
             Assert.IsNull(room);
@@ -233,7 +233,7 @@ namespace Shaman.MM.Tests
             
             var room = _roomManager.GetRoom(_group1Id, 1);
             Assert.IsNull(room);
-            _roomManager.UpdateRoomState(result.RoomId, 1, 3000, RoomState.Open);
+            _roomManager.UpdateRoomState(result.RoomId, 1, RoomState.Open);
             room = _roomManager.GetRoom(_group1Id, 1);
             Assert.IsNotNull(room);
 
@@ -281,7 +281,7 @@ namespace Shaman.MM.Tests
             
             var room = _roomManager.GetRoom(_group1Id, 1);
             Assert.IsNull(room);
-            _roomManager.UpdateRoomState(result.RoomId, 1, 3000, RoomState.Open);
+            _roomManager.UpdateRoomState(result.RoomId, 1, RoomState.Open);
             room = _roomManager.GetRoom(_group1Id, 1);
             Assert.IsNotNull(room);
 

@@ -76,7 +76,7 @@ namespace Shaman.MM.Tests
             var rooms = _matchMakingGroupManager.GetRooms(_playerProperties);
             Assert.AreEqual(0, rooms.Count());
             rooms = _roomManager.GetAllRooms();
-            _roomManager.UpdateRoomState(rooms.First().Id, 1, 3000, RoomState.Open);
+            _roomManager.UpdateRoomState(rooms.First().Id, 1, RoomState.Open);
             rooms = _matchMakingGroupManager.GetRooms(_playerProperties);
             Assert.AreEqual(1, rooms.Count());
             var room = rooms.FirstOrDefault();
@@ -97,7 +97,7 @@ namespace Shaman.MM.Tests
             var rooms = _matchMakingGroupManager.GetRooms(_playerProperties);
             Assert.AreEqual(0, rooms.Count());
             rooms = _roomManager.GetAllRooms();
-            _roomManager.UpdateRoomState(rooms.First().Id, 2, 3000, RoomState.Open);
+            _roomManager.UpdateRoomState(rooms.First().Id, 2, RoomState.Open);
             rooms = _matchMakingGroupManager.GetRooms(_playerProperties);
             Assert.AreEqual(1, rooms.Count());
             var room = rooms.FirstOrDefault();
@@ -117,7 +117,7 @@ namespace Shaman.MM.Tests
             var rooms = _matchMakingGroupManager.GetRooms(_playerProperties);
             Assert.AreEqual(0, rooms.Count());
             rooms = _roomManager.GetAllRooms();
-            _roomManager.UpdateRoomState(rooms.First().Id, 1, 3000, RoomState.Open);
+            _roomManager.UpdateRoomState(rooms.First().Id, 1, RoomState.Open);
             rooms = _matchMakingGroupManager.GetRooms(_playerProperties);
             Assert.AreEqual(1, rooms.Count());
             var room = rooms.FirstOrDefault();

@@ -13,6 +13,7 @@ using Shaman.Game.Configuration;
 using Shaman.Game.Contract;
 using Shaman.Game.Contract.Stats;
 using Shaman.Game.Metrics;
+using Shaman.Game.Providers;
 using Shaman.Game.Rooms.RoomProperties;
 using Shaman.Messages;
 using Shaman.Messages.RoomFlow;
@@ -32,6 +33,7 @@ namespace Shaman.Game.Rooms
         private readonly IGameModeControllerFactory _gameModeControllerFactory;
         private readonly IPacketSender _packetSender;
         private readonly IGameMetrics _gameMetrics;
+        private readonly IRequestSender _requestSender;
         private static readonly TimeSpan RoomLivingTimeAfterGameEnd = TimeSpan.FromMinutes(15);
 
         public RoomManager(
@@ -40,7 +42,7 @@ namespace Shaman.Game.Rooms
             IApplicationConfig config, 
             ITaskSchedulerFactory taskSchedulerFactory, 
             IGameModeControllerFactory gameModeControllerFactory,
-            IPacketSender packetSender, IGameMetrics gameMetrics)
+            IPacketSender packetSender, IGameMetrics gameMetrics, IRequestSender requestSender)
         {
             _logger = logger;
             _serializer = serializer;
@@ -52,6 +54,7 @@ namespace Shaman.Game.Rooms
             _taskSchedulerFactory = taskSchedulerFactory;
             _packetSender = packetSender;
             _gameMetrics = gameMetrics;
+            _requestSender = requestSender;
         }
 
         private void CheckRoomsState()
@@ -94,7 +97,9 @@ namespace Shaman.Game.Rooms
             }
         }
         
-        public Guid CreateRoom(Dictionary<byte, object> properties,Dictionary<Guid, Dictionary<byte, object>> players)
+        
+        
+        public Guid CreateRoom(Dictionary<byte, object> properties, Dictionary<Guid, Dictionary<byte, object>> players)
         {
             lock (_syncPeersList)
             {
@@ -105,7 +110,7 @@ namespace Shaman.Game.Rooms
                 
                 roomPropertiesContainer.Initialize(players, properties);
 
-                var room = new Room(_logger, _taskSchedulerFactory, this, _serializer, roomPropertiesContainer, _gameModeControllerFactory, packetSender);
+                var room = new Room(_logger, _taskSchedulerFactory, this, _serializer, roomPropertiesContainer, _gameModeControllerFactory, packetSender, _requestSender);
 
                 if(_rooms.TryAdd(room.GetRoomId(), room))
                     _gameMetrics.TrackRoomCreated();

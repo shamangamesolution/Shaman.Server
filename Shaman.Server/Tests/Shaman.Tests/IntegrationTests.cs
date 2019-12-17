@@ -120,7 +120,7 @@ namespace Shaman.Tests
 
             _gameModeControllerFactory = new FakeGameModeControllerFactory();
 
-            _roomManager = new RoomManager(_serverLogger, serializerFactory, gameConfig, taskSchedulerFactory, _gameModeControllerFactory, _mmPacketSender, Mock.Of<IGameMetrics>());
+            _roomManager = new RoomManager(_serverLogger, serializerFactory, gameConfig, taskSchedulerFactory, _gameModeControllerFactory, _mmPacketSender, Mock.Of<IGameMetrics>(), requestSender);
 
             
             //setup game server

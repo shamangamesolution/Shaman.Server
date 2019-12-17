@@ -43,5 +43,10 @@ namespace Shaman.Game.Providers
         {
             await _serverActualizer.Actualize(_statsProvider.GetPeerCount(), _config.BindToPortHttp);
         }
+
+        public string GetMatchMakerWebUrl(int matchMakerId)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }
