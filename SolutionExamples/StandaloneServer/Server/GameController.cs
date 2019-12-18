@@ -14,6 +14,7 @@ namespace Server
     {
         private readonly IRoom _room;
         private readonly ISerializer _serializer;
+        private static readonly CustomEvent StubMessage = new CustomEvent();
 
         public GameController(IRoom room, IRoomPropertiesContainer roomPropertiesContainer, ISerializer serializer)
         {
@@ -65,17 +66,16 @@ namespace Server
                 return new MessageResult
                 {
                     DeserializedMessage = pingRequest,
-                    Handled = true
+                    Handled = false
                 };
             }
 
             if (operationCode == MessageCodes.CustomEvent)
             {
+                _room.SendToAll(message, operationCode, sessionId, StubMessage.IsReliable, false);
                 return new MessageResult
                 {
-                    DeserializedMessage =
-                        _serializer.DeserializeAs<CustomEvent>(message.Buffer, message.Offset,
-                            message.Length),
+                    DeserializedMessage = StubMessage,
                     Handled = true
                 };
             }
