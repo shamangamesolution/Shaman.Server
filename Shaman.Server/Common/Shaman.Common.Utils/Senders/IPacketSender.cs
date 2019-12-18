@@ -12,5 +12,6 @@ namespace Shaman.Common.Utils.Senders
         int GetAverageQueueSize();
         void Start(bool shortLiving = false);
         void Stop();
+        void AddPacket(IPeerSender peer, byte[] data, int offset, int length, bool isReliable, bool isOrdered);
     }
 }

@@ -137,9 +137,24 @@ namespace Shaman.Game.Rooms
                 _roomStats.TrackSentMessage(initMsgArray.Length, message.IsReliable, message.OperationCode);
             }
         }
-        public List<RoomPlayer> GetAllPlayers()
+
+        public void SendToAll(MessageData messageData, ushort opCode, Guid sessionId, bool isReliable, bool isOrdered,
+            params Guid[] exceptions)
         {
-            return _roomPlayers.Select(r => r.Value).ToList();
+            if (exceptions == null)
+                exceptions = Array.Empty<Guid>();
+
+            foreach (var player in _roomPlayers.Where(p => exceptions.All(e => e != p.Value.Peer.GetSessionId())))
+            {
+                RoomPlayer player1 = player.Value;
+                AddToSendQueue(messageData, opCode, isReliable,isOrdered, player1.Peer);
+                //add to stats
+                _roomStats.TrackSentMessage(messageData.Length, isReliable, opCode);
+            }
+        }
+        public IEnumerable<RoomPlayer> GetAllPlayers()
+        {
+            return _roomPlayers.Values;
         }
 
         public void ConfirmedJoin(Guid sessionId)
@@ -249,19 +264,25 @@ namespace Shaman.Game.Rooms
             var player = _roomPlayers[sessionId];
             if (player != null)
             {
-                _taskScheduler.ScheduleOnceOnNow(() =>
-                {
-                    _packetSender.AddPacket(player.Peer, messageData.Buffer, isReliable, isOrdered);
-                });
-
-                //add to stats
-                _roomStats.TrackSentMessage(messageData.Length, isReliable, opCode);
+                AddToSendQueue(messageData, opCode, isReliable, isOrdered, player.Peer);
             }
             else
             {
                 _logger.Error($"Trying to send message with code {opCode} to non-existing player {sessionId}");
             }
         }
+
+        private void AddToSendQueue(MessageData messageData, ushort opCode, bool isReliable, bool isOrdered, IPeer playerPeer)
+        {
+            _taskScheduler.ScheduleOnceOnNow(() =>
+            {
+                _packetSender.AddPacket(playerPeer, messageData.Buffer, messageData.Offset, messageData.Length, isReliable, isOrdered);
+            });
+
+            //add to stats
+            _roomStats.TrackSentMessage(messageData.Length, isReliable, opCode);
+        }
+
         private void AddToSendQueue(byte[] bytes, IPeer peer, bool isReliable, bool isOrdered)
         {
             //_taskScheduler.ScheduleOnceOnNow(() => peer.Send(bytes, isReliable, isOrdered));

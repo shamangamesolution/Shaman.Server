@@ -38,5 +38,10 @@ namespace Shaman.MM.Tests.Fakes
         {
             throw new System.NotImplementedException();
         }
+
+        public void AddPacket(IPeerSender peer, byte[] data, int offset, int length, bool isReliable, bool isOrdered)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }
