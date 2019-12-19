@@ -141,8 +141,7 @@ namespace Shaman.MM.Managers
                 var groups = GetMatchmakingGroupIds(player.Properties);
                 if (groups == null || groups.Count == 0)
                 {
-                    _logger.Error($"AddPlayerToMatchMaking error: no groups for player");
-                    //TODO auto create group
+                    _logger.Info($"AddPlayerToMatchMaking error: no groups for player");
                     groups = new List<Guid>();
                     groups.Add(AddMatchMakingGroup(player.Properties));
                 }
