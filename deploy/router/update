@@ -1,2 +1,2 @@
 #!/bin/bash
-aws ecs update-service --profile rw --cluster rwcluster --service ShamanRwRouter --force-new-deployment --region eu-west-1
+aws ecs update-service --profile ss --cluster SharedServicesCluster --service ShamanRouter --force-new-deployment --region eu-west-1

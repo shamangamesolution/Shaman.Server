@@ -1,2 +1,2 @@
-docker tag shaman.game:latest ***REMOVED***:shaman.game.latest
-docker push ***REMOVED***:shaman.game.latest
+docker tag shaman.game:latest ***REMOVED***/***REMOVED***.shared:shaman.game.latest
+docker push ***REMOVED***/***REMOVED***.shared:shaman.game.latest

@@ -1,9 +1,9 @@
 file=shaman.env.game.$1.list
 ip=$(dig @resolver1.opendns.com ANY myip.opendns.com +short)
 echo PublicDomainNameOrAddress=$ip > "$file"
-echo RouterUrl=https://rw_eur.***REMOVED***.com:7002 >> "$file"
+echo RouterUrl=https://***REMOVED***.***REMOVED***.com:6006 >> "$file"
 echo Metrics__GraphiteUrl=net.tcp://***REMOVED*** >> "$file"
-echo Metrics__Path=RW.AWS.Game.$1.$(echo $ip | sed -e "s/\./_/g") >> "$file"
+echo Metrics__Path=Shaman.AWS.Game.$1.$(echo $ip | sed -e "s/\./_/g") >> "$file"
 echo COMPlus_PerfMapEnabled=1 >> "$file"
 echo BindToPortHttp=$3 >> "$file"
 echo Ports=$2 >> "$file"

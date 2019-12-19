@@ -5,11 +5,11 @@
     - name: Create environments file
       script: shaman.env.game.sh ShamanLatest 23456 7008
     - name: Login to AWS
-      shell: "PATH=\"$HOME/.local/bin:$PATH\" && $(aws ecr get-login --profile rw --no-include-email --region eu-west-1)"
+      shell: "PATH=\"$HOME/.local/bin:$PATH\" && $(aws ecr get-login --profile ss --no-include-email --region eu-west-1)"
       register: res
     - debug: msg="{{res.stdout}}"
     - name: Pulling Game image
-      shell: "docker pull ***REMOVED***:shaman.game.latest"
+      shell: "docker pull ***REMOVED***/***REMOVED***.shared:shaman.game.latest"
       register: res
     - debug: msg="{{res.stdout}}"
     - name: Stop sh.game.latest container
@@ -17,6 +17,6 @@
       register: res
     - debug: msg="{{res.stdout}}"    
     - name: Run sh.game.latest container
-      shell: "docker run -d --rm -p 7008:7008 -p 23456:23456/udp --name=sh.game.latest --env-file ~/shaman.env.game.ShamanLatest.list --log-opt max-size=100m ***REMOVED***:shaman.game.latest"
+      shell: "docker run -d --rm -p 7008:7008 -p 23456:23456/udp --name=sh.game.latest --env-file ~/shaman.env.game.ShamanLatest.list --log-opt max-size=100m ***REMOVED***/***REMOVED***.shared:shaman.game.latest"
       register: res
     - debug: msg="{{res.stdout}}"

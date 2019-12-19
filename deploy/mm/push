@@ -1,2 +1,2 @@
-docker tag shaman.mm:latest ***REMOVED***:shaman.mm.latest
-docker push ***REMOVED***:shaman.mm.latest
+docker tag shaman.mm:latest ***REMOVED***/***REMOVED***.shared:shaman.mm.latest
+docker push ***REMOVED***/***REMOVED***.shared:shaman.mm.latest
