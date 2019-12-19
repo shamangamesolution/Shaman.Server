@@ -4,6 +4,7 @@ COPY . .
 ENV ASPNETCORE_ENVIRONMENT=Production
 RUN dotnet clean   Servers/Shaman.Game/*.csproj
 RUN dotnet restore Servers/Shaman.Game/*.csproj
+RUN dotnet build Servers/Shaman.Game/*.csproj -c Release
 RUN dotnet publish Servers/Shaman.Game/*.csproj -c Release -o ../../build
 
 FROM microsoft/dotnet:2.2-aspnetcore-runtime
