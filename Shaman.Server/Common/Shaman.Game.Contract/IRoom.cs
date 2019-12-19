@@ -20,7 +20,7 @@ namespace Shaman.Game.Contract
         int GetPeerCount();
         RoomPlayer GetPlayer(Guid sessionId);
         DateTime GetCreatedOnDateTime();
-        List<RoomPlayer> GetAllPlayers();
+        IEnumerable<RoomPlayer> GetAllPlayers();
         void ConfirmedJoin(Guid sessionId);
         RoomStats GetStats();
         bool IsGameFinished();
@@ -29,6 +29,9 @@ namespace Shaman.Game.Contract
         void AddToSendQueue(MessageData messageData, ushort opCode, Guid sessionId, bool isReliable, bool isOrdered);
         void Open();
         void Close();
+
+        void SendToAll(MessageData messageData, ushort opCode, Guid sessionId, bool isReliable, bool isOrdered,
+            params Guid[] exceptions);
     }
     
 //    public class ClientInfo

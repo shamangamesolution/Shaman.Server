@@ -6,6 +6,7 @@ namespace Messages
     public class CustomEvent : EventBase
     {
         public override bool IsReliable => true;
+        public override bool IsBroadcasted => false;
         public byte[] Data { get; set; }
 
         public CustomEvent(byte[] data) : base(MessageCodes.CustomEvent)

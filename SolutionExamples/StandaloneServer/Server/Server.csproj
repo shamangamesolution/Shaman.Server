@@ -6,7 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Shaman.Game" Version="1.0.5" />
+        <PackageReference Include="Shaman.Game" Version="1.0.13" />
         <PackageReference Include="Microsoft.AspNetCore.App" />
     </ItemGroup>
 
