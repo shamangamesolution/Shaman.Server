@@ -1,0 +1,22 @@
+- hosts: all
+  user: ubuntu
+
+  tasks:
+    - name: Create environments file
+      script: shaman.env.game.sh ShamanLatest2 23452 7004
+    - name: Login to AWS
+      shell: "PATH=\"$HOME/.local/bin:$PATH\" && $(aws ecr get-login --profile ss --no-include-email --region eu-west-1)"
+      register: res
+    - debug: msg="{{res.stdout}}"
+    - name: Pulling Game image
+      shell: "docker pull ***REMOVED***/***REMOVED***.shared:shaman.game.latest"
+      register: res
+    - debug: msg="{{res.stdout}}"
+    - name: Stop sh.game.latest2 container
+      shell: "docker stop sh.game.latest2 || true"
+      register: res
+    - debug: msg="{{res.stdout}}"    
+    - name: Run sh.game.latest container
+      shell: "docker run -d --rm -p 7004:7004 -p 23452:23452/udp --name=sh.game.latest2 --env-file ~/shaman.env.game.ShamanLatest2.list --log-opt max-size=100m ***REMOVED***/***REMOVED***.shared:shaman.game.latest"
+      register: res
+    - debug: msg="{{res.stdout}}"
