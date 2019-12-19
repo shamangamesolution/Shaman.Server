@@ -14,12 +14,14 @@ namespace Shaman.ServerSharedUtilities.Bunlding
     {
         private const int BundleRetryMsec = 1500;
         private readonly IRequestSender _requestSender;
+        private readonly IServerActualizer _serverActualizer;
         private readonly IShamanLogger _logger;
         private readonly IApplicationConfig _config;
 
-        public BundleInfoProvider(IRequestSender requestSender, IApplicationConfig config, IShamanLogger logger)
+        public BundleInfoProvider(IRequestSender requestSender, IServerActualizer serverActualizer, IApplicationConfig config, IShamanLogger logger)
         {
             _requestSender = requestSender;
+            _serverActualizer = serverActualizer;
             _logger = logger;
             _config = config;
         }
@@ -37,6 +39,7 @@ namespace Shaman.ServerSharedUtilities.Bunlding
             {
                 try
                 {
+                    await _serverActualizer.Actualize(0);
                     return await GetBundleUriImpl();
                 }
                 catch (BundleNotFoundException e)
