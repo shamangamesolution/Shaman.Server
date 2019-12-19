@@ -18,9 +18,5 @@ namespace Shaman.Common.Server.Peers
             IApplicationConfig config, IShamanLogger logger);
 
         void Disconnect(DisconnectReason reason);
-
-        //void Send(MessageBase message);
-        //void Send(byte[] bytes, bool isReliable, bool isOrdered);
-        void Send(PacketInfo packetInfo);
     }
 }

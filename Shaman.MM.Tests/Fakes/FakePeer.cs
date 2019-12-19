@@ -11,8 +11,8 @@ namespace Shaman.MM.Tests.Fakes
 {
     public class FakePeer : IPeer
     {
-        private Guid _peerId = Guid.NewGuid();
-        private Guid _sessionId = Guid.NewGuid();
+        private readonly Guid _peerId = Guid.NewGuid();
+        private readonly Guid _sessionId = Guid.NewGuid();
 
         public FakePeer()
         {
@@ -45,12 +45,7 @@ namespace Shaman.MM.Tests.Fakes
             throw new NotImplementedException();
         }
 
-        void IPeer.Send(PacketInfo packetInfo)
-        {
-            throw new NotImplementedException();
-        }
-
-        void IPeerSender.Send(PacketInfo packetInfo)
+        public void Send(PacketInfo packetInfo)
         {
             throw new NotImplementedException();
         }

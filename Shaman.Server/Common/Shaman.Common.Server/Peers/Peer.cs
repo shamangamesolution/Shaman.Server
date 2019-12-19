@@ -13,8 +13,7 @@ namespace Shaman.Common.Server.Peers
         private IPEndPoint _endpoint;
         private Guid _peerId;
         private IReliableSock _socket;
-        private bool _connected;
-        public Guid _sessionId;
+        private Guid _sessionId;
 
         public Guid GetPeerId()
         {
@@ -36,12 +35,10 @@ namespace Shaman.Common.Server.Peers
             _endpoint = endpoint;
             _peerId = peerId;
             _socket = socket;
-            _connected = true;
         }
 
         public void Disconnect(DisconnectReason reason)
         {
-            _connected = false;
         }
 
 //        public void Send(MessageBase message)
