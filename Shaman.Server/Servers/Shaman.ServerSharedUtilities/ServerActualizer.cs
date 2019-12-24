@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
 using Shaman.Common.Server.Configuration;
-using Shaman.Common.Server.Providers;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Servers;
@@ -24,10 +23,10 @@ namespace Shaman.ServerSharedUtilities
             _logger = logger;
         }
 
-        public async Task Actualize(int peersCount, ushort httpPort = 0, ushort httpsPort = 0)
+        public async Task Actualize(int peersCount)
         {
             await _requestSender.SendRequest<ActualizeServerOnRouterResponse>(_config.GetRouterUrl(),
-                new ActualizeServerOnRouterRequest(GetServerIdentity(), _config.GetServerName(), _config.GetRegion(), peersCount, httpPort, httpsPort),
+                new ActualizeServerOnRouterRequest(GetServerIdentity(), _config.GetServerName(), _config.GetRegion(), peersCount, _config.BindToPortHttp),
                 (response) =>
                 {
                     if (!response.Success)
@@ -42,7 +41,5 @@ namespace Shaman.ServerSharedUtilities
             return new ServerIdentity(_config.GetPublicName(),
                 _config.GetListenPorts(), _config.GetServerRole());
         }
-
-
     }
 }

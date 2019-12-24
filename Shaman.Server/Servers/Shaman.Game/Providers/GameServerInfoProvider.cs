@@ -41,7 +41,7 @@ namespace Shaman.Game.Providers
 
         public async Task ActualizeMe()
         {
-            await _serverActualizer.Actualize(_statsProvider.GetPeerCount(), _config.BindToPortHttp);
+            await _serverActualizer.Actualize(_statsProvider.GetPeerCount());
         }
 
         public string GetMatchMakerWebUrl(int matchMakerId)

@@ -9,7 +9,6 @@ namespace Shaman.MM.Configuration
     {
         public int ServerInactivityTimeoutMs { get; set; }
         public int ServerUnregisterTimeoutMs { get; set; }
-        public ushort BindToPortHttp { get; set; }
         public int ActualizeMatchmakerIntervalMs { get; set; }
         public GameProject GameProject { get; set; }
         public int ServerInfoListUpdateIntervalMs { get; set; }
@@ -33,7 +32,7 @@ namespace Shaman.MM.Configuration
             string authSecret = null,
             SocketType socketType = SocketType.BareSocket,
             int serverInfoListUpdateIntervalMs = 60000)
-            : base(name, region, ServerRole.MatchMaker, publicDomainNameOrIpAddress, ports, routerUrl, socketTickTimeMs, receiveTickTimeMs, sendTickTimeMs,
+            : base(name, region, ServerRole.MatchMaker, publicDomainNameOrIpAddress, ports, routerUrl, httpPort, socketTickTimeMs, receiveTickTimeMs, sendTickTimeMs,
                 socketType, getBackendListFromRouterIntervalMs: getBackendListFromRouterIntervalMs, isAuthOn: isAuthOn,
                 authSecret: authSecret)
         {
@@ -42,7 +41,6 @@ namespace Shaman.MM.Configuration
             ActualizeMatchmakerIntervalMs = actualizeMatchmakerIntervalMs;
             ServerInfoListUpdateIntervalMs = serverInfoListUpdateIntervalMs;
             GameProject = gameProject;
-            BindToPortHttp = httpPort;
         }
     }
 }

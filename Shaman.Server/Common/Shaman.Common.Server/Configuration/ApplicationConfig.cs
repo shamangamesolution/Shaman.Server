@@ -22,8 +22,9 @@ namespace Shaman.Common.Server.Configuration
         private readonly string _region;
         private readonly ServerRole _serverRole;
         private ServerIdentity _identity;
-        
-        public ApplicationConfig(string name, string region, ServerRole serverRole, string publicDomainNameOrIpAddress, List<ushort> ports, string routerUrl, int socketTickTimeMs = 10, int receiveTickTimeMs = 33, int sendTickTimeMs = 50, SocketType socketType = SocketType.BareSocket, bool isAuthOn = true, string authSecret = null, int getBackendListFromRouterIntervalMs = 30000, int maxPacketSize = 300)
+        public ushort BindToPortHttp { get; set; }
+
+        public ApplicationConfig(string name, string region, ServerRole serverRole, string publicDomainNameOrIpAddress, List<ushort> ports, string routerUrl, ushort httpPort, int socketTickTimeMs = 10, int receiveTickTimeMs = 33, int sendTickTimeMs = 50, SocketType socketType = SocketType.BareSocket, bool isAuthOn = true, string authSecret = null, int getBackendListFromRouterIntervalMs = 30000, int maxPacketSize = 300)
         {
             _name = name;
             _region = region;
@@ -40,6 +41,7 @@ namespace Shaman.Common.Server.Configuration
             _maxPacketSize = maxPacketSize;
             _socketType = socketType;
             _identity = new ServerIdentity(publicDomainNameOrIpAddress, ports, serverRole);
+            BindToPortHttp = httpPort;
         }
 
         public string GetPublicName()

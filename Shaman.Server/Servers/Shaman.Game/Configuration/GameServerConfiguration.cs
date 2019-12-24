@@ -9,7 +9,6 @@ namespace Shaman.Game.Configuration
         public int ActualizationTimeoutMs { get; set; }
         public string MatchMakerUrl { get; set; }
         public int DestroyEmptyRoomOnMs { get; set; }
-        public ushort BindToPortHttp { get; set; }
         public int ServerInfoListUpdateIntervalMs { get; set; }
         
         public GameApplicationConfig(
@@ -30,7 +29,7 @@ namespace Shaman.Game.Configuration
             int sendTickTimeMs = 50,
             SocketType socketType = SocketType.BareSocket,
             int serverInfoListUpdateIntervalMs = 60000)
-            : base(name, regionName, ServerRole.GameServer, publicDomainNameOrIpAddress, ports, routerUrl, socketType: socketType,
+            : base(name, regionName, ServerRole.GameServer, publicDomainNameOrIpAddress, ports, routerUrl, httpPort, socketType: socketType,
                 getBackendListFromRouterIntervalMs: getBackendListFromRouterIntervalMs, isAuthOn: isAuthOn,
                 authSecret: authSecret, socketTickTimeMs: socketTickTimeMs, receiveTickTimeMs: receiveTickTimeMs,
                 sendTickTimeMs: sendTickTimeMs)
@@ -39,7 +38,6 @@ namespace Shaman.Game.Configuration
             DestroyEmptyRoomOnMs = destroyEmptyRoomOnMs;
             ActualizationTimeoutMs = actualizationTimeoutMs;
             ServerInfoListUpdateIntervalMs = serverInfoListUpdateIntervalMs;
-            BindToPortHttp = httpPort;
         }
     }
 }
