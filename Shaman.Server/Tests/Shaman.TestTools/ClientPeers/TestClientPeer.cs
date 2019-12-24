@@ -71,7 +71,7 @@ namespace Shaman.TestTools.ClientPeers
             var httpSender = new HttpSender(_logger, new BinarySerializer());
             var clientServerInfoProvider = new ClientServerInfoProvider(httpSender, _logger);
 
-            await clientServerInfoProvider.GetRoutes(routerUrl, clientVersion, list => _routeTable.AddRange(list));
+            _routeTable.AddRange(await clientServerInfoProvider.GetRoutes(routerUrl, clientVersion));
             _routeTable.Should().NotBeEmpty();
         }
 
