@@ -229,6 +229,10 @@ namespace Shaman.Game.Rooms
                 {
                     _gameMetrics.TrackPeerJoin();
                 }
+                else
+                {
+                    peer.Disconnect(DisconnectReason.JustBecause);
+                }
             }
         }
 

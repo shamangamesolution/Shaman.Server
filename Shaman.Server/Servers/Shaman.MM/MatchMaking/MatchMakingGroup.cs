@@ -127,9 +127,9 @@ namespace Shaman.MM.MatchMaking
             return _matchmakingPlayers.Count == _totalPlayersNeeded;
         }
         
-        private void ProcessFailed(MatchMakingPlayer player)
+        private void ProcessFailed(MatchMakingPlayer player, string message)
         {
-            _logger.Error($"Sending matchmaking failed info to {player.Id}");
+            _logger.Error($"Sending matchmaking failed info to {player.Id}: {message}");
             _playersManager.SetOnMatchmaking(player.Id, false);
             var joinInfo = new JoinInfo("", 0, Guid.Empty, JoinStatus.MatchMakingFailed, 0, 0);
             _packetSender.AddPacket(new JoinInfoEvent(joinInfo), player.Peer);
@@ -155,7 +155,7 @@ namespace Shaman.MM.MatchMaking
                 case RoomOperationResult.ServerNotFound:
                 case RoomOperationResult.JoinRoomError:
                     foreach (var player in _matchmakingPlayers)
-                        ProcessFailed(player);
+                        ProcessFailed(player, result.Result.ToString());
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

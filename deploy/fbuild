@@ -1,4 +1,4 @@
-./game/login
+./login
 cd game
 (./build && ./push) &
 gamep=$!
