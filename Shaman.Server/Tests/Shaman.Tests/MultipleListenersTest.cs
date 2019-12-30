@@ -94,8 +94,8 @@ namespace Shaman.Tests
             _client2.Send(new JoinRoomRequest(roomId, new Dictionary<byte, object>()));
             emptyTask.Wait(WAIT_TIMEOUT);
 
-            Assert.AreEqual(2, _client1.GetCountOfSuccessResponses(CustomOperationCode.Authorization) + _client2.GetCountOfSuccessResponses(CustomOperationCode.Authorization));
-            Assert.AreEqual(2, _client1.GetCountOfSuccessResponses(CustomOperationCode.JoinRoom) + _client2.GetCountOfSuccessResponses(CustomOperationCode.JoinRoom));
+            Assert.AreEqual(2, _client1.GetCountOfSuccessResponses(CustomOperationCode.AuthorizationResponse) + _client2.GetCountOfSuccessResponses(CustomOperationCode.AuthorizationResponse));
+            Assert.AreEqual(2, _client1.GetCountOfSuccessResponses(CustomOperationCode.JoinRoomResponse) + _client2.GetCountOfSuccessResponses(CustomOperationCode.JoinRoomResponse));
 
             stats = _gameApplication.GetStats();
             Assert.AreEqual(2, stats.PeerCount);

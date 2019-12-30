@@ -16,7 +16,7 @@ namespace Shaman.Messages.MM
             JoinInfo = joinInfo;
         }
         
-        public CreateRoomFromClientResponse() : base(Messages.CustomOperationCode.CreateRoomFromClient)
+        public CreateRoomFromClientResponse() : base(Messages.CustomOperationCode.CreateRoomFromClientResponse)
         {
             
         }

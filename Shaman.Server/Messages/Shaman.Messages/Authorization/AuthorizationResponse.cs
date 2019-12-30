@@ -7,7 +7,7 @@ namespace Shaman.Messages.Authorization
     {
         
         public AuthorizationResponse() 
-            : base(Messages.CustomOperationCode.Authorization)
+            : base(Messages.CustomOperationCode.AuthorizationResponse)
         {
         }
         

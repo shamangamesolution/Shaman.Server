@@ -8,7 +8,7 @@ namespace Shaman.Messages.MM
     {
         public Dictionary<byte, object> MatchMakingProperties { get; set; }
 
-        public GetRoomListRequest(): base(CustomOperationCode.GetRoomList, string.Empty)
+        public GetRoomListRequest(): base(CustomOperationCode.GetRoomList)
         {
             
         }

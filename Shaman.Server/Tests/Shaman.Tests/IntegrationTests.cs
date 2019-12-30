@@ -168,7 +168,7 @@ namespace Shaman.Tests
             isSuccess = true;
             _clients.ForEach(c =>
             {
-                var countOfSuccessResponses = c.GetCountOfSuccessResponses(CustomOperationCode.Authorization);
+                var countOfSuccessResponses = c.GetCountOfSuccessResponses(CustomOperationCode.AuthorizationResponse);
                 if (countOfSuccessResponses == 0)
                     isSuccess = false;
             });
@@ -285,7 +285,7 @@ namespace Shaman.Tests
             isSuccess = true;
             _clients.ForEach(c =>
             {
-                if (c.GetCountOfSuccessResponses(CustomOperationCode.Authorization) == 0)
+                if (c.GetCountOfSuccessResponses(CustomOperationCode.AuthorizationResponse) == 0)
                     isSuccess = false;
             });
             Assert.IsTrue(isSuccess);

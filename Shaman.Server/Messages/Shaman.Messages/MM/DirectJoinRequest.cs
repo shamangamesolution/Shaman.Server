@@ -17,7 +17,7 @@ namespace Shaman.Messages.MM
             MatchMakingProperties = matchMakingProperties;
         }
         
-        public DirectJoinRequest(): base(CustomOperationCode.DirectJoin, string.Empty)
+        public DirectJoinRequest(): base(CustomOperationCode.DirectJoin)
         {
             
         }

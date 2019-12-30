@@ -8,7 +8,7 @@ namespace Shaman.Messages.Authorization
         public string SessionId { get; private set; }
         
         public GetSessionIdResponse() 
-            : base(Messages.CustomOperationCode.GetSessionId)
+            : base(Messages.CustomOperationCode.GetSessionIdResponse)
         {
         }
         

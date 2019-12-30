@@ -8,6 +8,7 @@ using Shaman.Common.Utils.TaskScheduling;
 
 namespace Shaman.Common.Utils.Tests
 {
+    [NonParallelizable]
     public class PendingTaskMonitoringTests
     {
         [Test]

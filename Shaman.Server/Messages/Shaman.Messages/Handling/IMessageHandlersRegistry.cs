@@ -2,6 +2,6 @@ namespace Shaman.Messages.Handling
 {
     public interface IMessageHandlersRegistry<out TContext>
     {
-        void RegisterHandler(ushort messageCode, byte messageType, IMessageDataHandler<TContext> messageHandler);
+        void RegisterHandler(ushort messageCode, IMessageDataHandler<TContext> messageHandler);
     }
 }

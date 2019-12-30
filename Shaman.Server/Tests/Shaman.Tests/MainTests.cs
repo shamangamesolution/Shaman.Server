@@ -189,28 +189,28 @@ namespace Shaman.Tests
             _client.Send(new JoinRoomRequest(roomId, new Dictionary<byte, object>()));
             emptyTask.Wait(WAIT_TIMEOUT);
 
-            Assert.AreEqual(1,_client.GetCountOfNotSuccessResponses(CustomOperationCode.Authorization));
-            Assert.AreEqual(0, _client.GetCountOfNotSuccessResponses(CustomOperationCode.JoinRoom));            
+            Assert.AreEqual(1,_client.GetCountOfNotSuccessResponses(CustomOperationCode.AuthorizationResponse));
+            Assert.AreEqual(0, _client.GetCountOfNotSuccessResponses(CustomOperationCode.JoinRoomResponse));            
             _client.Send(new JoinRoomRequest(roomId, new Dictionary<byte, object> {{PropertyCode.PlayerProperties.BackendId, 1}}));
             emptyTask.Wait(WAIT_TIMEOUT);
 
-            Assert.AreEqual(2,_client.GetCountOfNotSuccessResponses(CustomOperationCode.Authorization));
-            Assert.AreEqual(0, _client.GetCountOfNotSuccessResponses(CustomOperationCode.JoinRoom));
+            Assert.AreEqual(2,_client.GetCountOfNotSuccessResponses(CustomOperationCode.AuthorizationResponse));
+            Assert.AreEqual(0, _client.GetCountOfNotSuccessResponses(CustomOperationCode.JoinRoomResponse));
 
             //authing
             _client.Send(new AuthorizationRequest(1, Guid.NewGuid()));            
             emptyTask.Wait(WAIT_TIMEOUT);
 
-            Assert.AreEqual(1, _client.GetCountOfSuccessResponses(CustomOperationCode.Authorization));            
+            Assert.AreEqual(1, _client.GetCountOfSuccessResponses(CustomOperationCode.AuthorizationResponse));            
 
 
             //send again
             _client.Send(new JoinRoomRequest(roomId, new Dictionary<byte, object>()));
             emptyTask.Wait(WAIT_TIMEOUT);
 
-            Assert.AreEqual(2, _client.GetCountOfNotSuccessResponses(CustomOperationCode.Authorization));
-            Assert.AreEqual(1, _client.GetCountOfSuccessResponses(CustomOperationCode.Authorization));            
-            Assert.AreEqual(1, _client.GetCountOfSuccessResponses(CustomOperationCode.JoinRoom));            
+            Assert.AreEqual(2, _client.GetCountOfNotSuccessResponses(CustomOperationCode.AuthorizationResponse));
+            Assert.AreEqual(1, _client.GetCountOfSuccessResponses(CustomOperationCode.AuthorizationResponse));            
+            Assert.AreEqual(1, _client.GetCountOfSuccessResponses(CustomOperationCode.JoinRoomResponse));            
     
             
             //check stats

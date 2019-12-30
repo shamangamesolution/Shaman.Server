@@ -10,20 +10,9 @@ namespace Shaman.TestTools.ClientPeers
 {
     public static class MessageFactory
     {
-        private static readonly Lazy<Dictionary<int, Type>> TypesMap = new Lazy<Dictionary<int, Type>>(CreateMessageMap);
+        private static readonly Lazy<Dictionary<ushort, Type>> TypesMap = new Lazy<Dictionary<ushort, Type>>(CreateMessageMap);
 
-//        static Dictionary<int, Type> CreateMessageMap()
-//        {
-//            var messageBaseType = typeof(PingRequest);
-//            var messageTypes = messageBaseType.Assembly.GetTypes().Where(t =>
-//                    t.IsSubclassOf(typeof(MessageBase)) && !t.IsAbstract &&
-//                    t.GetConstructor(Array.Empty<Type>()) != null)
-//                .ToArray();
-//            return messageTypes.Select(Activator.CreateInstance).OfType<MessageBase>()
-//                .ToDictionary(k => k.OperationCode << 8 | (int) k.Type, v => v.GetType());
-//        }
-
-        static Dictionary<int, Type> CreateMessageMap()
+        static Dictionary<ushort, Type> CreateMessageMap()
         {
             var messageBaseType = typeof(PingRequest);
             
@@ -33,20 +22,18 @@ namespace Shaman.TestTools.ClientPeers
 
             var instances = messageTypes.Select(Activator.CreateInstance).OfType<MessageBase>();
 
-            var result = new Dictionary<int, Type>();
+            var result = new Dictionary<ushort, Type>();
             foreach(var item in instances)
-                if (!result.ContainsKey(item.OperationCode << 8 | (int) item.Type))
-                    result.Add(item.OperationCode << 8 | (int) item.Type, item.GetType());
+                if (!result.ContainsKey(item.OperationCode))
+                    result.Add(item.OperationCode, item.GetType());
             
             return result;
         }
 
-        public static MessageBase DeserializeMessageForTest(ushort operationCode, ISerializer serializer,
-            byte[] byteArray, int offset, int length)
+        public static MessageBase DeserializeMessageForTest(ushort operationCode, byte[] byteArray, int offset,
+            int length)
         {
-            var messageType = MessageBase.GetMessageType(byteArray, offset);
-
-            var key = operationCode << 8 | (int) messageType;
+            var key = operationCode;
             var instance = (MessageBase) Activator.CreateInstance(TypesMap.Value[key]);
 
             using (var reader = new BinaryReader(new MemoryStream(byteArray, offset, length)))
