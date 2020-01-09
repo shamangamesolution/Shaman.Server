@@ -28,6 +28,9 @@ namespace Shaman.MM.Managers
         {
             lock (_syncCollection)
             {
+                if (_players.ContainsKey(player.Id))
+                    throw new Exception($"Player {player.Id} already added");
+                
                 _players.Add(player.Id, player);
                 _mmMetrics.TrackPlayerAdded();
 

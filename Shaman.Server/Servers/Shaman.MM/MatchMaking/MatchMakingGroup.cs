@@ -220,9 +220,19 @@ namespace Shaman.MM.MatchMaking
                         else 
                         if (EnoughWaiting(oldestPlayer) || IsEnoughPlayers())
                         {
+                            //players
+                            var playersDict = new Dictionary<Guid, Dictionary<byte, object>>();
+                            foreach (var item in _matchmakingPlayers)
+                            {
+                                if (item != null && !playersDict.ContainsKey(item.SessionId))
+                                {
+                                    playersDict.TryAdd(item.SessionId, item.Properties);
+                                }
+                            }
+                            
                             //add new room
                             result = _roomManager.CreateRoom(Id,
-                                _matchmakingPlayers.ToDictionary(key => key.SessionId, value => value.Properties),
+                                playersDict,//_matchmakingPlayers.ToDictionary(key => key.SessionId, value => value.Properties),
                                 RoomProperties);
                         }
 
