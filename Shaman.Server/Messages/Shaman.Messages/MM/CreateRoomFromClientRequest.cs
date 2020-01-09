@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Serialization;
@@ -15,7 +14,7 @@ namespace Shaman.Messages.MM
             MatchMakingProperties = matchMakingProperties;
         }
         
-        public CreateRoomFromClientRequest(): base(CustomOperationCode.CreateRoomFromClient, string.Empty)
+        public CreateRoomFromClientRequest(): base(CustomOperationCode.CreateRoomFromClient)
         {
             
         }

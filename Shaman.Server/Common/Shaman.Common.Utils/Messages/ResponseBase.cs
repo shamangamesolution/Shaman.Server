@@ -11,7 +11,7 @@ namespace Shaman.Common.Utils.Messages
         public string Message { get; set; }
 
         
-        public ResponseBase(ushort operationCode) : base(MessageType.Response, operationCode)
+        public ResponseBase(ushort operationCode) : base(operationCode)
         {
             ResultCode = ResultCode.OK;
         }

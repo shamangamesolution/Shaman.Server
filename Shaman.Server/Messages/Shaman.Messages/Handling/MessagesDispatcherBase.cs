@@ -18,7 +18,7 @@ namespace Shaman.Messages.Handling
             where TMessage : MessageBase, new()
         {
             var messageBase = new TMessage();
-            _messageHandlersRegistry.RegisterHandler(messageBase.OperationCode, (byte) messageBase.Type,
+            _messageHandlersRegistry.RegisterHandler(messageBase.OperationCode,
                 MessageHandler<TMessage, TContext>.Get(handler));
         }
     }

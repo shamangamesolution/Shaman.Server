@@ -6,14 +6,8 @@ namespace Shaman.Messages.MM
     public class LeaveMatchMakingResponse : ResponseBase
     {
         public MatchMakingErrorCode MatchMakingErrorCode { get; set; }
-        
-        public LeaveMatchMakingResponse(MatchMakingErrorCode matchMakingResultCode = MatchMakingErrorCode.OK) 
-            : base(Messages.CustomOperationCode.LeaveMatchMaking)
-        {
-            MatchMakingErrorCode = matchMakingResultCode;
-        }
 
-        public LeaveMatchMakingResponse() : base(Messages.CustomOperationCode.LeaveMatchMaking)
+        public LeaveMatchMakingResponse() : base(CustomOperationCode.LeaveMatchMakingResponse)
         {
             
         }

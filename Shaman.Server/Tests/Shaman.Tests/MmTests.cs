@@ -139,19 +139,19 @@ namespace Shaman.Tests
             EmptyTask.Wait(WAIT_TIMEOUT);
             _client1.Send(new AuthorizationRequest(1, Guid.NewGuid()));            
             EmptyTask.Wait(WAIT_TIMEOUT);
-            Assert.AreEqual(1, _client1.GetCountOfSuccessResponses(CustomOperationCode.Authorization));
+            Assert.AreEqual(1, _client1.GetCountOfSuccessResponses(CustomOperationCode.AuthorizationResponse));
             
             //incorrect mm request
             _client1.Send(new EnterMatchMakingRequest(new Dictionary<byte, object>()));
             EmptyTask.Wait(WAIT_TIMEOUT);
-            var mmResponse = _client1.GetMessageList().FirstOrDefault(m => m.OperationCode == CustomOperationCode.EnterMatchMaking) as EnterMatchMakingResponse;
+            var mmResponse = _client1.GetMessageList().FirstOrDefault(m => m.OperationCode == CustomOperationCode.EnterMatchMakingResponse) as EnterMatchMakingResponse;
             Assert.NotNull(mmResponse);
             Assert.AreEqual(MatchMakingErrorCode.RequiredPlayerPropertyIsNotSet, mmResponse.MatchMakingErrorCode);
             
             //correct mm request
             _client1.Send(new EnterMatchMakingRequest(new Dictionary<byte, object> { {PropertyCode.PlayerProperties.Level, level} }));
             EmptyTask.Wait(WAIT_TIMEOUT*2);
-            var responses = _client1.GetMessageList().Where(m => m.OperationCode == CustomOperationCode.EnterMatchMaking).Select(r => r as EnterMatchMakingResponse);
+            var responses = _client1.GetMessageList().Where(m => m.OperationCode == CustomOperationCode.EnterMatchMakingResponse).Select(r => r as EnterMatchMakingResponse);
             Assert.AreEqual(2, responses.Count());
             bool correctResponseFound = false;
             foreach (var response in responses)
@@ -250,7 +250,7 @@ namespace Shaman.Tests
 
             emptyTask.Wait(WAIT_TIMEOUT*2);
             
-            var responsesCount = _client1.GetCountOf(CustomOperationCode.EnterMatchMaking) + _client2.GetCountOf(CustomOperationCode.EnterMatchMaking);
+            var responsesCount = _client1.GetCountOf(CustomOperationCode.EnterMatchMakingResponse) + _client2.GetCountOf(CustomOperationCode.EnterMatchMakingResponse);
             Assert.AreEqual(2, responsesCount);
 
             //wait for MM_TICK*2 ms
@@ -287,7 +287,7 @@ namespace Shaman.Tests
             //second should go to the same room
             _client2.Send(new EnterMatchMakingRequest(new Dictionary<byte, object> { {PropertyCode.PlayerProperties.Level, 3} }));
             EmptyTask.Wait(WAIT_TIMEOUT*2);
-            var responsesCount = _client1.GetCountOf(CustomOperationCode.EnterMatchMaking) + _client2.GetCountOf(CustomOperationCode.EnterMatchMaking);
+            var responsesCount = _client1.GetCountOf(CustomOperationCode.EnterMatchMakingResponse) + _client2.GetCountOf(CustomOperationCode.EnterMatchMakingResponse);
             Assert.AreEqual(2, responsesCount);
             EmptyTask.Wait(MM_TICK*2);
             var joinInfo1 = _client1.GetJoinInfo();
@@ -303,7 +303,7 @@ namespace Shaman.Tests
             EmptyTask.Wait(10000);
             _client3.Send(new EnterMatchMakingRequest(new Dictionary<byte, object> { {PropertyCode.PlayerProperties.Level, 3} }));
             EmptyTask.Wait(WAIT_TIMEOUT*2);
-            responsesCount = _client1.GetCountOf(CustomOperationCode.EnterMatchMaking) + _client2.GetCountOf(CustomOperationCode.EnterMatchMaking) + _client3.GetCountOf(CustomOperationCode.EnterMatchMaking);
+            responsesCount = _client1.GetCountOf(CustomOperationCode.EnterMatchMakingResponse) + _client2.GetCountOf(CustomOperationCode.EnterMatchMakingResponse) + _client3.GetCountOf(CustomOperationCode.EnterMatchMakingResponse);
             Assert.AreEqual(3, responsesCount);
             EmptyTask.Wait(MM_TICK*2);
             Assert.IsTrue(_client3.GetJoinInfo() != null && _client3.GetJoinInfo().Status == JoinStatus.RoomIsReady);

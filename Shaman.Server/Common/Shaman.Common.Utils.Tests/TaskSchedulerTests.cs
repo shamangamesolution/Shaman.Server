@@ -7,6 +7,7 @@ using Shaman.Common.Utils.TaskScheduling;
 
 namespace Shaman.Common.Utils.Tests
 {
+    [NonParallelizable]
     public class TaskSchedulerTests
     {
         private static readonly int TaskSchedulerInternalPeriodicTimersCount = 2;

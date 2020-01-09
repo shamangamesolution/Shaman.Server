@@ -194,6 +194,7 @@ namespace Shaman.Game.Rooms
                 if (_gameModeController == null)
                 {
                     _logger.Error($"GameModeController == null while peer joining");
+                    return false;
                 }
                 return true;
             }

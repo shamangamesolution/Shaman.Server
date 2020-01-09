@@ -145,7 +145,7 @@ namespace Shaman.Tests
         {
             public MessageBase DeserializeMessage(ushort operationCode, ISerializer serializer, byte[] message)
             {
-                return MessageFactory.DeserializeMessageForTest(operationCode, serializer, message, 0, message.Length);
+                return MessageFactory.DeserializeMessageForTest(operationCode, message, 0, message.Length);
             }
         }
         

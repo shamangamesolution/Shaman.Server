@@ -5,7 +5,7 @@ namespace Shaman.Common.Utils.Messages
         public override bool IsReliable => true;
         public override bool IsBroadcasted => true;
 
-        public EventBase(ushort operationCode) : base(MessageType.Event, operationCode)
+        public EventBase(ushort operationCode) : base(operationCode)
         {
         }
     }

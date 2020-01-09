@@ -55,7 +55,7 @@ namespace Shaman.Tests.GameModeControllers
         public MessageResult ProcessMessage(ushort operationCode, MessageData message, Guid sessionId)
         {
             var deserMessage =
-                MessageFactory.DeserializeMessageForTest(operationCode, new BinarySerializer(), message.Buffer, message.Offset, message.Length);
+                MessageFactory.DeserializeMessageForTest(operationCode, message.Buffer, message.Offset, message.Length);
                 
             //process room message
             switch (operationCode)

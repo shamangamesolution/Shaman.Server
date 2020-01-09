@@ -11,7 +11,7 @@ namespace Shaman.Messages.General.DTO.Responses
 
         public long SourceTicks { get; set; }
 
-        public PingResponse() : base(CustomOperationCode.PingRequest)
+        public PingResponse() : base(CustomOperationCode.PingResponse)
         {
         }
 

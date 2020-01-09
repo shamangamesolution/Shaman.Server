@@ -71,7 +71,7 @@ namespace Shaman.TestTools.ClientPeers
             var httpSender = new HttpSender(_logger, new BinarySerializer());
             var clientServerInfoProvider = new ClientServerInfoProvider(httpSender, _logger);
 
-            await clientServerInfoProvider.GetRoutes(routerUrl, clientVersion, list => _routeTable.AddRange(list));
+            _routeTable.AddRange(await clientServerInfoProvider.GetRoutes(routerUrl, clientVersion));
             _routeTable.Should().NotBeEmpty();
         }
 
@@ -107,12 +107,12 @@ namespace Shaman.TestTools.ClientPeers
         
         public int GetCountOfSuccessResponses(ushort operationCode)
         {
-            var count = _receivedMessages.Count(m => m.OperationCode == operationCode && m.Type == MessageType.Response && ((ResponseBase)m).ResultCode == ResultCode.OK);
+            var count = _receivedMessages.Count(m => m.OperationCode == operationCode && ((ResponseBase)m).ResultCode == ResultCode.OK);
             return count;
         }
         public int GetCountOfNotSuccessResponses(ushort operationCode)
         {
-            var count = _receivedMessages.Count(m => m.OperationCode == operationCode && m.Type == MessageType.Response && ((ResponseBase)m).ResultCode != ResultCode.OK);
+            var count = _receivedMessages.Count(m => m.OperationCode == operationCode && ((ResponseBase)m).ResultCode != ResultCode.OK);
             return count;
         }
         public void Send(MessageBase message)
@@ -125,7 +125,7 @@ namespace Shaman.TestTools.ClientPeers
             var bitFac = new BinarySerializer();
             var operationCode = MessageBase.GetOperationCode(buffer, offset);
             _logger.Info($"Message received. Operation code: {operationCode}");
-            var deserialized = MessageFactory.DeserializeMessageForTest(operationCode, bitFac, buffer,offset, length);
+            var deserialized = MessageFactory.DeserializeMessageForTest(operationCode, buffer,offset, length);
 
             _receivedMessages.Add(deserialized);
 
