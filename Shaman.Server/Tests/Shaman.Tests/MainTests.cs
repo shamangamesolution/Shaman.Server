@@ -60,13 +60,13 @@ namespace Shaman.Tests
             
             //setup server
             _gameModeControllerFactory = new FakeGameModeControllerFactory();
-            _packetSender = new PacketBatchSender(taskSchedulerFactory, config, serializerFactory);
-            _roomManager = new RoomManager(_serverLogger, serializerFactory, config, taskSchedulerFactory,  _gameModeControllerFactory, _packetSender, Mock.Of<IGameMetrics>(), _requestSender);
-            _gameApplication = new GameApplication(_serverLogger, config, serializerFactory, socketFactory, taskSchedulerFactory, _requestSender, _backendProvider, _roomManager, _packetSender);
+            _packetSender = new PacketBatchSender(taskSchedulerFactory, config, serializer);
+            _roomManager = new RoomManager(_serverLogger, serializer, config, taskSchedulerFactory,  _gameModeControllerFactory, _packetSender, Mock.Of<IGameMetrics>(), _requestSender);
+            _gameApplication = new GameApplication(_serverLogger, config, serializer, socketFactory, taskSchedulerFactory, _requestSender, _backendProvider, _roomManager, _packetSender);
             _gameApplication.Start();
             
             //setup client
-            _client = new TestClientPeer(_clientLogger, taskSchedulerFactory);
+            _client = new TestClientPeer(_clientLogger, taskSchedulerFactory, serializer);
             
             
         }
@@ -170,7 +170,7 @@ namespace Shaman.Tests
         }
 
         [Test]
-        public void NotAuthentificatedReceivedTest()
+        public async Task NotAuthentificatedReceivedTest()
         {
             //check stats
             var stats = _gameApplication.GetStats();
@@ -187,31 +187,16 @@ namespace Shaman.Tests
             
             //try to send something without auth
             _client.Send(new JoinRoomRequest(roomId, new Dictionary<byte, object>()));
-            emptyTask.Wait(WAIT_TIMEOUT);
-
-            Assert.AreEqual(1,_client.GetCountOfNotSuccessResponses(CustomOperationCode.AuthorizationResponse));
-            Assert.AreEqual(0, _client.GetCountOfNotSuccessResponses(CustomOperationCode.JoinRoomResponse));            
+            await _client.WaitFor<AuthorizationResponse>(resp => !resp.Success);
+            
             _client.Send(new JoinRoomRequest(roomId, new Dictionary<byte, object> {{PropertyCode.PlayerProperties.BackendId, 1}}));
-            emptyTask.Wait(WAIT_TIMEOUT);
-
-            Assert.AreEqual(2,_client.GetCountOfNotSuccessResponses(CustomOperationCode.AuthorizationResponse));
-            Assert.AreEqual(0, _client.GetCountOfNotSuccessResponses(CustomOperationCode.JoinRoomResponse));
+            await _client.WaitFor<AuthorizationResponse>(resp => !resp.Success);
 
             //authing
-            _client.Send(new AuthorizationRequest(1, Guid.NewGuid()));            
-            emptyTask.Wait(WAIT_TIMEOUT);
-
-            Assert.AreEqual(1, _client.GetCountOfSuccessResponses(CustomOperationCode.AuthorizationResponse));            
-
+            await _client.Send<AuthorizationResponse>(new AuthorizationRequest(1, Guid.NewGuid()));            
 
             //send again
-            _client.Send(new JoinRoomRequest(roomId, new Dictionary<byte, object>()));
-            emptyTask.Wait(WAIT_TIMEOUT);
-
-            Assert.AreEqual(2, _client.GetCountOfNotSuccessResponses(CustomOperationCode.AuthorizationResponse));
-            Assert.AreEqual(1, _client.GetCountOfSuccessResponses(CustomOperationCode.AuthorizationResponse));            
-            Assert.AreEqual(1, _client.GetCountOfSuccessResponses(CustomOperationCode.JoinRoomResponse));            
-    
+            await _client.Send<JoinRoomResponse>(new JoinRoomRequest(roomId, new Dictionary<byte, object>()));
             
             //check stats
             stats = _gameApplication.GetStats();

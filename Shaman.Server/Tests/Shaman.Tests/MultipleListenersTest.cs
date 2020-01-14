@@ -47,14 +47,14 @@ namespace Shaman.Tests
             _backendProvider = new BackendProvider(taskSchedulerFactory, config, _requestSender, _serverLogger);
             //setup server
             _gameModeControllerFactory = new FakeGameModeControllerFactory();
-            _packetSender = new PacketBatchSender(taskSchedulerFactory, config, serializerFactory);
-            _roomManager = new RoomManager(_serverLogger, serializerFactory, config, taskSchedulerFactory,  _gameModeControllerFactory, _packetSender,Mock.Of<IGameMetrics>(), _requestSender);
-            _gameApplication = new GameApplication(_serverLogger, config, serializerFactory, socketFactory, taskSchedulerFactory, _requestSender, _backendProvider, _roomManager, _packetSender);
+            _packetSender = new PacketBatchSender(taskSchedulerFactory, config, serializer);
+            _roomManager = new RoomManager(_serverLogger, serializer, config, taskSchedulerFactory,  _gameModeControllerFactory, _packetSender,Mock.Of<IGameMetrics>(), _requestSender);
+            _gameApplication = new GameApplication(_serverLogger, config, serializer, socketFactory, taskSchedulerFactory, _requestSender, _backendProvider, _roomManager, _packetSender);
             _gameApplication.Start();
             
             //setup client
-            _client1 = new TestClientPeer(_clientLogger, taskSchedulerFactory);
-            _client2 = new TestClientPeer(_clientLogger, taskSchedulerFactory);        
+            _client1 = new TestClientPeer(_clientLogger, taskSchedulerFactory, serializer);
+            _client2 = new TestClientPeer(_clientLogger, taskSchedulerFactory, serializer);        
 
         }
 
@@ -65,7 +65,7 @@ namespace Shaman.Tests
         }
         
         [Test]
-        public void TwoClientsTest()
+        public async Task TwoClientsTest()
         {
             var emptyTask = new Task(() => {
                 
@@ -87,15 +87,10 @@ namespace Shaman.Tests
             stats = _gameApplication.GetStats();
             Assert.AreEqual(2, stats.PeerCount);
             Assert.AreEqual(1, stats.RoomCount);
-            _client1.Send(new AuthorizationRequest(1, Guid.NewGuid()));            
-            _client2.Send(new AuthorizationRequest(1, Guid.NewGuid()));            
-            emptyTask.Wait(WAIT_TIMEOUT);
-            _client1.Send(new JoinRoomRequest(roomId, new Dictionary<byte, object>()));
-            _client2.Send(new JoinRoomRequest(roomId, new Dictionary<byte, object>()));
-            emptyTask.Wait(WAIT_TIMEOUT);
-
-            Assert.AreEqual(2, _client1.GetCountOfSuccessResponses(CustomOperationCode.AuthorizationResponse) + _client2.GetCountOfSuccessResponses(CustomOperationCode.AuthorizationResponse));
-            Assert.AreEqual(2, _client1.GetCountOfSuccessResponses(CustomOperationCode.JoinRoomResponse) + _client2.GetCountOfSuccessResponses(CustomOperationCode.JoinRoomResponse));
+            await _client1.Send<AuthorizationResponse>(new AuthorizationRequest(1, Guid.NewGuid()));            
+            await _client2.Send<AuthorizationResponse>(new AuthorizationRequest(1, Guid.NewGuid()));            
+            await _client1.Send<JoinRoomResponse>(new JoinRoomRequest(roomId, new Dictionary<byte, object>()));
+            await _client2.Send<JoinRoomResponse>(new JoinRoomRequest(roomId, new Dictionary<byte, object>()));
 
             stats = _gameApplication.GetStats();
             Assert.AreEqual(2, stats.PeerCount);
