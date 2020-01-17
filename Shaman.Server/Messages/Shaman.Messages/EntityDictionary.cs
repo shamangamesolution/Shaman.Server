@@ -64,6 +64,11 @@ namespace Shaman.Messages
         {
             _dict.TryRemove(key, out var item);
         }
+
+        public void Clear()
+        {
+            _dict.Clear();
+        }
         
     }
 }

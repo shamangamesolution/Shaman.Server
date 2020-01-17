@@ -325,6 +325,8 @@ namespace Shaman.Game.Rooms
                 _gameModeController.Cleanup();
                 _taskScheduler.RemoveAll();
                 _roomPlayers.Clear();
+                //close room on matchmaker
+                Close();
             }
             catch (Exception e)
             {
