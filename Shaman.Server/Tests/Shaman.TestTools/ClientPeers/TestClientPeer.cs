@@ -23,10 +23,19 @@ namespace Shaman.TestTools.ClientPeers
 {
     public class TestClientPeer: IDisposable
     {
+        private class RawMessage
+        {
+            public ushort OperationCode { get; set; }
+            public byte[] Data { get; set; }
+            public int Offset { get; set; }
+            public int Length { get; set; }
+        }
+        
         private readonly ClientPeer _clientPeer;
         private readonly IShamanLogger _logger;
+        private readonly ISerializer _serializer;
         private readonly object _syncCollection = new object();
-        private List<MessageBase> _receivedMessages = new List<MessageBase>();
+        private List<RawMessage> _receivedMessages = new List<RawMessage>();
         private JoinInfo _joinInfo;
         private readonly ITaskScheduler _taskScheduler;
 
@@ -40,9 +49,10 @@ namespace Shaman.TestTools.ClientPeers
         public int BackendId => _routeTable.First().BackendId;
         public Action<string> OnDisconnectedFromServer;
 
-        public TestClientPeer(IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory)
+        public TestClientPeer(IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory, ISerializer serializer)
         {
             _logger = logger;
+            _serializer = serializer;
             _taskScheduler = taskSchedulerFactory.GetTaskScheduler();
             _clientPeer = new ClientPeer(logger,taskSchedulerFactory, 300, 20);
             //_clientPeer.OnPackageReceived += ClientOnPackageReceived;
@@ -61,7 +71,7 @@ namespace Shaman.TestTools.ClientPeers
 
         private void OnDisconnected(string reason)
         {
-            Console.Out.WriteLine("Disconnected from server: {0}", reason);
+            _logger.Info($"Disconnected from server: {reason}");
             OnDisconnectedFromServer?.Invoke(reason);
         }
 
@@ -90,51 +100,44 @@ namespace Shaman.TestTools.ClientPeers
             _clientPeer.Disconnect();
         }
 
-        public List<MessageBase> GetMessageList()
-        {
-            return _receivedMessages;
-        }
         public void ClearMessages()
         {
-            _receivedMessages = new List<MessageBase>();
+            _receivedMessages = new List<RawMessage>();
         }
-
-        public int GetCountOf(ushort operationCode)
+        public int CountOf<T>() where T : MessageBase, new()
         {
+            var operationCode = (new T()).OperationCode;
             var count = _receivedMessages.Count(m => m.OperationCode == operationCode);
-            return count;
-        }
-        
-        public int GetCountOfSuccessResponses(ushort operationCode)
-        {
-            var count = _receivedMessages.Count(m => m.OperationCode == operationCode && ((ResponseBase)m).ResultCode == ResultCode.OK);
-            return count;
-        }
-        public int GetCountOfNotSuccessResponses(ushort operationCode)
-        {
-            var count = _receivedMessages.Count(m => m.OperationCode == operationCode && ((ResponseBase)m).ResultCode != ResultCode.OK);
             return count;
         }
         public void Send(MessageBase message)
         {
             _clientPeer.Send(message);
         }
+        public async Task<TResponse> Send<TResponse>(RequestBase message) where TResponse:ResponseBase, new()
+        {
+            _clientPeer.Send(message);
+            var responseBase = await WaitFor<TResponse>(resp => resp.Success);
+            ClearMessages();
+            return responseBase;
+        }
 
         private void ProcessMessage(byte[] buffer, int offset, int length)
         {
-            var bitFac = new BinarySerializer();
             var operationCode = MessageBase.GetOperationCode(buffer, offset);
             _logger.Info($"Message received. Operation code: {operationCode}");
-            var deserialized = MessageFactory.DeserializeMessageForTest(operationCode, buffer,offset, length);
 
-            _receivedMessages.Add(deserialized);
+            _receivedMessages.Add(new RawMessage
+            {
+                Data = buffer.ToArray(),
+                Offset = offset,
+                Length = length,
+                OperationCode = operationCode
+            });
 
             //save join info
-            if (deserialized is JoinInfoEvent joinInfoEvent)
-            {
-                _joinInfo = joinInfoEvent.JoinInfo;
-                _logger.Info($"Received joinInfo. Status = {_joinInfo.Status}");
-            }
+            if (operationCode == CustomOperationCode.JoinInfo)
+                _joinInfo = _serializer.DeserializeAs<JoinInfoEvent>(buffer, offset, length).JoinInfo;
         }
         
         private void ClientOnPackageReceived(IPacketInfo packet)
@@ -164,19 +167,24 @@ namespace Shaman.TestTools.ClientPeers
         }
 
         public async Task<T> WaitFor<T>(Func<T, bool> condition,
-            int timeoutMs = 10000, int checkPeriod = 10) where T : MessageBase
+            int timeoutMs = 10000, int checkPeriod = 10) where T : MessageBase, new()
         {
+            var operationCode = (new T()).OperationCode;
             var stopwatch = Stopwatch.StartNew();
-            T msg = null;
+            RawMessage msg = null;
             while (stopwatch.ElapsedMilliseconds < timeoutMs)
             {
-                msg = (T) _receivedMessages.LastOrDefault(m =>
-                    m.GetType() == typeof(T));
+                msg = _receivedMessages.LastOrDefault(m =>
+                    m.OperationCode == operationCode);
 
-                if (msg != null && condition(msg))
+                if (msg != null)
                 {
-                    Console.WriteLine($"Condition for event {typeof(T)} was matched for {stopwatch.ElapsedMilliseconds}ms");
-                    return msg;
+                    var deserialized = _serializer.DeserializeAs<T>(msg.Data, msg.Offset, msg.Length);
+                    if (condition(deserialized))
+                    {
+                        _logger.Info($"Condition for event {typeof(T)} was matched for {stopwatch.ElapsedMilliseconds}ms");
+                        return deserialized;    
+                    }
                 }
 
                 await Task.Delay(checkPeriod);

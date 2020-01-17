@@ -92,8 +92,8 @@ namespace Shaman.Tests
                 "",
                 "",
                 7000);
-            _mmPacketSender = new PacketBatchSender(taskSchedulerFactory, config, serializerFactory);
-            _gamePacketSender = new PacketBatchSender(taskSchedulerFactory, gameConfig, serializerFactory);
+            _mmPacketSender = new PacketBatchSender(taskSchedulerFactory, config, serializer);
+            _gamePacketSender = new PacketBatchSender(taskSchedulerFactory, gameConfig, serializer);
             
             _playerManager = new PlayersManager( Mock.Of<IMmMetrics>(), _serverLogger);
             _statsProvider = new MM.Providers.StatisticsProvider(_playerManager);
@@ -114,20 +114,20 @@ namespace Shaman.Tests
             matchMaker.AddRequiredProperty(PropertyCode.PlayerProperties.Level);
             
             //setup mm server
-            _mmApplication = new MmApplication(_serverLogger, config, serializerFactory, socketFactory, matchMaker,requestSender, taskSchedulerFactory, _backendProvider, _mmPacketSender, _serverProvider, _mmRoomManager, _mmGroupManager, _playerManager);
+            _mmApplication = new MmApplication(_serverLogger, config, serializer, socketFactory, matchMaker,requestSender, taskSchedulerFactory, _backendProvider, _mmPacketSender, _serverProvider, _mmRoomManager, _mmGroupManager, _playerManager);
             
             _mmApplication.Start();
 
             _gameModeControllerFactory = new FakeGameModeControllerFactory();
 
-            _roomManager = new RoomManager(_serverLogger, serializerFactory, gameConfig, taskSchedulerFactory, _gameModeControllerFactory, _mmPacketSender, Mock.Of<IGameMetrics>(), requestSender);
+            _roomManager = new RoomManager(_serverLogger, serializer, gameConfig, taskSchedulerFactory, _gameModeControllerFactory, _mmPacketSender, Mock.Of<IGameMetrics>(), requestSender);
 
             
             //setup game server
             _gameApplication = new GameApplication(
                 _serverLogger, 
                 gameConfig, 
-                serializerFactory, 
+                serializer, 
                 socketFactory, 
                 taskSchedulerFactory, 
                 requestSender, 
@@ -154,46 +154,24 @@ namespace Shaman.Tests
             //create 12 clients and connect them to mm
             for (var i = 0; i < CLIENTS_NUMBER_1; i++)
             {
-                var client = new TestClientPeer( _clientLogger, taskSchedulerFactory);
+                var client = new TestClientPeer( _clientLogger, taskSchedulerFactory, serializer);
                 client.Connect(CLIENT_CONNECTS_TO_IP, SERVER_PORT_MM);
                 _clients.Add(client);
                 EmptyTask.Wait(WAIT_TIMEOUT);
             }
             
             //send auth
-            _clients.ForEach(c => c.Send(new AuthorizationRequest(1, Guid.NewGuid())));
-            EmptyTask.Wait(WAIT_TIMEOUT * CLIENTS_NUMBER_1);
-            
-            //check auth success
-            isSuccess = true;
-            _clients.ForEach(c =>
-            {
-                var countOfSuccessResponses = c.GetCountOfSuccessResponses(CustomOperationCode.AuthorizationResponse);
-                if (countOfSuccessResponses == 0)
-                    isSuccess = false;
-            });
-            Assert.IsTrue(isSuccess);
-            
-            //send join matchmaking (with level = 1)
-            _clients.ForEach(c => c.Send(new EnterMatchMakingRequest(new Dictionary<byte, object> { {PropertyCode.PlayerProperties.Level, 1} })));
-            
-            EmptyTask.Wait(MM_TICK*2);
+            _clients.ForEach(c => c.Send<AuthorizationResponse>(new AuthorizationRequest(1, Guid.NewGuid())).Wait());
 
-            //check joininfo existance
-            isSuccess = true;
-            _clients.ForEach(c =>
-            {
-                if (c.GetJoinInfo() == null || c.GetJoinInfo().Status != JoinStatus.RoomIsReady)
-                    isSuccess = false;
-            });
-            Assert.IsTrue(isSuccess);
+            //send join matchmaking (with level = 1)
+            _clients.ForEach(c => c.Send<EnterMatchMakingResponse>(new EnterMatchMakingRequest(new Dictionary<byte, object> { {PropertyCode.PlayerProperties.Level, 1} })).Wait());
+            _clients.ForEach(c=>c.WaitFor<JoinInfoEvent>(e => e.JoinInfo != null && e.JoinInfo.Status == JoinStatus.RoomIsReady));
 
             var mmStats = _mmApplication.GetStats();
             Assert.AreEqual(1, mmStats.RegisteredServers.Count);
             
             //sending leave mathmaking request
-            _clients.ForEach(c => c.Send(new LeaveMatchMakingRequest()));
-            EmptyTask.Wait(WAIT_TIMEOUT);
+            _clients.ForEach(c => c.Send<LeaveMatchMakingResponse>(new LeaveMatchMakingRequest()).Wait());
             _clients.ForEach(c => c.Disconnect());
 
             mmStats = _mmApplication.GetStats();
@@ -241,9 +219,9 @@ namespace Shaman.Tests
             isSuccess = true;
             _clients.ForEach(c =>
             {
-                if (c.GetCountOf(CustomOperationCode.Test) != (CLIENTS_NUMBER_1 - 1) * EVENTS_SENT)
+                if (c.CountOf<TestRoomEvent>() != (CLIENTS_NUMBER_1 - 1) * EVENTS_SENT)
                 {
-                    _clientLogger.Error($"test events {c.GetCountOf(CustomOperationCode.Test)}/{(CLIENTS_NUMBER_1 - 1) * EVENTS_SENT}");
+                    _clientLogger.Error($"test events {c.CountOf<TestRoomEvent>()}/{(CLIENTS_NUMBER_1 - 1) * EVENTS_SENT}");
                     isSuccess = false;
                 }
             });
@@ -271,24 +249,14 @@ namespace Shaman.Tests
             //create N clients and connect them to mm
             for (var i = 0; i < CLIENTS_NUMBER_2; i++)
             {
-                var client = new TestClientPeer(_clientLogger, taskSchedulerFactory);
+                var client = new TestClientPeer(_clientLogger, taskSchedulerFactory, serializer);
                 client.Connect(CLIENT_CONNECTS_TO_IP, SERVER_PORT_MM);
                 _clients.Add(client);
                 EmptyTask.Wait(WAIT_TIMEOUT);
             }
             
             //send auth
-            _clients.ForEach(c => c.Send(new AuthorizationRequest(1, Guid.NewGuid())));
-            EmptyTask.Wait(WAIT_TIMEOUT * 10);
-            
-            //check auth success
-            isSuccess = true;
-            _clients.ForEach(c =>
-            {
-                if (c.GetCountOfSuccessResponses(CustomOperationCode.AuthorizationResponse) == 0)
-                    isSuccess = false;
-            });
-            Assert.IsTrue(isSuccess);
+            _clients.ForEach(c => c.Send<AuthorizationResponse>(new AuthorizationRequest(1, Guid.NewGuid())).Wait());
             
             //send join matchmaking (with level = 1)
             _clients.ForEach(c => c.Send(new EnterMatchMakingRequest(new Dictionary<byte, object> { {PropertyCode.PlayerProperties.Level, 1} })));

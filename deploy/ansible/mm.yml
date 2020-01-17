@@ -1,21 +1,7 @@
 - hosts: all
   user: ubuntu
-
-  tasks:
-    - name: Create environments file
-      script: shaman.env.mm.sh ShamanLatest 23455 7007
-    - name: Login to AWS
-      shell: "PATH=\"$HOME/.local/bin:$PATH\" && $(aws ecr get-login --profile ss --no-include-email --region eu-west-1)"
-      register: res
-    - debug: msg="{{res.stdout}}"
-    - name: Pulling MM image
-      shell: "docker pull ***REMOVED***/***REMOVED***.shared:shaman.mm.latest"
-      register: res
-    - name: Stop MM1 container
-      shell: "docker stop sh.mm.latest || true"
-      register: res
-    - debug: msg="{{res.stdout}}"    
-    - name: Run MM1 container
-      shell: "docker run -d --rm -p 7007:7007 -p 23455:23455/udp --name=sh.mm.latest --env-file ~/shaman.env.mm.ShamanLatest.list --log-opt max-size=100m ***REMOVED***/***REMOVED***.shared:shaman.mm.latest"
-      register: res
-    - debug: msg="{{res.stdout}}"
+  vars_files:
+    - vars/common.json
+    - vars/mm.json
+  roles:
+    - service

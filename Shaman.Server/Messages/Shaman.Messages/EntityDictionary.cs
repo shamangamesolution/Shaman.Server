@@ -30,7 +30,13 @@ namespace Shaman.Messages
         {
             _dict.TryAdd(item.Id, item);
         }
-        
+
+        public int Count => _dict.Count;
+
+        /// <summary>
+        /// Search entity by ID
+        /// </summary>
+        /// <param name="id">Id value of entity to search</param>
         public T this[long id]
         {
             get

@@ -1,0 +1,7 @@
+{
+	"docker_image": "shaman.mm.latest",
+	"http_port": 7010,
+	"udp_port": 23458,
+	"container_name": "mm",
+	"metrics_path_prefix": "rw"
+}

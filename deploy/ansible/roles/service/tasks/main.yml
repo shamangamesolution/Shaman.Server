@@ -1,0 +1,31 @@
+---
+  - name: Loading commonvars
+    include_vars:
+      file: common.json
+  - shell: dig @resolver1.opendns.com ANY myip.opendns.com +short
+    register: public_ip_res
+  - set_fact:
+      public_ip={{public_ip_res.stdout}}
+  - debug: msg="Public IP = {{public_ip}}"
+  - template:
+      src: env.j2
+      dest: shaman.env.{{container_name}}.list
+  - name: Login to AWS
+    shell: "PATH=\"$HOME/.local/bin:$PATH\" && $(aws ecr get-login --profile {{aws_profile}} --no-include-email --region {{aws_region}})"
+    register: res
+  - debug: msg="{{res.stdout}}"
+  - name: Pulling image
+    shell: "docker pull {{docker_repository}}:{{docker_image}}"
+    register: res
+  - debug: msg="{{res.stdout}}"
+  - name: Stop {{container_name}} container
+    shell: "docker stop {{container_name}} || true"
+    register: res
+  - name: Remove {{container_name}} container
+    shell: "docker rm {{container_name}} || true"
+    register: res
+  - debug: msg="{{res.stdout}}"    
+  - name: Run {{container_name}} container
+    shell: "docker run -d -p {{http_port}}:{{http_port}} -p {{udp_port}}:{{udp_port}}/udp --name={{container_name}} --env-file ~/shaman.env.{{container_name}}.list --log-opt max-size=100m {{docker_repository}}:{{docker_image}}"
+    register: res
+  - debug: msg="{{res.stdout}}"

@@ -129,7 +129,7 @@ namespace Shaman.Tests
         //protected List<MessageBase> _receivedMessages = new List<MessageBase>();
         protected IShamanLogger _clientLogger = new ConsoleLogger("C ", LogLevel.Error | LogLevel.Info | LogLevel.Debug);
         protected IShamanLogger _serverLogger = new ConsoleLogger("S ", LogLevel.Error | LogLevel.Info);
-        protected ISerializer serializerFactory;
+        protected ISerializer serializer;
         
         //switch Sockets implementation.BEGIN
         protected ISocketFactory socketFactory = new LiteNetSockFactory();
@@ -142,7 +142,7 @@ namespace Shaman.Tests
 
         public TestSetBase()
         {
-            serializerFactory = new BinarySerializer();
+            serializer = new BinarySerializer();
             taskSchedulerFactory = new TaskSchedulerFactory(_serverLogger);
         }
         

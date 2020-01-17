@@ -1,0 +1,10 @@
+{
+	"docker_repository": "***REMOVED***/***REMOVED***.shared",
+	"router_url": "https://***REMOVED***.***REMOVED***.com:6006",
+	"aws_region": "eu-west-1",
+	"aws_profile": "ss",
+	"graphite_url": "net.tcp://***REMOVED***",
+	"metrics_path_prefix": "shaman",
+	"loggly_token": "",
+	"error_level": "Error"
+}

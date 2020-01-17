@@ -1,4 +1,5 @@
 using Shaman.Common.Utils.Logging;
+using Shaman.Common.Utils.Serialization;
 using Shaman.Common.Utils.TaskScheduling;
 
 namespace Shaman.TestTools.ClientPeers
@@ -11,8 +12,7 @@ namespace Shaman.TestTools.ClientPeers
         private static readonly TaskSchedulerFactory TaskSchedulerFactory = new TaskSchedulerFactory(ServerLogger);
         public static TestClientPeer CreateDefault()
         {
-            return new TestClientPeer(ClientLogger, TaskSchedulerFactory);
-
+            return new TestClientPeer(ClientLogger, TaskSchedulerFactory, new BinarySerializer());
         }
     }
 }
