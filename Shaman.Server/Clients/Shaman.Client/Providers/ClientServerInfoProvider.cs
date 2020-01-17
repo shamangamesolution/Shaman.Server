@@ -47,7 +47,7 @@ namespace Shaman.Client.Providers
             }
             else
             {
-                var servers = response.ServerInfoList.Where(s => s.ClientVersion == clientVersion).ToList();
+                var servers = response.ServerInfoList.Where(s => s.ClientVersion == clientVersion && s.IsApproved).ToList();
 
                 var regions = servers.Select(s => s.Region).Distinct();
                 foreach (var region in regions)
