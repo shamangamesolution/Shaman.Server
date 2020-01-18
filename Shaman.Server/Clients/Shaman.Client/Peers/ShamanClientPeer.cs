@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Senders;
@@ -204,6 +205,21 @@ namespace Shaman.Client.Peers
                 
                 JoinInfoReceived(response.JoinInfo);
             });
+        }
+
+        public void PingConnect(string address, ushort port, Action<bool> callback, int timeoutMs = 1000)
+        {
+            var handlerId = RegisterOperationHandler(CustomOperationCode.Connect, (msg) =>
+            {
+                Disconnect();
+                callback(true);
+            }, true);
+            _clientPeer.Connect(address, port);
+            var task = _taskScheduler.Schedule(() =>
+            {
+                UnregisterOperationHandler(handlerId);
+                callback(false);
+            }, timeoutMs);
         }
         
         private void StartConnect(string matchMakerAddress, ushort matchMakerPort, int backendId, Guid sessionId,
