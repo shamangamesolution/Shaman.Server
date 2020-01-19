@@ -143,6 +143,9 @@ namespace Shaman.MM
 
                     switch (operationCode)
                     {
+                        case CustomOperationCode.PingRequest:
+                            _packetSender.AddPacket(new PingResponse(), peer);
+                            break;
                         case CustomOperationCode.CreateRoomFromClient:
                             var createRequest = Serializer.DeserializeAs<CreateRoomFromClientRequest>(buffer, offset, length);
                             var createResult = _matchMakingGroupsManager.CreateRoom(peer.GetSessionId(), createRequest.MatchMakingProperties);

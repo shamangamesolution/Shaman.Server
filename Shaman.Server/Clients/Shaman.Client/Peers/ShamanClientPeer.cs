@@ -214,12 +214,17 @@ namespace Shaman.Client.Peers
                 Disconnect();
                 callback(true);
             }, true);
-            _clientPeer.Connect(address, port);
+            Connect(address, port);
             var task = _taskScheduler.Schedule(() =>
             {
                 UnregisterOperationHandler(handlerId);
                 callback(false);
             }, timeoutMs);
+        }
+
+        public void Connect(string address, ushort port)
+        {
+            _clientPeer.Connect(address, port);
         }
         
         private void StartConnect(string matchMakerAddress, ushort matchMakerPort, int backendId, Guid sessionId,
@@ -238,8 +243,7 @@ namespace Shaman.Client.Peers
                 
                 SetAndReportStatus(ClientStatus.ConnectingMatchMaking, statusCallback);
                 RegisterOperationHandler(CustomOperationCode.Connect, OnConnectedToMatchMaker, true);
-                
-                _clientPeer.Connect(matchMakerAddress, matchMakerPort);
+                Connect(matchMakerAddress, matchMakerPort);
             }
             catch (Exception ex)
             {
