@@ -6,5 +6,6 @@
 	"graphite_url": "net.tcp://***REMOVED***",
 	"metrics_path_prefix": "shaman",
 	"loggly_token": "",
-	"error_level": "Error"
+	"error_level": "Error",
+	"overwriteDownloadedBundle": true
 }

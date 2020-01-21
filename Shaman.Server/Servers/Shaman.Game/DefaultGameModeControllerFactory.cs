@@ -1,5 +1,7 @@
 using System;
+using Shaman.Common.Server.Configuration;
 using Shaman.Common.Utils.TaskScheduling;
+using Shaman.Game.Configuration;
 using Shaman.Game.Contract;
 using Shaman.ServerSharedUtilities;
 using Shaman.ServerSharedUtilities.Bunlding;
@@ -13,12 +15,12 @@ namespace Shaman.Game
         private readonly IGameModeControllerFactory _bundledGameModeControllerFactory;
 
         public DefaultGameModeControllerFactory(IBundleInfoProvider bundleInfoProvider,
-            IServerActualizer serverActualizer, IShamanComponents shamanComponents)
+            IServerActualizer serverActualizer, IShamanComponents shamanComponents, IApplicationConfig config)
         {
             // in case of first time actualization
             serverActualizer.Actualize(0);
             var bundleUri = bundleInfoProvider.GetBundleUri().Result;
-            _gameBundle = BundleHelper.LoadTypeFromBundle<IGameBundle>(bundleUri);
+            _gameBundle = BundleHelper.LoadTypeFromBundle<IGameBundle>(bundleUri, ((GameApplicationConfig)config).OverwriteDownloadedBundle);
             _gameBundle.OnInitialize(shamanComponents);
             _bundledGameModeControllerFactory = _gameBundle.GetGameModeControllerFactory();
             if (_bundledGameModeControllerFactory == null)

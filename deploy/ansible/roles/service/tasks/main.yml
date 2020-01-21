@@ -26,6 +26,6 @@
     register: res
   - debug: msg="{{res.stdout}}"    
   - name: Run {{container_name}} container
-    shell: "docker run -d -p {{http_port}}:{{http_port}} -p {{udp_port}}:{{udp_port}}/udp --name={{container_name}} --env-file ~/shaman.env.{{container_name}}.list --log-opt max-size=100m {{docker_repository}}:{{docker_image}}"
+    shell: "docker run -d -p {{http_port}}:{{http_port}} -p {{udp_port}}:{{udp_port}}/udp --name={{container_name}} --env-file ~/shaman.env.{{container_name}}.list -e OverwriteDownloadedBundle={{overwriteDownloadedBundle}} --log-opt max-size=100m {{docker_repository}}:{{docker_image}}"
     register: res
   - debug: msg="{{res.stdout}}"
