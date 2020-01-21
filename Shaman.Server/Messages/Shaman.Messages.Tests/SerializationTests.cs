@@ -33,15 +33,25 @@ namespace Shaman.Messages.Tests
             var messageBaseType = typeof(PingRequest);
             var messages = messageBaseType.Assembly.GetTypes().Where(t =>
                 t.IsSubclassOf(typeof(MessageBase)) && !t.IsAbstract &&
-                t.GetConstructor(Array.Empty<Type>()) != null).Select(CreateFromType).OfType<MessageBase>().ToArray();
+                t.GetConstructor(Array.Empty<Type>()) != null).Select(CreateFromType).OfType<ISerializable>().ToArray();
 
 
+            //todo fix tests
             foreach (var message in messages)
             {
                 Console.Out.WriteLine("Testing '{0}'...", message.GetType());
+                if (message is ResponseBase)
+                {
+                    ((ResponseBase) message).ResultCode = ResultCode.OK;
+                }
+                else if (message is HttpResponseBase)
+                {
+                    ((HttpResponseBase) message).ResultCode = ResultCode.OK;
+                }
+                
                 var serialized = Serialize(message);
                 var deserialized = Deserialize(serialized, (MessageBase) Activator.CreateInstance(message.GetType()));
-                deserialized.Should().BeEquivalentTo(message, $"Deserialized type {serialized.GetType()}");
+                deserialized.Should().BeEquivalentTo((object)/*cast to force deep check*/message, $"Deserialized type {serialized.GetType()}");
             }
 
             CreateFromType(typeof(PingRequest));
