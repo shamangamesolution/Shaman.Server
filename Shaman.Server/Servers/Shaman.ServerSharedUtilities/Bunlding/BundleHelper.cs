@@ -9,12 +9,14 @@ namespace Shaman.ServerSharedUtilities.Bunlding
 {
     public class BundleHelper
     {
-        public static T LoadTypeFromBundle<T>(string uri)
+        public static T LoadTypeFromBundle<T>(string uri, bool overwriteExisting = false)
         {
-            return uri.StartsWith("http") ? LoadTypeFromHttpBundle<T>(uri) : LoadTypeFromLocalBundle<T>(uri);
+            Console.Out.WriteLine($"OverwriteExisting: {overwriteExisting}");
+
+            return uri.StartsWith("http") ? LoadTypeFromHttpBundle<T>(uri, overwriteExisting) : LoadTypeFromLocalBundle<T>(uri);
         }
 
-        private static T LoadTypeFromHttpBundle<T>(string url)
+        private static T LoadTypeFromHttpBundle<T>(string url, bool overwriteExisting = false)
         {
             var uri = new Uri(url);
 
@@ -25,8 +27,13 @@ namespace Shaman.ServerSharedUtilities.Bunlding
                 Directory.CreateDirectory(bundlesFolder);
             
             var newBundleFolder = Path.Combine(bundlesFolder,Path.GetFileNameWithoutExtension(bundleDest));
-            if (!Directory.Exists(newBundleFolder))
+            var folderExists = Directory.Exists(newBundleFolder);
+            if (!folderExists || overwriteExisting)
             {
+                if (folderExists)
+                {
+                    Directory.Delete(newBundleFolder, true);
+                }
                 Console.Out.WriteLine($"Downloading bundle from {uri}");
                 using (var wc = new WebClient())
                     wc.DownloadFile(uri, bundleDest);

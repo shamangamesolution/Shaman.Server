@@ -154,7 +154,7 @@ namespace Shaman.MM
             }
             
             var bundleUri = bundleInfoProvider.GetBundleUri().Result;
-            var resolver = BundleHelper.LoadTypeFromBundle<IMmResolver>(bundleUri);
+            var resolver = BundleHelper.LoadTypeFromBundle<IMmResolver>(bundleUri, Convert.ToBoolean(Configuration["OverwriteDownloadedBundle"]));
             RoomPropertiesProvider.RoomPropertiesProviderImplementation = resolver.GetRoomPropertiesProvider();
             resolver.Configure(matchMaker);
             

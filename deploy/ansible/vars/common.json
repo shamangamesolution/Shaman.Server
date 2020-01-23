@@ -1,10 +1,11 @@
 {
-	"docker_repository": "***REMOVED***/***REMOVED***io",
-	"router_url": "http://***REMOVED***ioNLB-e84e689a0ad6016b.elb.eu-west-1.amazonaws.com:7000",
+	"docker_repository": "***REMOVED***/***REMOVED***.shared",
+	"router_url": "https://***REMOVED***.***REMOVED***.com:6006",
 	"aws_region": "eu-west-1",
-	"aws_profile": "***REMOVED***io",
+	"aws_profile": "ss",
 	"graphite_url": "net.tcp://***REMOVED***",
-	"metrics_path_prefix": "***REMOVED***io",
-	"loggly_token": "***REMOVED***",
-	"error_level": "Error"
+	"metrics_path_prefix": "shaman",
+	"loggly_token": "",
+	"error_level": "Error",
+	"overwriteDownloadedBundle": true
 }

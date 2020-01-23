@@ -39,7 +39,6 @@ namespace Shaman.Common.Server.Peers
 
         public void Disconnect(DisconnectReason reason)
         {
-            _socket.Close();
         }
 
 //        public void Send(MessageBase message)

@@ -85,7 +85,10 @@ namespace Shaman.Game
                         Convert.ToInt32(Configuration["SocketTickTimeMs"]),
                         Convert.ToInt32(Configuration["ReceiveTickTimeMs"]),
                         Convert.ToInt32(Configuration["SendTickTimeMs"])
-                    ));
+                    )
+                    {
+                        OverwriteDownloadedBundle = Convert.ToBoolean(Configuration["OverwriteDownloadedBundle"])
+                    });
                 ConfigureMetrics(services);
             }
 
