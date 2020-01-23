@@ -1,7 +1,7 @@
 {
-	"docker_image": "shaman.game.latest",
+	"docker_image": "game.latest",
 	"http_port": 7009,
 	"udp_port": 23457,
 	"container_name": "game",
-	"metrics_path_prefix": "rw"
+	"metrics_path_prefix": "***REMOVED***io"
 }

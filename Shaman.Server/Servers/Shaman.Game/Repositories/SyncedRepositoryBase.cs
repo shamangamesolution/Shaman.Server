@@ -1,3 +1,4 @@
+using System;
 using Shaman.Messages.General.Entity;
 
 namespace Shaman.Game.Repositories
@@ -17,6 +18,24 @@ namespace Shaman.Game.Repositories
         public void FlushChanges()
         {
             _changesContainer.Flush();
+        }
+        
+        protected void TrackNullableFloatChange(int objectIndex, byte fieldIndex, float? oldValue, float? newValue, float tolerance = 0.001f)
+        {
+            if (oldValue == null && newValue == null)
+                return;
+            if (oldValue != null && newValue == null)
+            {
+                TrackChange(objectIndex, (byte) fieldIndex, null);
+                return;
+            }
+            if (oldValue == null && newValue != null)
+            {
+                TrackChange(objectIndex, (byte) fieldIndex, newValue);
+                return;
+            }
+            if (Math.Abs(oldValue.Value - newValue.Value) > tolerance)
+                TrackChange(objectIndex, (byte) fieldIndex, newValue);
         }
         
         public void TrackChange(int objectIndex, byte fieldIndex, int fieldValue)

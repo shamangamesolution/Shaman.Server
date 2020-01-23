@@ -107,67 +107,96 @@ namespace Shaman.Messages.General.Entity
         public ConcurrentDictionary<int, ConcurrentDictionary<byte, float?>> NullableFloatChanges =
             new ConcurrentDictionary<int, ConcurrentDictionary<byte, float?>>();
 
+        private object _mutex = new object();
+        
         public bool IsEmpty()
         {
-            return IntChanges.IsEmpty && NullableIntChanges.IsEmpty && ByteChanges.IsEmpty &&
-                   NullableByteChanges.IsEmpty && NullableFloatChanges.IsEmpty;
+            lock (_mutex)
+            {
+                return IntChanges.IsEmpty && NullableIntChanges.IsEmpty && ByteChanges.IsEmpty &&
+                       NullableByteChanges.IsEmpty && NullableFloatChanges.IsEmpty;
+            }
         }
         
         public void TrackChange(int objectIndex, byte fieldIndex, int fieldValue)
         {
-            IntChanges.TryAdd(objectIndex, new ConcurrentDictionary<byte, int>());
-            IntChanges[objectIndex].AddOrUpdate(fieldIndex, fieldValue, (key, oldValue) => fieldValue);
+            lock (_mutex)
+            {
+                IntChanges.TryAdd(objectIndex, new ConcurrentDictionary<byte, int>());
+                IntChanges[objectIndex].AddOrUpdate(fieldIndex, fieldValue, (key, oldValue) => fieldValue);
+            }
         }
         
         public void TrackChange(int objectIndex, byte fieldIndex, int? fieldValue)
         {
-            NullableIntChanges.TryAdd(objectIndex, new ConcurrentDictionary<byte, int?>());
-            NullableIntChanges[objectIndex].AddOrUpdate(fieldIndex, fieldValue, (key, oldValue) => fieldValue);
+            lock (_mutex)
+            {
+                NullableIntChanges.TryAdd(objectIndex, new ConcurrentDictionary<byte, int?>());
+                NullableIntChanges[objectIndex].AddOrUpdate(fieldIndex, fieldValue, (key, oldValue) => fieldValue);
+            }
         }
         
         public void TrackChange(int objectIndex, byte fieldIndex, byte fieldValue)
         {
-            ByteChanges.TryAdd(objectIndex, new ConcurrentDictionary<byte, byte>());
-            ByteChanges[objectIndex].AddOrUpdate(fieldIndex, fieldValue, (key, oldValue) => fieldValue);
+            lock (_mutex)
+            {
+                ByteChanges.TryAdd(objectIndex, new ConcurrentDictionary<byte, byte>());
+                ByteChanges[objectIndex].AddOrUpdate(fieldIndex, fieldValue, (key, oldValue) => fieldValue);
+            }
         }
         
         public void TrackChange(int objectIndex, byte fieldIndex, byte? fieldValue)
         {
-            NullableByteChanges.TryAdd(objectIndex, new ConcurrentDictionary<byte, byte?>());
-            NullableByteChanges[objectIndex].AddOrUpdate(fieldIndex, fieldValue, (key, oldValue) => fieldValue);
+            lock (_mutex)
+            {
+                NullableByteChanges.TryAdd(objectIndex, new ConcurrentDictionary<byte, byte?>());
+                NullableByteChanges[objectIndex].AddOrUpdate(fieldIndex, fieldValue, (key, oldValue) => fieldValue);
+            }
         }
         
         public void TrackChange(int objectIndex, byte fieldIndex, float? fieldValue)
         {
-            NullableFloatChanges.TryAdd(objectIndex, new ConcurrentDictionary<byte, float?>());
-            NullableFloatChanges[objectIndex].AddOrUpdate(fieldIndex, fieldValue, (key, oldValue) => fieldValue);
+            lock (_mutex)
+            {
+                NullableFloatChanges.TryAdd(objectIndex, new ConcurrentDictionary<byte, float?>());
+                NullableFloatChanges[objectIndex].AddOrUpdate(fieldIndex, fieldValue, (key, oldValue) => fieldValue);
+            }
         }
         
         public void Clear()
         {
-            IntChanges.Clear();
-            NullableIntChanges.Clear();
-            ByteChanges.Clear();
-            NullableByteChanges.Clear();
-            NullableFloatChanges.Clear();
+            lock (_mutex)
+            {
+                IntChanges.Clear();
+                NullableIntChanges.Clear();
+                ByteChanges.Clear();
+                NullableByteChanges.Clear();
+                NullableFloatChanges.Clear();
+            }
         }
 
         protected override void SerializeBody(ITypeWriter typeWriter)
         {
-            typeWriter.Write(IntChanges);
-            typeWriter.Write(NullableIntChanges);
-            typeWriter.Write(ByteChanges);
-            typeWriter.Write(NullableByteChanges);
-            typeWriter.Write(NullableFloatChanges);
+            lock (_mutex)
+            {
+                typeWriter.Write(IntChanges);
+                typeWriter.Write(NullableIntChanges);
+                typeWriter.Write(ByteChanges);
+                typeWriter.Write(NullableByteChanges);
+                typeWriter.Write(NullableFloatChanges);
+            }
         }
 
         protected override void DeserializeBody(ITypeReader typeReader)
         {
-            IntChanges = typeReader.ReadIntFieldDictionary();
-            NullableIntChanges = typeReader.ReadNullableIntFieldDictionary();
-            ByteChanges = typeReader.ReadByteFieldDictionary();
-            NullableByteChanges = typeReader.ReadNullableByteFieldDictionary();
-            NullableFloatChanges = typeReader.ReadNullableFloatFieldDictionary();
+            lock (_mutex)
+            {
+                IntChanges = typeReader.ReadIntFieldDictionary();
+                NullableIntChanges = typeReader.ReadNullableIntFieldDictionary();
+                ByteChanges = typeReader.ReadByteFieldDictionary();
+                NullableByteChanges = typeReader.ReadNullableByteFieldDictionary();
+                NullableFloatChanges = typeReader.ReadNullableFloatFieldDictionary();
+            }
         }
     }
 

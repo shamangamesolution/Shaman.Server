@@ -239,7 +239,7 @@ namespace Shaman.Messages.Extensions
                     var key = serializer.ReadInt();
                     var val = new ConcurrentDictionary<byte, int>();
                     var subCnt = serializer.ReadInt();
-                    for (int j = 0; i < subCnt; i++)
+                    for (int j = 0; j < subCnt; j++)
                     {
                         var subKey = serializer.ReadByte();
                         var subValue = serializer.ReadInt();
@@ -266,7 +266,7 @@ namespace Shaman.Messages.Extensions
                     var key = serializer.ReadInt();
                     var val = new ConcurrentDictionary<byte, int?>();
                     var subCnt = serializer.ReadInt();
-                    for (int j = 0; i < subCnt; i++)
+                    for (int j = 0; j < subCnt; j++)
                     {
                         var subKey = serializer.ReadByte();
                         var subValue = serializer.ReadNullableInt();
@@ -293,7 +293,7 @@ namespace Shaman.Messages.Extensions
                     var key = serializer.ReadInt();
                     var val = new ConcurrentDictionary<byte, byte>();
                     var subCnt = serializer.ReadInt();
-                    for (int j = 0; i < subCnt; i++)
+                    for (int j = 0; j < subCnt; j++)
                     {
                         var subKey = serializer.ReadByte();
                         var subValue = serializer.ReadByte();
@@ -320,7 +320,7 @@ namespace Shaman.Messages.Extensions
                     var key = serializer.ReadInt();
                     var val = new ConcurrentDictionary<byte, byte?>();
                     var subCnt = serializer.ReadInt();
-                    for (int j = 0; i < subCnt; i++)
+                    for (int j = 0; j < subCnt; j++)
                     {
                         var subKey = serializer.ReadByte();
                         var subValue = serializer.ReadNullableByte();
@@ -347,7 +347,7 @@ namespace Shaman.Messages.Extensions
                     var key = serializer.ReadInt();
                     var val = new ConcurrentDictionary<byte, float?>();
                     var subCnt = serializer.ReadInt();
-                    for (int j = 0; i < subCnt; i++)
+                    for (int j = 0; j < subCnt; j++)
                     {
                         var subKey = serializer.ReadByte();
                         var subValue = serializer.ReadNullableFloat();

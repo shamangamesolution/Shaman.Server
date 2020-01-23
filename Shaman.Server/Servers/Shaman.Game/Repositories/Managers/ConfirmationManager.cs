@@ -93,8 +93,7 @@ namespace Shaman.Game.Repositories.Managers
 
         public void ConfirmAllChanges(Guid repoId, int playerIndex)
         {
-            if (!_confirmationRepoToChangeId.ContainsKey(repoId))
-                throw new Exception($"ConfirmAllChanges error: no repo {repoId}");
+            _confirmationRepoToChangeId.TryAdd(repoId, new HashSet<int>());
             foreach (var index in _confirmationRepoToChangeId[repoId])
             {
                 ConfirmChangeId(playerIndex, index);

@@ -5,6 +5,7 @@ namespace Shaman.Messages.General.DTO.Events.RepositorySync
 {
     public class ConfirmChangeIdEventBase : EventBase
     {
+        public override bool IsReliable => false;
         public int ChangeId { get; set; }
         
         public ConfirmChangeIdEventBase(ushort operationCode, int changeId) : this(operationCode)
