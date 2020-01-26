@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Serialization;
 using Shaman.Messages.Extensions;
@@ -81,6 +82,13 @@ namespace Shaman.Messages.General.Entity
             
         }
 
+        public int GetSizeInBytes()
+        {
+            return ChangeSet.GetSizeInBytes();
+        }
+
+
+
         protected override void SerializeBody(ITypeWriter typeWriter)
         {
             typeWriter.WriteEntity(ChangeSet);
@@ -108,6 +116,19 @@ namespace Shaman.Messages.General.Entity
             new ConcurrentDictionary<int, ConcurrentDictionary<byte, float?>>();
 
         private object _mutex = new object();
+        private int _totalSize = 0;
+
+        public int GetSizeInBytes()
+        {
+            var intChangesSize = 4 + IntChanges.Count() * 5 + IntChanges.Sum(i => i.Value.Count()) * 5;
+            var nullableIntChangesSize = 4 + NullableIntChanges.Count() * 5 + NullableIntChanges.Sum(i => i.Value.Count()) * 5;
+            var byteChangesSize = 4 + ByteChanges.Count() * 5 + ByteChanges.Sum(i => i.Value.Count()) * 2;
+            var nullableByteChangesSize = 4 + NullableByteChanges.Count() * 5 + NullableByteChanges.Sum(i => i.Value.Count()) * 2;
+            var nullableFloatChangesSize = 4 + NullableFloatChanges.Count() * 5 + NullableFloatChanges.Sum(i => i.Value.Count()) * 5;
+
+            return intChangesSize + nullableIntChangesSize + byteChangesSize + nullableByteChangesSize +
+                   nullableFloatChangesSize;
+        }
         
         public bool IsEmpty()
         {
@@ -167,6 +188,7 @@ namespace Shaman.Messages.General.Entity
         {
             lock (_mutex)
             {
+                _totalSize = 0;
                 IntChanges.Clear();
                 NullableIntChanges.Clear();
                 ByteChanges.Clear();

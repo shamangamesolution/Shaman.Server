@@ -114,8 +114,9 @@ namespace Shaman.Game.Repositories.Syncers
                     if (_playerRepo.IsPlayerExist(item.Key))
                     {
                         var sessionId = _playerRepo.GetPlayerSessionId(item.Key);
-                        _logger.Error($"Forcing player {item.Key} to refresh repo with {typeof(TEvent)}");
+                        _logger.Error($"Forcing player {item.Key} to refresh repo with {typeof(TEvent)} (miss rate {item.Value})");
                         Room.AddToSendQueue(new TEvent(), sessionId);
+                        _confirmationManager.ConfirmAllChanges(_id, item.Key);
                     }
                 }
             }
@@ -126,11 +127,11 @@ namespace Shaman.Game.Repositories.Syncers
             return _id;
         }
         
-        public void Start(int checkConfirmationIntervalMs = 1000, int forceSyncThreshold = 20)
+        public void Start(int checkConfirmationIntervalMs = 1000, int forceSyncThreshold = 20, int queueDepth = 100, int clearQueuesIntervalMs = 1000, int trackIntervalMs = 1000)
         {
             _forceSyncThreshold = forceSyncThreshold;
-            _confirmationManager.Start();
-            _getPlayersForForSyncTask = _taskScheduler.ScheduleOnInterval(CheckConfirmations, checkConfirmationIntervalMs, checkConfirmationIntervalMs, true);
+            //_confirmationManager.Start(queueDepth, clearQueuesIntervalMs, trackIntervalMs);
+            //_getPlayersForForSyncTask = _taskScheduler.ScheduleOnInterval(CheckConfirmations, checkConfirmationIntervalMs, checkConfirmationIntervalMs, true);
         }
 
         public void Sync()
@@ -144,13 +145,14 @@ namespace Shaman.Game.Repositories.Syncers
                 var changesContainer = _repo.GetChanges();
                 if (changesContainer.IsEmpty())
                     return;
-                //copy container
-                //TODO optimize copying
-                var container =
-                    _serializer.DeserializeAs<ChangesContainer<T>>(_serializer.Serialize(changesContainer));
-                _queue.Enqueue(new ChangesContainerInfo<T>(container, _currentRevision));
                 //flush current changes
                 _repo.FlushChanges();
+                
+                //copy container
+                //TODO optimize copying
+                //var container = _serializer.DeserializeAs<ChangesContainer<T>>(_serializer.Serialize(changesContainer));
+                _queue.Enqueue(new ChangesContainerInfo<T>(changesContainer, _currentRevision));
+
                 //update current revision
                 _currentRevision++;
                 //send event

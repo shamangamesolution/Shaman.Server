@@ -29,13 +29,13 @@ namespace Shaman.Game.Repositories.Managers
             _taskScheduler.ScheduleOnInterval(SyncAll, 0, intervalMs, true);
         }
 
-        public void AddSyncer<T>(IRepositorySyncer syncer, int checkConfirmationInterval = 1000, int forceSyncThreshold = 20) where T:ConfirmChangeIdEventBase
+        public void AddSyncer<T>(IRepositorySyncer syncer, int checkConfirmationInterval = 1000, int forceSyncThreshold = 20, int queueDepth = 100, int clearQueuesIntervalMs = 1000, int trackIntervalMs = 1000) where T:ConfirmChangeIdEventBase
         {
             lock (_mutex)
             {
                 _syncers.Add(syncer);
                 _typeToSyncers.Add(typeof(T), syncer);
-                syncer.Start(checkConfirmationInterval, forceSyncThreshold);
+                syncer.Start(checkConfirmationInterval, forceSyncThreshold, queueDepth, clearQueuesIntervalMs, trackIntervalMs);
                 _idToSyncers.Add(syncer.GetId(), syncer);
             }
         }

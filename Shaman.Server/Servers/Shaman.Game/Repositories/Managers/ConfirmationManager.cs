@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.TaskScheduling;
 
 namespace Shaman.Game.Repositories.Managers
@@ -14,6 +15,7 @@ namespace Shaman.Game.Repositories.Managers
         
         private readonly IPlayerRepository _playerRepo;
         private readonly ITaskScheduler _taskScheduler;
+        private readonly IShamanLogger _logger;
         private ConcurrentDictionary<int, long> _confirmationHistory = new ConcurrentDictionary<int, long>();
         private ConcurrentDictionary<int, DateTime> _confirmationHistoryTime = new ConcurrentDictionary<int, DateTime>();
         private ConcurrentDictionary<int, Guid> _confirmationChangeIdToRepoId = new ConcurrentDictionary<int, Guid>();
@@ -25,10 +27,11 @@ namespace Shaman.Game.Repositories.Managers
         private object _changeIdMutex = new object();
         private int _currentChangeId;
         
-        public ConfirmationManager(IPlayerRepository playerRepo, ITaskScheduler taskScheduler)
+        public ConfirmationManager(IPlayerRepository playerRepo, ITaskScheduler taskScheduler, IShamanLogger logger)
         {
             _playerRepo = playerRepo;
             _taskScheduler = taskScheduler;
+            _logger = logger;
         }
 
         public int IncrementAndGetChangeId(Guid repoId)
@@ -66,7 +69,7 @@ namespace Shaman.Game.Repositories.Managers
             return (value & (1 << playerIndex)) != 0;
         }
 
-        public void Start(int queueDepth = 100, int clearQueuesIntervalMs = 1000, int trackIntervalMs = 200)
+        public void Start(int queueDepth = 100, int clearQueuesIntervalMs = 1000, int trackIntervalMs = 1000)
         {
             _queueDepth = queueDepth;
             _clearQueuesIntervalMs = clearQueuesIntervalMs;
@@ -97,6 +100,7 @@ namespace Shaman.Game.Repositories.Managers
             foreach (var index in _confirmationRepoToChangeId[repoId])
             {
                 ConfirmChangeId(playerIndex, index);
+
             }
         }
 
@@ -139,7 +143,9 @@ namespace Shaman.Game.Repositories.Managers
                     {
                         var value = _confirmationHistory[item];
                         if (!IsConfirmedBy(value, index))
+                        {
                             confirmationMisses[index]++;
+                        }
                     }
                 }
 
@@ -147,6 +153,10 @@ namespace Shaman.Game.Repositories.Managers
                 foreach (var index in indexes)
                 {
                     result[index] = 100 * (float) confirmationMisses[index] / totalChanges;
+                    if (result[index] == 100)
+                    {
+                        _logger.Error($"");
+                    }
                 }
 
                 return result;

@@ -17,7 +17,8 @@ namespace Shaman.Game.Repositories
 
         public void FlushChanges()
         {
-            _changesContainer.Flush();
+            //_changesContainer.Flush();
+            _changesContainer = new ChangesContainer<T>();
         }
         
         protected void TrackNullableFloatChange(int objectIndex, byte fieldIndex, float? oldValue, float? newValue, float tolerance = 0.001f)
