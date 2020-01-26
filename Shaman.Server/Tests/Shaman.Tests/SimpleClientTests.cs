@@ -30,7 +30,6 @@ using Shaman.MM.Metrics;
 using Shaman.MM.Providers;
 using Shaman.Tests.Providers;
 using Shaman.TestTools.ClientPeers;
-using ClientStatus = Shaman.Client.Peers.ClientStatus;
 using GameProject = Shaman.Messages.General.Entity.GameProject;
 using IRoomManager = Shaman.Game.Rooms.IRoomManager;
 using RoomManager = Shaman.Game.Rooms.RoomManager;
@@ -56,7 +55,7 @@ namespace Shaman.Tests
         private IMatchMaker matchMaker;
         private List<MatchMakingGroup> matchMakingGroups = new List<MatchMakingGroup>();
         private IRequestSender requestSender = null;
-        private List<ShamanClientPeer> _clients = new List<ShamanClientPeer>();
+        private List<ShamanClientPeerLegacy> _clients = new List<ShamanClientPeerLegacy>();
         private IBackendProvider _backendProvider;
         private IRoomPropertiesContainer _roomPropertiesContainer;
         private IRoomManager _roomManager;
@@ -159,7 +158,7 @@ namespace Shaman.Tests
         {
             for (int i = 0; i < CLIENTS_NUMBER_1; i++)
             {
-                var client = new ShamanClientPeer(new TestMessageDeserializer(), _clientLogger, taskSchedulerFactory, 20, serializer, requestSender);
+                var client = new ShamanClientPeerLegacy(new TestMessageDeserializer(), _clientLogger, taskSchedulerFactory, 20, serializer, requestSender);
                 var sessionId = Guid.NewGuid();
                 client.JoinGame(CLIENT_CONNECTS_TO_IP, SERVER_PORT_MM,1, sessionId, new Dictionary<byte, object> { {PropertyCode.PlayerProperties.Level, 1} },
                     new Dictionary<byte, object>(), 
@@ -186,7 +185,7 @@ namespace Shaman.Tests
 
             bool success = true;
             foreach(var client in _clients)
-                if (client.GetStatus() != ClientStatus.InRoom)
+                if (client.GetStatus() != ClientStatusLegacy.InRoom)
                     success = false;
             Assert.AreEqual(true, success);
 
@@ -202,7 +201,7 @@ namespace Shaman.Tests
 
             success = true;
             foreach(var client in _clients)
-                if (client.GetStatus() != ClientStatus.InRoom)
+                if (client.GetStatus() != ClientStatusLegacy.InRoom)
                     success = false;
             
             Assert.AreEqual(true, success);
@@ -216,7 +215,7 @@ namespace Shaman.Tests
         [Test]
         public void TestDirectJoin()
         {
-            var client = new ShamanClientPeer(new TestMessageDeserializer(), _clientLogger, taskSchedulerFactory, 20, serializer, requestSender);
+            var client = new ShamanClientPeerLegacy(new TestMessageDeserializer(), _clientLogger, taskSchedulerFactory, 20, serializer, requestSender);
             var sessionId = Guid.NewGuid();
             client.JoinGame(CLIENT_CONNECTS_TO_IP, SERVER_PORT_MM,1, sessionId, new Dictionary<byte, object> { {PropertyCode.PlayerProperties.Level, 2} },
                 new Dictionary<byte, object>(), 
@@ -230,12 +229,12 @@ namespace Shaman.Tests
                     }
                 });
             EmptyTask.Wait(TimeSpan.FromSeconds(3));
-            Assert.AreEqual(ClientStatus.InRoom, client.GetStatus());
+            Assert.AreEqual(ClientStatusLegacy.InRoom, client.GetStatus());
             Assert.AreEqual(1, _mmRoomManager.GetRoomsCount());
             Assert.AreEqual(1, _roomManager.GetRoomsCount());
             var roomsList = _roomManager.GetAllRooms();
             _mmRoomManager.UpdateRoomState(roomsList[0].GetRoomId(), 1, RoomState.Open);
-            var client1 = new ShamanClientPeer(new TestMessageDeserializer(), _clientLogger, taskSchedulerFactory, 20, serializer, requestSender);
+            var client1 = new ShamanClientPeerLegacy(new TestMessageDeserializer(), _clientLogger, taskSchedulerFactory, 20, serializer, requestSender);
             var sessionId1 = Guid.NewGuid();
             var success = false;
             client1.GetGames(CLIENT_CONNECTS_TO_IP, SERVER_PORT_MM,1, sessionId1, new Dictionary<byte, object> { {PropertyCode.PlayerProperties.Level, 2} },
@@ -262,7 +261,7 @@ namespace Shaman.Tests
                     } );
                 });
             EmptyTask.Wait(TimeSpan.FromSeconds(2));
-            Assert.AreEqual(ClientStatus.InRoom, client1.GetStatus());
+            Assert.AreEqual(ClientStatusLegacy.InRoom, client1.GetStatus());
             Assert.AreEqual(1, _mmRoomManager.GetRoomsCount());
             Assert.AreEqual(1, _roomManager.GetRoomsCount());
             
@@ -272,7 +271,7 @@ namespace Shaman.Tests
         [Test]
         public void TestCreateGame()
         {
-            var client = new ShamanClientPeer(new TestMessageDeserializer(), _clientLogger, taskSchedulerFactory, 20, serializer, requestSender);
+            var client = new ShamanClientPeerLegacy(new TestMessageDeserializer(), _clientLogger, taskSchedulerFactory, 20, serializer, requestSender);
             var sessionId = Guid.NewGuid();
             client.CreateGame(CLIENT_CONNECTS_TO_IP, SERVER_PORT_MM,1, sessionId, new Dictionary<byte, object> { {PropertyCode.PlayerProperties.Level, 2} },
                 new Dictionary<byte, object>(), 
@@ -287,7 +286,7 @@ namespace Shaman.Tests
                 });
             
             EmptyTask.Wait(TimeSpan.FromSeconds(3));
-            Assert.AreEqual(ClientStatus.InRoom, client.GetStatus());
+            Assert.AreEqual(ClientStatusLegacy.InRoom, client.GetStatus());
             Assert.AreEqual(1, _mmRoomManager.GetRoomsCount());
             Assert.AreEqual(1, _roomManager.GetRoomsCount());
         }
