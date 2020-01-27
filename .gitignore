@@ -125,3 +125,5 @@ ClientBin/
 *.pfx
 *.publishsettings
 node_modules/
+
+**/Shaman.LocalBundleLauncher/appsettings.*.Development.json
