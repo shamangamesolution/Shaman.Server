@@ -1,7 +1,7 @@
 - hosts: all
   user: ubuntu
   vars_files:
-    - "{{path}}/common.json"
-    - "{{path}}/game.json"
+    - vars/common.json
+    - vars/game.json
   roles:
     - service
