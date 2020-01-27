@@ -2,12 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Shaman.Common.Utils.Messages;
+using Shaman.Common.Utils.Sockets;
 using Shaman.Messages.RoomFlow;
 
 namespace Shaman.Client.Peers
 {
     public interface IShamanClientPeer
     {
+        Action<string> OnDisconnected { get; set; }
+        Action<string> OnDisconnectedFromMmServer { get; set; }
+        Action<string> OnDisconnectedFromGameServer { get; set; }
+        
         Task<JoinInfo> JoinGame(string matchMakerAddress, ushort matchMakerPort, int backendId, Guid sessionId,
             Dictionary<byte, object> matchMakingProperties, Dictionary<byte, object> joinGameProperties);
 
@@ -24,5 +29,6 @@ namespace Shaman.Client.Peers
         void SendEvent(MessageBase eve);
         void Disconnect();
         void ProcessMessages();
+        ShamanClientStatus GetStatus();
     }
 }

@@ -90,9 +90,9 @@ namespace Shaman.Client.Peers
         
         public JoinInfo JoinInfo;
         public Guid SessionId;
-        public Action<string> OnDisconnected;
-        public Action<string> OnDisconnectedFromMmServer;
-        public Action<string> OnDisconnectedFromGameServer;
+        public Action<string> OnDisconnected { get; set; }
+        public Action<string> OnDisconnectedFromMmServer { get; set; }
+        public Action<string> OnDisconnectedFromGameServer { get; set; }
 
         public int Rtt => _rtt;
 
