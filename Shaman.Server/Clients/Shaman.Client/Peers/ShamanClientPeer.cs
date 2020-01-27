@@ -97,23 +97,22 @@ namespace Shaman.Client.Peers
         public int Rtt => _rtt;
 
         private readonly IShamanClientPeerListener _listener;
+        private readonly IShamanClientPeerConfig _config;
         private static readonly TimeSpan JoinGameTimeout = TimeSpan.FromSeconds(30);
         private static readonly TimeSpan ReceiveEventTimeout = TimeSpan.FromSeconds(5);
 
         #region ctors
-
         public ShamanClientPeer(IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory,
-            int pollPackageQueueIntervalMs, ISerializer serializer, IRequestSender requestSender,
-            IShamanClientPeerListener listener, bool startOtherThreadMessageProcessing = true, int maxPacketSize = 300,
-            int sendTickMs = 33)
+            ISerializer serializer, IRequestSender requestSender,
+            IShamanClientPeerListener listener, IShamanClientPeerConfig config)
         {
             _status = ShamanClientStatus.Offline;
+            _config = config;
 
             _logger = logger;
             _taskScheduler = taskSchedulerFactory.GetTaskScheduler();
             _serializer = serializer;
-//            _serializer.InitializeDefaultSerializers(0, "client");
-            _clientPeer = new ClientPeer(logger, taskSchedulerFactory, maxPacketSize, sendTickMs);
+            _clientPeer = new ClientPeer(logger, taskSchedulerFactory, _config.MaxPacketSize, _config.SendTickMs);
             _requestSender = requestSender;
             _listener = listener;
             _clientPeer.OnDisconnectedFromServer += (reason) =>
@@ -139,9 +138,9 @@ namespace Shaman.Client.Peers
                 SetAndReportStatus(ShamanClientStatus.Disconnected, _statusCallback, error: reason);
                 ResetState();
             };
-            _pollPackageQueueIntervalMs = pollPackageQueueIntervalMs;
+            _pollPackageQueueIntervalMs = _config.PollPackageQueueIntervalMs;
             
-            if (startOtherThreadMessageProcessing)
+            if (_config.StartOtherThreadMessageProcessing)
                 StartProcessingMessagesLoop();
         }
         #endregion
