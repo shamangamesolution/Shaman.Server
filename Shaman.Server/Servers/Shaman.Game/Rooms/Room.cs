@@ -9,7 +9,6 @@ using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Serialization;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Game.Contract;
-using Shaman.Game.Providers;
 using Shaman.Messages;
 using Shaman.Messages.MM;
 using RoomStats = Shaman.Game.Contract.Stats.RoomStats;
@@ -189,7 +188,7 @@ namespace Shaman.Game.Rooms
 
             try
             {
-                //find player and set wasjoined
+                //find player and set was joined
                 _gameModeController?.ProcessNewPlayer(peer.GetSessionId(), peerProperties);
                 if (_gameModeController == null)
                 {
@@ -208,7 +207,7 @@ namespace Shaman.Game.Rooms
 
         public void PeerLeft(Guid sessionId)
         {
-            _roomPlayers.TryRemove(sessionId, out var player);
+            _roomPlayers.TryRemove(sessionId, out _);
             try
             {
                 _gameModeController.CleanupPlayer(sessionId);
@@ -224,7 +223,7 @@ namespace Shaman.Game.Rooms
 
         public void PeerDisconnected(Guid sessionId)
         {
-            _roomPlayers.TryRemove(sessionId, out var player);
+            _roomPlayers.TryRemove(sessionId, out _);
             try
             {
                 _gameModeController.CleanupPlayer(sessionId);
@@ -292,19 +291,13 @@ namespace Shaman.Game.Rooms
                 _packetSender.AddPacket(peer, bytes, isReliable, isOrdered);
             });
         }
-        
+
         public void ProcessMessage(ushort operationCode, MessageData message, Guid sessionId)
         {
             try
             {
-                var result = _gameModeController.ProcessMessage(operationCode, message, sessionId);
-                var deserializedMessage = result.DeserializedMessage;
-                _roomStats.TrackReceivedMessage(operationCode, message.Length, deserializedMessage.IsReliable);
-                if (result.Handled && deserializedMessage.IsBroadcasted)
-                {
-                    // todo cannot pass initial array because in may be in rent and sending buffer filling in separate thread
-                    SendToAll(deserializedMessage, sessionId);
-                }
+                _gameModeController.ProcessMessage(operationCode, message, sessionId);
+                _roomStats.TrackReceivedMessage(operationCode, message.Length, message.IsReliable);
             }
             catch (Exception ex)
             {

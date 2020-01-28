@@ -18,9 +18,18 @@ namespace Shaman.Common.Utils.Sockets
 
     public struct DataPacket
     {
-        public byte[] Buffer;
-        public int Offset;
-        public int Length;
+        public DataPacket(byte[] buffer, int offset, int length, bool isReliable)
+        {
+            Buffer = buffer;
+            Offset = offset;
+            Length = length;
+            IsReliable = isReliable;
+        }
+
+        public readonly byte[] Buffer;
+        public readonly int Offset;
+        public readonly int Length;
+        public readonly bool IsReliable;
     }
 
 

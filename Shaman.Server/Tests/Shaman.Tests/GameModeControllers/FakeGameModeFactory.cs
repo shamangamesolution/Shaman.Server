@@ -5,8 +5,6 @@ using Shaman.Common.Utils.Serialization;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Game.Contract;
 using Shaman.Messages;
-using Shaman.Messages.General.DTO.Requests;
-using Shaman.Messages.Handling;
 using Shaman.Messages.RoomFlow;
 
 namespace Shaman.Tests.GameModeControllers
@@ -52,7 +50,7 @@ namespace Shaman.Tests.GameModeControllers
         {
         }
 
-        public MessageResult ProcessMessage(ushort operationCode, MessageData message, Guid sessionId)
+        public void ProcessMessage(ushort operationCode, MessageData message, Guid sessionId)
         {
             //process room message
             switch (operationCode)
@@ -63,8 +61,6 @@ namespace Shaman.Tests.GameModeControllers
                     _room.SendToAll(testRoomEvent, new[] {sessionId});
                     break;
             }
-
-            return new MessageResult {Handled = false, DeserializedMessage = new PingRequest()};
         }
     }
     

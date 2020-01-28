@@ -2,10 +2,10 @@ using System;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Shaman.Common.Server.Applications;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Serialization;
+using Shaman.Game.Api;
 using Shaman.Game.Extensions;
 using Shaman.Messages.RoomFlow;
 
@@ -13,15 +13,15 @@ namespace Shaman.Game.Controllers
 {
     public class ServerController : Controller
     {
-        protected readonly ISerializer Serializer;
-        protected readonly IApplication Application;
-        protected readonly IShamanLogger _logger;
+        private readonly ISerializer _serializer;
+        private readonly IShamanLogger _logger;
+        private readonly IGameServerApi _gameServerApi;
 
-        public ServerController(ISerializer serializer, IApplication gameApplication, IShamanLogger logger)
+        public ServerController(ISerializer serializer, IShamanLogger logger, IGameServerApi gameServerApi)
         {
-            Serializer = serializer;
-            Application = gameApplication;
+            _serializer = serializer;
             _logger = logger;
+            _gameServerApi = gameServerApi;
         }
         
         [HttpGet("ping")]
@@ -39,13 +39,12 @@ namespace Shaman.Game.Controllers
             //Request.Body.Position = 0;            
             var input = await Request.GetRawBodyBytesAsync(); 
 
-            var request = Serializer.DeserializeAs<CreateRoomRequest>(input);
+            var request = _serializer.DeserializeAs<CreateRoomRequest>(input);
             CreateRoomResponse response = new CreateRoomResponse();
 
             try
             {
-                var roomId = ((GameApplication) Application).CreateRoom(request.Properties, request.Players);
-                response.RoomId = roomId;
+                response.RoomId = _gameServerApi.CreateRoom(request.Properties, request.Players);
             }
             catch (Exception ex)
             {
@@ -53,7 +52,7 @@ namespace Shaman.Game.Controllers
                 response.ResultCode = ResultCode.RequestProcessingError;
             }
             
-            return new FileContentResult(Serializer.Serialize(response), "text/html");
+            return new FileContentResult(_serializer.Serialize(response), "text/html");
 
         }
         
@@ -63,12 +62,12 @@ namespace Shaman.Game.Controllers
             //Request.Body.Position = 0;            
             var input = await Request.GetRawBodyBytesAsync(); 
 
-            var request = Serializer.DeserializeAs<UpdateRoomRequest>(input);
+            var request = _serializer.DeserializeAs<UpdateRoomRequest>(input);
             var response = new UpdateRoomResponse();
 
             try
             {
-                ((GameApplication) Application).UpdateRoom(request.RoomId, request.Players);
+                _gameServerApi.UpdateRoom(request.RoomId, request.Players);
             }
             catch (Exception ex)
             {
@@ -76,7 +75,7 @@ namespace Shaman.Game.Controllers
                 response.ResultCode = ResultCode.RequestProcessingError;
             }
             
-            return new FileContentResult(Serializer.Serialize(response), "text/html");
+            return new FileContentResult(_serializer.Serialize(response), "text/html");
 
         }
     }

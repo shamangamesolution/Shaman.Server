@@ -8,7 +8,8 @@ namespace Shaman.Game.Rooms
 {
     public interface IRoomManager
     {
-        Guid CreateRoom(Dictionary<byte, object> properties, Dictionary<Guid, Dictionary<byte, object>> players);
+        Guid CreateRoom(Dictionary<byte, object> properties, Dictionary<Guid, Dictionary<byte, object>> players,
+            Guid? roomId);
         void UpdateRoom(Guid roomId, Dictionary<Guid, Dictionary<byte, object>> players);
 
         void DeleteRoom(Guid roomId);
