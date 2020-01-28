@@ -10,7 +10,7 @@
   - template:
       src: env.j2
       dest: shaman.env.{{container_name}}.list
-  - name: Login to AWS
+  - name: Login to AWS using profile {{aws_profile}} to region {{aws_region}}
     shell: "PATH=\"$HOME/.local/bin:$PATH\" && $(aws ecr get-login --profile {{aws_profile}} --no-include-email --region {{aws_region}})"
     register: res
   - debug: msg="{{res.stdout}}"

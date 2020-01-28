@@ -4,4 +4,4 @@
     - vars/common.json
     - vars/game.json
   roles:
-    - service
+    - shaman
