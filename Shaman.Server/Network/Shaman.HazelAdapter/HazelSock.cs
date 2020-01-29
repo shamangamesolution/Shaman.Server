@@ -46,8 +46,8 @@ namespace Shaman.HazelAdapter
 
                 args.Connection.DataReceived += eventArgs =>
                 {
-                    var dataPacket = new DataPacket(eventArgs.Message.Buffer, eventArgs.Message.Length,
-                        eventArgs.Message.Offset, (eventArgs.SendOption & SendOption.Reliable) != 0);
+                    var dataPacket = new DataPacket(eventArgs.Message.Buffer, eventArgs.Message.Offset,
+                        eventArgs.Message.Length, (eventArgs.SendOption & SendOption.Reliable) != 0);
                     onReceivePacket(args.Connection.EndPoint,dataPacket,eventArgs.Message.Recycle);
                 };
             };
@@ -59,7 +59,7 @@ namespace Shaman.HazelAdapter
             _clientConnection = new UdpClientConnection(endPoint);
             _clientConnection.DataReceived += args =>
             {
-                var dataPacket = new DataPacket(args.Message.Buffer, args.Message.Length, args.Message.Offset, (args.SendOption & SendOption.Reliable) != 0);
+                var dataPacket = new DataPacket(args.Message.Buffer, args.Message.Offset, args.Message.Length, (args.SendOption & SendOption.Reliable) != 0);
                 OnPacketReceived?.Invoke(endPoint, dataPacket, args.Message.Recycle);
             };
             _clientConnection.Disconnected += (sender, args) => { OnDisconnected?.Invoke(endPoint, args.Reason); }; 

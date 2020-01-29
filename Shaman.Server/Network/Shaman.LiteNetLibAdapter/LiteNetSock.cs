@@ -28,7 +28,7 @@ namespace Shaman.LiteNetLibAdapter
             _peer.Start();
             _listener.NetworkReceiveEvent += (fromPeer, dataReader, deliveryMethod) =>
             {
-                var dataPacket = new DataPacket(dataReader.RawData, dataReader.UserDataSize, dataReader.UserDataOffset,
+                var dataPacket = new DataPacket(dataReader.RawData, dataReader.UserDataOffset, dataReader.UserDataSize,
                     IsReliable(deliveryMethod));
                 OnPacketReceived?.Invoke(endPoint, dataPacket, dataReader.Recycle);
             };
@@ -58,7 +58,7 @@ namespace Shaman.LiteNetLibAdapter
 
             _listener.NetworkReceiveEvent += (peer, dataReader, method) =>
             {
-                var dataPacket = new DataPacket(dataReader.RawData, dataReader.UserDataSize, dataReader.UserDataOffset,
+                var dataPacket = new DataPacket(dataReader.RawData, dataReader.UserDataOffset, dataReader.UserDataSize,
                     IsReliable(method));
                 onReceivePacket(peer.EndPoint, dataPacket, dataReader.Recycle);
             };
