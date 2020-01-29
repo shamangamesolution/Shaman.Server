@@ -130,6 +130,17 @@ namespace Shaman.Messages.General.Entity
                    nullableFloatChangesSize;
         }
         
+        public HashSet<int> GetAllRecords(ChangeSet changeSet)
+        {
+            var result = new HashSet<int>();
+            changeSet.ByteChanges.Select(c => c.Key).ToList().ForEach(item => result.Add(item));
+            changeSet.NullableByteChanges.Select(c => c.Key).ToList().ForEach(item => result.Add(item));
+            changeSet.IntChanges.Select(c => c.Key).ToList().ForEach(item => result.Add(item));
+            changeSet.NullableIntChanges.Select(c => c.Key).ToList().ForEach(item => result.Add(item));
+            changeSet.NullableFloatChanges.Select(c => c.Key).ToList().ForEach(item => result.Add(item));
+            return result;
+        }
+        
         public bool IsEmpty()
         {
             lock (_mutex)
