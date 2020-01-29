@@ -11,16 +11,9 @@ namespace Shaman.Game
         private readonly IGameBundle _bundle;
         private readonly IGameModeControllerFactory _gameModeControllerFactory;
 
-        public StandaloneModeGameModeControllerFactory(IShamanComponents shamanComponents, IGameServerApi gameServerApi)
+        public StandaloneModeGameModeControllerFactory(IShamanComponents shamanComponents)
         {
-
-            #region standalone workaround
-
             _bundle = StandaloneServerLauncher.StandaloneBundle;
-            StandaloneServerLauncher.Api = gameServerApi;
-
-            #endregion
-            
             _bundle.OnInitialize(shamanComponents);
             _gameModeControllerFactory = _bundle.GetGameModeControllerFactory();
             if (_gameModeControllerFactory == null)
