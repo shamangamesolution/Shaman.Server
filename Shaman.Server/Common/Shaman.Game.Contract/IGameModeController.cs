@@ -11,6 +11,6 @@ namespace Shaman.Game.Contract
         bool IsGameFinished();
         TimeSpan GetGameTtl();
         void Cleanup();
-        MessageResult ProcessMessage(ushort operationCode, MessageData message, Guid sessionId);
+        void ProcessMessage(ushort operationCode, MessageData message, Guid sessionId);
     }
 }

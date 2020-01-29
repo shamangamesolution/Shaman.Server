@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
+using Shaman.Game.Api;
 using Shaman.Game.Configuration;
 using Shaman.Game.Contract;
 
@@ -11,9 +12,10 @@ namespace Shaman.Game
     {
         internal static bool IsStandaloneMode => StandaloneBundle != null;
         internal static IGameBundle StandaloneBundle { get; set; }
+        internal static IGameServerApi Api { get; set; }
         internal static GameApplicationConfig Config { get; set; }
 
-        public static void Launch(IGameBundle bundle,
+        public static IGameServerApi Launch(IGameBundle bundle,
             string[] args,
             string name,
             string regionName,
@@ -32,6 +34,11 @@ namespace Shaman.Game
                 String.Empty, httpPort, isAuthOn: false);
             var config = BuildConfig();
             Program.Start(config);
+            if (Api == null)
+            {
+                throw new Exception("API not initialized");
+            }
+            return Api;
         }
 
         private static IConfigurationRoot BuildConfig()

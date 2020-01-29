@@ -37,11 +37,11 @@ namespace Shaman.Game
         }
 
         //some methods raised on application level - to create room from application layer
-        public Guid CreateRoom(Dictionary<byte, object> properties, Dictionary<Guid, Dictionary<byte, object>> players)
+        public Guid CreateRoom(Dictionary<byte, object> properties, Dictionary<Guid, Dictionary<byte, object>> players, Guid? roomId = null)
         {
             if (properties == null)
                 properties = new Dictionary<byte, object>();
-            return _roomManager.CreateRoom(properties, players);            
+            return _roomManager.CreateRoom(properties, players, roomId);            
         }
         
         public void UpdateRoom(Guid roomId, Dictionary<Guid, Dictionary<byte, object>> players)

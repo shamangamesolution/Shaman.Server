@@ -12,10 +12,10 @@ namespace Shaman.HazelAdapter
     //todo FIX
     public class HazelSock : IReliableSock
     {
-        private UdpClientConnection ClientConnection;
-        private UdpConnectionListener listener;
+        private UdpClientConnection _clientConnection;
+        private UdpConnectionListener _listener;
         private readonly ConcurrentDictionary<IPEndPoint, Connection> _endPointReceivers = new ConcurrentDictionary<IPEndPoint, Connection>();
-        private IShamanLogger _logger;
+        private readonly IShamanLogger _logger;
         
         
         public HazelSock(IShamanLogger logger)
@@ -32,7 +32,7 @@ namespace Shaman.HazelAdapter
             Action<IPEndPoint> onConnect,
             Action<IPEndPoint, string> onDisconnect)
         {
-            listener.NewConnection += args =>
+            _listener.NewConnection += args =>
             {
                 _endPointReceivers.TryAdd(args.Connection.EndPoint, args.Connection);
                 
@@ -46,13 +46,9 @@ namespace Shaman.HazelAdapter
 
                 args.Connection.DataReceived += eventArgs =>
                 {
-                    onReceivePacket(args.Connection.EndPoint,new DataPacket
-                    {
-                        Buffer = eventArgs.Message.Buffer,
-                        Length = eventArgs.Message.Length,
-                        Offset = eventArgs.Message.Offset
-                    },eventArgs.Message.Recycle);
-                    
+                    var dataPacket = new DataPacket(eventArgs.Message.Buffer, eventArgs.Message.Length,
+                        eventArgs.Message.Offset, (eventArgs.SendOption & SendOption.Reliable) != 0);
+                    onReceivePacket(args.Connection.EndPoint,dataPacket,eventArgs.Message.Recycle);
                 };
             };
         }
@@ -60,21 +56,20 @@ namespace Shaman.HazelAdapter
         public void Connect(IPEndPoint endPoint)
         {
             _logger?.Info($"Connect {endPoint.AddressFamily}|{endPoint.Address}:{endPoint.Port}");
-            ClientConnection = new UdpClientConnection(endPoint);
-            ClientConnection.DataReceived += args => OnPacketReceived?.Invoke(endPoint, new DataPacket
+            _clientConnection = new UdpClientConnection(endPoint);
+            _clientConnection.DataReceived += args =>
             {
-                Buffer = args.Message.Buffer,
-                Length = args.Message.Length,
-                Offset = args.Message.Offset,
-            }, args.Message.Recycle);
-            ClientConnection.Disconnected += (sender, args) => { OnDisconnected?.Invoke(endPoint, args.Reason); }; 
-            ClientConnection.Connect();
+                var dataPacket = new DataPacket(args.Message.Buffer, args.Message.Length, args.Message.Offset, (args.SendOption & SendOption.Reliable) != 0);
+                OnPacketReceived?.Invoke(endPoint, dataPacket, args.Message.Recycle);
+            };
+            _clientConnection.Disconnected += (sender, args) => { OnDisconnected?.Invoke(endPoint, args.Reason); }; 
+            _clientConnection.Connect();
         }
         
         public void Listen(int port)
         {
-            listener = new UdpConnectionListener(new IPEndPoint(IPAddress.Any, port));
-            listener.Start();
+            _listener = new UdpConnectionListener(new IPEndPoint(IPAddress.Any, port));
+            _listener.Start();
         }
 
         public void Tick()
@@ -85,7 +80,7 @@ namespace Shaman.HazelAdapter
         public void Send(byte[] buffer, int offset, int length, bool reliable, bool orderControl, bool returnAfterSend = true)
         {
             var message = new ArraySegment<byte>(buffer, offset, length).ToArray();
-            ClientConnection.SendBytes(message, reliable ? SendOption.Reliable : SendOption.None);
+            _clientConnection.SendBytes(message, reliable ? SendOption.Reliable : SendOption.None);
         }
 
         public void Send(IPEndPoint endPoint, byte[] buffer, int offset, int length, bool reliable, bool orderControl, bool returnAfterSend = true)
@@ -97,8 +92,8 @@ namespace Shaman.HazelAdapter
 
         public void Close()
         {
-            listener?.Close();
-            ClientConnection?.Dispose();
+            _listener?.Close();
+            _clientConnection?.Dispose();
             _endPointReceivers.Clear();
         }
 

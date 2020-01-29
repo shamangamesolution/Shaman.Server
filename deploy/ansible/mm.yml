@@ -1,7 +1,7 @@
 - hosts: all
   user: ubuntu
   vars_files:
-    - "{{ path }}/common.json"
-    - "{{ path }}/mm.json"
+    - vars/common.json
+    - vars/mm.json
   roles:
-    - service
+    - shaman

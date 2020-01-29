@@ -28,12 +28,9 @@ namespace Shaman.LiteNetLibAdapter
             _peer.Start();
             _listener.NetworkReceiveEvent += (fromPeer, dataReader, deliveryMethod) =>
             {
-                OnPacketReceived?.Invoke(endPoint, new DataPacket
-                {
-                    Buffer = dataReader.RawData,
-                    Length = dataReader.UserDataSize,
-                    Offset = dataReader.UserDataOffset,
-                }, dataReader.Recycle);
+                var dataPacket = new DataPacket(dataReader.RawData, dataReader.UserDataSize, dataReader.UserDataOffset,
+                    IsReliable(deliveryMethod));
+                OnPacketReceived?.Invoke(endPoint, dataPacket, dataReader.Recycle);
             };
             _listener.PeerConnectedEvent += peer =>
             {
@@ -49,16 +46,6 @@ namespace Shaman.LiteNetLibAdapter
             _peer.Connect(endPoint.Address.ToString(), endPoint.Port, "SomeConnectionKey333");
         }
 
-        private void ProcessReceivedData(IPEndPoint endPoint, NetPacketReader dataReader)
-        {
-            OnPacketReceived?.Invoke(endPoint, new DataPacket
-            {
-                Buffer = dataReader.RawData,
-                Length = dataReader.UserDataSize,
-                Offset = dataReader.UserDataOffset,
-            }, dataReader.Recycle);
-        }
-
         public void AddEventCallbacks(Action<IPEndPoint, DataPacket, Action> onReceivePacket, Action<IPEndPoint> onConnect, Action<IPEndPoint, string> onDisconnect)
         {
             _listener.ConnectionRequestEvent += request => { request.AcceptIfKey("SomeConnectionKey333"); };
@@ -71,12 +58,9 @@ namespace Shaman.LiteNetLibAdapter
 
             _listener.NetworkReceiveEvent += (peer, dataReader, method) =>
             {
-                onReceivePacket(peer.EndPoint, new DataPacket
-                {
-                    Buffer = dataReader.RawData,
-                    Length = dataReader.UserDataSize,
-                    Offset = dataReader.UserDataOffset,
-                }, dataReader.Recycle);
+                var dataPacket = new DataPacket(dataReader.RawData, dataReader.UserDataSize, dataReader.UserDataOffset,
+                    IsReliable(method));
+                onReceivePacket(peer.EndPoint, dataPacket, dataReader.Recycle);
             };
             
             _listener.PeerConnectedEvent += peer =>
@@ -85,6 +69,11 @@ namespace Shaman.LiteNetLibAdapter
                 _endPointReceivers.TryAdd(peer.EndPoint, peer);
 
             };
+        }
+
+        private static bool IsReliable(DeliveryMethod method)
+        {
+            return method != DeliveryMethod.Unreliable && method != DeliveryMethod.Sequenced;
         }
 
         public void Listen(int port)

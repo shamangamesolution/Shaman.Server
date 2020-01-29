@@ -5,7 +5,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Shaman.Messages" Version="1.0.9" />
+      <PackageReference Include="Shaman.Messages" Version="1.3.0" />
     </ItemGroup>
 
 </Project>

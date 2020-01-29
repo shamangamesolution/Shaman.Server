@@ -7,7 +7,6 @@ using Shaman.Common.Utils.Sockets;
 using Shaman.Game.Contract;
 using Shaman.Game.Peers;
 using Shaman.Game.Rooms;
-using Shaman.ServerSharedUtilities.Backends;
 using Shaman.Messages;
 using Shaman.Messages.Authorization;
 using Shaman.Messages.General.DTO.Events;
@@ -33,9 +32,10 @@ namespace Shaman.Game
             _authSecret = authSecret;
         }
 
-        private void ProcessMessage(IPEndPoint endPoint, byte[] buffer, int offset, int length, GamePeer peer)
+        private void ProcessMessage(IPEndPoint endPoint, MessageData messageData,
+            GamePeer peer)
         {
-            var operationCode = MessageBase.GetOperationCode(buffer, offset);
+            var operationCode = MessageBase.GetOperationCode(messageData.Buffer, messageData.Offset);
             _logger.Debug($"Message received. Operation code: {operationCode}");
 
             if (peer == null)
@@ -58,7 +58,7 @@ namespace Shaman.Game
                     OnClientDisconnect(endPoint, "On Disconnect event received");
                     break;
                 case CustomOperationCode.Authorization:
-                    var authMessage = Serializer.DeserializeAs<AuthorizationRequest>(buffer, offset, length);
+                    var authMessage = Serializer.DeserializeAs<AuthorizationRequest>(messageData.Buffer, messageData.Offset, messageData.Length);
                     
                     if (!Config.IsAuthOn())
                     {
@@ -114,13 +114,7 @@ namespace Shaman.Game
                     switch (operationCode)
                     {
                         default:
-                            _roomManager.ProcessMessage(operationCode,
-                                new MessageData
-                                {
-                                    Buffer = buffer, 
-                                    Offset = offset, 
-                                    Length = length
-                                }, peer);
+                            _roomManager.ProcessMessage(operationCode, messageData, peer);
                             break;
                     }
 
@@ -139,7 +133,8 @@ namespace Shaman.Game
                 {
                     try
                     {
-                        ProcessMessage(endPoint, dataPacket.Buffer, item.Offset, item.Length, peer);
+                        var messageData = new MessageData(dataPacket.Buffer, item.Offset, item.Length, dataPacket.IsReliable);
+                        ProcessMessage(endPoint, messageData, peer);
                     }
                     catch (Exception ex)
                     {

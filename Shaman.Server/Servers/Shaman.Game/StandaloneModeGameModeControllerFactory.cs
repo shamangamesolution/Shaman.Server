@@ -1,5 +1,6 @@
 using System;
 using Shaman.Common.Utils.TaskScheduling;
+using Shaman.Game.Api;
 using Shaman.Game.Contract;
 
 namespace Shaman.Game
@@ -10,9 +11,16 @@ namespace Shaman.Game
         private readonly IGameBundle _bundle;
         private readonly IGameModeControllerFactory _gameModeControllerFactory;
 
-        public StandaloneModeGameModeControllerFactory(IShamanComponents shamanComponents)
+        public StandaloneModeGameModeControllerFactory(IShamanComponents shamanComponents, IGameServerApi gameServerApi)
         {
+
+            #region standalone workaround
+
             _bundle = StandaloneServerLauncher.StandaloneBundle;
+            StandaloneServerLauncher.Api = gameServerApi;
+
+            #endregion
+            
             _bundle.OnInitialize(shamanComponents);
             _gameModeControllerFactory = _bundle.GetGameModeControllerFactory();
             if (_gameModeControllerFactory == null)

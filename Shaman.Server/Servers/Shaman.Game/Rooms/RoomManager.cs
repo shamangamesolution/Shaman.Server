@@ -99,10 +99,17 @@ namespace Shaman.Game.Rooms
         
         
         
-        public Guid CreateRoom(Dictionary<byte, object> properties, Dictionary<Guid, Dictionary<byte, object>> players)
+        public Guid CreateRoom(Dictionary<byte, object> properties, Dictionary<Guid, Dictionary<byte, object>> players, Guid? roomId)
         {
             lock (_syncPeersList)
             {
+                if (roomId.HasValue && _rooms.ContainsKey(roomId.Value))
+                {
+                    var message = $"Failed to create room: room with specified id already exists ({roomId})";
+                    _logger.Error(message);
+                    throw new Exception(message);
+                }
+                
                 var roomPropertiesContainer = new RoomPropertiesContainer(_logger);
                 var packetSender = new PacketBatchSender(_taskSchedulerFactory, _config, _serializer);
                 
