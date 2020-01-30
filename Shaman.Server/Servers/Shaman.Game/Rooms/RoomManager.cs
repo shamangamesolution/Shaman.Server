@@ -122,7 +122,8 @@ namespace Shaman.Game.Rooms
                 
                 roomPropertiesContainer.Initialize(players, properties);
 
-                var room = new Room(_logger, _taskSchedulerFactory, this, _serializer, roomPropertiesContainer, _gameModeControllerFactory, packetSender, _requestSender);
+                var room = new Room(_logger, _taskSchedulerFactory, this, _serializer, roomPropertiesContainer,
+                    _gameModeControllerFactory, packetSender, _requestSender, roomId ?? Guid.NewGuid());
 
                 if(_rooms.TryAdd(room.GetRoomId(), room))
                     _gameMetrics.TrackRoomCreated();
