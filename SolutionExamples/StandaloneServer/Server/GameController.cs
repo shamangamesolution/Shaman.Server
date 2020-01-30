@@ -39,12 +39,7 @@ namespace Server
 
         public bool IsGameFinished()
         {
-            return true;
-        }
-
-        public TimeSpan GetGameTtl()
-        {
-            return TimeSpan.FromHours(1);
+            return false;
         }
 
         public void Cleanup()
@@ -70,5 +65,7 @@ namespace Server
 
             throw new NotSupportedException($"Unsupported message code {operationCode}");
         }
+
+        public TimeSpan ForceDestroyRoomAfter => TimeSpan.FromMinutes(30);
     }
 }
