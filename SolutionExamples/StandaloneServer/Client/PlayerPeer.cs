@@ -52,7 +52,7 @@ namespace Client
                     {
                         var operationCode = MessageBase.GetOperationCode(packet.Buffer, offsetInfo.Offset);
 
-                        if (operationCode == CustomOperationCode.Authorization)
+                        if (operationCode == CustomOperationCode.AuthorizationResponse)
                         {
                             _peer.Send(new JoinRoomRequest(_roomId, new Dictionary<byte, object>()));
                         }
