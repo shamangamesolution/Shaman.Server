@@ -8,7 +8,6 @@ namespace Shaman.Game.Configuration
     {
         public int ActualizationTimeoutMs { get; set; }
         public string MatchMakerUrl { get; set; }
-        public int DestroyEmptyRoomOnMs { get; set; }
         public int ServerInfoListUpdateIntervalMs { get; set; }
         public bool OverwriteDownloadedBundle { get; set; }
 
@@ -19,7 +18,6 @@ namespace Shaman.Game.Configuration
             string routerUrl,
             string matchMakerUrl,
             ushort httpPort,
-            int destroyEmptyRoomOnMs = 60000,
             int actualizationTimeoutMs = 10000,
             int getBackendListFromRouterIntervalMs = 30000,
             bool isAuthOn = true,
@@ -35,7 +33,6 @@ namespace Shaman.Game.Configuration
                 sendTickTimeMs: sendTickTimeMs)
         {
             MatchMakerUrl = matchMakerUrl;
-            DestroyEmptyRoomOnMs = destroyEmptyRoomOnMs;
             ActualizationTimeoutMs = actualizationTimeoutMs;
             ServerInfoListUpdateIntervalMs = serverInfoListUpdateIntervalMs;
         }

@@ -8,8 +8,20 @@ namespace Shaman.Game.Contract
     {
         void ProcessNewPlayer(Guid sessionId, Dictionary<byte, object> properties);
         void CleanupPlayer(Guid sessionId);
+
+        /// <returns>true if room should be destroyed</returns>
         bool IsGameFinished();
-        TimeSpan GetGameTtl();
+
+        /// <summary>
+        /// Time when room should be destroyed forcibly
+        ///
+        /// return TimeSpan.MaxValue to avoid forcibly destroy
+        /// </summary>
+        TimeSpan ForceDestroyRoomAfter { get; }
+
+        /// <summary>
+        /// Cleanup here all allocated resources
+        /// </summary>
         void Cleanup();
         void ProcessMessage(ushort operationCode, MessageData message, Guid sessionId);
     }

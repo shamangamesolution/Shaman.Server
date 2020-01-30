@@ -41,7 +41,7 @@ namespace Server
     {
         static void Main(string[] args)
         {
-            StandaloneServerLauncher.Launch(new GameBundle(), args, "TestGame", "SomeRegion", "localhost",
+            var api = StandaloneServerLauncher.Launch(new GameBundle(), args, "TestGame", "SomeRegion", "localhost",
                 new List<ushort> {23453}, 7005);
         }
     }

@@ -6,7 +6,6 @@ using Shaman.Game.Contract;
 using Shaman.Messages;
 using Shaman.Messages.General.DTO.Requests;
 using Shaman.Messages.General.DTO.Responses;
-using Shaman.Messages.Handling;
 
 namespace Server
 {
@@ -14,7 +13,6 @@ namespace Server
     {
         private readonly IRoom _room;
         private readonly ISerializer _serializer;
-        private static readonly CustomEvent StubMessage = new CustomEvent();
 
         public GameController(IRoom room, IRoomPropertiesContainer roomPropertiesContainer, ISerializer serializer)
         {
@@ -41,12 +39,7 @@ namespace Server
 
         public bool IsGameFinished()
         {
-            return true;
-        }
-
-        public TimeSpan GetGameTtl()
-        {
-            return TimeSpan.FromHours(1);
+            return false;
         }
 
         public void Cleanup()
@@ -54,7 +47,7 @@ namespace Server
             Console.WriteLine("Cleanup");
         }
 
-        public MessageResult ProcessMessage(ushort operationCode, MessageData message, Guid sessionId)
+        public void ProcessMessage(ushort operationCode, MessageData message, Guid sessionId)
         {
             Console.WriteLine($"Message from {sessionId}: {operationCode} in room {_room.GetRoomId()}.");
             if (operationCode == CustomOperationCode.PingRequest)
@@ -63,24 +56,16 @@ namespace Server
                     message.Length);
 
                 _room.SendToAll(new PingResponse() {SourceTicks = pingRequest.SourceTicks}, sessionId);
-                return new MessageResult
-                {
-                    DeserializedMessage = pingRequest,
-                    Handled = false
-                };
             }
 
             if (operationCode == MessageCodes.CustomEvent)
             {
-                _room.SendToAll(message, operationCode, sessionId, StubMessage.IsReliable, false);
-                return new MessageResult
-                {
-                    DeserializedMessage = StubMessage,
-                    Handled = true
-                };
+                _room.SendToAll(message, operationCode, sessionId, false, false);
             }
 
             throw new NotSupportedException($"Unsupported message code {operationCode}");
         }
+
+        public TimeSpan ForceDestroyRoomAfter => TimeSpan.FromMinutes(30);
     }
 }

@@ -6,11 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Shaman.Game" Version="1.4.5" />
-        <PackageReference Include="Microsoft.AspNetCore.App" />
-    </ItemGroup>
-
-    <ItemGroup>
+      <ProjectReference Include="..\Client\Client.csproj" />
       <ProjectReference Include="..\Messages\Messages.csproj" />
     </ItemGroup>
 

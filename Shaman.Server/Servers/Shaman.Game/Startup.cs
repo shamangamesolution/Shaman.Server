@@ -17,6 +17,7 @@ using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Serialization;
 using Shaman.Common.Utils.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
+using Shaman.Game.Api;
 using Shaman.Game.Configuration;
 using Shaman.Game.Contract;
 using Shaman.Game.Metrics;
@@ -77,7 +78,6 @@ namespace Shaman.Game
                         Configuration["RouterUrl"], 
                         Configuration["MatchMakerUrl"],
                         Convert.ToUInt16(Configuration["BindToPortHttp"]),
-                        Convert.ToInt32(Configuration["DestroyEmptyRoomOnMs"]), 
                         Convert.ToInt32(Configuration["ActualizationTimeoutMs"]),
                         Convert.ToInt32(Configuration["BackendListFromRouterIntervalMs"]),
                         Convert.ToBoolean(Configuration["AuthOn"]),
@@ -119,6 +119,7 @@ namespace Shaman.Game
             services.AddSingleton<IBundleInfoProvider, BundleInfoProvider>();
             services.AddSingleton<IServerActualizer, ServerActualizer>();
             services.AddSingleton<IPacketQueue, PacketQueue>();
+            services.AddSingleton<IGameServerApi, GameServerApi>();
         }
         private void ConfigureMetrics(IServiceCollection services)
         {
@@ -130,7 +131,9 @@ namespace Shaman.Game
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplication server, IGameServerInfoProvider serverInfoProvider, IGameModeControllerFactory controllerFactory/* init bundle */)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplication server,
+            IGameServerInfoProvider serverInfoProvider, IGameModeControllerFactory controllerFactory /* init bundle */,
+            IGameServerApi gameServerApi)
         {
             if (env.IsDevelopment())
             {
@@ -140,8 +143,11 @@ namespace Shaman.Game
             app.UseMvc();
 
             server.Start();
+            
             if (!StandaloneServerLauncher.IsStandaloneMode)
                 serverInfoProvider.Start();
+            else
+                StandaloneServerLauncher.Api = gameServerApi;
         }
 
         private void ConfigureLogger(IShamanLogger logger)

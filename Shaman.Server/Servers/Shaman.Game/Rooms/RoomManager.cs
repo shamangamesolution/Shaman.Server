@@ -34,7 +34,6 @@ namespace Shaman.Game.Rooms
         private readonly IPacketSender _packetSender;
         private readonly IGameMetrics _gameMetrics;
         private readonly IRequestSender _requestSender;
-        private static readonly TimeSpan RoomLivingTimeAfterGameEnd = TimeSpan.FromMinutes(15);
 
         public RoomManager(
             IShamanLogger logger, 
@@ -62,10 +61,9 @@ namespace Shaman.Game.Rooms
             foreach (var room in _rooms)
             {
                 var roomValue = room.Value;
-                if (DateTime.UtcNow - (roomValue.GetCreatedOnDateTime() + roomValue.GetRoomTtl()) >
-                    RoomLivingTimeAfterGameEnd)
+                if (roomValue.IsGameFinished() || IsTimeToForceRoomDestroy(roomValue))
                 {
-                    _logger?.Error($"Room destroy with peers count {roomValue.GetPeerCount()}");
+                    _logger.Error($"Room destroy with peers count {roomValue.GetPeerCount()}");
                     DeleteRoom(roomValue.GetRoomId());
                 }
             }
@@ -75,7 +73,14 @@ namespace Shaman.Game.Rooms
                 _logger.Info($"Rooms state: Room count {GetRoomsCount()}, peers count {GetPlayersCount()}");
             }
         }
-        
+
+        private static bool IsTimeToForceRoomDestroy(IRoom roomValue)
+        {
+            var destroyRoomAfter = roomValue.ForceDestroyRoomAfter;
+            return destroyRoomAfter != TimeSpan.MaxValue && DateTime.UtcNow - roomValue.GetCreatedOnDateTime() >
+                   destroyRoomAfter;
+        }
+
         /// <returns>IRoom?</returns>
         private IRoom GetRoomById(Guid id)
         {
@@ -121,15 +126,6 @@ namespace Shaman.Game.Rooms
 
                 if(_rooms.TryAdd(room.GetRoomId(), room))
                     _gameMetrics.TrackRoomCreated();
-                //start room self destroy logic if room is empty
-                _taskScheduler.Schedule(() =>
-                {
-                    var peerCount = room.GetPeerCount();
-                    if (peerCount == 0)
-                    {
-                        DeleteRoom(room.GetRoomId());
-                    }
-                }, ((GameApplicationConfig)_config).DestroyEmptyRoomOnMs);
                 return room.GetRoomId();
             }
         }
@@ -271,7 +267,7 @@ namespace Shaman.Game.Rooms
                 _sessionsToRooms.TryRemove(sessionId, out var room1);
                 _gameMetrics.TrackPeerDisconnected();
 
-                if (room.GetPeerCount() == 0)
+                if (room.IsGameFinished())
                 {
                     DeleteRoom(room.GetRoomId());
                 }

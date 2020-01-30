@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Serialization;
 using Shaman.Common.Utils.TaskScheduling;
@@ -14,6 +15,8 @@ namespace Shaman.Tests.GameModeControllers
         private readonly IRoom _room;
         private readonly ISerializer _serializer;
 
+        private int _plyerCount = 0;
+
         public FakeGameModeController(IRoom room)
         {
             _room = room;
@@ -22,13 +25,14 @@ namespace Shaman.Tests.GameModeControllers
         
         public void ProcessNewPlayer(Guid sessionId, Dictionary<byte, object> properties)
         {
+            Interlocked.Increment(ref _plyerCount);
             _room.AddToSendQueue(new JoinRoomResponse(), sessionId);
             _room.ConfirmedJoin(sessionId);
         }
 
         public void CleanupPlayer(Guid sessionId)
         {
-            
+            Interlocked.Decrement(ref _plyerCount);
         }
 
         public bool ProcessMessage(MessageBase message, Guid sessionId)
@@ -38,13 +42,10 @@ namespace Shaman.Tests.GameModeControllers
 
         public bool IsGameFinished()
         {
-            return false;
+            return _plyerCount == 0;
         }
 
-        public TimeSpan GetGameTtl()
-        {
-            return TimeSpan.Zero;
-        }
+        public TimeSpan ForceDestroyRoomAfter => TimeSpan.MaxValue;
 
         public void Cleanup()
         {

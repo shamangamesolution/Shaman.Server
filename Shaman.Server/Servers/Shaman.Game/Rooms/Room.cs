@@ -66,11 +66,7 @@ namespace Shaman.Game.Rooms
             }, 0, 1000, true);
         }
 
-        public TimeSpan GetRoomTtl()
-        {
-            return _gameModeController.GetGameTtl();
-        }
-
+        public TimeSpan ForceDestroyRoomAfter => _gameModeController.ForceDestroyRoomAfter;
         public void UpdateRoom(Dictionary<Guid, Dictionary<byte, object>> players)
         {
             _roomPropertiesContainer.AddNewPlayers(players);

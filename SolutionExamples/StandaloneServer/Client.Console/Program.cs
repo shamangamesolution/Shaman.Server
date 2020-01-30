@@ -1,16 +1,15 @@
-﻿using System;
-using Messages;
+﻿using Messages;
 using Shaman.Common.Utils.Serialization;
 using Shaman.Messages.General.DTO.Requests;
 
-namespace Client
+namespace Client.Console
 {
     class HandlerSample : IMessageHandler
     {
         public void OnIncoming(PlayerPeer playerPeer, ISerializer serializer, ushort operationCode, byte[] packetBuffer,
             int offset, int length)
         {
-            Console.Out.WriteLine($"Message from {playerPeer.PlayerId} with code {operationCode}");
+            System.Console.Out.WriteLine($"Message from {playerPeer.PlayerId} with code {operationCode}");
         }
 
         public void OnJoined(PlayerPeer peer, ISerializer serializer)
@@ -21,6 +20,7 @@ namespace Client
         }
     }
 
+    
     class Program
     {
         static void Main(string[] args)
@@ -38,7 +38,7 @@ namespace Client
             peer1.JoinRoom(roomId);
             peer2.JoinRoom(roomId);
 
-            Console.ReadKey();
+            System.Console.ReadKey();
         }
 
         private static PlayerPeer CreatePeer()
