@@ -41,10 +41,7 @@ namespace Shaman.Tests.GameModeControllers
             return false;
         }
 
-        public TimeSpan GetGameTtl()
-        {
-            return TimeSpan.Zero;
-        }
+        public TimeSpan ForceDestroyRoomAfter => TimeSpan.MaxValue;
 
         public void Cleanup()
         {

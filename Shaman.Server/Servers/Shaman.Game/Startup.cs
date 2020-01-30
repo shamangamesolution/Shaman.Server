@@ -78,7 +78,6 @@ namespace Shaman.Game
                         Configuration["RouterUrl"], 
                         Configuration["MatchMakerUrl"],
                         Convert.ToUInt16(Configuration["BindToPortHttp"]),
-                        Convert.ToInt32(Configuration["DestroyEmptyRoomOnMs"]), 
                         Convert.ToInt32(Configuration["ActualizationTimeoutMs"]),
                         Convert.ToInt32(Configuration["BackendListFromRouterIntervalMs"]),
                         Convert.ToBoolean(Configuration["AuthOn"]),

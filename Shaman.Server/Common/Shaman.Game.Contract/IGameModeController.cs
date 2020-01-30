@@ -9,7 +9,7 @@ namespace Shaman.Game.Contract
         void ProcessNewPlayer(Guid sessionId, Dictionary<byte, object> properties);
         void CleanupPlayer(Guid sessionId);
         bool IsGameFinished();
-        TimeSpan GetGameTtl();
+        TimeSpan ForceDestroyRoomAfter { get; }
         void Cleanup();
         void ProcessMessage(ushort operationCode, MessageData message, Guid sessionId);
     }

@@ -24,7 +24,6 @@ namespace Shaman.Game.Contract
         void ConfirmedJoin(Guid sessionId);
         RoomStats GetStats();
         bool IsGameFinished();
-        TimeSpan GetRoomTtl();
         void UpdateRoom(Dictionary<Guid, Dictionary<byte, object>> players);
         void AddToSendQueue(MessageData messageData, ushort opCode, Guid sessionId, bool isReliable, bool isOrdered);
         void Open();
@@ -32,6 +31,8 @@ namespace Shaman.Game.Contract
 
         void SendToAll(MessageData messageData, ushort opCode, Guid sessionId, bool isReliable, bool isOrdered,
             params Guid[] exceptions);
+
+        TimeSpan ForceDestroyRoomAfter { get; }
     }
     
 //    public class ClientInfo
