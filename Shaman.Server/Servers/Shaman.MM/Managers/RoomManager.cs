@@ -166,6 +166,7 @@ namespace Shaman.MM.Managers
             _roomsQueue = new Queue<Room>();
             
             //start created rooms clear task
+            var checkPeriodMs = 60000; // 10 time
             _clearTask = _taskScheduler.ScheduleOnInterval(() =>
             {
                 if (_roomsQueue.Count == 0)
@@ -187,8 +188,8 @@ namespace Shaman.MM.Managers
                     cnt++;
                 }
                 
-                _logger?.Info($"Cleaned {cnt} rooms");
-            }, 0, timeToKeepCreatedRoomSec/2);
+                _logger.Info($"Cleaned {cnt} rooms");
+            }, 0, checkPeriodMs);
             
             
         }
