@@ -1,8 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using Messages;
 using Shaman.Client.Peers;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Messages;
@@ -19,7 +16,7 @@ namespace Client
     {
         void OnIncoming(PlayerPeer playerPeer, ISerializer serializer, ushort operationCode, byte[] packetBuffer,
             int offset, int length);
-        
+
         void OnJoined(PlayerPeer peer, ISerializer serializer);
     }
 
@@ -48,31 +45,55 @@ namespace Client
                 IPacketInfo packet;
                 while ((packet = _peer.PopNextPacket()) != null)
                 {
-                    foreach (var offsetInfo in PacketInfo.GetOffsetInfo(packet.Buffer, packet.Offset))
+                    try
                     {
-                        var operationCode = MessageBase.GetOperationCode(packet.Buffer, offsetInfo.Offset);
-
-                        if (operationCode == CustomOperationCode.AuthorizationResponse)
-                        {
-                            _peer.Send(new JoinRoomRequest(_roomId, new Dictionary<byte, object>()));
-                        }
-                        
-                        if (operationCode == MessageCodes.PlayerJoinedEvent)
-                        {
-                            handler.OnJoined(this, _serializer);
-                        }
-
-                        if (operationCode == CustomOperationCode.Connect)
-                        {
-                            _peer.Send(new AuthorizationRequest(PlayerId));
-                        }
-
-                        handler.OnIncoming(this, _serializer, operationCode, packet.Buffer, offsetInfo.Offset,
-                            offsetInfo.Length);
-                        packet.Dispose();
+                        ProcessMessage(handler, packet);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
                     }
                 }
             };
+        }
+
+        private void ProcessMessage(IMessageHandler handler, IPacketInfo packet)
+        {
+            foreach (var offsetInfo in PacketInfo.GetOffsetInfo(packet.Buffer, packet.Offset))
+            {
+                var operationCode = MessageBase.GetOperationCode(packet.Buffer, offsetInfo.Offset);
+
+                switch (operationCode)
+                {
+                    case CustomOperationCode.AuthorizationResponse:
+                        // just check ok
+                        DeserializeAs<AuthorizationResponse>(packet, offsetInfo);
+                        _peer.Send(new JoinRoomRequest(_roomId, new Dictionary<byte, object>()));
+                        return;
+                    case CustomOperationCode.JoinRoomResponse:
+                        // just check ok
+                        DeserializeAs<JoinRoomResponse>(packet, offsetInfo);
+                        handler.OnJoined(this, _serializer);
+                        return;
+                    case CustomOperationCode.Connect:
+                        _peer.Send(new AuthorizationRequest(PlayerId));
+                        return;
+                    default:
+                        handler.OnIncoming(this, _serializer, operationCode, packet.Buffer, offsetInfo.Offset,
+                            offsetInfo.Length);
+                        packet.Dispose();
+                        break;
+                }
+            }
+        }
+
+        private T DeserializeAs<T>(IPacketInfo packet, OffsetInfo offsetInfo) where T : ResponseBase, new()
+        {
+            var msg = _serializer.DeserializeAs<T>(packet.Buffer, offsetInfo.Offset,
+                offsetInfo.Length);
+            if (!msg.Success)
+                throw new Exception($"Received not success message {msg.GetType()}: {msg.Message}");
+            return msg;
         }
 
         public void Send(MessageBase message)
