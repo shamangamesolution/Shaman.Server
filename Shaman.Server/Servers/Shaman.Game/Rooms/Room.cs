@@ -186,14 +186,12 @@ namespace Shaman.Game.Rooms
 
             try
             {
-                //find player and set was joined
-                _gameModeController?.ProcessNewPlayer(peer.GetSessionId(), peerProperties);
                 if (_gameModeController == null)
                 {
                     _logger.Error($"GameModeController == null while peer joining");
                     return false;
                 }
-                return true;
+                return _gameModeController.ProcessNewPlayer(peer.GetSessionId(), peerProperties);;
             }
             catch (Exception ex)
             {

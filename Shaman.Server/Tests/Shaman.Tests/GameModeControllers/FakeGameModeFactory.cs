@@ -6,7 +6,6 @@ using Shaman.Common.Utils.Serialization;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Game.Contract;
 using Shaman.Messages;
-using Shaman.Messages.RoomFlow;
 
 namespace Shaman.Tests.GameModeControllers
 {
@@ -23,11 +22,10 @@ namespace Shaman.Tests.GameModeControllers
             _serializer = new BinarySerializer();
         }
         
-        public void ProcessNewPlayer(Guid sessionId, Dictionary<byte, object> properties)
+        public bool ProcessNewPlayer(Guid sessionId, Dictionary<byte, object> properties)
         {
             Interlocked.Increment(ref _plyerCount);
-            _room.AddToSendQueue(new JoinRoomResponse(), sessionId);
-            _room.ConfirmedJoin(sessionId);
+            return true;
         }
 
         public void CleanupPlayer(Guid sessionId)
