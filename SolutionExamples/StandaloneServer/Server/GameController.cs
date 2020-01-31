@@ -20,17 +20,20 @@ namespace Server
             _serializer = serializer;
         }
 
-        public void ProcessNewPlayer(Guid sessionId, Dictionary<byte, object> properties)
+        public bool ProcessNewPlayer(Guid sessionId, Dictionary<byte, object> properties)
         {
-            _room.ConfirmedJoin(sessionId);
+            Console.Out.WriteLine("ProcessNewPlayer sessionId = {0}", sessionId);
             _room.SendToAll(new PlayerEvent
             {
                 PlayerId = sessionId, Action = PlayerAction.Joined
             }, sessionId);
+            return true;
         }
 
         public void CleanupPlayer(Guid sessionId)
         {
+            Console.Out.WriteLine("CleanupPlayer sessionId = {0}", sessionId);
+
             _room.SendToAll(new PlayerEvent
             {
                 PlayerId = sessionId, Action = PlayerAction.Leave
@@ -56,11 +59,13 @@ namespace Server
                     message.Length);
 
                 _room.SendToAll(new PingResponse() {SourceTicks = pingRequest.SourceTicks}, sessionId);
+                return;
             }
 
             if (operationCode == MessageCodes.CustomEvent)
             {
                 _room.SendToAll(message, operationCode, sessionId, false, false);
+                return;
             }
 
             throw new NotSupportedException($"Unsupported message code {operationCode}");

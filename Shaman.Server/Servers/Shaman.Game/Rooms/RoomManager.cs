@@ -54,6 +54,7 @@ namespace Shaman.Game.Rooms
             _packetSender = packetSender;
             _gameMetrics = gameMetrics;
             _requestSender = requestSender;
+            packetSender.Start();
         }
 
         private void CheckRoomsState()
@@ -122,7 +123,8 @@ namespace Shaman.Game.Rooms
                 
                 roomPropertiesContainer.Initialize(players, properties);
 
-                var room = new Room(_logger, _taskSchedulerFactory, this, _serializer, roomPropertiesContainer, _gameModeControllerFactory, packetSender, _requestSender);
+                var room = new Room(_logger, _taskSchedulerFactory, this, _serializer, roomPropertiesContainer,
+                    _gameModeControllerFactory, packetSender, _requestSender, roomId ?? Guid.NewGuid());
 
                 if(_rooms.TryAdd(room.GetRoomId(), room))
                     _gameMetrics.TrackRoomCreated();
@@ -221,15 +223,18 @@ namespace Shaman.Game.Rooms
             lock (_syncPeersList)
             {
                 var room = GetRoomById(roomId);
+                var sessionId = peer.GetSessionId();
+                
                 if (room == null)
                 {
-                    var message = $"Peer {peer.GetSessionId()} attempted to join to non-exist room {roomId}";
+                    var message = $"Peer {sessionId} attempted to join to non-exist room {roomId}";
                     _logger.Error(message);
                     throw new Exception(message);
                 }
 
                 if (room.PeerJoined(peer, peerProperties))
                 {
+                    room.ConfirmedJoin(sessionId);
                     _gameMetrics.TrackPeerJoin();
                 }
                 else
@@ -286,6 +291,7 @@ namespace Shaman.Game.Rooms
                         {
                             var joinMessage = _serializer.DeserializeAs<JoinRoomRequest>(message.Buffer, message.Offset, message.Length);
                             PeerJoined(peer, joinMessage.RoomId, joinMessage.Properties);
+                            _packetSender.AddPacket(new JoinRoomResponse(), peer);
                         }
                         catch (Exception ex)
                         {

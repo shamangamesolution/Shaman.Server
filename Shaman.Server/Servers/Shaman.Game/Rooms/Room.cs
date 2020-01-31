@@ -33,12 +33,14 @@ namespace Shaman.Game.Rooms
 
         private RoomState _roomState = RoomState.Closed;
         
-        public Room(IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory, IRoomManager roomManager, ISerializer serializer,
+        public Room(IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory, IRoomManager roomManager,
+            ISerializer serializer,
             IRoomPropertiesContainer roomPropertiesContainer,
-            IGameModeControllerFactory gameModeControllerFactory, IPacketSender packetSender, IRequestSender requestSender)
+            IGameModeControllerFactory gameModeControllerFactory, IPacketSender packetSender,
+            IRequestSender requestSender, Guid roomId)
         {
             _logger = logger;
-            _roomId = Guid.NewGuid();
+            _roomId = roomId;
             _createdOn = DateTime.UtcNow;
             _taskScheduler = taskSchedulerFactory.GetTaskScheduler();
             _roomManager = roomManager;
@@ -184,14 +186,12 @@ namespace Shaman.Game.Rooms
 
             try
             {
-                //find player and set was joined
-                _gameModeController?.ProcessNewPlayer(peer.GetSessionId(), peerProperties);
                 if (_gameModeController == null)
                 {
                     _logger.Error($"GameModeController == null while peer joining");
                     return false;
                 }
-                return true;
+                return _gameModeController.ProcessNewPlayer(peer.GetSessionId(), peerProperties);;
             }
             catch (Exception ex)
             {

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Shaman.Common.Utils.Serialization;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Game;
@@ -41,8 +42,12 @@ namespace Server
     {
         static void Main(string[] args)
         {
-            var api = StandaloneServerLauncher.Launch(new GameBundle(), args, "TestGame", "SomeRegion", "localhost",
+            var result = StandaloneServerLauncher.Launch(new GameBundle(), args, "TestGame", "SomeRegion", "localhost",
                 new List<ushort> {23453}, 7005);
+            var api = result.ApiInitializationTask.Result;
+            api.CreateRoom(new Dictionary<byte, object>(), new Dictionary<Guid, Dictionary<byte, object>>(),
+                Guid.Empty);
+            result.ServerTask.Wait();
         }
     }
 }

@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
 using Shaman.Game.Api;
@@ -8,14 +10,21 @@ using Shaman.Game.Contract;
 
 namespace Shaman.Game
 {
+    
     public static class StandaloneServerLauncher
     {
+        public class LaunchResult
+        {
+            public Task ServerTask { get; internal set; }
+            public Task<IGameServerApi> ApiInitializationTask { get; internal set; }
+        }
+
         internal static bool IsStandaloneMode => StandaloneBundle != null;
         internal static IGameBundle StandaloneBundle { get; set; }
         internal static IGameServerApi Api { get; set; }
         internal static GameApplicationConfig Config { get; set; }
 
-        public static IGameServerApi Launch(IGameBundle bundle,
+        public static LaunchResult Launch(IGameBundle bundle,
             string[] args,
             string name,
             string regionName,
@@ -33,12 +42,26 @@ namespace Shaman.Game
             Config = new GameApplicationConfig(name, regionName, publicDomainNameOrIpAddress, ports, String.Empty,
                 String.Empty, httpPort, isAuthOn: false);
             var config = BuildConfig();
-            Program.Start(config);
-            if (Api == null)
+            var serverTask = Task.Factory.StartNew(() => Program.Start(config));
+
+            return new LaunchResult
             {
-                throw new Exception("API not initialized");
-            }
-            return Api;
+                ServerTask = serverTask,
+                ApiInitializationTask = Task<IGameServerApi>.Factory.StartNew(() =>
+                {
+                    while (serverTask.Status == TaskStatus.Running && Api == null)
+                    {
+                        Thread.Sleep(10);
+                    }
+
+                    if (Api == null)
+                    {
+                        throw new Exception("API not initialized");
+                    }
+
+                    return Api;
+                })
+            };
         }
 
         private static IConfigurationRoot BuildConfig()

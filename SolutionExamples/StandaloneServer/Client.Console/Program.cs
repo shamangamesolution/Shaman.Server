@@ -14,6 +14,7 @@ namespace Client.Console
 
         public void OnJoined(PlayerPeer peer, ISerializer serializer)
         {
+            System.Console.Out.WriteLine($"PLayer {peer.PlayerId} joined");
             peer.Send(new PingRequest());
             var customBroadCastEvent = new CustomEvent(new byte[] {2, 34});
             peer.Send(customBroadCastEvent);
