@@ -29,7 +29,7 @@ namespace Shaman.Game.Contract
         void Open();
         void Close();
 
-        void SendToAll(MessageData messageData, ushort opCode, Guid sessionId, bool isReliable, bool isOrdered,
+        void SendToAll(MessageData messageData, ushort opCode, bool isReliable, bool isOrdered,
             params Guid[] exceptions);
 
         TimeSpan ForceDestroyRoomAfter { get; }
