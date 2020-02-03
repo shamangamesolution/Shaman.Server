@@ -135,7 +135,7 @@ namespace Shaman.Game.Rooms
             }
         }
 
-        public void SendToAll(MessageData messageData, ushort opCode, Guid sessionId, bool isReliable, bool isOrdered,
+        public void SendToAll(MessageData messageData, ushort opCode, bool isReliable, bool isOrdered,
             params Guid[] exceptions)
         {
             if (exceptions == null)
