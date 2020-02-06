@@ -88,7 +88,6 @@ namespace Shaman.ServerSharedUtilities
                     .ConfigureLogging(builder =>
                     {
                         var logLevel = MapLogLevel(logEventLevel);
-                        Console.Out.WriteLine("mapped logLevel = {0}", logLevel);
                         builder
                             .AddSerilog(Log.Logger, dispose: true)
                             .AddFilter(level => level >= logLevel)
