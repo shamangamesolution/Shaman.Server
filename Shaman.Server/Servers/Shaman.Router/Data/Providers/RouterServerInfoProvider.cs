@@ -1,9 +1,11 @@
-using System.Collections.Generic;
+using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using Shaman.Common.Utils.Logging;
-using Shaman.Common.Utils.Serialization;
+using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Messages;
 using Shaman.Messages.General.Entity.Router;
@@ -56,8 +58,18 @@ namespace Shaman.Router.Data.Providers
 
         private async Task LoadConfig()
         {
+            var startNew = Stopwatch.StartNew();
             _serverList = await _configRepo.GetAllServerInfo();
             _bundlesList = await _configRepo.GetBundlesInfo();
+            var updateElapsed = startNew.ElapsedMilliseconds;
+            if (updateElapsed > 5000)
+                _logger.Error($"Long data update: {updateElapsed}ms");
+
+            var staleList = _serverList.Where(l => l.IsApproved && l.ServerRole != ServerRole.BackEnd && !l.IsActual(30000)).ToArray();
+            if (staleList.Any())
+            {
+                _logger.Error($"Staled data ({string.Join(',',staleList.Select(s=>(DateTime.UtcNow - s.ActualizedOn.Value).TotalMilliseconds.ToString()))}) : {JsonConvert.SerializeObject(staleList, Formatting.Indented)}");
+            }
         }
 
         public void Stop()
