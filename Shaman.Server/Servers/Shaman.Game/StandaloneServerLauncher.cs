@@ -4,9 +4,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
+using Shaman.Common.Utils.Logging;
 using Shaman.Game.Api;
 using Shaman.Game.Configuration;
 using Shaman.Game.Contract;
+using Shaman.ServerSharedUtilities;
 
 namespace Shaman.Game
 {
@@ -42,7 +44,7 @@ namespace Shaman.Game
             Config = new GameApplicationConfig(name, regionName, publicDomainNameOrIpAddress, ports, String.Empty,
                 String.Empty, httpPort, isAuthOn: false);
             var config = BuildConfig();
-            var serverTask = Task.Factory.StartNew(() => Program.Start(config));
+            var serverTask = Task.Factory.StartNew(() => Bootstrap.Launch<Startup>(SourceType.GameServer, config));
 
             return new LaunchResult
             {

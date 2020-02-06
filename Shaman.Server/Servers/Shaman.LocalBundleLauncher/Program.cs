@@ -3,6 +3,8 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using Shaman.Common.Utils.Logging;
+using Shaman.ServerSharedUtilities;
 
 namespace Shaman.LocalBundleLauncher
 {
@@ -14,14 +16,15 @@ namespace Shaman.LocalBundleLauncher
             var gameConfig = LoadConfigFor("game");
             var mmConfig = LoadConfigFor("mm");
 
-            var routerTask = Task.Factory.StartNew(action: () => { Shaman.Router.Program.Start(routerConfig); });
+            var routerTask =
+                Task.Factory.StartNew(action: () => Bootstrap.Launch<Router.Startup>(SourceType.Router, routerConfig));
 
             var routerHttpPort = int.Parse(routerConfig["BindToPortHttp"]);
             while (!CheckRouterIsAvailable(routerHttpPort) && routerTask.Status == TaskStatus.Running)
                 Thread.Sleep(500);
 
-            var gameTask = Task.Factory.StartNew(() => Shaman.Game.Program.Start(gameConfig));
-            var mmTask = Task.Factory.StartNew(() => Shaman.MM.Program.Start(mmConfig));
+            var gameTask = Task.Factory.StartNew(() => Bootstrap.Launch<Game.Startup>(SourceType.GameServer, gameConfig));
+            var mmTask = Task.Factory.StartNew(() => Bootstrap.Launch<MM.Startup>(SourceType.GameServer, mmConfig));
 
             gameTask.Wait();
             mmTask.Wait();

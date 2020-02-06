@@ -33,7 +33,7 @@ using LogLevel = Shaman.Common.Utils.Logging.LogLevel;
 
 namespace Shaman.Game
 {
-    class Startup
+    public class Startup
     {
         public Startup(IConfiguration configuration)
         {
@@ -92,12 +92,7 @@ namespace Shaman.Game
                 ConfigureMetrics(services);
             }
 
-            services.AddSingleton<IShamanLogger, SerilogLogger>(f=>
-            {
-                var logger = new SerilogLogger(f.GetService<ILogger<SerilogLogger>>());
-                ConfigureLogger(logger);
-                return logger;
-            });
+            services.AddSingleton<IShamanLogger, SerilogLogger>();
 
            
             services.AddSingleton<IPacketSenderConfig>(c => c.GetRequiredService<IApplicationConfig>()); 
@@ -148,32 +143,6 @@ namespace Shaman.Game
                 serverInfoProvider.Start();
             else
                 StandaloneServerLauncher.Api = gameServerApi;
-        }
-
-        private void ConfigureLogger(IShamanLogger logger)
-        {
-            logger.Initialize(SourceType.GameServer, Configuration["ServerVersion"],
-                $"{Configuration["PublicDomainNameOrAddress"]}:{Configuration["BindToPortHttp"]}[{Configuration["Ports"]}]");
-            var serilogLevel = Enum.Parse<LogEventLevel>(Configuration["Serilog:MinimumLevel"]);
-            switch (serilogLevel)
-            {
-                case LogEventLevel.Verbose:
-                case LogEventLevel.Debug:
-                    logger.SetLogLevel(LogLevel.Debug | LogLevel.Error | LogLevel.Info);
-                    break;
-                case LogEventLevel.Information:
-                    logger.SetLogLevel(LogLevel.Error | LogLevel.Info);
-                    break;
-                case LogEventLevel.Warning:
-                case LogEventLevel.Error:
-                    logger.SetLogLevel(LogLevel.Error);
-                    break;
-                case LogEventLevel.Fatal:
-                    logger.SetLogLevel(LogLevel.Error);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
         }
     }
 }
