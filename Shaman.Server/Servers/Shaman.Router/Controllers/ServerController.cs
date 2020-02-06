@@ -21,7 +21,7 @@ namespace Shaman.Router.Controllers
 {
     public class ServerController : WebControllerBase
     {
-        private static DateTime _firstPingDate = DateTime.UtcNow;
+        private static readonly DateTime FirstPingDate = DateTime.UtcNow;
         
         private readonly IRouterServerInfoProvider _serverInfoProvider;
         public ServerController(IConfigurationRepository configRepo, IShamanLogger logger, IOptions<RouterConfiguration> config, ISerializer serializer, IRouterServerInfoProvider serverInfoProvider) 
@@ -39,7 +39,7 @@ namespace Shaman.Router.Controllers
             {
                 ResultCode = 1,
                 UtcNow = DateTime.UtcNow,
-                UpDate = _firstPingDate
+                UpDate = FirstPingDate
             });
         }
         
@@ -90,13 +90,20 @@ namespace Shaman.Router.Controllers
                     throw new Exception($"No server found with specified identity: {request.ServerIdentity}");
                 }
 
-                var bundleInfo = _serverInfoProvider.GetAllBundles().Single(b => b.ServerId == serverInfoIdList.First());
-                response.BundleUri = bundleInfo.Uri;
+                var bundleInfo = _serverInfoProvider.GetAllBundles().SingleOrDefault(b => b.ServerId == serverInfoIdList.First());
+                if (bundleInfo == null)
+                {
+                    response.SetError("No bundles found");
+                }
+                else
+                {
+                    response.BundleUri = bundleInfo.Uri;
+                }
             }
             catch (Exception ex)
             {
                 response.SetError(ex.Message);
-                LogError($"{ex}");
+                LogError($"Error receiving bundles for {request.ServerIdentity}: {ex}");
             }
 
             return new FileContentResult(Serializer.Serialize(response), "text/html");
@@ -119,7 +126,7 @@ namespace Shaman.Router.Controllers
             catch (Exception ex)
             {
                 response.SetError(ex.Message);
-                LogError($"{ex.ToString()}");
+                LogError($"{ex}");
             }
 
             return new FileContentResult(Serializer.Serialize(response), "text/html");
