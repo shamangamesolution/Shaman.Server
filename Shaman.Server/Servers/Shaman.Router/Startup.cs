@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -42,7 +42,7 @@ namespace Shaman.Router
             services.Configure<RouterConfiguration>(Configuration);
             //services.AddSingleton<IShamanLogger, ConsoleLogger>(l => new ConsoleLogger("R", LogLevel.Error | LogLevel.Info));
             
-            services.AddSingleton<IShamanLogger, ConsoleLogger>();
+            services.AddSingleton<IShamanLogger, SerilogLogger>();
             services.AddSingleton<ITaskSchedulerFactory, TaskSchedulerFactory>();
             services.AddSingleton<ISerializer, BinarySerializer>();
             services.AddSingleton<IRouterServerInfoProvider, RouterServerInfoProvider>();
