@@ -7,7 +7,6 @@ namespace Shaman.MM.Configuration
 {
     public class MmApplicationConfig : ApplicationConfig
     {
-        public int ServerInactivityTimeoutMs { get; set; }
         public int ServerUnregisterTimeoutMs { get; set; }
         public int ActualizeMatchmakerIntervalMs { get; set; }
         public GameProject GameProject { get; set; }
@@ -18,7 +17,6 @@ namespace Shaman.MM.Configuration
             string publicDomainNameOrIpAddress, 
             List<ushort> ports, 
             string routerUrl, 
-            int serverInactivityTimeoutMs, 
             int serverUnregisterTimeoutMs,
             GameProject gameProject,
             string name,
@@ -36,7 +34,6 @@ namespace Shaman.MM.Configuration
                 socketType, getBackendListFromRouterIntervalMs: getBackendListFromRouterIntervalMs, isAuthOn: isAuthOn,
                 authSecret: authSecret)
         {
-            ServerInactivityTimeoutMs = serverInactivityTimeoutMs;
             ServerUnregisterTimeoutMs = serverUnregisterTimeoutMs;
             ActualizeMatchmakerIntervalMs = actualizeMatchmakerIntervalMs;
             ServerInfoListUpdateIntervalMs = serverInfoListUpdateIntervalMs;

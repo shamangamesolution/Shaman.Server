@@ -71,7 +71,6 @@ namespace Shaman.MM
                     Configuration["PublicDomainNameOrAddress"],
                     ports, 
                     Configuration["RouterUrl"],
-                    Convert.ToInt32(Configuration["ServerInactivityTimeoutMs"]),
                     Convert.ToInt32(Configuration["ServerUnregisterTimeoutMs"]),
                     (GameProject)Convert.ToInt32(Configuration["GameProject"]), 
                     Configuration["name"], 

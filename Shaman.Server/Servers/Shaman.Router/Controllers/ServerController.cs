@@ -21,7 +21,9 @@ namespace Shaman.Router.Controllers
 {
     public class ServerController : WebControllerBase
     {
-        private IRouterServerInfoProvider _serverInfoProvider;
+        private static DateTime _firstPingDate = DateTime.UtcNow;
+        
+        private readonly IRouterServerInfoProvider _serverInfoProvider;
         public ServerController(IConfigurationRepository configRepo, IShamanLogger logger, IOptions<RouterConfiguration> config, ISerializer serializer, IRouterServerInfoProvider serverInfoProvider) 
             : base(configRepo, logger, config, serializer)
         {
@@ -33,7 +35,12 @@ namespace Shaman.Router.Controllers
         {
             LogInfo($"Ping");
 
-            return this.Json(new Result { ResultCode = 1 });
+            return this.Json(new PingResult
+            {
+                ResultCode = 1,
+                UtcNow = DateTime.UtcNow,
+                UpDate = _firstPingDate
+            });
         }
         
         [HttpPost]

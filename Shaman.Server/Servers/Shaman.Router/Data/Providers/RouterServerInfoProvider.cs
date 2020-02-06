@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Serialization;
@@ -16,7 +17,6 @@ namespace Shaman.Router.Data.Providers
         private readonly IConfigurationRepository _configRepo;
         private readonly ITaskSchedulerFactory _taskSchedulerFactory;
         private readonly IOptions<RouterConfiguration> _config;
-        private readonly ISerializer _serializer;
         private readonly ITaskScheduler _taskScheduler;
         private readonly IShamanLogger _logger;
 
@@ -24,18 +24,20 @@ namespace Shaman.Router.Data.Providers
         private EntityDictionary<ServerInfo> _serverList = new EntityDictionary<ServerInfo>();
         private EntityDictionary<BundleInfo> _bundlesList = new EntityDictionary<BundleInfo>();
         
-        public RouterServerInfoProvider(IConfigurationRepository configRepo, ITaskSchedulerFactory taskSchedulerFactory, IOptions<RouterConfiguration> config, ISerializer serializer, IShamanLogger logger)
+        public RouterServerInfoProvider(IConfigurationRepository configRepo, ITaskSchedulerFactory taskSchedulerFactory, IOptions<RouterConfiguration> config, IShamanLogger logger)
         {
             _configRepo = configRepo;
             _taskSchedulerFactory = taskSchedulerFactory;
             _config = config;
-            _serializer = serializer;
             _logger = logger;
             _taskScheduler = _taskSchedulerFactory.GetTaskScheduler();
         }
         
         public void Start()
         {
+            // initial load
+            LoadConfig().Wait();
+            
             _taskScheduler.ScheduleOnInterval(async () =>
             {
                 if (_isRequestingNow)
@@ -43,14 +45,19 @@ namespace Shaman.Router.Data.Providers
 
                 _isRequestingNow = true;
 
-                _serverList = await _configRepo.GetAllServerInfo();
-                _bundlesList = await _configRepo.GetBundlesInfo();
-                
+                await LoadConfig();
+
                 _isRequestingNow = false;
                 _logger.Info($"Received {_serverList.Count()} server info records");
                 
-            }, 0, _config.Value.ServerInfoListUpdateIntervalMs);
+            }, _config.Value.ServerInfoListUpdateIntervalMs, _config.Value.ServerInfoListUpdateIntervalMs);
             _logger.Info($"RouterServerInfoProvider started");
+        }
+
+        private async Task LoadConfig()
+        {
+            _serverList = await _configRepo.GetAllServerInfo();
+            _bundlesList = await _configRepo.GetBundlesInfo();
         }
 
         public void Stop()

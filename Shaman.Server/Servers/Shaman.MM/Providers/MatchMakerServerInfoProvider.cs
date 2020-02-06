@@ -2,13 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Server.Providers;
 using Shaman.Common.Utils.Helpers;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Senders;
-using Shaman.Common.Utils.Servers;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Messages;
 using Shaman.Messages.General.DTO.Requests.Router;
@@ -68,9 +68,7 @@ namespace Shaman.MM.Providers
                         }
 
                         _serverList = response.ServerInfoList;
-                        
-                        //fill game servers collection
-                        FillGameServers();
+                        _gameServerList = BuildGameServersList();
                         
                         _logger.Info($"MatchMakerServerInfoProvider.GetServerInfoListResponse: i have {_gameServerList.Count()} game servers");
                         _isRequestingNow = false;
@@ -118,9 +116,9 @@ namespace Shaman.MM.Providers
             return _gameServerList.OrderBy(s => s.PeerCount).FirstOrDefault();
         }
 
-        private void FillGameServers()
+        private EntityDictionary<ServerInfo> BuildGameServersList()
         {
-            _gameServerList = new EntityDictionary<ServerInfo>();
+            var newGameServerList = new EntityDictionary<ServerInfo>();
             var idList = GetIdList();
             var versions = new List<string>();
             foreach (var id in idList)
@@ -130,11 +128,16 @@ namespace Shaman.MM.Providers
 
             foreach (var server in _serverList)
             {
-                if (server.ServerRole == ServerRole.GameServer && versions.Contains(server.ClientVersion) && server.IsActual(_config.ServerUnregisterTimeoutMs))
+                if (server.ServerRole == ServerRole.GameServer && versions.Contains(server.ClientVersion))
                 {
-                    _gameServerList.Add(server);
+                    if (server.IsActual(_config.ServerUnregisterTimeoutMs))
+                        newGameServerList.Add(server);
+                    else
+                        _logger.Error($"Not actual server: {JsonConvert.SerializeObject(server)}");
                 }
             }
+
+            return newGameServerList;
         }
 
         private List<int> GetIdList()

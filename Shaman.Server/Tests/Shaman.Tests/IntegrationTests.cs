@@ -79,7 +79,7 @@ namespace Shaman.Tests
         public void Setup()
         {             
             _clients.Clear();
-            var config = new MmApplicationConfig("", "127.0.0.1", new List<ushort> {SERVER_PORT_MM}, "", 120000, 120000, GameProject.DefaultGame, "", 7002);
+            var config = new MmApplicationConfig("", "127.0.0.1", new List<ushort> {SERVER_PORT_MM}, "", 120000, GameProject.DefaultGame, "", 7002);
             _roomPropertiesProvider = new FakeRoomPropertiesProvider3();
             taskSchedulerFactory = new TaskSchedulerFactory(_serverLogger);
             //fake sender to direct calls of application functions
