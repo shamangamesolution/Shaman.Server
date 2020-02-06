@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -24,6 +25,9 @@ namespace Shaman.Common.Server.Senders
             where T : HttpResponseBase, new()
         {
             T responseObject = new T();
+            var stopwatch = Stopwatch.StartNew();
+            var uri = $"{url}/{request.EndPoint}";
+
             try
             {
                 using (var client = new HttpClient())
@@ -41,12 +45,12 @@ namespace Shaman.Common.Server.Senders
                     if (string.IsNullOrWhiteSpace(request.EndPoint))
                         throw new Exception($"Request endpoint Url address is empty for {request.GetType()}");
 
-                    var uri = $"{url}/{request.EndPoint}";
                     using (var message = await client.PostAsync(uri, byteContent))
                     {
                         if (!message.IsSuccessStatusCode)
                         {
-                            _logger.Error($"SendRequest {request.GetType()} to {url} error: {message.Content.ReadAsStringAsync().Result}");                            
+                            _logger.Error($"SendRequest {request.GetType()} to {uri} error ({stopwatch.ElapsedMilliseconds}ms): {message.StatusCode}");                            
+
                             responseObject.ResultCode = ResultCode.SendRequestError;
                         }
                         else
@@ -59,7 +63,7 @@ namespace Shaman.Common.Server.Senders
             }
             catch (Exception e)
             {
-                _logger.Error($"SendRequest {request.GetType()}  to {url} error: {e}");
+                _logger.Error($"SendRequest {request.GetType()}  to {uri} error ({stopwatch.ElapsedMilliseconds}ms): {e}");
                 responseObject.ResultCode = ResultCode.SendRequestError;                
             }
             
@@ -70,6 +74,7 @@ namespace Shaman.Common.Server.Senders
         {
             T responseObject = new T();
             var requestUrl = $"{url}/{request.EndPoint}";
+            var stopwatch = Stopwatch.StartNew();
 
             try
             {
@@ -91,7 +96,7 @@ namespace Shaman.Common.Server.Senders
                     {
                         if (!message.IsSuccessStatusCode)
                         {
-                            _logger.Error($"SendRequest {request.GetType()} error: {message.Content.ReadAsStringAsync().Result}");                            
+                            _logger.Error($"SendRequest with callback {request.GetType()} to {requestUrl} error ({stopwatch.ElapsedMilliseconds}ms): {message.StatusCode}");                            
                             responseObject.ResultCode = ResultCode.SendRequestError;
                             responseObject.Message = message.Content.ReadAsStringAsync().Result;
                         }
@@ -105,7 +110,7 @@ namespace Shaman.Common.Server.Senders
             }
             catch (Exception e)
             {
-                _logger.Error($"SendRequest {request.GetType()} error: {e}");
+                _logger.Error($"SendRequest with callback {request.GetType()} to {requestUrl} error ({stopwatch.ElapsedMilliseconds}ms): {e}");
                 responseObject.ResultCode = ResultCode.SendRequestError;
             }
 
