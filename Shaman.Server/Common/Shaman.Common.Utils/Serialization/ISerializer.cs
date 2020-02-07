@@ -1,4 +1,5 @@
 
+using System.IO;
 using Shaman.Common.Utils.Messages;
 
 namespace Shaman.Common.Utils.Serialization
@@ -11,6 +12,11 @@ namespace Shaman.Common.Utils.Serialization
             where T : ISerializable, new();
 
         T DeserializeAs<T>(byte[] param, int offset, int length)
+            where T : ISerializable, new();
+
+        void Serialize(ISerializable serializable, Stream output);
+
+        T DeserializeAs<T>(Stream input)
             where T : ISerializable, new();
     }
 }
