@@ -1,2 +1,2 @@
-docker tag rw.router:latest ***REMOVED***/***REMOVED***.shared:shaman.router.1.0.0
+docker tag shaman.router:latest ***REMOVED***/***REMOVED***.shared:shaman.router.1.0.0
 docker push ***REMOVED***/***REMOVED***.shared:shaman.router.1.0.0

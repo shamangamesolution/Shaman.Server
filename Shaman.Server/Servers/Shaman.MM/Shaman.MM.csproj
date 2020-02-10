@@ -8,8 +8,7 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.App" />
         <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
-        <PackageReference Include="Serilog.AspNetCore" Version="3.0.0" />
-        <PackageReference Include="Serilog.Sinks.Loggly" Version="5.4.0-dev-00175" />
+        <PackageReference Include="Serilog.AspNetCore" Version="3.2.0" />
     </ItemGroup>
     
     <ItemGroup>

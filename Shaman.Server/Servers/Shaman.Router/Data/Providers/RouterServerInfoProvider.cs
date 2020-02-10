@@ -1,8 +1,11 @@
-using System.Collections.Generic;
+using System;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using Shaman.Common.Utils.Logging;
-using Shaman.Common.Utils.Serialization;
+using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Messages;
 using Shaman.Messages.General.Entity.Router;
@@ -16,7 +19,6 @@ namespace Shaman.Router.Data.Providers
         private readonly IConfigurationRepository _configRepo;
         private readonly ITaskSchedulerFactory _taskSchedulerFactory;
         private readonly IOptions<RouterConfiguration> _config;
-        private readonly ISerializer _serializer;
         private readonly ITaskScheduler _taskScheduler;
         private readonly IShamanLogger _logger;
 
@@ -24,18 +26,20 @@ namespace Shaman.Router.Data.Providers
         private EntityDictionary<ServerInfo> _serverList = new EntityDictionary<ServerInfo>();
         private EntityDictionary<BundleInfo> _bundlesList = new EntityDictionary<BundleInfo>();
         
-        public RouterServerInfoProvider(IConfigurationRepository configRepo, ITaskSchedulerFactory taskSchedulerFactory, IOptions<RouterConfiguration> config, ISerializer serializer, IShamanLogger logger)
+        public RouterServerInfoProvider(IConfigurationRepository configRepo, ITaskSchedulerFactory taskSchedulerFactory, IOptions<RouterConfiguration> config, IShamanLogger logger)
         {
             _configRepo = configRepo;
             _taskSchedulerFactory = taskSchedulerFactory;
             _config = config;
-            _serializer = serializer;
             _logger = logger;
             _taskScheduler = _taskSchedulerFactory.GetTaskScheduler();
         }
         
         public void Start()
         {
+            // initial load
+            LoadConfig().Wait();
+            
             _taskScheduler.ScheduleOnInterval(async () =>
             {
                 if (_isRequestingNow)
@@ -43,14 +47,29 @@ namespace Shaman.Router.Data.Providers
 
                 _isRequestingNow = true;
 
-                _serverList = await _configRepo.GetAllServerInfo();
-                _bundlesList = await _configRepo.GetBundlesInfo();
-                
+                await LoadConfig();
+
                 _isRequestingNow = false;
                 _logger.Info($"Received {_serverList.Count()} server info records");
                 
-            }, 0, _config.Value.ServerInfoListUpdateIntervalMs);
+            }, _config.Value.ServerInfoListUpdateIntervalMs, _config.Value.ServerInfoListUpdateIntervalMs);
             _logger.Info($"RouterServerInfoProvider started");
+        }
+
+        private async Task LoadConfig()
+        {
+            var startNew = Stopwatch.StartNew();
+            _serverList = await _configRepo.GetAllServerInfo();
+            _bundlesList = await _configRepo.GetBundlesInfo();
+            var updateElapsed = startNew.ElapsedMilliseconds;
+            if (updateElapsed > 5000)
+                _logger.Error($"Long data update: {updateElapsed}ms");
+
+            var staleList = _serverList.Where(l => l.IsApproved && l.ServerRole != ServerRole.BackEnd && !l.IsActual(30000)).ToArray();
+            if (staleList.Any())
+            {
+                _logger.Error($"Staled data ({string.Join(',',staleList.Select(s=>(DateTime.UtcNow - s.ActualizedOn.Value).TotalMilliseconds.ToString()))}) : {JsonConvert.SerializeObject(staleList, Formatting.Indented)}");
+            }
         }
 
         public void Stop()

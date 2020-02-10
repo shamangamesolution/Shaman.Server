@@ -40,7 +40,7 @@ namespace Shaman.MM.Tests
         [SetUp]
         public void Setup()
         {
-            var config = new MmApplicationConfig("", "127.0.0.1", new List<ushort> {0}, "", 120000, 120000, GameProject.DefaultGame,"", 7002, isAuthOn:false);
+            var config = new MmApplicationConfig("", "127.0.0.1", new List<ushort> {0}, "", 120000, GameProject.DefaultGame,"", 7002, isAuthOn:false);
             _logger = new ConsoleLogger();
             _roomPropertiesProvider = new FakeRoomPropertiesProvider(3, 500, 250);
             

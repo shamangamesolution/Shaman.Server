@@ -1,12 +1,11 @@
-﻿using System;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Serilog.Events;
+using Newtonsoft.Json;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Serialization;
 using Shaman.Common.Utils.TaskScheduling;
@@ -14,7 +13,7 @@ using Shaman.Router.Config;
 using Shaman.Router.Data.Providers;
 using Shaman.Router.Data.Repositories;
 using Shaman.Router.Data.Repositories.Interfaces;
-using LogLevel = Shaman.Common.Utils.Logging.LogLevel;
+using Shaman.ServerSharedUtilities.Logging;
 
 namespace Shaman.Router
 {
@@ -42,7 +41,7 @@ namespace Shaman.Router
             services.Configure<RouterConfiguration>(Configuration);
             //services.AddSingleton<IShamanLogger, ConsoleLogger>(l => new ConsoleLogger("R", LogLevel.Error | LogLevel.Info));
             
-            services.AddSingleton<IShamanLogger, ConsoleLogger>();
+            services.AddSingleton<IShamanLogger, SerilogLogger>();
             services.AddSingleton<ITaskSchedulerFactory, TaskSchedulerFactory>();
             services.AddSingleton<ISerializer, BinarySerializer>();
             services.AddSingleton<IRouterServerInfoProvider, RouterServerInfoProvider>();
@@ -74,29 +73,10 @@ namespace Shaman.Router
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
             
-            logger.Initialize(SourceType.Router, Configuration["ServerVersion"]);
-            var serilogLevel = Enum.Parse<LogEventLevel>(Configuration["Serilog:MinimumLevel"]);
-            switch (serilogLevel)
-            {
-                case LogEventLevel.Verbose:
-                case LogEventLevel.Debug:
-                    logger.SetLogLevel(LogLevel.Debug | LogLevel.Error | LogLevel.Info);
-                    break;
-                case LogEventLevel.Information:
-                    logger.SetLogLevel(LogLevel.Error | LogLevel.Info);
-                    break;
-                case LogEventLevel.Warning:
-                case LogEventLevel.Error:
-                    logger.SetLogLevel(LogLevel.Error);
-                    break;
-                case LogEventLevel.Fatal:
-                    logger.SetLogLevel(LogLevel.Error);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-            
             serverInfoProvider.Start();
+            
+            logger.Error($"Initial server list: {JsonConvert.SerializeObject(serverInfoProvider.GetAllServers(), Formatting.Indented)}");
+            logger.Error($"Initial bundles list: {JsonConvert.SerializeObject(serverInfoProvider.GetAllBundles(), Formatting.Indented)}");
         }
     }
 }

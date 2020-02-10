@@ -71,7 +71,6 @@ namespace Shaman.MM
                     Configuration["PublicDomainNameOrAddress"],
                     ports, 
                     Configuration["RouterUrl"],
-                    Convert.ToInt32(Configuration["ServerInactivityTimeoutMs"]),
                     Convert.ToInt32(Configuration["ServerUnregisterTimeoutMs"]),
                     (GameProject)Convert.ToInt32(Configuration["GameProject"]), 
                     Configuration["name"], 
@@ -129,29 +128,6 @@ namespace Shaman.MM
             }
 
             app.UseMvc();
-            
-            //setup logging based on Serilog params (is not very good, but let it be so)
-            logger.Initialize(SourceType.MatchMaker, Configuration["ServerVersion"], $"{Configuration["PublicDomainNameOrAddress"]}:{Configuration["BindToPortHttp"]}[{Configuration["Ports"]}]");
-            var serilogLevel = Enum.Parse<LogEventLevel>(Configuration["Serilog:MinimumLevel"]);
-            switch (serilogLevel)
-            {
-                case LogEventLevel.Verbose:
-                case LogEventLevel.Debug:
-                    logger.SetLogLevel(LogLevel.Debug | LogLevel.Error | LogLevel.Info);
-                    break;
-                case LogEventLevel.Information:
-                    logger.SetLogLevel(LogLevel.Error | LogLevel.Info);
-                    break;
-                case LogEventLevel.Warning:
-                case LogEventLevel.Error:
-                    logger.SetLogLevel(LogLevel.Error);
-                    break;
-                case LogEventLevel.Fatal:
-                    logger.SetLogLevel(LogLevel.Error);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
             
             var bundleUri = bundleInfoProvider.GetBundleUri().Result;
             var resolver = BundleHelper.LoadTypeFromBundle<IMmResolver>(bundleUri, Convert.ToBoolean(Configuration["OverwriteDownloadedBundle"]));

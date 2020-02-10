@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Server.Peers;
 using Shaman.Common.Utils.Logging;
@@ -218,29 +219,26 @@ namespace Shaman.Game.Rooms
             _sessionsToRooms.TryAdd(sessionID, room);
         }
         
-        public void PeerJoined(IPeer peer, Guid roomId, Dictionary<byte, object> peerProperties)
+        public async Task PeerJoined(IPeer peer, Guid roomId, Dictionary<byte, object> peerProperties)
         {
-            lock (_syncPeersList)
-            {
-                var room = GetRoomById(roomId);
-                var sessionId = peer.GetSessionId();
-                
-                if (room == null)
-                {
-                    var message = $"Peer {sessionId} attempted to join to non-exist room {roomId}";
-                    _logger.Error(message);
-                    throw new Exception(message);
-                }
+            var room = GetRoomById(roomId);
+            var sessionId = peer.GetSessionId();
 
-                if (room.PeerJoined(peer, peerProperties))
-                {
-                    room.ConfirmedJoin(sessionId);
-                    _gameMetrics.TrackPeerJoin();
-                }
-                else
-                {
-                    peer.Disconnect(DisconnectReason.JustBecause);
-                }
+            if (room == null)
+            {
+                var message = $"Peer {sessionId} attempted to join to non-exist room {roomId}";
+                _logger.Error(message);
+                throw new Exception(message);
+            }
+
+            if (await room.PeerJoined(peer, peerProperties))
+            {
+                room.ConfirmedJoin(sessionId);
+                _gameMetrics.TrackPeerJoin();
+            }
+            else
+            {
+                peer.Disconnect(DisconnectReason.JustBecause);
             }
         }
 
@@ -287,17 +285,21 @@ namespace Shaman.Game.Rooms
                 switch (operationCode)
                 {
                     case CustomOperationCode.JoinRoom:
-                        try
+                        var joinMessage = _serializer.DeserializeAs<JoinRoomRequest>(message.Buffer, message.Offset, message.Length);
+                        _taskScheduler.ScheduleOnceOnNow(async () =>
                         {
-                            var joinMessage = _serializer.DeserializeAs<JoinRoomRequest>(message.Buffer, message.Offset, message.Length);
-                            PeerJoined(peer, joinMessage.RoomId, joinMessage.Properties);
-                            _packetSender.AddPacket(new JoinRoomResponse(), peer);
-                        }
-                        catch (Exception ex)
-                        {
-                            _logger.Error($"JoinRoom failed for player {peer.GetSessionId()}: {ex}");
-                            _packetSender.AddPacket(new JoinRoomResponse() { ResultCode = ResultCode.RequestProcessingError }, peer);
-                        }
+                            try
+                            {
+                                await PeerJoined(peer, joinMessage.RoomId, joinMessage.Properties);
+                                _packetSender.AddPacket(new JoinRoomResponse(), peer);
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.Error($"JoinRoom failed for player {peer.GetSessionId()}: {ex}");
+                                _packetSender.AddPacket(new JoinRoomResponse() { ResultCode = ResultCode.RequestProcessingError }, peer);
+                            }
+                        });
+                        
                         break;
                     case CustomOperationCode.LeaveRoom:
                         PeerLeft(peer.GetSessionId());

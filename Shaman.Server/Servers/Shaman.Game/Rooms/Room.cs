@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Shaman.Common.Server.Peers;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Messages;
@@ -176,7 +177,7 @@ namespace Shaman.Game.Rooms
             return _roomId;
         }
 
-        public bool PeerJoined(IPeer peer, Dictionary<byte, object> peerProperties)
+        public async Task<bool> PeerJoined(IPeer peer, Dictionary<byte, object> peerProperties)
         {
             if (!_roomPlayers.TryAdd(peer.GetSessionId(), new RoomPlayer(peer, peerProperties)))
             {
@@ -191,7 +192,7 @@ namespace Shaman.Game.Rooms
                     _logger.Error($"GameModeController == null while peer joining");
                     return false;
                 }
-                return _gameModeController.ProcessNewPlayer(peer.GetSessionId(), peerProperties);;
+                return await _gameModeController.ProcessNewPlayer(peer.GetSessionId(), peerProperties);;
             }
             catch (Exception ex)
             {

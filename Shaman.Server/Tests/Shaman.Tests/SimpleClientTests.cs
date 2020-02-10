@@ -6,7 +6,6 @@ using NUnit.Framework;
 using Shaman.Client;
 using Shaman.Client.Peers;
 using Shaman.Common.Server.Providers;
-using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Serialization;
@@ -84,7 +83,7 @@ namespace Shaman.Tests
         public void Setup()
         {             
             _clients.Clear();
-            var config = new MmApplicationConfig("", "127.0.0.1", new List<ushort> {SERVER_PORT_MM}, "", 120000, 120000, GameProject.DefaultGame,"", 7002, isAuthOn:false);
+            var config = new MmApplicationConfig("", "127.0.0.1", new List<ushort> {SERVER_PORT_MM}, "", 120000, GameProject.DefaultGame,"", 7002, isAuthOn:false);
             _roomPropertiesProvider = new FakeRoomPropertiesProvider2();
             taskSchedulerFactory = new TaskSchedulerFactory(_serverLogger);
             //fake sender to direct calls of application functions
@@ -127,8 +126,6 @@ namespace Shaman.Tests
 
             _gameApplication = new GameApplication(_serverLogger, gameConfig, serializer, socketFactory, taskSchedulerFactory, requestSender, _backendProvider, _roomManager, _gamePacketSender);
             _gameApplication.Start();
-            
-            _clientLogger.SetLogLevel(LogLevel.Error);
         }
         
         [TearDown]

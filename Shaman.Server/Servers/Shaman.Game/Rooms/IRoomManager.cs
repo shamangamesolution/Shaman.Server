@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Shaman.Common.Server.Peers;
 using Shaman.Common.Utils.Messages;
 using Shaman.Game.Contract;
@@ -17,7 +18,7 @@ namespace Shaman.Game.Rooms
         int GetRoomsCount();
         int GetPlayersCount();
         IRoom GetRoomBySessionId(Guid sessionId);
-        void PeerJoined(IPeer peer, Guid roomId, Dictionary<byte, object> peerProperties);
+        Task PeerJoined(IPeer peer, Guid roomId, Dictionary<byte, object> peerProperties);
         bool IsInRoom(Guid sessionId);
         void PeerLeft(Guid sessionId);
         void PeerDisconnected(Guid sessionId);

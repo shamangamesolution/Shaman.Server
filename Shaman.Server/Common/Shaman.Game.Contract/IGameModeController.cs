@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Shaman.Messages.Handling;
 
 namespace Shaman.Game.Contract
 {
     public interface IGameModeController
     {
-        bool ProcessNewPlayer(Guid sessionId, Dictionary<byte, object> properties);
+        Task<bool> ProcessNewPlayer(Guid sessionId, Dictionary<byte, object> properties);
         void CleanupPlayer(Guid sessionId);
 
         /// <returns>true if room should be destroyed</returns>
