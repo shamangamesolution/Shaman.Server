@@ -20,11 +20,10 @@ namespace Shaman.Game.Rooms
         IRoom GetRoomBySessionId(Guid sessionId);
         Task PeerJoined(IPeer peer, Guid roomId, Dictionary<byte, object> peerProperties);
         bool IsInRoom(Guid sessionId);
-        void PeerLeft(Guid sessionId);
-        void PeerDisconnected(Guid sessionId);
         void ProcessMessage(ushort operationCode, MessageData message, IPeer peer);
         Dictionary<Guid, int> GetRoomPeerCount();
         IRoom GetOldestRoom();
         void ConfirmedJoin(Guid sessionId, IRoom room);
+        void PeerDisconnected(IPeer peer);
     }
 }

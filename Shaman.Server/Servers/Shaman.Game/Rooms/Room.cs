@@ -220,7 +220,8 @@ namespace Shaman.Game.Rooms
 
         public void PeerDisconnected(Guid sessionId)
         {
-            _roomPlayers.TryRemove(sessionId, out _);
+            if (_roomPlayers.TryRemove(sessionId, out var roomPlayer))
+                _packetSender.PeerDisconnected(roomPlayer.Peer);
             try
             {
                 _gameModeController.CleanupPlayer(sessionId);

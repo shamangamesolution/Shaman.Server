@@ -70,10 +70,7 @@ namespace Shaman.Game.Rooms
                 }
             }
 
-            lock (_syncPeersList)
-            {
-                _logger.Info($"Rooms state: Room count {GetRoomsCount()}, peers count {GetPlayersCount()}");
-            }
+            _logger.Info($"Rooms state: Room count {GetRoomsCount()}, peers count {GetPlayersCount()}");
         }
 
         private static bool IsTimeToForceRoomDestroy(IRoom roomValue)
@@ -86,25 +83,15 @@ namespace Shaman.Game.Rooms
         /// <returns>IRoom?</returns>
         private IRoom GetRoomById(Guid id)
         {
-            lock (_syncPeersList)
-            {
-                IRoom room;
-                _rooms.TryGetValue(id, out room);
-                return room;
-            }
+            _rooms.TryGetValue(id, out var room);
+            return room;
         }
-        
+
         public IRoom GetRoomBySessionId(Guid sessionId)
         {
-            lock (_syncPeersList)
-            {
-                IRoom room;
-                _sessionsToRooms.TryGetValue(sessionId, out room);
-                return room;
-            }
+            _sessionsToRooms.TryGetValue(sessionId, out var room);
+            return room;
         }
-        
-        
         
         public Guid CreateRoom(Dictionary<byte, object> properties, Dictionary<Guid, Dictionary<byte, object>> players, Guid? roomId)
         {
@@ -118,7 +105,7 @@ namespace Shaman.Game.Rooms
                 }
                 
                 var roomPropertiesContainer = new RoomPropertiesContainer(_logger);
-                var packetSender = new PacketBatchSender(_taskSchedulerFactory, _config, _serializer);
+                var packetSender = new PacketBatchSender(_taskSchedulerFactory, _config, _serializer, _logger);
                 
                 packetSender.Start(true);
                 
@@ -192,26 +179,17 @@ namespace Shaman.Game.Rooms
 
         public List<IRoom> GetAllRooms()
         {
-            lock (_syncPeersList)
-            {
-                return _rooms.Select(r => r.Value).ToList();
-            }
+            return _rooms.Select(r => r.Value).ToList();
         }
 
         public int GetRoomsCount()
         {
-            lock (_syncPeersList)
-            {
-                return _rooms.Count;
-            }
+            return _rooms.Count;
         }
 
         public int GetPlayersCount()
         {
-            lock (_syncPeersList)
-            {
-                return _sessionsToRooms.Count;
-            }
+            return _sessionsToRooms.Count;
         }
 
         public void ConfirmedJoin(Guid sessionID, IRoom room)
@@ -244,21 +222,14 @@ namespace Shaman.Game.Rooms
 
         public bool IsInRoom(Guid sessionId)
         {
-            lock (_syncPeersList)
-            {
-                return _sessionsToRooms.ContainsKey(sessionId);
-            }
+            return _sessionsToRooms.ContainsKey(sessionId);
         }
 
-        public void PeerLeft(Guid sessionId)
-        {
-            PeerDisconnected(sessionId);
-        }
-
-        public void PeerDisconnected(Guid sessionId)
+        public void PeerDisconnected(IPeer peer)
         {
             lock (_syncPeersList)
             {
+                var sessionId = peer.GetSessionId();
                 var room = GetRoomBySessionId(sessionId);
                 if (room == null)
                 {
@@ -267,8 +238,9 @@ namespace Shaman.Game.Rooms
                 }
 
                 room.PeerDisconnected(sessionId);
-                _sessionsToRooms.TryRemove(sessionId, out var room1);
+                _sessionsToRooms.TryRemove(sessionId, out _);
                 _gameMetrics.TrackPeerDisconnected();
+                _packetSender.PeerDisconnected(peer);
 
                 if (room.IsGameFinished())
                 {
@@ -302,7 +274,7 @@ namespace Shaman.Game.Rooms
                         
                         break;
                     case CustomOperationCode.LeaveRoom:
-                        PeerLeft(peer.GetSessionId());
+                        PeerDisconnected(peer);
                         break;
                     default:
                         var room = GetRoomBySessionId(peer.GetSessionId());

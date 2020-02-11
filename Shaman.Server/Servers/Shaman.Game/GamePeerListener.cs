@@ -176,7 +176,7 @@ namespace Shaman.Game
             }
             
             if (_roomManager.IsInRoom(peer.GetSessionId()))
-                _roomManager.PeerDisconnected(peer.GetSessionId());
+                _roomManager.PeerDisconnected(peer);
             
             _packetSender.PeerDisconnected(peer);
             
