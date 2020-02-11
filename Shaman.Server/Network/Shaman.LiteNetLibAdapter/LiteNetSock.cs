@@ -126,7 +126,6 @@ namespace Shaman.LiteNetLibAdapter
 
         public event Action<IPEndPoint, DataPacket, Action> OnPacketReceived;
         public event Action<IPEndPoint> OnConnected;
-        public event Action<IPEndPoint> OnReliablePacketTimeout;
         public event Action<IPEndPoint, string> OnDisconnected;
     }
 }

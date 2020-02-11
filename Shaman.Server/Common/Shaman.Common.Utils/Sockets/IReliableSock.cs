@@ -20,7 +20,6 @@ namespace Shaman.Common.Utils.Sockets
         
         event Action<IPEndPoint, DataPacket, Action> OnPacketReceived;
         event Action<IPEndPoint> OnConnected;
-        event Action<IPEndPoint> OnReliablePacketTimeout;
         event Action<IPEndPoint, string> OnDisconnected;
     }
 }

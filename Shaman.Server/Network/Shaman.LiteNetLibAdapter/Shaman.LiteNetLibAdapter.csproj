@@ -3,12 +3,19 @@
     <PropertyGroup>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <PackageVersion>1.5.0</PackageVersion>
+        <PackageVersion>1.6.0</PackageVersion>
     </PropertyGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\..\Common\Shaman.Common.Utils\Shaman.Common.Utils.csproj" />
-      <ProjectReference Include="..\LiteNetLib\LiteNetLib.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="LiteNetLib" Version="0.8.3.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="build" />
     </ItemGroup>
 
 </Project>
