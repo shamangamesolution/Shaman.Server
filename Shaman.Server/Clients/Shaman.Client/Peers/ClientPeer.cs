@@ -204,7 +204,7 @@ namespace Shaman.Client.Peers
             _logger = logger;
             _serializer = new BinarySerializer();
             _packetBatchSender = new PacketBatchSender(taskSchedulerFactory,
-                new ClientPacketSenderConfig(maxMessageSize, sendTickMs), _serializer);
+                new ClientPacketSenderConfig(maxMessageSize, sendTickMs), _serializer, logger);
             _serverSender = new ServerSender(logger, OnPackageReceived, taskSchedulerFactory.GetTaskScheduler());
         }
 

@@ -91,8 +91,8 @@ namespace Shaman.Tests
             _backendProvider = new BackendProvider(taskSchedulerFactory, config, requestSender, _serverLogger);
             var gameConfig = new GameApplicationConfig("", "", "127.0.0.1", new List<ushort> {SERVER_PORT_GAME}, "", "", 7000,
                 isAuthOn: false);
-            _mmPacketSender = new PacketBatchSender(taskSchedulerFactory, config, serializer);
-            _gamePacketSender = new PacketBatchSender(taskSchedulerFactory, gameConfig, serializer);
+            _mmPacketSender = new PacketBatchSender(taskSchedulerFactory, config, serializer, _serverLogger);
+            _gamePacketSender = new PacketBatchSender(taskSchedulerFactory, gameConfig, serializer, _serverLogger);
             
             _playerManager = new PlayersManager( Mock.Of<IMmMetrics>(), _serverLogger);
             _statsProvider = new MM.Providers.StatisticsProvider(_playerManager);

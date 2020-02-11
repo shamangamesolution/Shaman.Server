@@ -60,7 +60,7 @@ namespace Shaman.Tests
             
             //setup server
             _gameModeControllerFactory = new FakeGameModeControllerFactory();
-            _packetSender = new PacketBatchSender(taskSchedulerFactory, config, serializer);
+            _packetSender = new PacketBatchSender(taskSchedulerFactory, config, serializer, _serverLogger);
             _roomManager = new RoomManager(_serverLogger, serializer, config, taskSchedulerFactory,  _gameModeControllerFactory, _packetSender, Mock.Of<IGameMetrics>(), _requestSender);
             _gameApplication = new GameApplication(_serverLogger, config, serializer, socketFactory, taskSchedulerFactory, _requestSender, _backendProvider, _roomManager, _packetSender);
             _gameApplication.Start();
