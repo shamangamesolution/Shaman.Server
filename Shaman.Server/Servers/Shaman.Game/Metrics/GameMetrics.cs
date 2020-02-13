@@ -12,7 +12,7 @@ namespace Shaman.Game.Metrics
         void TrackPeerJoin();
         void TrackRoomCreated();
         void TrackRoomDestroyed();
-        void TrackPeerDisconnected();
+        void TrackPeerDisconnected(int amount = 1);
         void TrackMaxSendQueueSize(int size);
         void TrackAvgSendQueueSize(int size);
         void TrackTotalRoomLiveTime(int seconds);
@@ -63,9 +63,9 @@ namespace Shaman.Game.Metrics
             Metrics.Measure.Counter.Increment(RoomPeers);
         }
 
-        public void TrackPeerDisconnected()
+        public void TrackPeerDisconnected(int amount)
         {
-            Metrics.Measure.Counter.Decrement(RoomPeers);
+            Metrics.Measure.Counter.Decrement(RoomPeers, amount);
         }
 
         public void TrackRoomCreated()

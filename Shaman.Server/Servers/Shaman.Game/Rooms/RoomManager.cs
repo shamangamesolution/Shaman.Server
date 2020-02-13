@@ -145,7 +145,7 @@ namespace Shaman.Game.Rooms
                     return;
                 
                 var roomStats = room.GetStats();
-                room.CleanUp();    
+                _gameMetrics.TrackPeerDisconnected(room.CleanUp());
                 _rooms.TryRemove(roomId, out _);
                 TrackRoomMetricsOnDelete(roomStats);
             }
@@ -240,7 +240,7 @@ namespace Shaman.Game.Rooms
 
                 room.PeerDisconnected(sessionId);
                 _sessionsToRooms.TryRemove(sessionId, out _);
-                _gameMetrics.TrackPeerDisconnected();
+                _gameMetrics.TrackPeerDisconnected(1);
                 _packetSender.PeerDisconnected(peer);
 
                 if (room.IsGameFinished())

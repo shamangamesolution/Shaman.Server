@@ -14,7 +14,7 @@ namespace Shaman.Game.Metrics
         {
         }
 
-        public void TrackPeerDisconnected()
+        public void TrackPeerDisconnected(int amount)
         {
         }
 

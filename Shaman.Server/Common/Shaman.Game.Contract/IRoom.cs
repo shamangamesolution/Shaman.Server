@@ -16,7 +16,11 @@ namespace Shaman.Game.Contract
         void SendToAll(MessageBase message, params Guid[] exceptions);
         void AddToSendQueue(MessageBase message, Guid sessionId);
         void ProcessMessage(ushort operationCode, MessageData message, Guid sessionId);
-        void CleanUp();
+        /// <summary>
+        /// Cleans up room
+        /// </summary>
+        /// <returns>amount of removed players in room</returns>
+        int CleanUp();
         int GetPeerCount();
         RoomPlayer GetPlayer(Guid sessionId);
         DateTime GetCreatedOnDateTime();

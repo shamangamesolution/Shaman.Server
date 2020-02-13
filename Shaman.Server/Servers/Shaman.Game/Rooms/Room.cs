@@ -287,13 +287,18 @@ namespace Shaman.Game.Rooms
             }
         }
 
-        public void CleanUp()
+        public int CleanUp()
         {
+            int removedPlayers = 0;
             try
             {
-                foreach (var player in _roomPlayers)
+                foreach (var player in _roomPlayers.ToArray())
                 {
-                    player.Value.Peer.Disconnect(DisconnectReason.RoomCleanup);
+                    if (_roomPlayers.TryRemove(player.Key, out _))
+                    {
+                        player.Value.Peer.Disconnect(DisconnectReason.RoomCleanup);
+                        ++removedPlayers;
+                    }
                 }
 
                 _packetSender.Stop();
@@ -311,6 +316,8 @@ namespace Shaman.Game.Rooms
             {
                 _logger?.Error($"RoomStats: {_roomStats}");
             }
+
+            return removedPlayers;
         }
 
         public int GetPeerCount()
