@@ -269,11 +269,11 @@ namespace Shaman.MM
                 _logger.Error($"GamePeerListener.OnClientDisconnect error: can not find peer for endpoint {endPoint.Address}:{endPoint.Port}");
                 return;
             }
+            base.OnClientDisconnect(endPoint, reason);            
             
             _matchMaker.RemovePlayer(peer.GetPeerId());
             _packetSender.PeerDisconnected(peer);
             
-            base.OnClientDisconnect(endPoint, reason);            
         }
     }
 }

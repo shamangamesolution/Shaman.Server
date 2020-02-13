@@ -141,11 +141,13 @@ namespace Shaman.Game.Rooms
         {
             lock (_syncPeersList)
             {
-                var room = GetRoomById(roomId);
-                var roomStats = room?.GetStats();
-                room?.CleanUp();
-                if (_rooms.TryRemove(roomId, out room))
-                    TrackRoomMetricsOnDelete(roomStats);
+                if (!_rooms.TryGetValue(roomId, out var room)) 
+                    return;
+                
+                var roomStats = room.GetStats();
+                room.CleanUp();    
+                _rooms.TryRemove(roomId, out _);
+                TrackRoomMetricsOnDelete(roomStats);
             }
         }
 
@@ -230,8 +232,7 @@ namespace Shaman.Game.Rooms
             lock (_syncPeersList)
             {
                 var sessionId = peer.GetSessionId();
-                var room = GetRoomBySessionId(sessionId);
-                if (room == null)
+                if (!_sessionsToRooms.TryGetValue(sessionId, out var room))
                 {
                     _logger.Error($"PeerDisconnected error: Can not get room for peer {sessionId}");
                     return;
@@ -277,14 +278,10 @@ namespace Shaman.Game.Rooms
                         PeerDisconnected(peer);
                         break;
                     default:
-                        var room = GetRoomBySessionId(peer.GetSessionId());
-                        if (room == null)
-                        {
+                        if (_sessionsToRooms.TryGetValue(peer.GetSessionId(), out var room))
+                            room.ProcessMessage(operationCode, message, peer.GetSessionId());
+                        else
                             _logger.Error($"ProcessMessage error: Can not get room for peer {peer.GetSessionId()}");
-                            return;
-                        }
-
-                        room.ProcessMessage(operationCode, message, peer.GetSessionId());
                         break;
                 }
             }

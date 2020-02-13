@@ -202,22 +202,6 @@ namespace Shaman.Game.Rooms
 
         }
 
-        public void PeerLeft(Guid sessionId)
-        {
-            _roomPlayers.TryRemove(sessionId, out _);
-            try
-            {
-                _gameModeController.CleanupPlayer(sessionId);
-            }
-            catch (Exception ex)
-            {
-                _logger.Error($"CleanUpPlayer error: {ex}");
-            }
-            
-            //send update
-            SendRoomStateUpdate();
-        }
-
         public void PeerDisconnected(Guid sessionId)
         {
             if (_roomPlayers.TryRemove(sessionId, out var roomPlayer))

@@ -174,13 +174,13 @@ namespace Shaman.Game
                 _logger.Error($"GamePeerListener.OnClientDisconnect error: can not find peer for endpoint {endPoint.Address}:{endPoint.Port}");
                 return;
             }
+            base.OnClientDisconnect(endPoint, reason);            
             
             if (_roomManager.IsInRoom(peer.GetSessionId()))
                 _roomManager.PeerDisconnected(peer);
             
             _packetSender.PeerDisconnected(peer);
             
-            base.OnClientDisconnect(endPoint, reason);            
         }
     }
 }
