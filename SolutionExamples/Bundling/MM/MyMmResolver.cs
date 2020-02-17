@@ -17,7 +17,7 @@ namespace MM
 
         public IRoomPropertiesProvider GetRoomPropertiesProvider()
         {
-            throw new System.NotImplementedException();
+            return new RoomPropertiesProvider(); 
         }
     }
 }

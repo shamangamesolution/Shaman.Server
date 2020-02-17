@@ -1,11 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
+        <OutputType>Exe</OutputType>
         <TargetFramework>netcoreapp2.2</TargetFramework>
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Shaman.Game.Contract.DI" Version="1.6.0" />
+      <PackageReference Include="Shaman.Monkeys" Version="1.0.0" />
     </ItemGroup>
 
 </Project>

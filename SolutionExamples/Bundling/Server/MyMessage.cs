@@ -5,7 +5,7 @@ namespace Server
 {
     public class MyMessage : MessageBase
     {
-        public MyMessage() : base(MessageType.Event, 1)
+        public MyMessage() : base(20000)
         {
         }
 

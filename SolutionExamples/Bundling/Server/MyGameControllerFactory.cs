@@ -16,7 +16,7 @@ namespace Server
         public IGameModeController GetGameModeController(IRoom room, ITaskScheduler taskScheduler,
             IRoomPropertiesContainer roomPropertiesContainer)
         {
-            return new MyGameController(_serializer);
+            return new MyGameController(_serializer, room);
         }
     }
 }
