@@ -13,6 +13,7 @@ namespace Shaman.TestTools.ClientPeers
         public static TestClientPeer CreateDefault()
         {
             return new TestClientPeer(ClientLogger, TaskSchedulerFactory, new BinarySerializer());
+
         }
     }
 }

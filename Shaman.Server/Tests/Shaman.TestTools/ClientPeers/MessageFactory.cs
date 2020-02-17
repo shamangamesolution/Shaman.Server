@@ -8,6 +8,8 @@ using Shaman.Messages.General.DTO.Requests;
 
 namespace Shaman.TestTools.ClientPeers
 {
+    //todo remove
+    
     public static class MessageFactory
     {
         private static readonly Lazy<Dictionary<ushort, Type>> TypesMap = new Lazy<Dictionary<ushort, Type>>(CreateMessageMap);
