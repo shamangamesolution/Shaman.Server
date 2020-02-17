@@ -48,13 +48,6 @@ namespace Shaman.Client.Peers
         CreateGameError = 12
     }
 
-    public enum JoinType
-    {
-        RandomJoin = 1,
-        DirectJoin = 2,
-        CreateGame = 3
-    }
-    
     public class EventHandler
     {
         public Action<MessageBase> Handler;
