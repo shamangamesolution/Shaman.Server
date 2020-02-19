@@ -193,9 +193,10 @@ namespace Shaman.Game.Rooms
 
         }
 
-        public void PeerDisconnected(Guid sessionId)
+        public bool PeerDisconnected(Guid sessionId)
         {
-            if (_roomPlayers.TryRemove(sessionId, out var roomPlayer))
+            var peerRemoved = _roomPlayers.TryRemove(sessionId, out var roomPlayer);
+            if (peerRemoved)
                 _packetSender.PeerDisconnected(roomPlayer.Peer);
             try
             {
@@ -207,6 +208,7 @@ namespace Shaman.Game.Rooms
             }
             //send update
             SendRoomStateUpdate();
+            return peerRemoved;
         }
 
         public void AddToSendQueue(MessageBase message, Guid sessionId)

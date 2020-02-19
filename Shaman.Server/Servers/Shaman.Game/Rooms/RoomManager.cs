@@ -145,7 +145,6 @@ namespace Shaman.Game.Rooms
                     return;
                 
                 var roomStats = room.GetStats();
-                // todo fix case when room closing in the same time when player disconnecting.. may overlap and break stat
                 _gameMetrics.TrackPeerDisconnected(room.CleanUp());
                 _rooms.TryRemove(roomId, out _);
                 TrackRoomMetricsOnDelete(roomStats);
@@ -239,9 +238,10 @@ namespace Shaman.Game.Rooms
                     return;
                 }
 
-                room.PeerDisconnected(sessionId);
+                if (room.PeerDisconnected(sessionId))
+                    _gameMetrics.TrackPeerDisconnected();
+                
                 _sessionsToRooms.TryRemove(sessionId, out _);
-                _gameMetrics.TrackPeerDisconnected(1);
                 _packetSender.PeerDisconnected(peer);
 
                 if (room.IsGameFinished())

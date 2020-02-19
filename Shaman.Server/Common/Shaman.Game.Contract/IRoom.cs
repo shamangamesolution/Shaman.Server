@@ -12,7 +12,7 @@ namespace Shaman.Game.Contract
     {
         Guid GetRoomId();
         Task<bool> PeerJoined(IPeer peer, Dictionary<byte, object> peerProperties);
-        void PeerDisconnected(Guid sessionId);
+        bool PeerDisconnected(Guid sessionId);
         void SendToAll(MessageBase message, params Guid[] exceptions);
         void AddToSendQueue(MessageBase message, Guid sessionId);
         void ProcessMessage(ushort operationCode, MessageData message, Guid sessionId);
