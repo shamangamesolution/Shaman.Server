@@ -7,6 +7,7 @@ using Shaman.Common.Utils.Serialization;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Game.Contract;
 using Shaman.Game.Repositories.Managers;
+using Shaman.Game.Rooms;
 using Shaman.Messages.General.DTO.Events.RepositorySync;
 using Shaman.Messages.General.Entity;
 

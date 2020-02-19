@@ -6,18 +6,19 @@ using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Serialization;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Game.Contract;
+using Shaman.Game.Rooms;
 using Shaman.Messages;
 
 namespace Shaman.Tests.GameModeControllers
 {
     public class FakeGameModeController : IGameModeController
     {
-        private readonly IRoom _room;
+        private readonly IRoomContext _room;
         private readonly ISerializer _serializer;
 
         private int _playerCount = 0;
 
-        public FakeGameModeController(IRoom room)
+        public FakeGameModeController(IRoomContext room)
         {
             _room = room;
             _serializer = new BinarySerializer();
@@ -60,7 +61,7 @@ namespace Shaman.Tests.GameModeControllers
     
     public class FakeGameModeControllerFactory : IGameModeControllerFactory
     {
-        public IGameModeController GetGameModeController(IRoom room, ITaskScheduler taskScheduler,
+        public IGameModeController GetGameModeController(IRoomContext room, ITaskScheduler taskScheduler,
             IRoomPropertiesContainer roomPropertiesContainer)
         {
             return new FakeGameModeController(room);

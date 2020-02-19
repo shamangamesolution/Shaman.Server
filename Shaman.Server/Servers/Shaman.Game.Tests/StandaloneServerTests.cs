@@ -5,6 +5,7 @@ using Moq;
 using NUnit.Framework;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Game.Contract;
+using Shaman.Game.Rooms;
 
 namespace Shaman.Game.Tests
 {
@@ -19,7 +20,7 @@ namespace Shaman.Game.Tests
 
             bundleMock.Setup(b => b.GetGameModeControllerFactory()).Returns(controllerFactoryMock.Object);
             controllerFactoryMock.Setup(f =>
-                f.GetGameModeController(It.IsAny<IRoom>(), It.IsAny<ITaskScheduler>(),
+                f.GetGameModeController(It.IsAny<IRoomContext>(), It.IsAny<ITaskScheduler>(),
                     It.IsAny<IRoomPropertiesContainer>())).Returns(controllerMock.Object);
 
 

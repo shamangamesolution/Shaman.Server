@@ -1,6 +1,5 @@
 using System;
 using Shaman.Common.Utils.TaskScheduling;
-using Shaman.Game.Api;
 using Shaman.Game.Contract;
 
 namespace Shaman.Game
@@ -22,7 +21,7 @@ namespace Shaman.Game
             }
         }
 
-        public IGameModeController GetGameModeController(IRoom room, ITaskScheduler taskScheduler,
+        public IGameModeController GetGameModeController(IRoomContext room, ITaskScheduler taskScheduler,
             IRoomPropertiesContainer roomPropertiesContainer)
         {
             return _gameModeControllerFactory.GetGameModeController(room, taskScheduler,

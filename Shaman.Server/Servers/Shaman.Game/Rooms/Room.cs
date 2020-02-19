@@ -50,7 +50,7 @@ namespace Shaman.Game.Rooms
             
             _gameModeController =
                 gameModeControllerFactory.GetGameModeController(
-                    this, _taskScheduler, roomPropertiesContainer);
+                    new RoomContext(this), _taskScheduler, roomPropertiesContainer);
 
             _taskScheduler.ScheduleOnInterval(() =>
             {

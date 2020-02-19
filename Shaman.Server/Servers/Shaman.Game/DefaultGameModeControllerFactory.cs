@@ -3,6 +3,7 @@ using Shaman.Common.Server.Configuration;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Game.Configuration;
 using Shaman.Game.Contract;
+using Shaman.Game.Rooms;
 using Shaman.ServerSharedUtilities;
 using Shaman.ServerSharedUtilities.Bunlding;
 
@@ -29,7 +30,7 @@ namespace Shaman.Game
             }
         }
 
-        public IGameModeController GetGameModeController(IRoom room, ITaskScheduler taskScheduler,
+        public IGameModeController GetGameModeController(IRoomContext room, ITaskScheduler taskScheduler,
             IRoomPropertiesContainer roomPropertiesContainer)
         {
             return _bundledGameModeControllerFactory.GetGameModeController(room, taskScheduler,
