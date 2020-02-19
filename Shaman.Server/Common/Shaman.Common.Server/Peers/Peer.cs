@@ -54,7 +54,6 @@ namespace Shaman.Common.Server.Peers
         {
             _socket.Send(_endpoint, packetInfo.Buffer, packetInfo.Offset, packetInfo.Length,
                 packetInfo.IsReliable, packetInfo.IsOrdered);
-            packetInfo.Dispose();
         }
         
 //        public void Send(byte[] bytes, bool isReliable, bool isOrdered)

@@ -111,7 +111,7 @@ namespace Shaman.Game.Rooms
                 
                 roomPropertiesContainer.Initialize(players, properties);
 
-                var room = new Room(_logger, _taskSchedulerFactory, this, _serializer, roomPropertiesContainer,
+                var room = new Room(_logger, _taskSchedulerFactory, this, roomPropertiesContainer,
                     _gameModeControllerFactory, packetSender, _requestSender, roomId ?? Guid.NewGuid());
 
                 if(_rooms.TryAdd(room.GetRoomId(), room))
@@ -145,6 +145,7 @@ namespace Shaman.Game.Rooms
                     return;
                 
                 var roomStats = room.GetStats();
+                // todo fix case when room closing in the same time when player disconnecting.. may overlap and break stat
                 _gameMetrics.TrackPeerDisconnected(room.CleanUp());
                 _rooms.TryRemove(roomId, out _);
                 TrackRoomMetricsOnDelete(roomStats);

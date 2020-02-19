@@ -36,14 +36,13 @@ namespace Shaman.Common.Utils.Sockets
     /// <summary>
     /// Temporary interface for for clientPeer
     /// </summary>
-    public interface IPacketInfo
+    public interface IPacketInfo: IDisposable
     {
         bool IsReliable { get; }
         bool IsOrdered { get; }
         byte[] Buffer { get; }
         int Offset { get; }
         int Length { get; }
-        void Dispose();
     }
 
     public class PacketInfo : IPacketInfo

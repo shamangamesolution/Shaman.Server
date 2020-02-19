@@ -17,6 +17,7 @@ namespace Shaman.Common.Server.Configuration
         private readonly int _backendListFromRouterIntervalMs;
         private readonly string _routerUrl;
         private readonly int _maxPacketSize;
+        private readonly int _basePacketBufferSize;
         private readonly string _authSecret;
         private readonly string _name;
         private readonly string _region;
@@ -24,7 +25,7 @@ namespace Shaman.Common.Server.Configuration
         private ServerIdentity _identity;
         public ushort BindToPortHttp { get; set; }
 
-        public ApplicationConfig(string name, string region, ServerRole serverRole, string publicDomainNameOrIpAddress, List<ushort> ports, string routerUrl, ushort httpPort, int socketTickTimeMs = 10, int receiveTickTimeMs = 33, int sendTickTimeMs = 50, SocketType socketType = SocketType.BareSocket, bool isAuthOn = true, string authSecret = null, int getBackendListFromRouterIntervalMs = 30000, int maxPacketSize = 300)
+        public ApplicationConfig(string name, string region, ServerRole serverRole, string publicDomainNameOrIpAddress, List<ushort> ports, string routerUrl, ushort httpPort, int socketTickTimeMs = 10, int receiveTickTimeMs = 33, int sendTickTimeMs = 50, SocketType socketType = SocketType.BareSocket, bool isAuthOn = true, string authSecret = null, int getBackendListFromRouterIntervalMs = 30000, int maxPacketSize = 300, int basePacketBufferSize = 64)
         {
             _name = name;
             _region = region;
@@ -39,6 +40,7 @@ namespace Shaman.Common.Server.Configuration
             _routerUrl = routerUrl;
             _sendTickTimeMs = sendTickTimeMs;
             _maxPacketSize = maxPacketSize;
+            _basePacketBufferSize = basePacketBufferSize;
             _socketType = socketType;
             _identity = new ServerIdentity(publicDomainNameOrIpAddress, ports, serverRole);
             BindToPortHttp = httpPort;
@@ -87,6 +89,11 @@ namespace Shaman.Common.Server.Configuration
         public int GetSendTickTimerMs()
         {
             return _sendTickTimeMs;
+        }
+
+        public int GetBasePacketBufferSize()
+        {
+            return _basePacketBufferSize;
         }
 
         public int GetMaxPacketSize()

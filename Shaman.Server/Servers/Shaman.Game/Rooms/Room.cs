@@ -7,7 +7,6 @@ using Shaman.Common.Server.Peers;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Senders;
-using Shaman.Common.Utils.Serialization;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Game.Contract;
 using Shaman.Messages;
@@ -25,7 +24,6 @@ namespace Shaman.Game.Rooms
         private readonly DateTime _createdOn;
         private readonly ITaskScheduler _taskScheduler;
         private readonly IRoomManager _roomManager;
-        private readonly ISerializer _serializer;
         private readonly IRoomPropertiesContainer _roomPropertiesContainer;
         private readonly IPacketSender _packetSender;
         private readonly IGameModeController _gameModeController;
@@ -35,7 +33,6 @@ namespace Shaman.Game.Rooms
         private RoomState _roomState = RoomState.Closed;
         
         public Room(IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory, IRoomManager roomManager,
-            ISerializer serializer,
             IRoomPropertiesContainer roomPropertiesContainer,
             IGameModeControllerFactory gameModeControllerFactory, IPacketSender packetSender,
             IRequestSender requestSender, Guid roomId)
@@ -45,7 +42,6 @@ namespace Shaman.Game.Rooms
             _createdOn = DateTime.UtcNow;
             _taskScheduler = taskSchedulerFactory.GetTaskScheduler();
             _roomManager = roomManager;
-            _serializer = serializer;
             _roomPropertiesContainer = roomPropertiesContainer;
             _packetSender = packetSender;
             _requestSender = requestSender;
@@ -125,15 +121,12 @@ namespace Shaman.Game.Rooms
         {
             if (exceptions == null)
                 exceptions = Array.Empty<Guid>();
-
-            var initMsgArray = _serializer.Serialize(message);
-
-            foreach (var player in _roomPlayers.Where(p => exceptions.All(e => e != p.Value.Peer.GetSessionId())))
-            {
-                AddToSendQueue(initMsgArray, player.Value.Peer, message.IsReliable, message.IsOrdered);
-                //add to stats
-                _roomStats.TrackSentMessage(initMsgArray.Length, message.IsReliable, message.OperationCode);
-            }
+            
+            var peers = _roomPlayers.Where(p => exceptions.All(e => e != p.Value.Peer.GetSessionId()))
+                .Select(p => p.Value.Peer);
+            
+            var length = _packetSender.AddPacket(message, peers);
+            _roomStats.TrackSentMessage(length, message.IsReliable, message.OperationCode);
         }
 
         public void SendToAll(MessageData messageData, ushort opCode, bool isReliable, bool isOrdered,
@@ -142,13 +135,11 @@ namespace Shaman.Game.Rooms
             if (exceptions == null)
                 exceptions = Array.Empty<Guid>();
 
-            foreach (var player in _roomPlayers.Where(p => exceptions.All(e => e != p.Value.Peer.GetSessionId())))
-            {
-                RoomPlayer player1 = player.Value;
-                AddToSendQueue(messageData, opCode, isReliable,isOrdered, player1.Peer);
-                //add to stats
-                _roomStats.TrackSentMessage(messageData.Length, isReliable, opCode);
-            }
+            var peers = _roomPlayers.Where(p => exceptions.All(e => e != p.Value.Peer.GetSessionId()))
+                .Select(p => p.Value.Peer);
+            
+            _packetSender.AddPacket(peers, messageData.Buffer, messageData.Offset, messageData.Length, isReliable, isOrdered);
+            _roomStats.TrackSentMessage(messageData.Length, isReliable, opCode);
         }
         public IEnumerable<RoomPlayer> GetAllPlayers()
         {
@@ -226,11 +217,8 @@ namespace Shaman.Game.Rooms
             var player = _roomPlayers[sessionId];
             if (player != null)
             {
-                var serialized = _serializer.Serialize(message);
-                AddToSendQueue(serialized, player.Peer, message.IsReliable, message.IsOrdered);
-                //add to stats
-                _roomStats.TrackSentMessage(serialized.Length, message.IsReliable, message.OperationCode);
-                //_taskScheduler.ScheduleOnceOnNow(() => player.Peer.Send(serialized, ));
+                var length = _packetSender.AddPacket(message, player.Peer);
+                _roomStats.TrackSentMessage(length, message.IsReliable, message.OperationCode);
             }
             else
             {
@@ -246,32 +234,13 @@ namespace Shaman.Game.Rooms
             var player = _roomPlayers[sessionId];
             if (player != null)
             {
-                AddToSendQueue(messageData, opCode, isReliable, isOrdered, player.Peer);
+                _packetSender.AddPacket(player.Peer, messageData.Buffer, messageData.Offset, messageData.Length, isReliable, isOrdered);
+                _roomStats.TrackSentMessage(messageData.Length, isReliable, opCode);
             }
             else
             {
                 _logger.Error($"Trying to send message with code {opCode} to non-existing player {sessionId}");
             }
-        }
-
-        private void AddToSendQueue(MessageData messageData, ushort opCode, bool isReliable, bool isOrdered, IPeer playerPeer)
-        {
-            _taskScheduler.ScheduleOnceOnNow(() =>
-            {
-                _packetSender.AddPacket(playerPeer, messageData.Buffer, messageData.Offset, messageData.Length, isReliable, isOrdered);
-            });
-
-            //add to stats
-            _roomStats.TrackSentMessage(messageData.Length, isReliable, opCode);
-        }
-
-        private void AddToSendQueue(byte[] bytes, IPeer peer, bool isReliable, bool isOrdered)
-        {
-            //_taskScheduler.ScheduleOnceOnNow(() => peer.Send(bytes, isReliable, isOrdered));
-            _taskScheduler.ScheduleOnceOnNow(() =>
-            {
-                _packetSender.AddPacket(peer, bytes, isReliable, isOrdered);
-            });
         }
 
         public void ProcessMessage(ushort operationCode, MessageData message, Guid sessionId)

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Peers;
 using Shaman.Common.Utils.Senders;
@@ -6,8 +7,13 @@ namespace Shaman.MM.Tests.Fakes
 {
     public class FakePacketSender : IPacketSender
     {
-        public void AddPacket(MessageBase message, IPeerSender peer)
+        public int AddPacket(MessageBase message, IPeerSender peer)
         {
+        }
+
+        public int AddPacket(MessageBase message, IEnumerable<IPeerSender> peer)
+        {
+            throw new System.NotImplementedException();
         }
 
         public void AddPacket(IPeerSender peer, byte[] data, bool isReliable, bool isOrdered)
@@ -39,7 +45,13 @@ namespace Shaman.MM.Tests.Fakes
             throw new System.NotImplementedException();
         }
 
-        public void AddPacket(IPeerSender peer, byte[] data, int offset, int length, bool isReliable, bool isOrdered)
+        public void AddPacket(IPeerSender peer, byte[] data, int offset, int length, bool isReliable,
+            bool isOrdered)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void AddPacket(IEnumerable<IPeerSender> peers, byte[] data, int offset, int length, bool isReliable, bool isOrdered)
         {
             throw new System.NotImplementedException();
         }

@@ -18,10 +18,9 @@ namespace Shaman.Common.Utils.Serialization
         }
         public void Serialize(ISerializable serializable, Stream output)
         {
-            using (var bw = new BinaryWriter(output))
-            {
-                serializable.Serialize(new BinaryTypeWriter(bw));
-            }
+            var bw = new BinaryWriter(output);
+            serializable.Serialize(new BinaryTypeWriter(bw));
+            bw.Flush();
         }
 
         public T DeserializeAs<T>(Stream input)

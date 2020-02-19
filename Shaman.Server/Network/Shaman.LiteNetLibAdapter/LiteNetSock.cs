@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Net;
 using LiteNetLib;
+using LiteNetLib.Utils;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Sockets;
 
