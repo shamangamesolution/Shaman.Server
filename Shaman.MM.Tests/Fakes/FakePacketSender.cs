@@ -9,6 +9,7 @@ namespace Shaman.MM.Tests.Fakes
     {
         public int AddPacket(MessageBase message, IPeerSender peer)
         {
+            return 0;
         }
 
         public int AddPacket(MessageBase message, IEnumerable<IPeerSender> peer)
