@@ -13,13 +13,10 @@ namespace Shaman.Game.Rooms
             Guid? roomId);
         void UpdateRoom(Guid roomId, Dictionary<Guid, Dictionary<byte, object>> players);
 
-        void DeleteRoom(Guid roomId);
         bool CanJoinRoom(Guid roomId);
         List<IRoom> GetAllRooms();
         int GetRoomsCount();
-        int GetPlayersCount();
         IRoom GetRoomBySessionId(Guid sessionId);
-        Task PeerJoined(IPeer peer, Guid roomId, Dictionary<byte, object> peerProperties);
         bool IsInRoom(Guid sessionId);
         void ProcessMessage(ushort operationCode, MessageData message, IPeer peer);
         Dictionary<Guid, int> GetRoomPeerCount();
