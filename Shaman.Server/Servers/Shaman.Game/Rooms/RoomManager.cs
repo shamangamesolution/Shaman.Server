@@ -94,7 +94,7 @@ namespace Shaman.Game.Rooms
             _sessionsToRooms.TryGetValue(sessionId, out var room);
             return room;
         }
-        
+
         public Guid CreateRoom(Dictionary<byte, object> properties, Dictionary<Guid, Dictionary<byte, object>> players, Guid? roomId)
         {
             lock (_syncPeersList)
@@ -139,7 +139,7 @@ namespace Shaman.Game.Rooms
             }
         }
 
-        public void DeleteRoom(Guid roomId)
+        private void DeleteRoom(Guid roomId)
         {
             lock (_syncPeersList)
             {
@@ -214,7 +214,7 @@ namespace Shaman.Game.Rooms
             return _rooms.Count;
         }
 
-        public int GetPlayersCount()
+        private int GetPlayersCount()
         {
             return _sessionsToRooms.Count;
         }
@@ -223,22 +223,11 @@ namespace Shaman.Game.Rooms
         {
             _sessionsToRooms.TryAdd(sessionID, room);
         }
-        
-        public async Task PeerJoined(IPeer peer, Guid roomId, Dictionary<byte, object> peerProperties)
+
+        private async Task PeerJoined(IPeer peer, IRoom room, Dictionary<byte, object> peerProperties)
         {
-            var room = GetRoomById(roomId);
-            var sessionId = peer.GetSessionId();
-
-            if (room == null)
-            {
-                var message = $"Peer {sessionId} attempted to join to non-exist room {roomId}";
-                _logger.Error(message);
-                throw new Exception(message);
-            }
-
             if (await room.PeerJoined(peer, peerProperties))
             {
-                room.ConfirmedJoin(sessionId);
                 _gameMetrics.TrackPeerJoin();
             }
             else
@@ -285,11 +274,22 @@ namespace Shaman.Game.Rooms
                 {
                     case CustomOperationCode.JoinRoom:
                         var joinMessage = _serializer.DeserializeAs<JoinRoomRequest>(message.Buffer, message.Offset, message.Length);
+                        
+                        var roomToJoin = GetRoomById(joinMessage.RoomId);
+                        var sessionId = peer.GetSessionId();
+
+                        if (roomToJoin == null)
+                        {
+                            var msg = $"Peer {sessionId} attempted to join to non-exist room {joinMessage.RoomId}";
+                            _logger.Error(msg);
+                            throw new Exception(msg);
+                        }
+                        roomToJoin.ConfirmedJoin(sessionId);
                         _taskScheduler.ScheduleOnceOnNow(async () =>
                         {
                             try
                             {
-                                await PeerJoined(peer, joinMessage.RoomId, joinMessage.Properties);
+                                await PeerJoined(peer, roomToJoin, joinMessage.Properties);
                                 _packetSender.AddPacket(new JoinRoomResponse(), peer);
                             }
                             catch (Exception ex)

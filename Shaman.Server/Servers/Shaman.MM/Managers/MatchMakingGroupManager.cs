@@ -28,9 +28,9 @@ namespace Shaman.MM.Managers
         private readonly IRoomPropertiesProvider _roomPropertiesProvider;
         private readonly MmApplicationConfig _config;
 
-        private Dictionary<Guid, MatchMakingGroup> _groups = new Dictionary<Guid, MatchMakingGroup>();
-        private Dictionary<Guid, Dictionary<byte, object>> _groupsToProperties = new Dictionary<Guid, Dictionary<byte, object>>();
-        private object _mutex = new object();
+        private readonly Dictionary<Guid, MatchMakingGroup> _groups = new Dictionary<Guid, MatchMakingGroup>();
+        private readonly Dictionary<Guid, Dictionary<byte, object>> _groupsToProperties = new Dictionary<Guid, Dictionary<byte, object>>();
+        private readonly object _mutex = new object();
         private bool _isStarted = false;
         
         public MatchMakingGroupManager(IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory,

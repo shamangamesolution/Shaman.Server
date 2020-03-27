@@ -169,7 +169,14 @@ namespace Shaman.Game.Rooms
                     _logger.Error($"GameModeController == null while peer joining");
                     return false;
                 }
-                return await _gameModeController.ProcessNewPlayer(peer.GetSessionId(), peerProperties);;
+
+                var processNewPlayerResult = await _gameModeController.ProcessNewPlayer(peer.GetSessionId(), peerProperties);
+                if (processNewPlayerResult && !_roomPlayers.ContainsKey(peer.GetSessionId()))
+                {
+                    //in case if player was disconnected during ProcessNewPlayer
+                    _gameModeController.CleanupPlayer(peer.GetSessionId());
+                }
+                return processNewPlayerResult;;
             }
             catch (Exception ex)
             {

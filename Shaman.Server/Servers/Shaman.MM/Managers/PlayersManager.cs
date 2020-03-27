@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Shaman.Common.Utils.Logging;
-using Shaman.Messages.RoomFlow;
 using Shaman.MM.Metrics;
 using Shaman.MM.Players;
 
@@ -13,10 +12,10 @@ namespace Shaman.MM.Managers
         private readonly IMmMetrics _mmMetrics;
         private readonly IShamanLogger _logger;
         
-        private object _syncCollection = new object();
-        private Dictionary<Guid, MatchMakingPlayer> _players = new Dictionary<Guid, MatchMakingPlayer>();
-        private Dictionary<Guid, List<MatchMakingPlayer>> _mmGroupToPlayer = new Dictionary<Guid, List<MatchMakingPlayer>>();
-        private Dictionary<Guid, List<Guid>> _playerToMmGroup = new Dictionary<Guid, List<Guid>>();
+        private readonly object _syncCollection = new object();
+        private readonly Dictionary<Guid, MatchMakingPlayer> _players = new Dictionary<Guid, MatchMakingPlayer>();
+        private readonly Dictionary<Guid, List<MatchMakingPlayer>> _mmGroupToPlayer = new Dictionary<Guid, List<MatchMakingPlayer>>();
+        private readonly Dictionary<Guid, List<Guid>> _playerToMmGroup = new Dictionary<Guid, List<Guid>>();
 
         public PlayersManager(IMmMetrics mmMetrics, IShamanLogger logger)
         {
