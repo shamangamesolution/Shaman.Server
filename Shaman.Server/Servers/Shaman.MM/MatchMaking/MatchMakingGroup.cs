@@ -133,6 +133,7 @@ namespace Shaman.MM.MatchMaking
             _playersManager.SetOnMatchmaking(player.Id, false);
             var joinInfo = new JoinInfo("", 0, Guid.Empty, JoinStatus.MatchMakingFailed, 0, 0);
             _packetSender.AddPacket(new JoinInfoEvent(joinInfo), player.Peer);
+            _playersManager.Remove(player.Id);
         }
 
         private void ProcessSuccess(MatchMakingPlayer player, JoinRoomResult result)
@@ -218,6 +219,10 @@ namespace Shaman.MM.MatchMaking
                             {
                                 result = _roomManager.JoinRoom(room.Id,
                                     _matchmakingPlayers.ToDictionary(key => key.SessionId, value => value.Properties)).Result;
+                                if (result.Result != RoomOperationResult.OK)
+                                {
+                                    
+                                }
                             }
                             catch (Exception e)
                             {
