@@ -1,0 +1,7 @@
+{
+	"docker_image": "game.latest",
+	"http_port": 7009,
+	"udp_port": 23457,
+	"container_name": "game",
+	"server_version": "game.latest"
+}
