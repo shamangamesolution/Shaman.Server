@@ -74,13 +74,10 @@ namespace Shaman.Client.Peers
         
 
         private Guid _joinInfoEventId;
-        private PendingTask _pingTask;
-        private PendingTask _resetPingTask;
         private bool _isPinging = false;
         private DateTime? _pingRequestSentOn = null;
         private JoinType _joinType;
         
-        private int _rtt = int.MaxValue;
         //public Action<MessageBase> OnMessageReceived;
         
         public JoinInfo JoinInfo;
@@ -89,7 +86,21 @@ namespace Shaman.Client.Peers
         public Action<string> OnDisconnectedFromMmServer { get; set; }
         public Action<string> OnDisconnectedFromGameServer { get; set; }
 
-        public int Rtt => _rtt;
+        public int GetRtt()
+        {
+            if (_clientPeer == null)
+                return 0;
+
+            return _clientPeer.GetRtt();
+        }
+        
+        public int GetPing()
+        {
+            if (_clientPeer == null)
+                return 0;
+
+            return _clientPeer.GetPing();
+        }
 
         private readonly IShamanClientPeerListener _listener;
         private static readonly TimeSpan JoinGameTimeout = TimeSpan.FromSeconds(30);
@@ -301,30 +312,6 @@ namespace Shaman.Client.Peers
                 }
             }
         }
-
-        private void OnPingResponse(MessageBase message)
-        {
-            var response = message as PingResponse;
-            
-            //drop reset task
-            _taskScheduler.Remove(_resetPingTask);
-            
-            if (response != null && response.Success && _pingRequestSentOn != null)
-            {
-                _rtt = (int)((DateTime.UtcNow - _pingRequestSentOn.Value).TotalMilliseconds);
-            }
-            else
-            {
-                _rtt = int.MaxValue;
-            }
-
-            if (response != null && !response.Success)
-            {
-                _logger?.Error($"OnPingResponse error: {response.Message}");
-            }
-
-            _isPinging = false;
-        }
         
         public void Connect(string address, ushort port)
         {
@@ -344,23 +331,6 @@ namespace Shaman.Client.Peers
             }
                     
             SetAndReportStatus(ShamanClientStatus.InRoom, _statusCallback);
-            
-            //start ping sequence
-            _pingTask = _taskScheduler.ScheduleOnInterval(() =>
-            {
-                if (_isPinging)
-                    return;
-                
-                _isPinging = true;
-                _pingRequestSentOn = DateTime.UtcNow;
-                SendRequest<PingResponse>(new PingRequest(), OnPingResponse);
-                //schedule resetting flag
-                _resetPingTask = _taskScheduler.Schedule(() =>
-                {
-                    _isPinging = false;
-                    _rtt = int.MaxValue;
-                }, 2000);
-            }, 0, 1000);
         }
 
         private void OnGameAuthorizationResponse(AuthorizationResponse response)
@@ -412,7 +382,6 @@ namespace Shaman.Client.Peers
             _matchMakingProperties = null;
             _statusCallback = null;
             _status = ShamanClientStatus.Offline;
-            _taskScheduler.Remove(_pingTask);
         }
         
         private void EnterMatchMaking()
@@ -678,6 +647,7 @@ namespace Shaman.Client.Peers
         public async Task<int> Ping(Route route, int timeoutMs = 500)
         {
             var timer = Stopwatch.StartNew();
+            var ping = 0;
             try
             {
                 _logger.Debug($"ConnectTo: connecting with {route.MatchMakerAddress}:{route.MatchMakerPort}. TimeOut {timeoutMs}");
@@ -698,12 +668,14 @@ namespace Shaman.Client.Peers
                 });
                 _clientPeer.Connect(route.MatchMakerAddress, route.MatchMakerPort);
                 await (Task) task.Task;
+                ping = _clientPeer.GetPing();
             }
             finally
             {
                 Disconnect();
             }
-            return (int) timer.ElapsedMilliseconds;
+
+            return ping;//(int) timer.ElapsedMilliseconds;
         }
     }
 }
