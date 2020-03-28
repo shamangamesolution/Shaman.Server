@@ -97,6 +97,15 @@ namespace Shaman.Client.Peers
             }
         }
 
+        public int GetRtt()
+        {
+            return _socket.GetRtt();
+        }
+        
+        public int GetPing()
+        {
+            return _socket.GetPing();
+        }
 
         public void Connect(string address, int port)
         {
@@ -211,6 +220,16 @@ namespace Shaman.Client.Peers
             return _serverSender.IsConnected();
         }
 
+        public int GetRtt()
+        {
+            return _serverSender.GetRtt();
+        }
+        
+        public int GetPing()
+        {
+            return _serverSender.GetPing();
+        }
+        
         public ClientPeer(IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory, int maxMessageSize,
             int sendTickMs)
         {
