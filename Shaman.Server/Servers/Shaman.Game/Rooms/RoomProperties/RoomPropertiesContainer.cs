@@ -12,6 +12,7 @@ namespace Shaman.Game.Rooms.RoomProperties
         private IShamanLogger _logger;
         private Dictionary<Guid, Dictionary<byte, object>> _playersCameFromMatchMaker;
         private Dictionary<byte, object> _roomProperties;
+        private object _playersMutex = new object();
         
         public RoomPropertiesContainer(IShamanLogger logger)
         {
@@ -20,7 +21,11 @@ namespace Shaman.Game.Rooms.RoomProperties
         
         public void Initialize(Dictionary<Guid, Dictionary<byte, object>> playersCameFromMatchMaker, Dictionary<byte, object> roomProperties)
         {
-            _playersCameFromMatchMaker = playersCameFromMatchMaker;
+            lock (_playersMutex)
+            {
+                _playersCameFromMatchMaker = playersCameFromMatchMaker;
+            }
+
             _roomProperties = roomProperties;
             
             if (_roomProperties == null)
@@ -29,13 +34,22 @@ namespace Shaman.Game.Rooms.RoomProperties
 
         public void AddNewPlayers(Dictionary<Guid, Dictionary<byte, object>> playersCameFromMatchMaker)
         {
-            foreach(var player in playersCameFromMatchMaker)
-                _playersCameFromMatchMaker.Add(player.Key, player.Value);
+            lock (_playersMutex)
+            {
+                foreach (var player in playersCameFromMatchMaker)
+                {
+                    if (!_playersCameFromMatchMaker.ContainsKey(player.Key))
+                        _playersCameFromMatchMaker.Add(player.Key, player.Value);
+                }
+            }
         }
 
         public bool IsPlayerInMatchMakerCollection(Guid sessionId)
         {
-            return _playersCameFromMatchMaker.ContainsKey(sessionId);
+            lock (_playersMutex)
+            {
+                return _playersCameFromMatchMaker.ContainsKey(sessionId);
+            }
         }
 
         public void CheckIsBotForPlayers()
@@ -44,14 +58,20 @@ namespace Shaman.Game.Rooms.RoomProperties
 
         public int GetPlayersCount()
         {
-            return _playersCameFromMatchMaker.Count - GetBotsNumber();
+            lock (_playersMutex)
+            {
+                return _playersCameFromMatchMaker.Count - GetBotsNumber();
+            }
         }
 
         public int GetBotsNumber()
         {
             if (!_roomProperties.TryGetValue(PropertyCode.RoomProperties.TotalPlayersNeeded, out var maximumPlayers))
                 return 0;
-            return (int)maximumPlayers - _playersCameFromMatchMaker.Count;
+            lock (_playersMutex)
+            {
+                return (int) maximumPlayers - _playersCameFromMatchMaker.Count;
+            }
         }
 
         public bool IsRoomPropertiesContainsKey(byte key)
@@ -72,12 +92,18 @@ namespace Shaman.Game.Rooms.RoomProperties
         
         public int GetPlayerCountToStartGame()
         {
-            return _playersCameFromMatchMaker.Count;
+            lock (_playersMutex)
+            {
+                return _playersCameFromMatchMaker.Count;
+            }
         }
 
         public void RemovePlayer(Guid sessionId)
         {
-            _playersCameFromMatchMaker.Remove(sessionId);
+            lock (_playersMutex)
+            {
+                _playersCameFromMatchMaker.Remove(sessionId);
+            }
         }
     }
 }
