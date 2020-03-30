@@ -221,7 +221,7 @@ namespace Shaman.MM.MatchMaking
                                     _matchmakingPlayers.ToDictionary(key => key.SessionId, value => value.Properties)).Result;
                                 if (result.Result != RoomOperationResult.OK)
                                 {
-                                    _logger.Error($"MM join room error (closing this room): {e}");
+                                    _logger.Error($"MM join room error (closing this room): {result.Result}");
                                     room.UpdateState(RoomState.Closed);
                                 }
                             }
