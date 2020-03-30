@@ -96,7 +96,7 @@ namespace Shaman.MM.Managers
                 var str = new StringBuilder();
                 str.Append($"New MM group added (total {_groups.Count}): properties: \n");
                 foreach (var item in roomProperties)
-                    str.Append($"[{item.Key}]: {item.Value}");
+                    str.Append($"[{item.Key}]: {item.Value} \n");
                 
                 _logger.Error(str.ToString());
                 
