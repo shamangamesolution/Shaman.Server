@@ -38,8 +38,7 @@ namespace Shaman.Game.Rooms.RoomProperties
             {
                 foreach (var player in playersCameFromMatchMaker)
                 {
-                    if (!_playersCameFromMatchMaker.ContainsKey(player.Key))
-                        _playersCameFromMatchMaker.Add(player.Key, player.Value);
+                    _playersCameFromMatchMaker.TryAdd(player.Key, player.Value);
                 }
             }
         }
