@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading.Tasks;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Utils.Helpers;
@@ -91,6 +92,14 @@ namespace Shaman.MM.Managers
                 _groupsToProperties.Add(group.Id, measures);
                 if (_isStarted)
                     group.Start();
+                
+                var str = new StringBuilder();
+                str.Append($"New MM group added: properties: \n");
+                foreach (var item in roomProperties)
+                    str.Append($"[{item.Key}]: {item.Value}");
+                
+                _logger.Error(str.ToString());
+                
                 return group.Id;
             }
         }
