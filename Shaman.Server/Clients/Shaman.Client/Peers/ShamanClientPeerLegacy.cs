@@ -638,7 +638,7 @@ namespace Shaman.Client.Peers
         public void SendRequest(RequestBase request, Action<MessageBase> callback)
         {
             RegisterOperationHandler(request.OperationCode, callback, true);
-            _taskScheduler.ScheduleOnceOnNow(() => _clientPeer.Send(request));
+            Send(request);
         }
         public void SendWebRequest<T>(string url, HttpRequestBase request, Action<T> callback)
             where T: HttpResponseBase,new()
@@ -648,9 +648,14 @@ namespace Shaman.Client.Peers
         
         public void SendEvent(EventBase eve)
         {
-            _taskScheduler.ScheduleOnceOnNow(() => _clientPeer.Send(eve));
+            Send(eve);
         }
-        
+
+        private void Send(MessageBase eve)
+        {
+            _taskScheduler.ScheduleOnceOnNow(() => _clientPeer.Send(eve, eve.IsReliable, eve.IsOrdered));
+        }
+
         public void JoinGame(string matchMakerAddress, ushort matchMakerPort, int backendId, Guid sessionId,
             Dictionary<byte, object> matchMakingProperties, Dictionary<byte, object> joinGameProperties,
             Action<ConnectionStatusLegacy, JoinInfo> statusCallback)
