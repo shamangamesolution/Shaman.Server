@@ -524,7 +524,7 @@ namespace Shaman.Client.Peers
         public void SendRequest<TResponse>(RequestBase request, Action<TResponse> callback) where TResponse: ResponseBase, new()
         {
             RegisterOperationHandler(callback, true);
-            _taskScheduler.ScheduleOnceOnNow(() => _clientPeer.Send(request));
+            SendEvent(request);
         }
 
         public Task<TResponse> SendRequest<TResponse>(RequestBase request) where TResponse : ResponseBase, new()
@@ -551,7 +551,7 @@ namespace Shaman.Client.Peers
                 UnregisterOperationHandler(handler);
             });
             
-            _taskScheduler.ScheduleOnceOnNow(() => _clientPeer.Send(request));
+            SendEvent(request);
             return task.Task;
         }
 
@@ -579,7 +579,7 @@ namespace Shaman.Client.Peers
         
         public void SendEvent(MessageBase eve)
         {
-            _taskScheduler.ScheduleOnceOnNow(() => _clientPeer.Send(eve));
+            _taskScheduler.ScheduleOnceOnNow(() => _clientPeer.Send(eve, eve.IsReliable, eve.IsOrdered));
         }
         
         public Task<JoinInfo> JoinGame(string matchMakerAddress, ushort matchMakerPort, int backendId, Guid sessionId,

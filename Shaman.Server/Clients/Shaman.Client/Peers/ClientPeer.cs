@@ -292,10 +292,10 @@ namespace Shaman.Client.Peers
             }
         }
 
-        public void Send(MessageBase message)
+        public void Send(MessageBase message, bool isReliable, bool isOrdered)
         {
             var initMsgArray = _serializer.Serialize(message);
-            _packetBatchSender.AddPacket(_serverSender, initMsgArray, message.IsReliable, message.IsOrdered);
+            _packetBatchSender.AddPacket(_serverSender, initMsgArray, isReliable, isOrdered);
         }
 
         public int GetSendQueueLength()
