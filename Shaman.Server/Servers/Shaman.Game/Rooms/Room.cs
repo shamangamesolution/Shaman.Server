@@ -174,7 +174,9 @@ namespace Shaman.Game.Rooms
                 if (processNewPlayerResult && !_roomPlayers.ContainsKey(peer.GetSessionId()))
                 {
                     //in case if player was disconnected during ProcessNewPlayer
-                    _gameModeController.CleanupPlayer(peer.GetSessionId());
+                    
+                    // todo here we dont now true reason (plan to remove this workaround)
+                    _gameModeController.CleanupPlayer(peer.GetSessionId(), PeerDisconnectedReason.PeerLeave);
                 }
                 return processNewPlayerResult;;
             }
@@ -186,7 +188,7 @@ namespace Shaman.Game.Rooms
 
         }
 
-        public bool PeerDisconnected(Guid sessionId)
+        public bool PeerDisconnected(Guid sessionId, PeerDisconnectedReason reason)
         {
             var peerRemoved = _roomPlayers.TryRemove(sessionId, out var roomPlayer);
             if (peerRemoved)
@@ -194,7 +196,7 @@ namespace Shaman.Game.Rooms
             _roomPropertiesContainer.RemovePlayer(sessionId);
             try
             {
-                _gameModeController.CleanupPlayer(sessionId);
+                _gameModeController.CleanupPlayer(sessionId, reason);
             }
             catch (Exception ex)
             {

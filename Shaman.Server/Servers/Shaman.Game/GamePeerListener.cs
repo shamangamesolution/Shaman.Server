@@ -173,13 +173,31 @@ namespace Shaman.Game
                 _logger.Error($"GamePeerListener.OnClientDisconnect error: can not find peer for endpoint {endPoint.Address}:{endPoint.Port}");
                 return;
             }
-            base.OnClientDisconnect(endPoint, reason);            
+            base.OnClientDisconnect(endPoint, reason);
+            
+            
             
             if (_roomManager.IsInRoom(peer.GetSessionId()))
-                _roomManager.PeerDisconnected(peer);
+                _roomManager.PeerDisconnected(peer, ResolveReason(reason));
             
             _packetSender.PeerDisconnected(peer);
             
+        }
+
+        private static PeerDisconnectedReason ResolveReason(string reason)
+        {
+            /* litenets reasons:
+               ConnectionFailed,
+               Timeout,
+               HostUnreachable,
+               RemoteConnectionClose,
+               DisconnectPeerCalled,
+               ConnectionRejected,
+               InvalidProtocol
+             */
+            return reason == "DisconnectPeerCalled"
+                ? PeerDisconnectedReason.PeerLeave
+                : PeerDisconnectedReason.ConnectionLost;
         }
     }
 }

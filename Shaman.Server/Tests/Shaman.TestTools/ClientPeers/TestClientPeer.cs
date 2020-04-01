@@ -112,11 +112,11 @@ namespace Shaman.TestTools.ClientPeers
         }
         public void Send(MessageBase message)
         {
-            _clientPeer.Send(message);
+            _clientPeer.Send(message, message.IsReliable, message.IsOrdered);
         }
         public async Task<TResponse> Send<TResponse>(RequestBase message) where TResponse:ResponseBase, new()
         {
-            _clientPeer.Send(message);
+            _clientPeer.Send(message, message.IsReliable, message.IsOrdered);
             var responseBase = await WaitFor<TResponse>(resp => resp.Success);
             ClearMessages();
             return responseBase;

@@ -241,7 +241,7 @@ namespace Shaman.Game.Rooms
             return _sessionsToRooms.ContainsKey(sessionId);
         }
 
-        public void PeerDisconnected(IPeer peer)
+        public void PeerDisconnected(IPeer peer, PeerDisconnectedReason reason)
         {
             lock (_syncPeersList)
             {
@@ -252,7 +252,7 @@ namespace Shaman.Game.Rooms
                     return;
                 }
 
-                if (room.PeerDisconnected(sessionId))
+                if (room.PeerDisconnected(sessionId, reason))
                     _gameMetrics.TrackPeerDisconnected();
                 
                 _sessionsToRooms.TryRemove(sessionId, out _);
@@ -301,7 +301,7 @@ namespace Shaman.Game.Rooms
                         
                         break;
                     case CustomOperationCode.LeaveRoom:
-                        PeerDisconnected(peer);
+                        PeerDisconnected(peer, PeerDisconnectedReason.PeerLeave);
                         break;
                     default:
                         if (_sessionsToRooms.TryGetValue(peer.GetSessionId(), out var room))
