@@ -13,6 +13,7 @@ using Shaman.Messages.General.DTO.Events;
 using Shaman.Messages.General.DTO.Requests.Auth;
 using Shaman.Messages.General.DTO.Responses;
 using Shaman.Messages.General.DTO.Responses.Auth;
+using DisconnectReason = LiteNetLib.DisconnectReason;
 
 namespace Shaman.Game
 {
@@ -176,7 +177,7 @@ namespace Shaman.Game
             base.OnClientDisconnect(endPoint, reason);
             
             
-            
+            _logger.Error($"DISCONNECT REASON: {reason}");
             if (_roomManager.IsInRoom(peer.GetSessionId()))
                 _roomManager.PeerDisconnected(peer, ResolveReason(reason));
             
@@ -195,9 +196,15 @@ namespace Shaman.Game
                ConnectionRejected,
                InvalidProtocol
              */
-            return reason == "DisconnectPeerCalled"
-                ? PeerDisconnectedReason.PeerLeave
-                : PeerDisconnectedReason.ConnectionLost;
+
+            switch (Enum.Parse<DisconnectReason>(reason))
+            {
+                case DisconnectReason.RemoteConnectionClose:
+                case DisconnectReason.DisconnectPeerCalled:
+                    return PeerDisconnectedReason.PeerLeave;
+                default:
+                    return PeerDisconnectedReason.ConnectionLost;
+            }
         }
     }
 }
