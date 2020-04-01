@@ -22,6 +22,6 @@ namespace Shaman.Game.Rooms
         Dictionary<Guid, int> GetRoomPeerCount();
         IRoom GetOldestRoom();
         void ConfirmedJoin(Guid sessionId, IRoom room);
-        void PeerDisconnected(IPeer peer);
+        void PeerDisconnected(IPeer peer, PeerDisconnectedReason reason);
     }
 }
