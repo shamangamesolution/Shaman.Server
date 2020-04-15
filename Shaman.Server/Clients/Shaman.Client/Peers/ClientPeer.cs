@@ -292,6 +292,14 @@ namespace Shaman.Client.Peers
             }
         }
 
+        public int GetMessagesCountInQueue()
+        {
+            lock (_queueSync)
+            {
+                return _packets.Count;
+            }
+        }
+
         public void Send(MessageBase message, bool isReliable, bool isOrdered)
         {
             var initMsgArray = _serializer.Serialize(message);
