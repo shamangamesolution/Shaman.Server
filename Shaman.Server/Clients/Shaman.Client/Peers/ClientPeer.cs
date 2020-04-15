@@ -135,7 +135,8 @@ namespace Shaman.Client.Peers
                 {
                     if (!_connected)
                         return;
-
+                    
+                    _logger?.Debug($"Socket tick started");
                     _socket.Tick();
                 }
             }, 0, 10);
@@ -246,6 +247,7 @@ namespace Shaman.Client.Peers
             {
                 lock (_queueSync)
                 {
+                    _logger.Debug($"Enqueueing package {packetInfo.Length} bytes");
                     _packets.Enqueue(new SimplePacketInfo(packetInfo.Buffer, packetInfo.Offset, packetInfo.Length,
                         release));
                 }

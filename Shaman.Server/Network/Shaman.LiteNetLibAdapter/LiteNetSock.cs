@@ -111,7 +111,10 @@ namespace Shaman.LiteNetLibAdapter
             bool returnAfterSend = true)
         {
             if (_endPointReceivers.TryGetValue(endPoint, out var connection))
+            {
                 connection.Send(buffer, offset, length, GetDeliveryMode(reliable, orderControl));
+                _logger.Debug($"Sending package buffer length {buffer.Length}, length {length}, offset {offset}, reliable {reliable}");
+            }
         }
 
         public int GetPing()
