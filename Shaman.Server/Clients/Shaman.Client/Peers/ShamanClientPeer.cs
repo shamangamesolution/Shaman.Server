@@ -644,5 +644,10 @@ namespace Shaman.Client.Peers
 
             return ping;//(int) timer.ElapsedMilliseconds;
         }
+
+        public int GetMessagesCountInQueue()
+        {
+            return _clientPeer.GetMessagesCountInQueue();
+        }
     }
 }
