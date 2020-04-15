@@ -147,6 +147,7 @@ namespace Shaman.Common.Utils.Senders
             {
                 lock (_sync)
                 {
+                    var queueCount = kv.Value.Count;
                     while (kv.Value.TryDequeue(out var pack))
                     {
                         using (pack)
@@ -154,6 +155,7 @@ namespace Shaman.Common.Utils.Senders
                             kv.Key.Send(pack);
                         }
                     }
+                    _logger.Debug($"Send {queueCount} packets");
                 }
             }
         }

@@ -54,12 +54,13 @@ namespace Shaman.Common.Server.Peers
         public void Send(PacketInfo packetInfo)
         {
             // todo make PR to LiteNet to control MTU value during it calculation
-            var reliable = packetInfo.IsReliable || _socket.Mtu < packetInfo.Length;
 
             // todo Log overriding reliable flag
             
             _socket.Send(_endpoint, packetInfo.Buffer, packetInfo.Offset, packetInfo.Length,
                 reliable, packetInfo.IsOrdered);
+            
+            _logger.Debug($"Checkin reliable: packetReliable {packetInfo.IsReliable}, socketMtu { _socket.Mtu}, packageInfo length {packetInfo.Length}");
         }
         
 //        public void Send(byte[] bytes, bool isReliable, bool isOrdered)
