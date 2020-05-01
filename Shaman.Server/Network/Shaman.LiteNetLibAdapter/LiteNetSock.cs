@@ -112,8 +112,13 @@ namespace Shaman.LiteNetLibAdapter
         {
             if (_endPointReceivers.TryGetValue(endPoint, out var connection))
             {
+                // todo make PR to LiteNet to control MTU value during it calculation
+                reliable = reliable || connection.Mtu < length;
+
+                // todo Log overriding reliable flag
+                // _logger.Error($"reliable {reliable} (mto: {connection.Mtu}, packet: {length})");
+                
                 connection.Send(buffer, offset, length, GetDeliveryMode(reliable, orderControl));
-                _logger.Debug($"Sending package buffer length {buffer.Length}, length {length}, offset {offset}, reliable {reliable}");
             }
         }
 
@@ -132,7 +137,6 @@ namespace Shaman.LiteNetLibAdapter
         }
 
         public int Mtu => _serverPeer?.Mtu ?? 0;
-
         public void Close()
         {
             _peer.Stop();
