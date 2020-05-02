@@ -11,7 +11,7 @@ namespace Sample.Game.GamePlay.Controllers
 {
     public class TestModeController : GameModeControllerBase
     {
-        public TestModeController(IRoom room, IShamanLogger logger, IRequestSender requestSender, ITaskScheduler taskScheduler, IStorageContainer storageContainer, IRoomPropertiesContainer roomPropertiesContainer, IBackendProvider backendProvider, ISerializer serializerFactory) : base(room, logger, requestSender, taskScheduler, storageContainer, roomPropertiesContainer, backendProvider, serializerFactory)
+        public TestModeController(IRoomContext room, IShamanLogger logger, IRequestSender requestSender, ITaskScheduler taskScheduler, IStorageContainer storageContainer, IRoomPropertiesContainer roomPropertiesContainer, IBackendProvider backendProvider, ISerializer serializerFactory) : base(room, logger, requestSender, taskScheduler, storageContainer, roomPropertiesContainer, backendProvider, serializerFactory)
         {
         }
 

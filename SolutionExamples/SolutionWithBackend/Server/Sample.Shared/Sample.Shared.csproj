@@ -5,8 +5,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Shaman.Common.Utils" Version="1.0.2" />
-      <PackageReference Include="Shaman.Messages" Version="1.0.8" />
+      <PackageReference Include="Shaman.Common.Utils" Version="1.7.3" />
+      <PackageReference Include="Shaman.Messages" Version="1.7.5" />
     </ItemGroup>
 
     <ItemGroup>

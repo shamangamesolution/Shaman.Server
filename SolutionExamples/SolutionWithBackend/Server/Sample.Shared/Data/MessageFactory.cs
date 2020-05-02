@@ -17,39 +17,49 @@ namespace Sample.Shared.Data
 {
     public class MessageFactory
     {
-        private static readonly Lazy<Dictionary<int, Type>> TypesMap = new Lazy<Dictionary<int, Type>>(CreateMessageMap);
-
-        static Dictionary<int, Type> CreateMessageMap()
+        private static readonly Lazy<Dictionary<ushort, Type>> TypesMap = new Lazy<Dictionary<ushort, Type>>(CreateMessageMap);
+        static Dictionary<ushort, Type> CreateMessageMap()
         {
-            var messageBaseType = typeof(PingRequest);
-            var messageBundleType = typeof(GetStorageHttpRequest);
-            
+            var map1 = CreateMessageMap1();
+            var map2 = CreateMessageMap2();
+            foreach (var entry in map2)
+            {
+                map1.Add(entry.Key, entry.Value);
+            }
+
+            return map1;
+        }
+        static Dictionary<ushort, Type> CreateMessageMap1()
+        {
+            var messageBaseType = typeof(InitializationRequest);
             var messageTypes = messageBaseType.Assembly.GetTypes().Where(t =>
                     t.IsSubclassOf(typeof(MessageBase)) && !t.IsAbstract &&
-                    t.GetConstructor(Array.Empty<Type>()) != null).ToList();
-                //.ToArray();
-            var messageBundleTypes = messageBundleType.Assembly.GetTypes().Where(t =>
+                    t.GetConstructor(Array.Empty<Type>()) != null)
+                .ToArray();
+            return messageTypes.Select(Activator.CreateInstance).OfType<MessageBase>()
+                .ToDictionary(k => k.OperationCode, v => v.GetType());
+        }
+        static Dictionary<ushort, Type> CreateMessageMap2()
+        {
+            var messageBaseType = typeof(PingRequest);
+            var messageTypes = messageBaseType.Assembly.GetTypes().Where(t =>
                     t.IsSubclassOf(typeof(MessageBase)) && !t.IsAbstract &&
-                    t.GetConstructor(Array.Empty<Type>()) != null).ToList();
-            
-            messageTypes.AddRange(messageBundleTypes);
-
-            var instances = messageTypes.Select(Activator.CreateInstance).OfType<MessageBase>();
-
-            var result = new Dictionary<int, Type>();
-            foreach(var item in instances)
-                if (!result.ContainsKey(item.OperationCode << 8 | (int) item.Type))
-                    result.Add(item.OperationCode << 8 | (int) item.Type, item.GetType());
-            
-            return result;
+                    t.GetConstructor(Array.Empty<Type>()) != null)
+                .ToArray();
+            return messageTypes
+                .Select(Activator.CreateInstance)
+                .OfType<MessageBase>()
+                .ToDictionary(k => k.OperationCode, v => v.GetType());
+        }
+        public static MessageBase DeserializeMessage(ushort operationCode, ISerializer serializer, byte[] byteArray)
+        {
+            return DeserializeMessage(operationCode, serializer, byteArray, 0, byteArray.Length);
         }
 
         public static MessageBase DeserializeMessage(ushort operationCode, ISerializer serializer,
             byte[] byteArray, int offset, int length)
         {
-            var messageType = MessageBase.GetMessageType(byteArray, offset);
-
-            var key = operationCode << 8 | (int) messageType;
+            var key = operationCode;
             var instance = (MessageBase) Activator.CreateInstance(TypesMap.Value[key]);
 
             using (var reader = new BinaryReader(new MemoryStream(byteArray, offset, length)))
@@ -60,46 +70,5 @@ namespace Sample.Shared.Data
 
             return instance;
         }
-        
-        
-        public static MessageBase DeserializeMessage(ushort operationCode, ISerializer serializerFactory, byte[] byteArray)
-        {
-            var messageType = MessageBase.GetMessageType(byteArray);
-            
-            switch (operationCode)
-            {
-                case CustomOperationCode.Ping:
-                    return serializerFactory.DeserializeAs<PingEvent>(byteArray);
-                case CustomOperationCode.Connect:
-                    return serializerFactory.DeserializeAs<ConnectedEvent>(byteArray);
-                case CustomOperationCode.Test:
-                    return serializerFactory.DeserializeAs<TestRoomEvent>(byteArray);
-                case CustomOperationCode.LeaveRoom:
-                    return serializerFactory.DeserializeAs<LeaveRoomEvent>(byteArray);
-                case CustomOperationCode.Disconnect:
-                    return serializerFactory.DeserializeAs<DisconnectEvent>(byteArray);        
-                case CustomOperationCode.JoinRoom when messageType == MessageType.Request:
-                    return serializerFactory.DeserializeAs<JoinRoomRequest>(byteArray);
-                case CustomOperationCode.JoinRoom when messageType == MessageType.Response:
-                    return serializerFactory.DeserializeAs<JoinRoomResponse>(byteArray);
-                case CustomOperationCode.EnterMatchMaking:
-                    return serializerFactory.DeserializeAs<EnterMatchMakingResponse>(byteArray);
-                case CustomOperationCode.JoinInfo:
-                    return serializerFactory.DeserializeAs<JoinInfoEvent>(byteArray);
-                case CustomOperationCode.LeaveMatchMaking:
-                    return serializerFactory.DeserializeAs<LeaveMatchMakingResponse>(byteArray);
-                case CustomOperationCode.Authorization:
-                    return serializerFactory.DeserializeAs<AuthorizationResponse>(byteArray);
-                case CustomOperationCode.PingRequest when messageType == MessageType.Request:
-                    return serializerFactory.DeserializeAs<PingRequest>(byteArray);
-                case CustomOperationCode.PingRequest when messageType == MessageType.Response:
-                    return serializerFactory.DeserializeAs<PingResponse>(byteArray);
-                default:
-                    throw new ArgumentNullException($"MessageFactory.GetMessage error: Operation code {operationCode} is not supported");
-
-            }
-        }
-        
-        
     }
 }

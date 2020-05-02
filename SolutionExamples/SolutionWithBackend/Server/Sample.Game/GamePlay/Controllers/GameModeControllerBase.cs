@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Sample.Shared.Data;
 using Sample.Shared.Data.DTO.Requests;
 using Sample.Shared.Data.DTO.Responses;
@@ -25,7 +26,7 @@ namespace Sample.Game.GamePlay.Controllers
     {
         protected readonly ISerializer SerializerFactory;
         protected readonly IRequestSender RequestSender;
-        protected readonly IRoom Room;
+        protected readonly IRoomContext Room;
         protected readonly IShamanLogger Logger;
         protected ITaskScheduler TaskScheduler;
         protected IStorageContainer StorageContainer;
@@ -34,7 +35,7 @@ namespace Sample.Game.GamePlay.Controllers
         private PendingTask _gameTimerTask, _checkStartGameTask;
         private object _syncStartGame = new object();
         
-        public GameModeControllerBase(IRoom room, IShamanLogger logger, IRequestSender requestSender,
+        public GameModeControllerBase(IRoomContext room, IShamanLogger logger, IRequestSender requestSender,
             ITaskScheduler taskScheduler, IStorageContainer storageContainer,
             IRoomPropertiesContainer roomPropertiesContainer, IBackendProvider backendProvider, ISerializer serializerFactory)
         {
@@ -67,38 +68,8 @@ namespace Sample.Game.GamePlay.Controllers
 
         public abstract void ProcessDeadCharacter(int playerIndex);
 
-        public void ProcessNewPlayer(Guid sessionId, Dictionary<byte, object> properties)
+        public void CleanupPlayer(Guid sessionId, PeerDisconnectedReason reason)
         {
-            var backendId = properties.GetInt(PropertyCode.PlayerProperties.BackendId);
-
-            RequestSender.SendRequest<GetPlayerGameDataResponse>(
-                BackendProvider.GetBackendUrl(backendId),
-                new GetPlayerGameDataRequest
-                {
-                    SessionId = sessionId
-                },
-                (response) =>
-                {
-                    if (response == null)
-                    {
-                        Logger.Error($"GetPlayerGameDataResponse is null for player {sessionId}");
-                        Room.AddToSendQueue(new JoinRoomResponse() {ResultCode = ResultCode.SendRequestError}, sessionId);
-                        return;
-                    }
-
-                    if (!response.Success)
-                    {
-                        Logger.Error($"GetPlayerGameDataResponse error (adding player {sessionId} from backend {backendId}): result code {response.ResultCode}, message {response.Message}");
-                        Room.AddToSendQueue(new JoinRoomResponse() {ResultCode = ResultCode.SendRequestError}, sessionId);
-                        return;
-                    }
-                    
-                    Logger.Info($"Player {sessionId} added");
-                    Room.AddToSendQueue(new JoinRoomResponse(), sessionId);
-                    //perform game mode related logic
-                    ProcessNewPlayer(response.Player, sessionId, backendId);
-                    Room.ConfirmedJoin(sessionId);
-                });
         }
 
         private void StartGame()
@@ -110,9 +81,38 @@ namespace Sample.Game.GamePlay.Controllers
         {
             return false;
         }
-        
-        public void CleanupPlayer(Guid sessionId)
+
+
+        public async Task<bool> ProcessNewPlayer(Guid sessionId, Dictionary<byte, object> properties)
         {
+            var backendId = properties.GetInt(PropertyCode.PlayerProperties.BackendId);
+
+            var response = await RequestSender.SendRequest<GetPlayerGameDataResponse>(
+                BackendProvider.GetBackendUrl(backendId),
+                new GetPlayerGameDataRequest
+                {
+                    SessionId = sessionId
+                });
+
+            if (response == null)
+            {
+                Logger.Error($"GetPlayerGameDataResponse is null for player {sessionId}");
+                Room.AddToSendQueue(new JoinRoomResponse() {ResultCode = ResultCode.SendRequestError}, sessionId);
+                return false;
+            }
+
+            if (!response.Success)
+            {
+                Logger.Error($"GetPlayerGameDataResponse error (adding player {sessionId} from backend {backendId}): result code {response.ResultCode}, message {response.Message}");
+                Room.AddToSendQueue(new JoinRoomResponse() {ResultCode = ResultCode.SendRequestError}, sessionId);
+                return false;
+            }
+            
+            Logger.Info($"Player {sessionId} added");
+            Room.AddToSendQueue(new JoinRoomResponse(), sessionId);
+            //perform game mode related logic
+            ProcessNewPlayer(response.Player, sessionId, backendId);
+            return true;
         }
 
         public bool IsGameFinished()
@@ -127,7 +127,15 @@ namespace Sample.Game.GamePlay.Controllers
 
         public void Cleanup()
         {
+            TaskScheduler.Remove(_gameTimerTask);
         }
+
+        void IGameModeController.ProcessMessage(ushort operationCode, MessageData message, Guid sessionId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public TimeSpan ForceDestroyRoomAfter { get; }
 
         public MessageResult ProcessMessage(ushort operationCode, MessageData message, Guid sessionId)
         {
@@ -158,10 +166,6 @@ namespace Sample.Game.GamePlay.Controllers
                     $"Error processing with code {operationCode}", ex);
             }
         }
-        
-        public void CleanUp()
-        {
-            TaskScheduler.Remove(_gameTimerTask);
-        }
+
     }
 }

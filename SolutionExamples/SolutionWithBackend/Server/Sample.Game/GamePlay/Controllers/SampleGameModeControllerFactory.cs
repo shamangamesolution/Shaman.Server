@@ -10,7 +10,7 @@ using Shaman.Messages;
 
 namespace Sample.Game.GamePlay.Controllers
 {
-    public class ApGameModeControllerFactory : IGameModeControllerFactory
+    public class SampleGameModeControllerFactory : IGameModeControllerFactory
     {
         private readonly IRequestSender _requestSender;
         private readonly IShamanLogger _logger;
@@ -19,7 +19,7 @@ namespace Sample.Game.GamePlay.Controllers
         private readonly ISerializer _serializerFactory;
 
 
-        public ApGameModeControllerFactory(
+        public SampleGameModeControllerFactory(
             IRequestSender requestSender, 
             IShamanLogger logger, 
             IBackendProvider backendProvider, 
@@ -33,7 +33,7 @@ namespace Sample.Game.GamePlay.Controllers
             _serializerFactory = serializerFactory;
         }
 
-        public IGameModeController GetGameModeController(IRoom room, ITaskScheduler taskScheduler,
+        public IGameModeController GetGameModeController(IRoomContext room, ITaskScheduler taskScheduler,
             IRoomPropertiesContainer roomPropertiesContainer)
         {
             if (!roomPropertiesContainer.IsRoomPropertiesContainsKey(PropertyCode.RoomProperties.GameMode))

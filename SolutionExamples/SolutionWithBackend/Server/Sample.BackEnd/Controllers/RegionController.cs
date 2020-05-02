@@ -10,6 +10,7 @@ using Sample.BackEnd.Extensions;
 using Sample.BackEnd.Models;
 using Sample.Shared.Data.DTO.Requests;
 using Sample.Shared.Data.DTO.Responses;
+using Sample.Shared.Data.Entity;
 using Sample.Shared.Data.Storage;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Messages;
@@ -64,7 +65,7 @@ namespace Sample.BackEnd.Controllers
                 var id = Guid.NewGuid().ToString();
 
                 response.IsOnService = await _paramsRepo.GetBoolValue(ParameterNames.IsOnService);
-                response.ClientVersion = "";//_versionRepo.GetVersion(VersionType.Client).ToString();
+                response.ClientVersion = "";
 
             }
             catch (Exception ex)
