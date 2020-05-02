@@ -21,7 +21,7 @@ namespace Sample.Game
                 serviceCollection.AddSingleton<ITaskSchedulerFactory, TaskSchedulerFactory>();
 
                 //transients
-                serviceCollection.AddTransient<IGameModeControllerFactory, ApGameModeControllerFactory>();
+                serviceCollection.AddTransient<IGameModeControllerFactory, SampleGameModeControllerFactory>();
             }
             catch (Exception e)
             {

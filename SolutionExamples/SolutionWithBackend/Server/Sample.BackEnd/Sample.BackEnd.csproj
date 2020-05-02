@@ -5,6 +5,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <Folder Include="Logging" />
         <Folder Include="wwwroot\" />
     </ItemGroup>
 
@@ -23,13 +24,25 @@
         </PackageReference>
         <PackageReference Include="Microsoft.AspNetCore.App" />
         <PackageReference Include="Serilog.AspNetCore">
-          <Version>3.0.0</Version>
+          <Version>3.2.0</Version>
         </PackageReference>
         <PackageReference Include="Serilog.Sinks.Loggly">
-          <Version>5.4.0-dev-00175</Version>
+          <Version>5.4.0</Version>
+        </PackageReference>
+        <PackageReference Include="Shaman.Common.Metrics">
+          <Version>1.0.0</Version>
+        </PackageReference>
+        <PackageReference Include="Shaman.Common.Server">
+          <Version>1.7.1</Version>
         </PackageReference>
         <PackageReference Include="Shaman.DAL">
-          <Version>1.0.2</Version>
+          <Version>1.7.1</Version>
+        </PackageReference>
+        <PackageReference Include="Shaman.Game.Contract">
+          <Version>1.7.3</Version>
+        </PackageReference>
+        <PackageReference Include="Shaman.ServerSharedUtilities">
+          <Version>1.7.5</Version>
         </PackageReference>
         <PackageReference Include="StackExchange.Redis">
           <Version>2.0.519</Version>

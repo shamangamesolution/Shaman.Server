@@ -1,0 +1,25 @@
+{
+    "name": "application",
+    "references": [
+        "GUID:6028eb813668048d2bd6934178c197e9",
+        "GUID:9b5a99859dcb94f2494a722c17d91103",
+        "GUID:63998e837d4540742963243e626d5985",
+        "GUID:442529758223e404dbdf03ab6fac5f53",
+        "GUID:6b95d86151d9c4395ba6c4c28fe76195"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "Select...",
+            "expression": "",
+            "define": ""
+        }
+    ],
+    "noEngineReferences": false
+}

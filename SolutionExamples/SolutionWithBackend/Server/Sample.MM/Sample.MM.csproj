@@ -5,8 +5,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Shaman.Messages" Version="1.0.8" />
-      <PackageReference Include="Shaman.MM.Contract" Version="1.1.6" />
+      <PackageReference Include="Shaman.Messages" Version="1.7.5" />
+      <PackageReference Include="Shaman.MM.Contract" Version="1.7.1" />
     </ItemGroup>
 
     <ItemGroup>

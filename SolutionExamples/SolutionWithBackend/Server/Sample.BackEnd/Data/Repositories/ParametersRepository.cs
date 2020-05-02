@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using Sample.BackEnd.Config;
 using Sample.BackEnd.Data.Repositories.Interfaces;
+using Sample.Shared.Data.Entity;
 using Shaman.Common.Utils.Logging;
 using Shaman.DAL.Exceptions;
 using Shaman.DAL.Repositories;

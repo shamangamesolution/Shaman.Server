@@ -12,12 +12,12 @@ using Sample.BackEnd.Data.Containers;
 using Sample.BackEnd.Data.PlayerStorage;
 using Sample.BackEnd.Data.Repositories;
 using Sample.BackEnd.Data.Repositories.Interfaces;
-using Sample.BackEnd.Logging;
 using Sample.Shared.Data.Storage;
 using Serilog.Events;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Serialization;
 using Shaman.Common.Utils.TaskScheduling;
+using Shaman.ServerSharedUtilities.Logging;
 using LogLevel = Shaman.Common.Utils.Logging.LogLevel;
 
 namespace Sample.BackEnd
@@ -70,7 +70,7 @@ namespace Sample.BackEnd
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IStorageContainer container, IShamanLogger logger)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IStorageContainer container)
         {
             if (env.IsDevelopment())
             {
@@ -80,28 +80,6 @@ namespace Sample.BackEnd
             {
                 app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();
-            }
-
-            logger.Initialize(SourceType.BackEnd, Configuration["ServerVersion"]);
-            var serilogLevel = Enum.Parse<LogEventLevel>(Configuration["Serilog:MinimumLevel"]);
-            switch (serilogLevel)
-            {
-                case LogEventLevel.Verbose:
-                case LogEventLevel.Debug:
-                    logger.SetLogLevel(LogLevel.Debug | LogLevel.Error | LogLevel.Info);
-                    break;
-                case LogEventLevel.Information:
-                    logger.SetLogLevel(LogLevel.Error | LogLevel.Info);
-                    break;
-                case LogEventLevel.Warning:
-                case LogEventLevel.Error:
-                    logger.SetLogLevel(LogLevel.Error);
-                    break;
-                case LogEventLevel.Fatal:
-                    logger.SetLogLevel(LogLevel.Error);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
             }
             
             app.UseHttpsRedirection();

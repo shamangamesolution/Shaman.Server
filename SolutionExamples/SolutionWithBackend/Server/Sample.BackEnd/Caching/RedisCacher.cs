@@ -49,7 +49,6 @@ namespace Sample.BackEnd.Caching
             var oldPlayerArray = await _db.StringGetAsync($"{CachePrefix}.Players: {playerId}");
             if (oldPlayerArray.IsNullOrEmpty)
             {
-                //_logger.LogCritical($"Cache missed for player {playerId}! Returning null...");
                 return null;
             }
 
@@ -80,7 +79,6 @@ namespace Sample.BackEnd.Caching
             lock(_authTokens)
             {
                 _db.StringSetAsync(newToken.ToString(), newToken.ToString(), TimeSpan.FromMinutes(1));
-                //_logger.LogCritical($"Creating token: {newToken}");
             }
             return newToken;
         }
@@ -88,7 +86,6 @@ namespace Sample.BackEnd.Caching
 
         public async Task<bool> ValidateAuthToken(Guid token)
         {
-            //_logger.LogCritical($"Validating token: {token}");
             
             if (await _db.KeyExistsAsync($"{token}"))
                 return true;
@@ -101,7 +98,6 @@ namespace Sample.BackEnd.Caching
         {
             lock (_sync)
             {
-                //_players.Remove($"RW.Players: {playerId}");
                 _db.KeyDeleteAsync($"{CachePrefix}.Players: {playerId}");
             }
         }
