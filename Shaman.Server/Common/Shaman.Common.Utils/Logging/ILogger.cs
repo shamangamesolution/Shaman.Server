@@ -20,10 +20,10 @@ namespace Shaman.Common.Utils.Logging
     {
         void Error(string message);
         void Error(Exception ex);
-        void Info(string message);
-        void Debug(string message);   
-        void Info(string sourceName, string action, string message);
-        void Warning(string sourceName, string action, string message);        
+        void LogInfo(string message);
+        void LogDebug(string message);
+        void LogInfo(string sourceName, string action, string message);
+        void LogWarning(string sourceName, string action, string message);        
         void Error(string sourceName, string action, string message);
     }
 }

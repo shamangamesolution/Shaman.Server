@@ -23,22 +23,22 @@ namespace Shaman.ServerSharedUtilities.Logging
             _logger.LogError(ex, ex.Message);
         }
 
-        public void Info(string message)
+        public void LogInfo(string message)
         {
             _logger.LogInformation(message);
         }
 
-        public void Debug(string message)
+        public void LogDebug(string message)
         {
             _logger.LogDebug(message);
         }
 
-        public void Info(string sourceName, string action, string message)
+        public void LogInfo(string sourceName, string action, string message)
         {
-            Info($"{sourceName}.{action}: {message}");
+            LogInfo($"{sourceName}.{action}: {message}");
         }
 
-        public void Warning(string sourceName, string action, string message)
+        public void LogWarning(string sourceName, string action, string message)
         {
             _logger.LogWarning($"{sourceName}.{action}: {message}");
         }
