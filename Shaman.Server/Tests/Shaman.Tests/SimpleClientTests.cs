@@ -6,6 +6,7 @@ using NUnit.Framework;
 using Shaman.Client;
 using Shaman.Client.Peers;
 using Shaman.Common.Server.Providers;
+using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Serialization;

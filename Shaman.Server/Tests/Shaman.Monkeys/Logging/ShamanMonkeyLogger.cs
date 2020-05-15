@@ -27,11 +27,11 @@ namespace Shaman.Monkeys.Logging
             _logger.Log($"{ex}");
         }
 
-        public void Info(string message)
+        public void LogInfo(string message)
         {
         }
 
-        public void Debug(string message)
+        public void LogDebug(string message)
         {
         }
 
@@ -39,11 +39,11 @@ namespace Shaman.Monkeys.Logging
         {
         }
 
-        public void Info(string sourceName, string action, string message)
+        public void LogInfo(string sourceName, string action, string message)
         {
         }
 
-        public void Warning(string sourceName, string action, string message)
+        public void LogWarning(string sourceName, string action, string message)
         {
         }
 

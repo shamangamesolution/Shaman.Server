@@ -32,13 +32,13 @@ namespace Shaman.Common.Utils.Logging
                 Console.WriteLine($"{_prefix}{DateTime.UtcNow}|{Environment.TickCount} ERROR: {ex}");            
         }
 
-        public void Info(string message)
+        public void LogInfo(string message)
         {
             if ((_logLevel & LogLevel.Info) == LogLevel.Info)
                 Console.WriteLine($"{_prefix}{DateTime.UtcNow}|{Environment.TickCount} INFO: {message}");
         }
 
-        public void Debug(string message)
+        public void LogDebug(string message)
         {
             if ((_logLevel & LogLevel.Debug) == LogLevel.Debug)
                 Console.WriteLine($"{_prefix}{DateTime.UtcNow}|{Environment.TickCount} DEBUG: {message}");            
@@ -50,12 +50,12 @@ namespace Shaman.Common.Utils.Logging
             _version = version;
         }
 
-        public void Info(string sourceName, string action, string message)
+        public void LogInfo(string sourceName, string action, string message)
         {
-            Info($"{sourceName}.{action}: {message}");
+            LogInfo($"{sourceName}.{action}: {message}");
         }
 
-        public void Warning(string sourceName, string action, string message)
+        public void LogWarning(string sourceName, string action, string message)
         {
             Error($"{sourceName}.{action}: {message}");
         }

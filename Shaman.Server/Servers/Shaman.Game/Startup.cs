@@ -4,9 +4,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Serialization;
-using Serilog.Events;
 using Shaman.Common.Metrics;
 using Shaman.Common.Server.Applications;
 using Shaman.Common.Server.Configuration;
@@ -29,7 +27,6 @@ using Shaman.ServerSharedUtilities;
 using Shaman.ServerSharedUtilities.Backends;
 using Shaman.ServerSharedUtilities.Bundling;
 using Shaman.ServerSharedUtilities.Logging;
-using LogLevel = Shaman.Common.Utils.Logging.LogLevel;
 
 namespace Shaman.Game
 {

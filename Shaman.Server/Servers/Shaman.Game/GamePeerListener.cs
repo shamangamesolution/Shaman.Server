@@ -1,6 +1,7 @@
 using System;
 using System.Net;
 using Shaman.Common.Server.Peers;
+using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Sockets;
