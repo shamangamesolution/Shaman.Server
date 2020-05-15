@@ -24,5 +24,6 @@ namespace Shaman.Common.Utils.Sockets
         event Action<IPEndPoint> OnConnected;
         event Action<IPEndPoint, string> OnDisconnected;
         int Mtu { get; }
+        bool DisconnectPeer(IPEndPoint ipEndPoint);
     }
 }
