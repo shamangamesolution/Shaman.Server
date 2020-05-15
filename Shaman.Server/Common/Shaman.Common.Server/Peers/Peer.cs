@@ -40,6 +40,7 @@ namespace Shaman.Common.Server.Peers
 
         public void Disconnect(DisconnectReason reason)
         {
+            _socket.DisconnectPeer(_endpoint);
         }
 
 //        public void Send(MessageBase message)

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Net;
 using LiteNetLib;
-using LiteNetLib.Utils;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Sockets;
 
@@ -68,7 +67,6 @@ namespace Shaman.LiteNetLibAdapter
             {
                 onConnect(peer.EndPoint);
                 _endPointReceivers.TryAdd(peer.EndPoint, peer);
-
             };
         }
 
@@ -148,6 +146,17 @@ namespace Shaman.LiteNetLibAdapter
         public void ReturnBufferToPool(byte[] buffer)
         {
             //nothing
+        }
+
+        public bool DisconnectPeer(IPEndPoint ipEndPoint)
+        {
+            if (_endPointReceivers.TryGetValue(ipEndPoint, out var connection))
+            {
+                connection.Disconnect();
+                return true;
+            }
+
+            return false;
         }
 
         public event Action<IPEndPoint, DataPacket, Action> OnPacketReceived;
