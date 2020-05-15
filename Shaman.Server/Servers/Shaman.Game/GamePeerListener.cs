@@ -175,12 +175,10 @@ namespace Shaman.Game
                 return;
             }
             base.OnClientDisconnect(endPoint, reason);
-            
-            
-            _logger.Error($"DISCONNECT REASON: {reason}");
+
             if (_roomManager.IsInRoom(peer.GetSessionId()))
                 _roomManager.PeerDisconnected(peer, ResolveReason(reason));
-            
+
             _packetSender.PeerDisconnected(peer);
             
         }
