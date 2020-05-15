@@ -223,19 +223,6 @@ namespace Shaman.Game.Rooms
         {
             _sessionsToRooms.TryAdd(sessionID, room);
         }
-
-        private async Task PeerJoined(IPeer peer, IRoom room, Dictionary<byte, object> peerProperties)
-        {
-            if (await room.PeerJoined(peer, peerProperties))
-            {
-                _gameMetrics.TrackPeerJoin();
-            }
-            else
-            {
-                peer.Disconnect(DisconnectReason.JustBecause);
-            }
-        }
-
         public bool IsInRoom(Guid sessionId)
         {
             return _sessionsToRooms.ContainsKey(sessionId);
@@ -289,8 +276,15 @@ namespace Shaman.Game.Rooms
                         {
                             try
                             {
-                                await PeerJoined(peer, roomToJoin, joinMessage.Properties);
-                                _packetSender.AddPacket(new JoinRoomResponse(), peer);
+                                if (await roomToJoin.PeerJoined(peer, joinMessage.Properties))
+                                {
+                                    _gameMetrics.TrackPeerJoin();
+                                    _packetSender.AddPacket(new JoinRoomResponse(), peer);
+                                }
+                                else
+                                {
+                                    peer.Disconnect(DisconnectReason.JustBecause);
+                                }
                             }
                             catch (Exception ex)
                             {
