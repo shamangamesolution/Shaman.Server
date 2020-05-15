@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -127,11 +128,15 @@ namespace Shaman.Game
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplication server,
             IGameServerInfoProvider serverInfoProvider, IGameModeControllerFactory controllerFactory /* init bundle */,
-            IGameServerApi gameServerApi)
+            IGameServerApi gameServerApi, IShamanLogger logger)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+            }
+            else
+            {
+                CheckProductionCompiledInRelease(logger);
             }
 
             app.UseMvc();
@@ -142,6 +147,12 @@ namespace Shaman.Game
                 serverInfoProvider.Start();
             else
                 StandaloneServerLauncher.Api = gameServerApi;
+        }
+
+        [Conditional("DEBUG")]
+        public void CheckProductionCompiledInRelease(IShamanLogger logger)
+        {
+            logger.Error("ATTENTION!!! Release Environment compiled in DEBUG mode!");
         }
     }
 }
