@@ -283,7 +283,9 @@ namespace Shaman.Game.Rooms
                                 }
                                 else
                                 {
-                                    peer.Disconnect(DisconnectReason.JustBecause);
+                                    // todo disconnect doesn't work for now
+                                    // peer.Disconnect(DisconnectReason.JustBecause);
+                                    _packetSender.AddPacket(new JoinRoomResponse() { ResultCode = ResultCode.RequestProcessingError }, peer);
                                 }
                             }
                             catch (Exception ex)
