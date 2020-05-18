@@ -105,17 +105,28 @@ namespace Shaman.LiteNetLibAdapter
             _serverPeer?.Send(buffer, offset, length, GetDeliveryMode(reliable, orderControl));
         }
 
+        private bool debugLogSent = false;
+
         public void Send(IPEndPoint endPoint, byte[] buffer, int offset, int length, bool reliable, bool orderControl,
             bool returnAfterSend = true)
         {
             if (_endPointReceivers.TryGetValue(endPoint, out var connection))
             {
                 var deliveryMethod = GetDeliveryMode(reliable, orderControl);
-                
+
                 // todo make PR to LiteNet to control MTU value during it calculation
-                deliveryMethod = length > connection.GetMaxSinglePacketSize(deliveryMethod)
-                    ? DeliveryMethod.ReliableUnordered
-                    : deliveryMethod;
+                if (length > connection.GetMaxSinglePacketSize(deliveryMethod))
+                {
+                    deliveryMethod = DeliveryMethod.ReliableUnordered;
+
+                    // todo short-time DEBUG
+                    if (!debugLogSent)
+                    {
+                        debugLogSent = true;// to avoid log pollution
+                        var base64String = Convert.ToBase64String(buffer, offset, length);
+                        _logger.Error($"TOO BIG PACKET DETECTED: {base64String}");
+                    }
+                }
 
                 // todo Log overriding reliable flag
                 // _logger.Error($"reliable {reliable} (mto: {connection.Mtu}, packet: {length})");
