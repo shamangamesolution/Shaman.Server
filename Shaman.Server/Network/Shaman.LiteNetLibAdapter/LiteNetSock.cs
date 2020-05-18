@@ -120,11 +120,11 @@ namespace Shaman.LiteNetLibAdapter
                     deliveryMethod = DeliveryMethod.ReliableUnordered;
 
                     // todo short-time DEBUG
-                    if (!debugLogSent)
+                    if (length > 1200 && !debugLogSent)
                     {
                         debugLogSent = true;// to avoid log pollution
                         var base64String = Convert.ToBase64String(buffer, offset, length);
-                        _logger.Error($"TOO BIG PACKET DETECTED: {base64String}");
+                        _logger.Error($"TOO BIG PACKET DETECTED ({length}/{connection.GetMaxSinglePacketSize(deliveryMethod)}): {base64String}");
                     }
                 }
 
