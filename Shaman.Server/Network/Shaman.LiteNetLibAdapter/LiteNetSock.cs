@@ -110,13 +110,17 @@ namespace Shaman.LiteNetLibAdapter
         {
             if (_endPointReceivers.TryGetValue(endPoint, out var connection))
             {
+                var deliveryMethod = GetDeliveryMode(reliable, orderControl);
+                
                 // todo make PR to LiteNet to control MTU value during it calculation
-                reliable = reliable || connection.Mtu < length;
+                deliveryMethod = length > connection.GetMaxSinglePacketSize(deliveryMethod)
+                    ? DeliveryMethod.ReliableUnordered
+                    : deliveryMethod;
 
                 // todo Log overriding reliable flag
                 // _logger.Error($"reliable {reliable} (mto: {connection.Mtu}, packet: {length})");
-                
-                connection.Send(buffer, offset, length, GetDeliveryMode(reliable, orderControl));
+
+                connection.Send(buffer, offset, length, deliveryMethod);
             }
         }
 
