@@ -5,7 +5,7 @@ namespace Shaman.Messages.General.DTO.Events
 {
     public class ConnectedEvent : EventBase
     {
-        public override bool IsReliable => false;
+        public override bool IsReliable => true;
         public override bool IsBroadcasted => false;
 
         
