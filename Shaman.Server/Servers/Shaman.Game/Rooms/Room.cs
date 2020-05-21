@@ -104,7 +104,7 @@ namespace Shaman.Game.Rooms
             _roomStateUpdater.UpdateRoomState(GetRoomId(), _roomPlayers.Count(), _roomState, matchMakerUrl);
         }
 
-        public void SendToAll(MessageBase message, params Guid[] exceptions)
+        public int SendToAll(MessageBase message, params Guid[] exceptions)
         {
             if (exceptions == null)
                 exceptions = Array.Empty<Guid>();
@@ -114,6 +114,7 @@ namespace Shaman.Game.Rooms
             
             var length = _packetSender.AddPacket(message, peers);
             _roomStats.TrackSentMessage(length, message.IsReliable, message.OperationCode);
+            return length;
         }
 
         public void SendToAll(MessageData messageData, ushort opCode, bool isReliable, bool isOrdered,
@@ -206,21 +207,24 @@ namespace Shaman.Game.Rooms
             return peerRemoved;
         }
 
-        public void AddToSendQueue(MessageBase message, Guid sessionId)
+        public int AddToSendQueue(MessageBase message, Guid sessionId)
         {
             if (!_roomPlayers.ContainsKey(sessionId))
-                return;
+                return 0;
             
             var player = _roomPlayers[sessionId];
             if (player != null)
             {
                 var length = _packetSender.AddPacket(message, player.Peer);
                 _roomStats.TrackSentMessage(length, message.IsReliable, message.OperationCode);
+                return length;
             }
             else
             {
                 _logger.Error($"Trying to send message {message.GetType()} to non-existing player {sessionId}");
             }
+
+            return 0;
         }
         
         public void AddToSendQueue(MessageData messageData, ushort opCode, Guid sessionId, bool isReliable, bool isOrdered)

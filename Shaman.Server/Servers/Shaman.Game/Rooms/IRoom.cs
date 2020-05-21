@@ -13,8 +13,8 @@ namespace Shaman.Game.Rooms
         Guid GetRoomId();
         Task<bool> PeerJoined(IPeer peer, Dictionary<byte, object> peerProperties);
         bool PeerDisconnected(Guid sessionId, PeerDisconnectedReason reason);
-        void SendToAll(MessageBase message, params Guid[] exceptions);
-        void AddToSendQueue(MessageBase message, Guid sessionId);
+        int SendToAll(MessageBase message, params Guid[] exceptions);
+        int AddToSendQueue(MessageBase message, Guid sessionId);
         void ProcessMessage(ushort operationCode, MessageData message, Guid sessionId);
         /// <summary>
         /// Cleans up room

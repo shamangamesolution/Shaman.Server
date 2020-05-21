@@ -19,14 +19,14 @@ namespace Shaman.Game.Rooms
             return _room.GetRoomId();
         }
 
-        public void SendToAll(MessageBase message, params Guid[] exceptions)
+        public int SendToAll(MessageBase message, params Guid[] exceptions)
         {
-            _room.SendToAll(message, exceptions);
+            return _room.SendToAll(message, exceptions);
         }
 
-        public void AddToSendQueue(MessageBase message, Guid sessionId)
+        public int AddToSendQueue(MessageBase message, Guid sessionId)
         {
-            _room.AddToSendQueue(message, sessionId);
+            return _room.AddToSendQueue(message, sessionId);
         }
 
         public void KickPlayer(Guid sessionId)
