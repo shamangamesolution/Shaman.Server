@@ -20,7 +20,8 @@ namespace Shaman.LiteNetLibAdapter
             _logger = logger;
             _listener = new EventBasedNetListener();
             _peer = new NetManager(_listener);
-
+            _peer.ReconnectDelay = 100;
+            _peer.MaxConnectAttempts = 50;
         }
         
         public void Connect(IPEndPoint endPoint)
