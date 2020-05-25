@@ -40,8 +40,11 @@ namespace Shaman.Common.Server.Peers
 
         public void Disconnect(DisconnectReason reason)
         {
-            // todo test this stuff
-            // _socket.DisconnectPeer(_endpoint);
+            // todo test this stuff before open
+            if (reason == DisconnectReason.Forced)
+            {
+                _socket.DisconnectPeer(_endpoint);
+            }
         }
 
 //        public void Send(MessageBase message)

@@ -5,6 +5,7 @@ namespace Shaman.Common.Server.Peers
         JustBecause = 1,
         ServerShutDown = 2,
         RoomCleanup = 3,
-        ErrorGettingRoomParameters = 4
+        ErrorGettingRoomParameters = 4,
+        Forced = byte.MaxValue
     }
 }
