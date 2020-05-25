@@ -24,6 +24,7 @@ namespace Shaman.Common.Utils.Logging
         void LogDebug(string message);
         void LogInfo(string sourceName, string action, string message);
         void LogWarning(string sourceName, string action, string message);        
+        void LogWarning(string message);        
         void Error(string sourceName, string action, string message);
     }
 }

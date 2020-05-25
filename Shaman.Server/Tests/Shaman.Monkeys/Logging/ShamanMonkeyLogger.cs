@@ -12,10 +12,6 @@ namespace Shaman.Monkeys.Logging
             _logger = logger;
         }
 
-        public void SetLogLevel(LogLevel logLevel)
-        {
-        }
-
         public void Error(string message)
         {
             _logger.Log(message);
@@ -35,15 +31,15 @@ namespace Shaman.Monkeys.Logging
         {
         }
 
-        public void Initialize(SourceType source, string version, string subSource = "")
-        {
-        }
-
         public void LogInfo(string sourceName, string action, string message)
         {
         }
 
         public void LogWarning(string sourceName, string action, string message)
+        {
+        }
+
+        public void LogWarning(string message)
         {
         }
 
