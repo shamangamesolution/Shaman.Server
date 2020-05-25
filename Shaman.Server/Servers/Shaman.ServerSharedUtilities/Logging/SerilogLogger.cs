@@ -43,6 +43,11 @@ namespace Shaman.ServerSharedUtilities.Logging
             _logger.LogWarning($"{sourceName}.{action}: {message}");
         }
 
+        public void LogWarning(string message)
+        {
+            _logger.LogWarning(message);
+        }
+
         public void Error(string sourceName, string action, string message)
         {
             Error($"{sourceName}.{action}: {message}");

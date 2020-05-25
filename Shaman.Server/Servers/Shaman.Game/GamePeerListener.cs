@@ -42,8 +42,7 @@ namespace Shaman.Game
 
             if (peer == null)
             {
-                _logger.Error(
-                    $"GamePeerListener.OnReceivePacketFromClient error: can not find peer for endpoint {endPoint.Address}:{endPoint.Port}");
+                _logger.Warning($"GamePeerListener.OnReceivePacketFromClient error: can not find peer for endpoint {endPoint.Address}:{endPoint.Port}");
                 return;
             }
             
@@ -160,7 +159,7 @@ namespace Shaman.Game
             var peer = PeerCollection.Get(endPoint);
             if (peer == null)
             {
-                _logger.Error($"GamePeerListener.OnClientDisconnect error: can not find peer for endpoint {endPoint.Address}:{endPoint.Port}");
+                _logger.Warning($"GamePeerListener.OnClientDisconnect error: can not find peer for endpoint {endPoint.Address}:{endPoint.Port}");
                 return;
             }
             
@@ -172,7 +171,7 @@ namespace Shaman.Game
             var peer = PeerCollection.Get(endPoint);
             if (peer == null)
             {
-                _logger.Error($"GamePeerListener.OnClientDisconnect error: can not find peer for endpoint {endPoint.Address}:{endPoint.Port}");
+                _logger.Warning($"GamePeerListener.OnClientDisconnect error: can not find peer for endpoint {endPoint.Address}:{endPoint.Port}");
                 return;
             }
             base.OnClientDisconnect(endPoint, reason);
