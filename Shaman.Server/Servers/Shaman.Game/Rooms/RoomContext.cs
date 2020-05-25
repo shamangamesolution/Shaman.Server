@@ -33,6 +33,11 @@ namespace Shaman.Game.Rooms
         {
             _room.GetPlayer(sessionId).Peer.Disconnect(DisconnectReason.JustBecause);
         }
+        
+        public void _KickPlayer(Guid sessionId)
+        {
+            _room.GetPlayer(sessionId).Peer.Disconnect(DisconnectReason.Forced);
+        }
 
         public void SendToAll(MessageData messageData, ushort opCode, bool isReliable, bool isOrdered,
             params Guid[] exceptions)
