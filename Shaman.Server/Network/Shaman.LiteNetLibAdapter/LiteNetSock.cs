@@ -106,7 +106,7 @@ namespace Shaman.LiteNetLibAdapter
             _serverPeer?.Send(buffer, offset, length, GetDeliveryMode(reliable, orderControl));
         }
 
-        private bool debugLogSent = false;
+        // private bool debugLogSent = false;
 
         public void Send(IPEndPoint endPoint, byte[] buffer, int offset, int length, bool reliable, bool orderControl,
             bool returnAfterSend = true)
@@ -120,13 +120,12 @@ namespace Shaman.LiteNetLibAdapter
                 {
                     deliveryMethod = DeliveryMethod.ReliableUnordered;
 
-                    // todo short-time DEBUG
-                    if (length > 1200 && !debugLogSent)
-                    {
-                        debugLogSent = true;// to avoid log pollution
-                        var base64String = Convert.ToBase64String(buffer, offset, length);
-                        _logger.Error($"TOO BIG PACKET DETECTED ({length}/{connection.GetMaxSinglePacketSize(deliveryMethod)}): {base64String}");
-                    }
+                    // // todo short-time DEBUG
+                    // if (length > 1200 && !debugLogSent)
+                    // {
+                    //     debugLogSent = true;// to avoid log pollution
+                    //     _logger.Error($"TOO BIG PACKET DETECTED ({length}/{connection.GetMaxSinglePacketSize(deliveryMethod)}): {Convert.ToBase64String(buffer, offset, length)}");
+                    // }
                 }
 
                 // todo Log overriding reliable flag
