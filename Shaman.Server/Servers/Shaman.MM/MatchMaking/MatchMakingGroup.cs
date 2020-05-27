@@ -153,13 +153,10 @@ namespace Shaman.MM.MatchMaking
                     foreach (var player in _matchmakingPlayers)
                         ProcessSuccess(player,result);
                     break;
-                case RoomOperationResult.ServerNotFound:
-                case RoomOperationResult.JoinRoomError:
+                default:
                     foreach (var player in _matchmakingPlayers)
                         ProcessFailed(player, result.Result.ToString());
                     break;
-                default:
-                    throw new ArgumentOutOfRangeException();
             }
                             
             _matchmakingPlayers.Clear();
