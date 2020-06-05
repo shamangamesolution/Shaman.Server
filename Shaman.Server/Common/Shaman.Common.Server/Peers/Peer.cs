@@ -41,7 +41,7 @@ namespace Shaman.Common.Server.Peers
         public void Disconnect(DisconnectReason reason)
         {
             // todo test this stuff before open
-            if (reason == DisconnectReason.Forced)
+            if (reason == DisconnectReason.KickedByServer)
             {
                 _socket.DisconnectPeer(_endpoint);
             }
