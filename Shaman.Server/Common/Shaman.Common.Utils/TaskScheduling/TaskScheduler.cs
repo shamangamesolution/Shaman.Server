@@ -69,6 +69,25 @@ namespace Shaman.Common.Utils.TaskScheduling
                 }
             });
         }
+        public void ScheduleOnceOnNow(Func<Task> action)
+        {
+            Interlocked.Increment(ref _scheduledOnceTasks);
+            Task.Factory.StartNew(async () =>
+            {
+                try
+                {
+                    await action();
+                }
+                catch (Exception e)
+                {
+                    _logger?.Error($"ScheduleOnceOnNowAsync task error: {e}");
+                }
+                finally
+                {
+                    Interlocked.Decrement(ref _scheduledOnceTasks);
+                }
+            });
+        }
 
         public void Remove(PendingTask task)
         {
