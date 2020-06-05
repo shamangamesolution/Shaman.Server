@@ -1,9 +1,12 @@
+using System;
 using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.TaskScheduling;
+using TaskScheduler = Shaman.Common.Utils.TaskScheduling.TaskScheduler;
 
 namespace Shaman.Common.Utils.Tests
 {
@@ -19,6 +22,19 @@ namespace Shaman.Common.Utils.Tests
             Thread.Sleep(100);
         }
 
+        [Test]
+        public void AsyncMethod()
+        {
+            var taskScheduler = new TaskScheduler(new ConsoleLogger());
+            
+            taskScheduler.ScheduleOnceOnNow(async () =>
+            {
+                await Task.Delay(10);
+                throw new Exception("TEST");
+            });
+            Thread.Sleep(1000);
+        }
+        
         [Test]
         public void TaskCountingOneTimeTasksTest()
         {
