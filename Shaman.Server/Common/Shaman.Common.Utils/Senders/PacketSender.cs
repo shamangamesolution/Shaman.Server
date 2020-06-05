@@ -180,9 +180,12 @@ namespace Shaman.Common.Utils.Senders
             {
                 if (_peerToPackets.TryRemove(peer, out var q))
                 {
-                    while (q.TryDequeue(out var pack))
+                    lock (_sync)
                     {
-                        pack.Dispose();
+                        while (q.TryDequeue(out var pack))
+                        {
+                            pack.Dispose();
+                        }
                     }
                 }
             }
