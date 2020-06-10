@@ -19,11 +19,13 @@ namespace Shaman.MM.Managers
         private readonly IShamanLogger _logger;
         private readonly ITaskScheduler _taskScheduler;
         
-        private ConcurrentDictionary<Guid, Room> _rooms = new ConcurrentDictionary<Guid, Room>();
-        private ConcurrentDictionary<Guid, List<Room>> _groupToRoom = new ConcurrentDictionary<Guid, List<Room>>();
-        private ConcurrentDictionary<Guid, Guid> _roomToGroupId = new ConcurrentDictionary<Guid, Guid>();
-        private Queue<Room> _roomsQueue = new Queue<Room>();
+        private readonly ConcurrentDictionary<Guid, Room> _rooms = new ConcurrentDictionary<Guid, Room>();
+        private readonly ConcurrentDictionary<Guid, List<Room>> _groupToRoom = new ConcurrentDictionary<Guid, List<Room>>();
+        private readonly ConcurrentDictionary<Guid, Guid> _roomToGroupId = new ConcurrentDictionary<Guid, Guid>();
+        private readonly Queue<Room> _roomsQueue = new Queue<Room>();
         private PendingTask _clearTask, _closeTask;
+        
+        private readonly object _roomQueueSync = new object();
 
         public RoomManager(IMatchMakerServerInfoProvider serverProvider, IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory)
         {
@@ -59,7 +61,10 @@ namespace Shaman.MM.Managers
                 await _serverProvider.CreateRoom(server.Id, room.Id, roomProperties, playersToSendToRoom);
 
                 //add to queue
-                _roomsQueue.Enqueue(room);
+                lock (_roomQueueSync)
+                {
+                    _roomsQueue.Enqueue(room);
+                }
 
                 var port = server.GetLessLoadedPort();
                 return new JoinRoomResult {Address = server.Address, Port = port, RoomId = room.Id, Result = RoomOperationResult.OK};
@@ -174,27 +179,21 @@ namespace Shaman.MM.Managers
 
         public void Start(int timeToKeepCreatedRoomSec, int timeIntervalToCloseOpenRoomsWithoutUpdatesMs = 5000)
         {
-            _rooms = new ConcurrentDictionary<Guid, Room>();
-            _groupToRoom = new ConcurrentDictionary<Guid, List<Room>>();
-            _roomToGroupId = new ConcurrentDictionary<Guid, Guid>();
-            _roomsQueue = new Queue<Room>();
-            
             //start created rooms clear task
             var checkPeriodMs = 60000; // 10 time
             _clearTask = _taskScheduler.ScheduleOnInterval(() =>
             {
-                if (_roomsQueue.Count == 0)
-                    return;
-                
                 var cnt = 0;
-                while (_roomsQueue.Any() && (DateTime.UtcNow - _roomsQueue.First().CreatedOn).TotalSeconds >
-                       timeToKeepCreatedRoomSec)
+                lock (_roomQueueSync)
                 {
-                    var roomId = _roomsQueue.Dequeue().Id;
-                    DeregisterRoom(roomId);
-                    cnt++;
+                    while (_roomsQueue.TryPeek(out var room) && (DateTime.UtcNow - room.CreatedOn).TotalSeconds >
+                           timeToKeepCreatedRoomSec)
+                    {
+                        var roomId = _roomsQueue.Dequeue().Id;
+                        DeregisterRoom(roomId);
+                        cnt++;
+                    }
                 }
-                
                 _logger.Info($"Cleaned {cnt} rooms");
             }, 0, checkPeriodMs);
 
@@ -232,7 +231,10 @@ namespace Shaman.MM.Managers
                 _taskScheduler.Remove(_closeTask);
             _rooms.Clear();
             _groupToRoom.Clear();
-            _roomsQueue.Clear();
+            lock (_roomQueueSync)
+            {
+                _roomsQueue.Clear();
+            }
             _roomToGroupId.Clear();
         }
     }
