@@ -63,9 +63,9 @@ namespace Shaman.DAL.MongoDb.Tests
     [TestFixture]
     public class MongoDbDefaultTests
     {
-        private MongoDbRepository _repo;
-        private TestEntity first = new TestEntity(1, 4, "test1");
-        private TestEntity second = new TestEntity(2, 0, "test2")
+        private MongoDbConnector _connector;
+        private TestEntity _first = new TestEntity(1, 4, "test1");
+        private TestEntity _second = new TestEntity(2, 0, "test2")
         {
             ChildList = new List<TestChildEntity>
             {
@@ -78,7 +78,7 @@ namespace Shaman.DAL.MongoDb.Tests
                 new TestChildEntity(4, true, 3001.6785f),
             }
         };
-        private TestEntity third = new TestEntity(3, int.MaxValue, null);
+        private TestEntity _third = new TestEntity(3, int.MaxValue, null);
 
         [SetUp]
         public void SetUp()
@@ -89,8 +89,8 @@ namespace Shaman.DAL.MongoDb.Tests
                 Server = new MongoServerAddress("localhost")
             });
             var mapperFactory = new DefaultMongoDbMapperFactory();
-            _repo = new MongoDbRepository(settings, mapperFactory);
-            _repo.Connect();
+            _connector = new MongoDbConnector(settings, mapperFactory);
+            _connector.Connect();
         }
 
         [TearDown]
@@ -102,40 +102,40 @@ namespace Shaman.DAL.MongoDb.Tests
         
         private async Task<TestEntity> Get(int id)
         {
-            return await _repo.Get<TestEntity>(id);
+            return await _connector.Get<TestEntity>(id);
         }
 
 
         public async Task RemoveAll()
         {
-            await _repo.Remove<TestEntity>(1);
-            await _repo.Remove<TestEntity>(e => e.Id == 2 || e.Id == 3);
+            await _connector.Remove<TestEntity>(1);
+            await _connector.Remove<TestEntity>(e => e.Id == 2 || e.Id == 3);
         }
         
         [Test]
         public async Task CreateTests()
         {
-            await _repo.Create(first);
-            await _repo.Create(second);
-            await _repo.Create(third);
+            await _connector.Create(_first);
+            await _connector.Create(_second);
+            await _connector.Create(_third);
         }
 
         [Test]
         public async Task CreateGetRemoveTests()
         {
             await CreateTests();
-            var receivedFirst = await Get(first.Id);
-            var receivedSecond = await Get(second.Id);
-            var receivedThird = await Get(third.Id);
+            var receivedFirst = await Get(_first.Id);
+            var receivedSecond = await Get(_second.Id);
+            var receivedThird = await Get(_third.Id);
             
             //asserts
-            var jsonedFirst = JsonConvert.SerializeObject(first);
+            var jsonedFirst = JsonConvert.SerializeObject(_first);
             var jsonedReceivedFirst = JsonConvert.SerializeObject(receivedFirst);
             
-            var jsonedSecond = JsonConvert.SerializeObject(second);
+            var jsonedSecond = JsonConvert.SerializeObject(_second);
             var jsonedReceivedSecond = JsonConvert.SerializeObject(receivedSecond);
             
-            var jsonedThird = JsonConvert.SerializeObject(third);
+            var jsonedThird = JsonConvert.SerializeObject(_third);
             var jsonedReceivedThird = JsonConvert.SerializeObject(receivedThird);
             
             
@@ -145,9 +145,9 @@ namespace Shaman.DAL.MongoDb.Tests
 
             await RemoveAll();
             
-            receivedFirst = await Get(first.Id);
-            receivedSecond = await Get(second.Id);
-            receivedThird = await Get(third.Id);
+            receivedFirst = await Get(_first.Id);
+            receivedSecond = await Get(_second.Id);
+            receivedThird = await Get(_third.Id);
             
             Assert.IsNull(receivedFirst);
             Assert.IsNull(receivedSecond);
@@ -157,7 +157,7 @@ namespace Shaman.DAL.MongoDb.Tests
             await CreateTests();
 
             //get bunch
-            var result = await _repo.Get<TestEntity>(e => e.Id == 2 || e.Id == 3);
+            var result = await _connector.Get<TestEntity>(e => e.Id == 2 || e.Id == 3);
             Assert.AreEqual(2, result.Count);
         }
 
@@ -171,15 +171,16 @@ namespace Shaman.DAL.MongoDb.Tests
             fieldsProvider.Add(x => x.StringField, "update123");
             fieldsProvider.Add(x => x.ChildList[0].FloatField, 123.76f);
             fieldsProvider.Add(x => x.ChildList[1].FloatField, 76.123f);
+            fieldsProvider.Add(x => x.ChildDictionary[-1].FloatField, 1.01f);
 
-            await _repo.Update(i => i.Id == second.Id , fieldsProvider);
-            await _repo.Update(i => i.Id == second.Id , fieldsProvider);
+            await _connector.Update(i => i.Id == _second.Id && i.ChildDictionary.Any(d => d.Id == 4), fieldsProvider);
             
-            var receivedFirst = await Get(second.Id);
+            var receivedFirst = await Get(_second.Id);
             Assert.AreEqual(10, receivedFirst.IntField);
             Assert.AreEqual("update123", receivedFirst.StringField);
             Assert.AreEqual(123.76f, receivedFirst.ChildList[0].FloatField);
             Assert.AreEqual(76.123f, receivedFirst.ChildList[1].FloatField);
+            Assert.AreEqual(1.01f, receivedFirst.ChildDictionary[4].FloatField);
         }
         
         [Test]
@@ -187,17 +188,20 @@ namespace Shaman.DAL.MongoDb.Tests
         {
             await CreateTests();
             
-            await _repo.UpdateWhere<TestEntity>(i => i.Id == second.Id)
+            await _connector.UpdateWhere<TestEntity>(i => i.Id == _second.Id && i.ChildDictionary.Any(d => d.Id == 4))
                 .Set(x => x.IntField, 10)
                 .Set(x => x.StringField, "update123")
                 .Set(x => x.ChildList[0].FloatField, 123.76f)
                 .Set(x => x.ChildList[1].FloatField, 76.123f)
+                .Set(x => x.ChildDictionary[-1].FloatField, 1.01f)
                 .Update();
-            var receivedFirst = await Get(second.Id);
+            var receivedFirst = await Get(_second.Id);
             Assert.AreEqual(10, receivedFirst.IntField);
             Assert.AreEqual("update123", receivedFirst.StringField);
             Assert.AreEqual(123.76f, receivedFirst.ChildList[0].FloatField);
             Assert.AreEqual(76.123f, receivedFirst.ChildList[1].FloatField);
+            Assert.AreEqual(1.01f, receivedFirst.ChildDictionary[4].FloatField);
+
         }
         
 
