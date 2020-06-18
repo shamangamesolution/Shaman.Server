@@ -173,7 +173,26 @@ namespace Shaman.DAL.MongoDb.Tests
             fieldsProvider.Add(x => x.ChildList[1].FloatField, 76.123f);
 
             await _repo.Update(i => i.Id == second.Id , fieldsProvider);
+            await _repo.Update(i => i.Id == second.Id , fieldsProvider);
             
+            var receivedFirst = await Get(second.Id);
+            Assert.AreEqual(10, receivedFirst.IntField);
+            Assert.AreEqual("update123", receivedFirst.StringField);
+            Assert.AreEqual(123.76f, receivedFirst.ChildList[0].FloatField);
+            Assert.AreEqual(76.123f, receivedFirst.ChildList[1].FloatField);
+        }
+        
+        [Test]
+        public async Task CreateUpdateRemoveTests2()
+        {
+            await CreateTests();
+            
+            await _repo.UpdateWhere<TestEntity>(i => i.Id == second.Id)
+                .Set(x => x.IntField, 10)
+                .Set(x => x.StringField, "update123")
+                .Set(x => x.ChildList[0].FloatField, 123.76f)
+                .Set(x => x.ChildList[1].FloatField, 76.123f)
+                .Update();
             var receivedFirst = await Get(second.Id);
             Assert.AreEqual(10, receivedFirst.IntField);
             Assert.AreEqual("update123", receivedFirst.StringField);
