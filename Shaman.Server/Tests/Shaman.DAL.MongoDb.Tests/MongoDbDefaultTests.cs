@@ -166,7 +166,15 @@ namespace Shaman.DAL.MongoDb.Tests
         [Test]
         public async Task UpdateTests()
         {
+            await CreateTests();
+            first.IntField = 10;
             
+            await _repo.Update<TestEntity, int>(first.Id, x => x.IntField, 10);
+            
+            var receivedFirst = await Get(first.Id);
+            Assert.AreEqual(10, receivedFirst.IntField);
+            
+            await RemoveAll();
         }
         
 
