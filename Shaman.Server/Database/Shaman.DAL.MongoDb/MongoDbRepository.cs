@@ -18,9 +18,7 @@ namespace Shaman.DAL.MongoDb
         Task Remove<T>(Expression<Func<T, bool>> filter) where T : EntityBase;
         Task RemoveAll<T>() where T : EntityBase;
         Task Create<T>(T record) where T : EntityBase;
-        Task Update<T>(int id, object updateDefinition) where T: EntityBase;
-        Task Update<T>(Expression<Func<T, bool>> filter, object updateDefinition) where T: EntityBase;
-
+        Task Update<T, TField>(int id, Expression<Func<T, TField>> func, TField value) where T : EntityBase;
     }
     
     public class MongoDbRepository : IMongoDbRepository
@@ -94,16 +92,11 @@ namespace Shaman.DAL.MongoDb
             await collection.InsertOneAsync(record);
         }
 
-        public async Task Update<T>(int id, object updateDefinition) where T : EntityBase
+        public async Task Update<T, TField>(int id, Expression<Func<T,TField>> func, TField value) where T : EntityBase
         {
             var collection = GetCollection<T>();
-            await collection.UpdateOneAsync(record => record.Id == id, new ObjectUpdateDefinition<T>(updateDefinition));
-        }
-
-        public async Task Update<T>(Expression<Func<T, bool>> filter, object updateDefinition) where T : EntityBase
-        {
-            var collection = GetCollection<T>();
-            await collection.UpdateManyAsync(filter, new ObjectUpdateDefinition<T>(updateDefinition));
+            var update = Builders<T>.Update.Set(func, value);
+            await collection.UpdateOneAsync(record => record.Id == id, update);
         }
     }
 }
