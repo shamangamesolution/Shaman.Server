@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using Shaman.Common.Utils.Messages;
 
@@ -18,7 +19,8 @@ namespace Shaman.DAL.MongoDb
         Task Remove<T>(Expression<Func<T, bool>> filter) where T : EntityBase;
         Task RemoveAll<T>() where T : EntityBase;
         Task Create<T>(T record) where T : EntityBase;
-        Task Update<T, TField>(int id, Expression<Func<T, TField>> func, TField value) where T : EntityBase;
+
+        Task Update<T>(int id, IMongoDbFieldProvider<T> fieldProvider) where T : EntityBase; //Expression<Func<T, object>> func, object value) where T : EntityBase;
     }
     
     public class MongoDbRepository : IMongoDbRepository
@@ -92,11 +94,16 @@ namespace Shaman.DAL.MongoDb
             await collection.InsertOneAsync(record);
         }
 
-        public async Task Update<T, TField>(int id, Expression<Func<T,TField>> func, TField value) where T : EntityBase
+        public async Task Update<T>(int id, IMongoDbFieldProvider<T> fieldProvider) where T : EntityBase //Expression<Func<T,object>> func, object value) where T : EntityBase
         {
             var collection = GetCollection<T>();
-            var update = Builders<T>.Update.Set(func, value);
-            await collection.UpdateOneAsync(record => record.Id == id, update);
+            var updateDefinition = new List<UpdateDefinition<T>>();
+            foreach (var dataField in fieldProvider.Get())
+            {
+                updateDefinition.Add(Builders<T>.Update.Set(dataField.Expression, dataField.Value));
+            }
+            var combinedUpdate = Builders<T>.Update.Combine(updateDefinition);
+            await collection.UpdateOneAsync(record => record.Id == id, combinedUpdate);
         }
     }
 }
