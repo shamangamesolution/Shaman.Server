@@ -12,6 +12,8 @@ namespace Shaman.DAL.MongoDb
     {
         public DefaultMapper()
         {
+            //TODO insert here different mapping stuff kinda following
+            
             // BsonClassMap.RegisterClassMap<T>(map =>
             // {
             //     map.AutoMap();
