@@ -9,7 +9,7 @@ using Shaman.Common.Utils.Messages;
 
 namespace Shaman.DAL.MongoDb
 {
-    public interface IMongoDbRepository
+    public interface IMongoDbConnector
     {
         void Connect();
         Task<List<T>> GetAll<T>() where T : EntityBase;
@@ -25,7 +25,7 @@ namespace Shaman.DAL.MongoDb
         IUpdateFluent<T> UpdateWhere<T>(Expression<Func<T, bool>> filter) where T : EntityBase;
     }
     
-    public class MongoDbRepository : IMongoDbRepository
+    public class MongoDbConnector : IMongoDbConnector
     {
         private readonly ICustomMongoClientSettings _clientSettings;
         private readonly IMongoDbMapperFactory _mapperFactory;
@@ -33,7 +33,7 @@ namespace Shaman.DAL.MongoDb
         private IMongoClient _mongoClient;
         private IMongoDatabase _database;
         
-        public MongoDbRepository(ICustomMongoClientSettings clientSettings, IMongoDbMapperFactory mapperFactory)
+        public MongoDbConnector(ICustomMongoClientSettings clientSettings, IMongoDbMapperFactory mapperFactory)
         {
             _clientSettings = clientSettings;
             _mapperFactory = mapperFactory;
