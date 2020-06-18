@@ -167,13 +167,17 @@ namespace Shaman.DAL.MongoDb.Tests
         public async Task UpdateTests()
         {
             await CreateTests();
-            first.IntField = 10;
             
-            await _repo.Update<TestEntity, int>(first.Id, x => x.IntField, 10);
+            var fieldsProvider = new MongoDbFieldProvider<TestEntity>();
+            fieldsProvider.Add(x => x.IntField, 10);
+            fieldsProvider.Add(x => x.StringField, "update123");
+
+            await _repo.Update(first.Id, fieldsProvider);
             
             var receivedFirst = await Get(first.Id);
             Assert.AreEqual(10, receivedFirst.IntField);
-            
+            Assert.AreEqual("update123", receivedFirst.StringField);
+
             await RemoveAll();
         }
         
