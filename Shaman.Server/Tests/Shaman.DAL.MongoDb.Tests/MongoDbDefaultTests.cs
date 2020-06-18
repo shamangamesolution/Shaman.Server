@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using MongoDB.Driver;
 using Newtonsoft.Json;
@@ -93,9 +94,9 @@ namespace Shaman.DAL.MongoDb.Tests
         }
 
         [TearDown]
-        public void TearDown()
+        public async Task TearDown()
         {
-            
+            await RemoveAll();
         }
         
         
@@ -158,27 +159,26 @@ namespace Shaman.DAL.MongoDb.Tests
             //get bunch
             var result = await _repo.Get<TestEntity>(e => e.Id == 2 || e.Id == 3);
             Assert.AreEqual(2, result.Count);
-            
-            //remove all
-            await RemoveAll();
         }
 
         [Test]
-        public async Task UpdateTests()
+        public async Task CreateUpdateRemoveTests()
         {
             await CreateTests();
             
             var fieldsProvider = new MongoDbFieldProvider<TestEntity>();
             fieldsProvider.Add(x => x.IntField, 10);
             fieldsProvider.Add(x => x.StringField, "update123");
+            fieldsProvider.Add(x => x.ChildList[0].FloatField, 123.76f);
+            fieldsProvider.Add(x => x.ChildList[1].FloatField, 76.123f);
 
-            await _repo.Update(first.Id, fieldsProvider);
+            await _repo.Update(i => i.Id == second.Id , fieldsProvider);
             
-            var receivedFirst = await Get(first.Id);
+            var receivedFirst = await Get(second.Id);
             Assert.AreEqual(10, receivedFirst.IntField);
             Assert.AreEqual("update123", receivedFirst.StringField);
-
-            await RemoveAll();
+            Assert.AreEqual(123.76f, receivedFirst.ChildList[0].FloatField);
+            Assert.AreEqual(76.123f, receivedFirst.ChildList[1].FloatField);
         }
         
 
