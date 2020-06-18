@@ -20,8 +20,9 @@ namespace Shaman.DAL.MongoDb
         Task RemoveAll<T>() where T : EntityBase;
         Task Create<T>(T record) where T : EntityBase;
         Task Update<T>(int id, IMongoDbFieldProvider<T> fieldProvider) where T : EntityBase; 
-        Task Update<T>(Expression<Func<T, bool>> filter, IMongoDbFieldProvider<T> fieldProvider) where T : EntityBase; 
+        Task Update<T>(Expression<Func<T, bool>> filter, IMongoDbFieldProvider<T> fieldProvider) where T : EntityBase;
 
+        IUpdateFluent<T> UpdateWhere<T>(Expression<Func<T, bool>> filter) where T : EntityBase;
     }
     
     public class MongoDbRepository : IMongoDbRepository
@@ -111,5 +112,49 @@ namespace Shaman.DAL.MongoDb
             var combinedUpdate = Builders<T>.Update.Combine(updateDefinition);
             await collection.UpdateOneAsync(filter, combinedUpdate);
         }
+        
+        
+        public IUpdateFluent<T> UpdateWhere<T>(Expression<Func<T, bool>> filter) where T : EntityBase
+        {
+            var collection = GetCollection<T>();
+            var updateDefinition = new List<UpdateDefinition<T>>();
+            return new UpdateFluent<T>(filter, collection,updateDefinition);
+        }
+
+
     }
+
+    public interface IUpdateFluent<T>
+    {
+        IUpdateFluent<T> Set(Expression<Func<T, object>> expression, object value);
+        Task Update();
+    }
+
+    public class UpdateFluent<T> : IUpdateFluent<T>
+    {
+        private readonly Expression<Func<T, bool>> _filter;
+        private readonly IMongoCollection<T> _collection;
+        private readonly List<UpdateDefinition<T>> _updateDefinition;
+
+        public UpdateFluent(Expression<Func<T, bool>> filter, IMongoCollection<T> collection,
+            List<UpdateDefinition<T>> updateDefinition)
+        {
+            _filter = filter;
+            _collection = collection;
+            _updateDefinition = updateDefinition;
+        }
+
+        public IUpdateFluent<T> Set(Expression<Func<T, object>> expression, object value)
+        {
+            _updateDefinition.Add(Builders<T>.Update.Set(expression, value));
+            return this;
+        }
+
+        public async Task Update()
+        {
+            var combinedUpdate = Builders<T>.Update.Combine(_updateDefinition);
+            await _collection.UpdateOneAsync(_filter, combinedUpdate);
+        }
+    }
+
 }
