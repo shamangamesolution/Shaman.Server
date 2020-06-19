@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 
 namespace Shaman.Common.Utils.TaskScheduling
 {
@@ -9,5 +10,6 @@ namespace Shaman.Common.Utils.TaskScheduling
         void ScheduleOnceOnNow(Action action);
         void Remove(PendingTask task);
         void RemoveAll();
+        void ScheduleOnceOnNow(Func<Task> action);
     }
 }
