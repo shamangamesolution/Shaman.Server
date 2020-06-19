@@ -14,18 +14,21 @@ namespace Shaman.Common.Utils.Logging
         }
 
         [Conditional("DEBUG")]
+        [Conditional("LOGS")]
         public static void Info(this IShamanLogger shamanLogger, string sourceName, string action, string message)
         {
             shamanLogger.LogInfo(sourceName, action, message);
         }
 
         [Conditional("DEBUG")]
+        [Conditional("LOGS")]
         public static void Info(this IShamanLogger shamanLogger, string message)
         {
             shamanLogger.LogInfo(message);
         }
 
         [Conditional("DEBUG")]
+        [Conditional("LOGS")]
         public static void Debug(this IShamanLogger shamanLogger, string message)
         {
             shamanLogger.LogDebug(message);
