@@ -53,6 +53,7 @@ namespace Shaman.Common.Utils.Serialization.Pooling
             var oldBuffer = _buffer;
             _buffer = ArrayPool<byte>.Shared.Rent(Math.Max(_buffer.Length * 2, _buffer.Length + appendingCount));
             Buffer.BlockCopy(oldBuffer, 0, _buffer, 0, _writeIndex);
+            ArrayPool<byte>.Shared.Return(oldBuffer);
         }
 
         public override bool CanRead => false;
