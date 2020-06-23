@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using AutoFixture;
 using FluentAssertions;
+using Moq;
 using NUnit.Framework;
+using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Serialization;
 using Shaman.Common.Utils.Serialization.Pooling;
@@ -37,6 +39,7 @@ namespace Shaman.Common.Utils.Tests
         private const int ObjectsCount = 100;
 
         private static readonly List<TestDto> Objects = new List<TestDto>();
+        private static readonly ConsoleLogger ConsoleLogger = new ConsoleLogger();
 
         static PooledMemoryStreamTests()
         {
@@ -58,7 +61,7 @@ namespace Shaman.Common.Utils.Tests
             long size = 0;
             for (int i = 0; i < Cycles; i++)
             {
-                using (var memoryStream = new PooledMemoryStream(128))
+                using (var memoryStream = new PooledMemoryStream(128, ConsoleLogger))
                 {
                     serializer.Serialize(Objects[i % ObjectsCount], memoryStream);
                     size += memoryStream.Position;
@@ -93,7 +96,7 @@ namespace Shaman.Common.Utils.Tests
         {
             var serializer = new BinarySerializer();
             {
-                using (var memoryStream = new PooledMemoryStream(128))
+                using (var memoryStream = new PooledMemoryStream(128, ConsoleLogger))
                 {
                     serializer.Serialize(Objects[0], memoryStream);
                     var data = memoryStream.GetBuffer();
@@ -101,6 +104,21 @@ namespace Shaman.Common.Utils.Tests
                     dto.Should().BeEquivalentTo(Objects[0]);
                 }
             }
+        }
+
+        [Test]
+        public void DoubleReturnError()
+        {
+            var mock = new Mock<IShamanLogger>();
+            
+            using (var memoryStream = new PooledMemoryStream(128, mock.Object))
+            {
+                memoryStream.Close();
+                mock.Verify(s => s.Error(It.IsAny<string>()), Times.Never);
+            }
+            
+            mock.Verify(s =>
+                s.Error("DOUBLE_RENT_RETURN in PooledMemoryStream: wasExtended False, baseLength 128"));
         }
     }
 }

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Sockets;
 
 namespace Shaman.Common.Utils.Senders
@@ -17,11 +18,13 @@ namespace Shaman.Common.Utils.Senders
     public class PacketQueue : IPacketQueue
     {
         private readonly int _maxPacketSize;
+        private readonly IShamanLogger _logger;
         private readonly ConcurrentQueue<PacketInfo> _packetsQueue = new ConcurrentQueue<PacketInfo>();
 
-        public PacketQueue(int maxPacketSize)
+        public PacketQueue(int maxPacketSize, IShamanLogger logger)
         {
             _maxPacketSize = maxPacketSize;
+            _logger = logger;
         }
 
         public void Enqueue(byte[] data, int offset, int length, bool isReliable, bool isOrdered)
@@ -40,7 +43,7 @@ namespace Shaman.Common.Utils.Senders
             }
 
             //add new packet
-            var newPacket = new PacketInfo(data, offset, length, isReliable, isOrdered, _maxPacketSize);
+            var newPacket = new PacketInfo(data, offset, length, isReliable, isOrdered, _maxPacketSize, _logger);
             _packetsQueue.Enqueue(newPacket);
         }
 
