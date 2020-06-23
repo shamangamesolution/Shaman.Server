@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Buffers;
 using System.Collections.Generic;
+using System.Threading;
+using Shaman.Common.Utils.Logging;
 
 namespace Shaman.Common.Utils.Sockets
 {
@@ -47,18 +49,22 @@ namespace Shaman.Common.Utils.Sockets
 
     public class PacketInfo : IPacketInfo
     {
+        private readonly IShamanLogger _logger;
         public  bool IsReliable{get;}
         public  bool IsOrdered{get;}
         public byte[] Buffer{get;}
         public int Offset{get;}
         public int Length{get; private set; }
+        private int _disposed = 0;
 
-        public PacketInfo(byte[] data, bool isReliable, bool isOrdered, int maxPacketSize) : this(data, 0, data.Length,
-            isReliable, isOrdered, maxPacketSize)
+        public PacketInfo(byte[] data, bool isReliable, bool isOrdered, int maxPacketSize, IShamanLogger logger) : this(data, 0, data.Length,
+            isReliable, isOrdered, maxPacketSize, logger)
         {
         }
-        public PacketInfo(byte[] data,int offset, int length, bool isReliable, bool isOrdered, int maxPacketSize)
+        public PacketInfo(byte[] data, int offset, int length, bool isReliable, bool isOrdered, int maxPacketSize,
+            IShamanLogger logger)
         {
+            _logger = logger;
             Buffer = ArrayPool<byte>.Shared.Rent(Math.Max(maxPacketSize, data.Length + 3));
             Length = 1 /* packet number byte */;
             Offset = 0;
@@ -93,7 +99,14 @@ namespace Shaman.Common.Utils.Sockets
 
         public void Dispose()
         {
-            ArrayPool<byte>.Shared.Return(Buffer);
+            if (Interlocked.CompareExchange(ref _disposed, 1, 0) == 0)
+            {
+                ArrayPool<byte>.Shared.Return(Buffer);
+            }
+            else
+            {
+                _logger.Error($"DOUBLE_RENT_RETURN in PacketInfo");
+            }
         }
 
         public static IEnumerable<OffsetInfo> GetOffsetInfo(byte[] array, int offset)

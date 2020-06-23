@@ -34,7 +34,7 @@ namespace Shaman.Common.Utils.Senders
 
         public int AddPacket(MessageBase message, IPeerSender peer)
         {
-            using (var memoryStream = new PooledMemoryStream(GetBufferSize(message.GetType())))
+            using (var memoryStream = new PooledMemoryStream(GetBufferSize(message.GetType()), _logger))
             {
                 _serializer.Serialize(message, memoryStream);
                 var length = (int) memoryStream.Length;
@@ -47,7 +47,7 @@ namespace Shaman.Common.Utils.Senders
 
         public int AddPacket(MessageBase message, IEnumerable<IPeerSender> peers)
         {
-            using (var memoryStream = new PooledMemoryStream(_config.GetBasePacketBufferSize()))
+            using (var memoryStream = new PooledMemoryStream(_config.GetBasePacketBufferSize(), _logger))
             {
                 _serializer.Serialize(message, memoryStream);
                 var length = (int) memoryStream.Length;
@@ -95,7 +95,7 @@ namespace Shaman.Common.Utils.Senders
             {
                 if (!_peerToPackets.TryGetValue(peer, out var packetsQueue))
                 {
-                    packetsQueue = new PacketQueue(_config.GetMaxPacketSize());
+                    packetsQueue = new PacketQueue(_config.GetMaxPacketSize(), _logger);
                     _peerToPackets.TryAdd(peer, packetsQueue);
                 }
 

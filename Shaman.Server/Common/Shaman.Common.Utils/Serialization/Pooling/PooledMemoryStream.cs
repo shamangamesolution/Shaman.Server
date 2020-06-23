@@ -1,16 +1,25 @@
 using System;
 using System.Buffers;
 using System.IO;
+using System.Threading;
+using Shaman.Common.Utils.Logging;
 
 namespace Shaman.Common.Utils.Serialization.Pooling
 {
     public class PooledMemoryStream : Stream
     {
+        private readonly int _baseLength;
+        private readonly IShamanLogger _logger;
         private byte[] _buffer;
         private int _writeIndex;
 
-        public PooledMemoryStream(int baseLength)
+        private int _disposed = 0;
+        private bool _wasExtended = false;
+
+        public PooledMemoryStream(int baseLength, IShamanLogger logger)
         {
+            _baseLength = baseLength;
+            _logger = logger;
             _writeIndex = 0;
             _buffer = ArrayPool<byte>.Shared.Rent(baseLength);
         }
@@ -21,7 +30,14 @@ namespace Shaman.Common.Utils.Serialization.Pooling
 
         public override void Close()
         {
-            ArrayPool<byte>.Shared.Return(_buffer);
+            if (Interlocked.CompareExchange(ref _disposed, 1, 0) == 0)
+            {
+                ArrayPool<byte>.Shared.Return(_buffer);
+            }
+            else
+            {
+                _logger.Error($"DOUBLE_RENT_RETURN in PooledMemoryStream: wasExtended {_wasExtended}, baseLength {_baseLength}");
+            }
             base.Close();
         }
 
@@ -54,6 +70,7 @@ namespace Shaman.Common.Utils.Serialization.Pooling
             _buffer = ArrayPool<byte>.Shared.Rent(Math.Max(_buffer.Length * 2, _buffer.Length + appendingCount));
             Buffer.BlockCopy(oldBuffer, 0, _buffer, 0, _writeIndex);
             ArrayPool<byte>.Shared.Return(oldBuffer);
+            _wasExtended = true;
         }
 
         public override bool CanRead => false;
