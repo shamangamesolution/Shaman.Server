@@ -1,6 +1,7 @@
 using System.Collections;
 using FluentAssertions;
 using NUnit.Framework;
+using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Sockets;
 
@@ -8,10 +9,12 @@ namespace Shaman.Common.Utils.Tests
 {
     public class PacketQueueTests
     {
+        private static readonly ConsoleLogger ConsoleLogger = new ConsoleLogger();
+
         [Test]
         public void TestPackagingOneTypeMessages()
         {
-            var packetQueue = new PacketQueue(100);
+            var packetQueue = new PacketQueue(100, ConsoleLogger);
 
             packetQueue.Count.Should().Be(0);
 
@@ -48,7 +51,7 @@ namespace Shaman.Common.Utils.Tests
         [Test]
         public void TestPackagingIntoMaxSize()
         {
-            var packetQueue = new PacketQueue(10);
+            var packetQueue = new PacketQueue(10, ConsoleLogger);
 
             packetQueue.Count.Should().Be(0);
             packetQueue.Enqueue(new byte[] {3, 1}, 0, 2, false, true);
@@ -61,7 +64,7 @@ namespace Shaman.Common.Utils.Tests
         [Test]
         public void TestPackagingIntoMaxSizeWithLength()
         {
-            var packetQueue = new PacketQueue(10);
+            var packetQueue = new PacketQueue(10, ConsoleLogger);
 
             packetQueue.Count.Should().Be(0);
             packetQueue.Enqueue(new byte[] {3, 1, 4, 5, 6}, 0, 2, false, true);
@@ -74,7 +77,7 @@ namespace Shaman.Common.Utils.Tests
         [Test]
         public void TestPackagingSize()
         {
-            var packetQueue = new PacketQueue(10);
+            var packetQueue = new PacketQueue(10, ConsoleLogger);
 
             packetQueue.Count.Should().Be(0);
             packetQueue.Enqueue(new byte[] {3, 1}, false, true);
@@ -87,7 +90,7 @@ namespace Shaman.Common.Utils.Tests
         [Test]
         public void TestPackagingSizeWithLength()
         {
-            var packetQueue = new PacketQueue(10);
+            var packetQueue = new PacketQueue(10, ConsoleLogger);
 
             packetQueue.Count.Should().Be(0);
             packetQueue.Enqueue(new byte[] {3, 1, 4, 5, 6}, 1, 2, false, true);
