@@ -154,7 +154,6 @@ namespace Shaman.Common.Utils.Senders
                             kv.Key.Send(pack);
                         }
                     }
-                    _logger.Debug($"Send {kv.Value.Count} packets");
                 }
             }
         }
