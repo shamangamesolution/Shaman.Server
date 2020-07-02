@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Shaman.Common.Utils.Messages;
+using Shaman.DAL.MongoDb.FluentOperators;
 
 namespace Shaman.DAL.MongoDb
 {
@@ -14,8 +15,8 @@ namespace Shaman.DAL.MongoDb
         void Connect();
         Task<List<T>> GetAll<T>() where T : EntityBase;
         Task<T> Get<T>(int id) where T : EntityBase;
-        IMongoDbFluentOperation<T> GetFields<T>(int id) where T : EntityBase;
-        IMongoDbFluentOperation<T> GetFields<T>(Expression<Func<T, bool>> filter) where T : EntityBase;
+        IGetFluent<T> GetFields<T>(int id) where T : EntityBase;
+        IGetFluent<T> GetFields<T>(Expression<Func<T, bool>> filter) where T : EntityBase;
         Task<List<T>> Get<T>(Expression<Func<T, bool>> filter) where T : EntityBase;
         Task Remove<T>(int id) where T : EntityBase;
         Task Remove<T>(Expression<Func<T, bool>> filter) where T : EntityBase;
@@ -23,8 +24,7 @@ namespace Shaman.DAL.MongoDb
         Task Create<T>(T record) where T : EntityBase;
         Task Update<T>(int id, IMongoDbFieldProvider<T> fieldProvider) where T : EntityBase; 
         Task Update<T>(Expression<Func<T, bool>> filter, IMongoDbFieldProvider<T> fieldProvider) where T : EntityBase;
-
-        IMongoDbFluentOperation<T> UpdateWhere<T>(Expression<Func<T, bool>> filter) where T : EntityBase;
+        IUpdateFluent<T> UpdateWhere<T>(Expression<Func<T, bool>> filter) where T : EntityBase;
     }
     
     public class MongoDbConnector : IMongoDbConnector
@@ -67,13 +67,13 @@ namespace Shaman.DAL.MongoDb
             return await cursor.SingleOrDefaultAsync();
         }
 
-        public IMongoDbFluentOperation<T> GetFields<T>(Expression<Func<T, bool>> filter) where T : EntityBase
+        public IGetFluent<T> GetFields<T>(Expression<Func<T, bool>> filter) where T : EntityBase
         {
             var collection = GetCollection<T>();
-            return new MongoDbFluentOperation<T>(filter, collection);
+            return new GetFluent<T>(filter, collection);
         }
         
-        public IMongoDbFluentOperation<T> GetFields<T>(int id) where T : EntityBase
+        public IGetFluent<T> GetFields<T>(int id) where T : EntityBase
         {
             return GetFields<T>(x => x.Id == id);
         }
@@ -129,143 +129,12 @@ namespace Shaman.DAL.MongoDb
         }
         
         
-        public IMongoDbFluentOperation<T> UpdateWhere<T>(Expression<Func<T, bool>> filter) where T : EntityBase
+        public IUpdateFluent<T> UpdateWhere<T>(Expression<Func<T, bool>> filter) where T : EntityBase
         {
             var collection = GetCollection<T>();
-            return new MongoDbFluentOperation<T>(filter, collection);
+            return new UpdateFluent<T>(filter, collection);
         }
 
 
-    }
-
-    public interface IMongoDbFluentOperation<T>
-    {
-        IMongoDbFluentOperation<T> Set(Expression<Func<T, object>> expression, object value);
-        Task Update();
-        IMongoDbFluentOperation<T> Include(Expression<Func<T, object>> expression);
-        Task<T> GetOne();
-        Task<List<T>> GetAll();
-    }
-    
-    // public interface IUpdateFluent<T>
-    // {
-    //     IUpdateFluent<T> Set(Expression<Func<T, object>> expression, object value);
-    //     Task Update();
-    // }
-    //
-    // public interface IGetFluent<T>
-    // {
-    //     IGetFluent<T> Include(Expression<Func<T, object>> expression);
-    //     Task<T> GetOne();
-    //     Task<List<T>> GetAll();
-    // }
-    //
-    // public class UpdateFluent<T> : IUpdateFluent<T>
-    // {
-    //     private readonly Expression<Func<T, bool>> _filter;
-    //     private readonly IMongoCollection<T> _collection;
-    //     private readonly List<UpdateDefinition<T>> _updateDefinition;
-    //
-    //     public UpdateFluent(Expression<Func<T, bool>> filter, IMongoCollection<T> collection)
-    //     {
-    //         _filter = filter;
-    //         _collection = collection;
-    //         _updateDefinition = new List<UpdateDefinition<T>>();
-    //     }
-    //
-    //     public IUpdateFluent<T> Set(Expression<Func<T, object>> expression, object value)
-    //     {
-    //         _updateDefinition.Add(Builders<T>.Update.Set(expression, value));
-    //         return this;
-    //     }
-    //
-    //     public async Task Update()
-    //     {
-    //         var combinedUpdate = Builders<T>.Update.Combine(_updateDefinition);
-    //         await _collection.UpdateOneAsync(_filter, combinedUpdate);
-    //     }
-    // }
-    //
-    //
-    // public class GetFluent<T> : IGetFluent<T>
-    // {
-    //     private readonly Expression<Func<T, bool>> _filter;
-    //     private readonly IMongoCollection<T> _collection;
-    //     private readonly List<ProjectionDefinition<T>> _projectionDefinitions;
-    //     
-    //     public GetFluent(Expression<Func<T, bool>> filter, IMongoCollection<T> collection)
-    //     {
-    //         _filter = filter;
-    //         _collection = collection;
-    //         _projectionDefinitions = new List<ProjectionDefinition<T>>();
-    //     }
-    //
-    //     public IGetFluent<T> Include(Expression<Func<T, object>> expression)
-    //     {
-    //         _projectionDefinitions.Add(Builders<T>.Projection.Include(expression));
-    //         return this;
-    //     }
-    //
-    //     public async Task<T> GetOne()
-    //     {
-    //         FindOptions<T> options = new FindOptions<T> { Projection = Builders<T>.Projection.Combine(_projectionDefinitions)};
-    //         var cursor = await _collection.FindAsync(_filter, options);
-    //         return await cursor.SingleOrDefaultAsync();
-    //     }
-    //     
-    //     public async Task<List<T>> GetAll()
-    //     {
-    //         FindOptions<T> options = new FindOptions<T> { Projection = Builders<T>.Projection.Combine(_projectionDefinitions)};
-    //         var cursor = await _collection.FindAsync(_filter, options);
-    //         return await cursor.ToListAsync();
-    //     }
-    // }
-    
-    public class MongoDbFluentOperation<T> : IMongoDbFluentOperation<T>
-    {
-        private readonly Expression<Func<T, bool>> _filter;
-        private readonly IMongoCollection<T> _collection;
-        private readonly List<ProjectionDefinition<T>> _projectionDefinitions;
-        private readonly List<UpdateDefinition<T>> _updateDefinition;
-
-        public MongoDbFluentOperation(Expression<Func<T, bool>> filter, IMongoCollection<T> collection)
-        {
-            _filter = filter;
-            _collection = collection;
-            _projectionDefinitions = new List<ProjectionDefinition<T>>();
-            _updateDefinition = new List<UpdateDefinition<T>>();
-        }
-
-        public IMongoDbFluentOperation<T> Set(Expression<Func<T, object>> expression, object value)
-        {
-            _updateDefinition.Add(Builders<T>.Update.Set(expression, value));
-            return this;
-        }
-
-        public async Task Update()
-        {
-            var combinedUpdate = Builders<T>.Update.Combine(_updateDefinition);
-            await _collection.UpdateOneAsync(_filter, combinedUpdate);
-        }
-
-        public IMongoDbFluentOperation<T> Include(Expression<Func<T, object>> expression)
-        {
-            _projectionDefinitions.Add(Builders<T>.Projection.Include(expression));
-            return this;
-        }
-
-        public async Task<T> GetOne()
-        {
-            FindOptions<T> options = new FindOptions<T> { Projection = Builders<T>.Projection.Combine(_projectionDefinitions)};
-            var cursor = await _collection.FindAsync(_filter, options);
-            return await cursor.SingleOrDefaultAsync();
-        }
-        
-        public async Task<List<T>> GetAll()
-        {
-            FindOptions<T> options = new FindOptions<T> { Projection = Builders<T>.Projection.Combine(_projectionDefinitions)};
-            var cursor = await _collection.FindAsync(_filter, options);
-            return await cursor.ToListAsync();
-        }
     }
 }
