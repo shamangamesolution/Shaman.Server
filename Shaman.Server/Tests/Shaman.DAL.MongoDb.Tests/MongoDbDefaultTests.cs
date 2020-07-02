@@ -162,6 +162,26 @@ namespace Shaman.DAL.MongoDb.Tests
         }
 
         [Test]
+        public async Task GetFieldsTests()
+        {
+            await CreateTests();
+
+            var result = await _connector.GetFields<TestEntity>(1)
+                .Include(x => x.StringField)
+                .GetOne();
+            
+            Assert.AreEqual("test1", result.StringField);
+            Assert.AreEqual(0, result.IntField);
+            
+            result = await _connector.GetFields<TestEntity>(1)
+                .Include(x => x.IntField)
+                .GetOne();
+            
+            Assert.IsNull(result.StringField);
+            Assert.AreEqual(4, result.IntField);
+        }
+        
+        [Test]
         public async Task CreateUpdateRemoveTests()
         {
             await CreateTests();
