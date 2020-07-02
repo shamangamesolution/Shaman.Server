@@ -41,6 +41,8 @@ namespace Shaman.DAL.MongoDb.Tests
             Id = id;
             IntField = intField;
             StringField = stringField;
+            ChildList = new List<TestChildEntity>();
+            ChildDictionary = new EntityDictionary<TestChildEntity>();
         }
 
         public int IntField { get; set; }
@@ -81,7 +83,7 @@ namespace Shaman.DAL.MongoDb.Tests
         private TestEntity _third = new TestEntity(3, int.MaxValue, null);
 
         [SetUp]
-        public void SetUp()
+        public async Task SetUp()
         {
             var settings = new CustomMongoClientSettings("testdb", new MongoClientSettings
             {
@@ -91,6 +93,7 @@ namespace Shaman.DAL.MongoDb.Tests
             var mapperFactory = new DefaultMongoDbMapperFactory();
             _connector = new MongoDbConnector(settings, mapperFactory);
             _connector.Connect();
+            await TearDown();
         }
 
         [TearDown]
@@ -179,6 +182,41 @@ namespace Shaman.DAL.MongoDb.Tests
             
             Assert.IsNull(result.StringField);
             Assert.AreEqual(4, result.IntField);
+        }
+
+        [Test]
+        public async Task PushPullTests()
+        {
+            await CreateTests();
+
+            await _connector.UpdateWhere<TestEntity>(i => i.Id == 1)
+                .Push<TestChildEntity>(e => e.ChildList, new TestChildEntity(5, true, 3.3f))
+                .Push<TestChildEntity>(e => e.ChildDictionary, new TestChildEntity(6, false, 2.1f))
+                .Update();
+            
+            var receivedFirst = await Get(_first.Id);
+            Assert.AreEqual(1, receivedFirst.ChildList.Count);
+            Assert.AreEqual(1, receivedFirst.ChildDictionary.Count);
+            
+            await _connector.UpdateWhere<TestEntity>(i => i.Id == 1)
+                .Push<TestChildEntity>(e => e.ChildList, new TestChildEntity(7, false, 1.3f))
+                .Push<TestChildEntity>(e => e.ChildDictionary, new TestChildEntity(8, true, 2.7f))
+                .Update();
+            
+            receivedFirst = await Get(_first.Id);
+            Assert.AreEqual(2, receivedFirst.ChildList.Count);
+            Assert.AreEqual(2, receivedFirst.ChildDictionary.Count);
+            
+            await _connector.UpdateWhere<TestEntity>(i => i.Id == 1)
+                .Pull<TestChildEntity>(e => e.ChildList, e=>e.Id == 5)
+                .Pull<TestChildEntity>(e => e.ChildDictionary, e => e.Id == 6)
+                .Update();
+            
+            receivedFirst = await Get(_first.Id);
+            Assert.AreEqual(1, receivedFirst.ChildList.Count);
+            Assert.AreEqual(1, receivedFirst.ChildDictionary.Count);
+            Assert.AreEqual(7, receivedFirst.ChildList.First().Id);
+            Assert.AreEqual(8, receivedFirst.ChildDictionary.First().Id);
         }
         
         [Test]
