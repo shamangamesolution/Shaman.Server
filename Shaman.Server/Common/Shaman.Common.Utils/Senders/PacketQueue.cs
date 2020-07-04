@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Shaman.Common.Utils.Logging;
@@ -7,6 +6,9 @@ using Shaman.Common.Utils.Sockets;
 
 namespace Shaman.Common.Utils.Senders
 {
+    /// <summary>
+    /// Not thread safe
+    /// </summary>
     public interface IPacketQueue : IEnumerable<PacketInfo>
     {
         void Enqueue(byte[] data, int offset, int length, bool isReliable, bool isOrdered);
@@ -20,7 +22,7 @@ namespace Shaman.Common.Utils.Senders
     {
         private readonly int _maxPacketSize;
         private readonly IShamanLogger _logger;
-        private readonly ConcurrentQueue<PacketInfo> _packetsQueue = new ConcurrentQueue<PacketInfo>();
+        private readonly Queue<PacketInfo> _packetsQueue = new Queue<PacketInfo>();
 
         public PacketQueue(int maxPacketSize, IShamanLogger logger)
         {
@@ -30,7 +32,7 @@ namespace Shaman.Common.Utils.Senders
 
         public void Enqueue(byte[] data, int offset, int length, bool isReliable, bool isOrdered)
         {
-            if (!_packetsQueue.IsEmpty)
+            if (_packetsQueue.Count > 0)
             {
                 var prevPacket = _packetsQueue.Last();
                 if (prevPacket.Length + length <= _maxPacketSize
@@ -55,7 +57,14 @@ namespace Shaman.Common.Utils.Senders
 
         public bool TryDequeue(out PacketInfo packetInfo)
         {
-            return _packetsQueue.TryDequeue(out packetInfo);
+            if (_packetsQueue.Count > 0)
+            {
+                packetInfo = _packetsQueue.Dequeue();
+                return true;
+            }
+
+            packetInfo = null;
+            return false;
         }
 
         public int Count => _packetsQueue.Count;
