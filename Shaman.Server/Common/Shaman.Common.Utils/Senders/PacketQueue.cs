@@ -13,6 +13,7 @@ namespace Shaman.Common.Utils.Senders
         void Enqueue(byte[] data, bool isReliable, bool isOrdered);
         int Count { get; }
         bool TryDequeue(out PacketInfo packetInfo);
+        void Clear();
     }
 
     public class PacketQueue : IPacketQueue
@@ -58,6 +59,11 @@ namespace Shaman.Common.Utils.Senders
         }
 
         public int Count => _packetsQueue.Count;
+
+        public void Clear()
+        {
+            _packetsQueue.Clear();
+        }
 
         public IEnumerator<PacketInfo> GetEnumerator()
         {
