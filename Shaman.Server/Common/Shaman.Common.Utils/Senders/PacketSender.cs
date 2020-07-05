@@ -113,14 +113,15 @@ namespace Shaman.Common.Utils.Senders
 
         public void PeerDisconnected(IPeerSender peer)
         {
-            lock (_sync)
+            if (_peerToPackets.TryRemove(peer, out var packetQueue))
             {
-                if (_peerToPackets.TryRemove(peer, out var packetQueue))
+                lock (_sync)
                 {
                     foreach (var packet in packetQueue)
                     {
                         packet.Dispose();
                     }
+                    packetQueue.Clear();
                 }
             }
         }

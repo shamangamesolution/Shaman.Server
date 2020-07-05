@@ -113,7 +113,6 @@ namespace Shaman.Game
             services.AddSingleton<IShamanComponents, ShamanComponents>();
             services.AddSingleton<IBundleInfoProvider, BundleInfoProvider>();
             services.AddSingleton<IServerActualizer, ServerActualizer>();
-            services.AddSingleton<IPacketQueue, PacketQueue>();
             services.AddSingleton<IGameServerApi, GameServerApi>();
         }
         private void ConfigureMetrics(IServiceCollection services)

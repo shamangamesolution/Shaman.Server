@@ -246,15 +246,8 @@ namespace Shaman.Game.Rooms
 
         public void ProcessMessage(ushort operationCode, MessageData message, Guid sessionId)
         {
-            try
-            {
-                _gameModeController.ProcessMessage(operationCode, message, sessionId);
-                _roomStats.TrackReceivedMessage(operationCode, message.Length, message.IsReliable);
-            }
-            catch (Exception ex)
-            {
-                _logger.Error($"Room.ProcessMessage: Error processing {operationCode} message: {ex}");
-            }
+            _gameModeController.ProcessMessage(operationCode, message, sessionId);
+            _roomStats.TrackReceivedMessage(operationCode, message.Length, message.IsReliable);
         }
 
         public int CleanUp()
