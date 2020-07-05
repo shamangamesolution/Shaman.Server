@@ -22,16 +22,60 @@ namespace Shaman.Common.Utils.Tests
             Thread.Sleep(100);
         }
 
+        private static void BadMethod()
+        {
+            throw new Exception("TEST");
+        }
+
         [Test]
-        public void AsyncMethod()
+        public void ScheduleOnceOnNowAsyncExceptionTest()
         {
             var taskScheduler = new TaskScheduler(new ConsoleLogger());
             
             taskScheduler.ScheduleOnceOnNow(async () =>
             {
                 await Task.Delay(10);
-                throw new Exception("TEST");
+                BadMethod();
             });
+            Thread.Sleep(1000);
+        }
+        
+        [Test]
+        public void ScheduleOnceOnNowExceptionTest()
+        {
+            var taskScheduler = new TaskScheduler(new ConsoleLogger());
+            
+            taskScheduler.ScheduleOnceOnNow(() =>
+            {
+                Console.Out.WriteLine("Test");
+                BadMethod();
+            });
+            Thread.Sleep(1000);
+        }
+
+        [Test]
+        public void ScheduleAsyncExceptionTest()
+        {
+            var taskScheduler = new TaskScheduler(new ConsoleLogger());
+            
+            taskScheduler.Schedule(async () =>
+            {
+                await Task.Delay(10);
+                BadMethod();
+            }, 10);
+            Thread.Sleep(1000);
+        }
+
+        [Test]
+        public void ScheduleExceptionTest()
+        {
+            var taskScheduler = new TaskScheduler(new ConsoleLogger());
+            
+            taskScheduler.Schedule(() =>
+            {
+                Console.Out.WriteLine("Test");
+                BadMethod();
+            }, 10);
             Thread.Sleep(1000);
         }
         

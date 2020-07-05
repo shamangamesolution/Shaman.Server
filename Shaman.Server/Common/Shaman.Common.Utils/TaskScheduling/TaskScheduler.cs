@@ -37,10 +37,35 @@ namespace Shaman.Common.Utils.TaskScheduling
         {
             return ScheduleOnInterval(action, firstInMs, Timeout.Infinite, true);
         }
+        public PendingTask Schedule(Func<Task> action, long firstInMs)
+        {
+            return ScheduleOnInterval(action, firstInMs, Timeout.Infinite, true);
+        }
 
         public PendingTask ScheduleOnInterval(Action action, long firstInMs, long regularInMs, bool shortLiving = false)
         {
             var pending = new PendingTask(action, firstInMs, regularInMs, _logger, shortLiving);
+            pending.Schedule();
+            lock (_listLock)
+            {
+                _tasks.Add(pending);
+            }
+
+            return pending;
+        }
+        public PendingTask ScheduleOnInterval(Func<Task> action, long firstInMs, long regularInMs, bool shortLiving = false)
+        {
+            var pending = new PendingTask(async () =>
+            {
+                try
+                {
+                    await action();
+                }
+                catch (Exception e)
+                {
+                    _logger?.Error($"ScheduleOnIntervalAsync task error: {e}");
+                }
+            }, firstInMs, regularInMs, _logger, shortLiving);
             pending.Schedule();
             lock (_listLock)
             {
