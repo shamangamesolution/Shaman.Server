@@ -85,11 +85,7 @@ namespace Shaman.DAL.MongoDb.Tests
         [SetUp]
         public async Task SetUp()
         {
-            var settings = new CustomMongoClientSettings("testdb", new MongoClientSettings
-            {
-                MaxConnectionPoolSize = 1000,
-                Server = new MongoServerAddress("localhost")
-            });
+            var settings = new CustomMongoClientSettings("mongodb://localhost", "testdb");
             var mapperFactory = new DefaultMongoDbMapperFactory();
             _connector = new MongoDbConnector(settings, mapperFactory);
             _connector.Connect();
