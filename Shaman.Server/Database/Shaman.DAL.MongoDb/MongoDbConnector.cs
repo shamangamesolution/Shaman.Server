@@ -43,7 +43,14 @@ namespace Shaman.DAL.MongoDb
 
         public void Connect()
         {
-            _mongoClient = new MongoClient(_clientSettings.GetSettings());
+            var settings = _clientSettings.GetSettings();
+            var connectionString = _clientSettings.GetConnectionString();
+            if (settings != null)
+                _mongoClient = new MongoClient(settings);
+            else if (!string.IsNullOrWhiteSpace(connectionString))
+                _mongoClient = new MongoClient(connectionString);
+            else
+                throw new Exception($"Mongo configuration error: no connection string or settings defined");
         }
 
         IMongoCollection<T> GetCollection<T>() where T : EntityBase
