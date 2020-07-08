@@ -30,12 +30,23 @@ namespace Shaman.Common.Utils.Serialization
             if (obj != null)
             {
                 writer.Write(true);
-                obj.Serialize(writer);
+                writer.Write(obj);
             }
             else
             {
                 writer.Write(false);
             }
+        }
+        
+        public static void Write(this ITypeWriter typeWriter, ISerializable data)
+        {
+            data.Serialize(typeWriter);
+        }
+        public static T Read<T>(this ITypeReader typeReader) where T:ISerializable, new()
+        {
+            var data = new T(); 
+            data.Deserialize(typeReader);
+            return data;
         }
 
         public static Guid? ReadNullableGuid(this ITypeReader reader)
@@ -56,15 +67,7 @@ namespace Shaman.Common.Utils.Serialization
 
         public static T ReadNullable<T>(this ITypeReader reader) where T : class, ISerializable, new()
         {
-            T obj = null;
-            var notNull = reader.ReadBool();
-            if (notNull)
-            {
-                obj = new T();
-                obj.Deserialize(reader);
-            }
-
-            return obj;
+            return reader.ReadBool() ? reader.Read<T>() : default;
         }
 
         public static List<T> ReadList<T>(this ITypeReader reader)
