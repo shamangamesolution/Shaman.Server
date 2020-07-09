@@ -58,7 +58,7 @@ namespace Shaman.ServerSharedUtilities.Metrics
 
         public void TrackSendTickDuration(int maxDurationForSec, string listenerTag)
         {
-            Metrics.Measure.Histogram.Update(MaxSendTickDuration, new MetricTags(SendTickTag, listenerTag), maxDurationForSec);
+            Metrics.Measure.Histogram.Update(MaxSendTickDuration, MetricTags.FromSetItemString(listenerTag), maxDurationForSec);
         }
         private void CollectMemoryAndThreadsUsage()
         {
