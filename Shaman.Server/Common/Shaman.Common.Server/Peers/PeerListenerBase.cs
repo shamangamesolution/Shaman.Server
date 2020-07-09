@@ -100,7 +100,7 @@ namespace Shaman.Common.Server.Peers
                 if (_isStopping)
                     return;
 
-                var duration = (_lastTick - DateTime.UtcNow).Milliseconds;
+                var duration = (DateTime.UtcNow - _lastTick).Milliseconds;
                 _lastTick = DateTime.UtcNow;
                 if (duration > _maxSendDuration) // overlapping not matters
                     _maxSendDuration = duration;
