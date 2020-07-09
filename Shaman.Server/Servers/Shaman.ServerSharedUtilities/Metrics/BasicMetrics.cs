@@ -2,12 +2,14 @@ using System;
 using App.Metrics;
 using App.Metrics.Histogram;
 using Shaman.Common.Metrics;
+using Shaman.Common.Server.Applications;
 using Shaman.Common.Utils.TaskScheduling;
 
 namespace Shaman.ServerSharedUtilities.Metrics
 {
-    public class BasicMetrics
+    public class BasicMetrics: IServerMetrics
     {
+        private const string SendTickTag = "index";
         private readonly IMetricsAgent _metricsAgent;
         protected IMetrics Metrics => _metricsAgent.Metrics;
 
@@ -37,7 +39,13 @@ namespace Shaman.ServerSharedUtilities.Metrics
         
         private static readonly HistogramOptions ActivePeriodicSlTimers = new HistogramOptions
             {Name = "ActivePeriodicSlTimers", MeasurementUnit = Unit.Items};
-
+        
+        private static readonly HistogramOptions MaxSendTickDuration = new HistogramOptions
+        {
+            Name = "TickTime",
+            MeasurementUnit = Unit.None,
+        };
+        
         private readonly ITaskScheduler _taskScheduler;
 
         protected BasicMetrics(IMetricsAgent metricsAgent, ITaskSchedulerFactory taskSchedulerFactory)
@@ -48,6 +56,10 @@ namespace Shaman.ServerSharedUtilities.Metrics
             _taskScheduler.ScheduleOnInterval(CollectMemoryAndThreadsUsage, 0, 1000);
         }
 
+        public void TrackSendTickDuration(int maxDurationForSec, string listenerTag)
+        {
+            Metrics.Measure.Histogram.Update(MaxSendTickDuration, new MetricTags(SendTickTag, listenerTag), maxDurationForSec);
+        }
         private void CollectMemoryAndThreadsUsage()
         {
             Metrics.Measure.Histogram.Update(Gen0Collections, GC.CollectionCount(0));

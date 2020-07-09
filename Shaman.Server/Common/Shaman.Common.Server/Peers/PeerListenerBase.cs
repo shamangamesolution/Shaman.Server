@@ -24,7 +24,17 @@ namespace Shaman.Common.Server.Peers
         private ITaskSchedulerFactory _taskSchedulerFactory;
         protected ITaskScheduler TaskScheduler;
         private PendingTask _socketTickTask;
-        
+
+        private int _maxSendDuration = int.MinValue;
+        private DateTime _lastTick = DateTime.UtcNow;
+
+        public int ResetTickDurationStatistics()
+        {
+            var duration = _maxSendDuration;
+            _maxSendDuration = 0;
+            return duration;
+        }
+
         public abstract void OnReceivePacketFromClient(IPEndPoint endPoint, DataPacket dataPacket);
 
         private ushort _port;
@@ -83,11 +93,17 @@ namespace Shaman.Common.Server.Peers
             _reliableSocket.Listen(_port);
             
             _reliableSocket.AddEventCallbacks(OnReceivePacket, OnNewClientConnect, OnClientDisconnect);
-
+            
+            _lastTick = DateTime.UtcNow;
             _socketTickTask = TaskScheduler.ScheduleOnInterval(() =>
             {
                 if (_isStopping)
                     return;
+
+                var duration = (_lastTick - DateTime.UtcNow).Milliseconds;
+                _lastTick = DateTime.UtcNow;
+                if (duration > _maxSendDuration) // overlapping not matters
+                    _maxSendDuration = duration;
 
                 _reliableSocket.Tick();
             }, 0, Config.GetSocketTickTimeMs());

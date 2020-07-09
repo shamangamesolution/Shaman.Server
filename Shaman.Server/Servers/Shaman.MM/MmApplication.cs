@@ -19,6 +19,7 @@ using Shaman.MM.Players;
 using Shaman.ServerSharedUtilities.Backends;
 using Shaman.Messages.MM;
 using Shaman.MM.Managers;
+using Shaman.MM.Metrics;
 using Shaman.MM.Providers;
 
 namespace Shaman.MM
@@ -47,8 +48,8 @@ namespace Shaman.MM
             IBackendProvider backendProvider, 
             IPacketSender packetSender, 
             IMatchMakerServerInfoProvider serverProvider,
-            IRoomManager roomManager, IMatchMakingGroupsManager matchMakingGroupManager, IPlayersManager playersManager) : base(logger, config, serializer,
-            socketFactory, taskSchedulerFactory, requestSender)
+            IRoomManager roomManager, IMatchMakingGroupsManager matchMakingGroupManager, IPlayersManager playersManager, IMmMetrics mmMetrics) : base(logger, config, serializer,
+            socketFactory, taskSchedulerFactory, requestSender, mmMetrics)
         {
             _backendProvider = backendProvider;
             _packetSender = packetSender;
