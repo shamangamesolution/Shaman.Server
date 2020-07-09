@@ -9,7 +9,7 @@ namespace Shaman.ServerSharedUtilities.Metrics
 {
     public class BasicMetrics: IServerMetrics
     {
-        private const string SendTickTag = "index";
+        private const string SendTickTag = "lr";
         private readonly IMetricsAgent _metricsAgent;
         protected IMetrics Metrics => _metricsAgent.Metrics;
 
@@ -58,7 +58,7 @@ namespace Shaman.ServerSharedUtilities.Metrics
 
         public void TrackSendTickDuration(int maxDurationForSec, string listenerTag)
         {
-            Metrics.Measure.Histogram.Update(MaxSendTickDuration, MetricTags.FromSetItemString(listenerTag), maxDurationForSec);
+            Metrics.Measure.Histogram.Update(MaxSendTickDuration, new MetricTags(SendTickTag, listenerTag), maxDurationForSec);
         }
         private void CollectMemoryAndThreadsUsage()
         {
