@@ -2,12 +2,13 @@ using App.Metrics;
 using App.Metrics.Counter;
 using App.Metrics.Histogram;
 using Shaman.Common.Metrics;
+using Shaman.Common.Server.Applications;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.ServerSharedUtilities.Metrics;
 
 namespace Shaman.Game.Metrics
 {
-    public interface IGameMetrics
+    public interface IGameMetrics: IServerMetrics
     {
         void TrackPeerJoin();
         void TrackRoomCreated();

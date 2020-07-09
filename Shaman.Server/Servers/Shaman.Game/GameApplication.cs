@@ -11,6 +11,7 @@ using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Game.Configuration;
 using Shaman.Game.Contract;
 using Shaman.Game.Contract.Stats;
+using Shaman.Game.Metrics;
 using Shaman.Game.Peers;
 using Shaman.Game.Rooms;
 using Shaman.ServerSharedUtilities.Backends;
@@ -27,8 +28,8 @@ namespace Shaman.Game
         public GameApplication(IShamanLogger logger, IApplicationConfig config, ISerializer serializer,
             ISocketFactory socketFactory, ITaskSchedulerFactory taskSchedulerFactory, IRequestSender requestSender,
             IBackendProvider backendProvider, IRoomManager roomManager,
-            IPacketSender packetSender) : base(logger, config, serializer, socketFactory, taskSchedulerFactory,
-            requestSender)
+            IPacketSender packetSender, IGameMetrics gameMetrics) : base(logger, config, serializer, socketFactory, taskSchedulerFactory,
+            requestSender, gameMetrics)
         {
             _backendProvider = backendProvider;
             _roomManager = roomManager;
