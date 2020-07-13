@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Shaman.Common.Server.Configuration;
+using Shaman.Common.Utils.Configuration;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Senders;
@@ -18,7 +19,8 @@ namespace Shaman.ServerSharedUtilities.Backends
     {
         string GetFirstBackendUrl();
         string GetBackendUrl(int id);
-        void Start();
+        void Start(int getBackendListIntervalMs = 1000);
+        void Stop();
     }
     
     public class BackendProvider : IBackendProvider
@@ -26,14 +28,15 @@ namespace Shaman.ServerSharedUtilities.Backends
         private readonly IShamanLogger _logger;
         private readonly ITaskSchedulerFactory _taskSchedulerFactory;
         private readonly ITaskScheduler _taskScheduler;
-        private readonly IApplicationConfig _config;
+        private readonly IApplicationCoreConfig _config;
         private readonly IRequestSender _requestSender;
     
         private List<ServerInfo> _backends = new List<ServerInfo>();
         private int _getBackendsListRequestCount = 0;
         private ServerInfo _me;
+        private PendingTask _tickTask;
         
-        public BackendProvider(ITaskSchedulerFactory taskSchedulerFactory, IApplicationConfig config, IRequestSender requestSender, IShamanLogger logger)
+        public BackendProvider(ITaskSchedulerFactory taskSchedulerFactory, IApplicationCoreConfig config, IRequestSender requestSender, IShamanLogger logger)
         {
             _taskSchedulerFactory = taskSchedulerFactory;
             _taskScheduler = _taskSchedulerFactory.GetTaskScheduler();
@@ -67,11 +70,16 @@ namespace Shaman.ServerSharedUtilities.Backends
             return $"{protocol}://{backend.Address}:{port}";
         }
     
-        public void Start()
+        public void Start(int getBackendListIntervalMs = 1000)
         {
-            _taskScheduler.ScheduleOnInterval(async () => await Load(), 2000, _config.GetBackendListFromRouterIntervalMs());
+            _tickTask = _taskScheduler.ScheduleOnInterval(async () => await Load(), 2000, getBackendListIntervalMs);
         }
-    
+
+        public void Stop()
+        {
+            _taskScheduler.Remove(_tickTask);
+        }
+
         private async Task Load()
         {
             var requestNumber = _getBackendsListRequestCount++;
