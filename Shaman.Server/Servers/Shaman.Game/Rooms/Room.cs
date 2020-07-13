@@ -176,7 +176,7 @@ namespace Shaman.Game.Rooms
                 {
                     //in case if player was disconnected during ProcessNewPlayer
                     
-                    // todo here we dont now true reason (plan to remove this workaround)
+                    // todo here we dont know true reason (plan to remove this workaround)
                     _gameModeController.CleanupPlayer(peer.GetSessionId(), PeerDisconnectedReason.PeerLeave);
                 }
                 return processNewPlayerResult;;
