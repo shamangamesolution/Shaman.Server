@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
 using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Servers;
-using Shaman.DAL.Repositories;
+using Shaman.DAL.SQL.Repositories;
 using Shaman.Messages;
 using Shaman.Messages.General.Entity.Router;
 using Shaman.Router.Data.Repositories.Interfaces;

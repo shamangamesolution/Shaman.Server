@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 using NUnit.Framework;
 using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Servers;
-using Shaman.DAL.MySQL;
+using Shaman.DAL.SQL;
 using Shaman.Messages.General.Entity.Router;
 using Shaman.Router.Config;
 using Shaman.Router.Data.Repositories;

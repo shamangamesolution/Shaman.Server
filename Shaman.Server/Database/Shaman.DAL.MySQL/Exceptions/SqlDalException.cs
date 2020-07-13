@@ -1,6 +1,6 @@
 using System;
 
-namespace Shaman.DAL.Exceptions
+namespace Shaman.DAL.SQL.Exceptions
 {
     public class SqlDalException: Exception
     {

@@ -84,7 +84,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.DAL.MongoDb.Tests", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Router.Tests", "Shaman.Server\Servers\Shaman.Router.Tests\Shaman.Router.Tests.csproj", "{B2FE75DF-527B-453A-8D83-17009A412545}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.DAL.SQL", "Shaman.Server\Database\Shaman.DAL.SQL\Shaman.DAL.SQL.csproj", "{245DB37E-A1CA-4D39-88D0-F0CB9EBBE16D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.DAL.MySQL", "Shaman.Server\Database\Shaman.DAL.MySQL\Shaman.DAL.MySQL.csproj", "{245DB37E-A1CA-4D39-88D0-F0CB9EBBE16D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
