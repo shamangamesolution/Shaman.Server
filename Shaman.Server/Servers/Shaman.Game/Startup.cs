@@ -11,6 +11,7 @@ using Shaman.Common.Server.Applications;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Server.Providers;
 using Shaman.Common.Server.Senders;
+using Shaman.Common.Utils.Configuration;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Serialization;
@@ -94,6 +95,7 @@ namespace Shaman.Game
 
            
             services.AddSingleton<IPacketSenderConfig>(c => c.GetRequiredService<IApplicationConfig>()); 
+            services.AddSingleton<IApplicationCoreConfig>(c => c.GetRequiredService<IApplicationConfig>()); 
 
             services.AddTransient<IPacketSender, PacketBatchSender>();
             services.AddScoped<IRoomPropertiesContainer, RoomPropertiesContainer>();            

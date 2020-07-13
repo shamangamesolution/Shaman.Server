@@ -19,6 +19,7 @@ namespace Shaman.Game.Contract.DI
             serviceCollection.AddTransient((c) => shamanComponents.RequestSender);
             serviceCollection.AddTransient((c) => shamanComponents.Logger);
             serviceCollection.AddTransient((c) => shamanComponents.Serializer);
+            serviceCollection.AddTransient((c) => shamanComponents.ApplicationCoreConfig);
 
             OnConfigureServices(serviceCollection);
 
