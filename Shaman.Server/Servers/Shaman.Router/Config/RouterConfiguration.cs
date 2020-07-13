@@ -1,4 +1,4 @@
-using Shaman.DAL.MySQL;
+using Shaman.DAL.SQL;
 
 namespace Shaman.Router.Config
 {

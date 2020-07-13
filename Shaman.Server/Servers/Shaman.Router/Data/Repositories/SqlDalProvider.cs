@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Options;
-using Shaman.DAL.MySQL;
+using Shaman.DAL.SQL;
 using Shaman.Router.Config;
 
 namespace Shaman.Router.Data.Repositories

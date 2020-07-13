@@ -4,6 +4,7 @@
         <TargetFramework>netcoreapp2.2</TargetFramework>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageVersion>1.7.3</PackageVersion>
+        <RootNamespace>Shaman.DAL.SQL</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>

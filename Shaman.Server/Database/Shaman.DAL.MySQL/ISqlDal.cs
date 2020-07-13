@@ -3,7 +3,7 @@ using System.Data;
 using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
 
-namespace Shaman.DAL.MySQL
+namespace Shaman.DAL.SQL
 {
     public interface ISqlDal : IDisposable
     {

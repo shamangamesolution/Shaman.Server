@@ -1,9 +1,9 @@
 ﻿using System.Data;
 using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
-using Shaman.DAL.Exceptions;
+using Shaman.DAL.SQL.Exceptions;
 
-namespace Shaman.DAL.MySQL
+namespace Shaman.DAL.SQL
 {
     public class SqlDbConfig
     {

@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using Shaman.DAL.MySQL;
 
-namespace Shaman.DAL.Repositories
+namespace Shaman.DAL.SQL.Repositories
 {
     public class RepositoryBase
     {
