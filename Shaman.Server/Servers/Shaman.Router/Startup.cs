@@ -47,6 +47,7 @@ namespace Shaman.Router
             services.AddSingleton<IRouterServerInfoProvider, RouterServerInfoProvider>();
             
             services.AddTransient<IConfigurationRepository, ConfigurationRepository>();
+            services.AddScoped<IRouterSqlDalProvider, RouterSqlDalProvider>();
             
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }

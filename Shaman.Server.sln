@@ -84,6 +84,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.DAL.MongoDb", "Shama
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.DAL.MongoDb.Tests", "Shaman.Server\Tests\Shaman.DAL.MongoDb.Tests\Shaman.DAL.MongoDb.Tests.csproj", "{8080CAC9-A80C-4DC3-80E9-DF5894A53CD7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Router.Tests", "Shaman.Server\Servers\Shaman.Router.Tests\Shaman.Router.Tests.csproj", "{B2FE75DF-527B-453A-8D83-17009A412545}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -478,6 +480,18 @@ Global
 		{8080CAC9-A80C-4DC3-80E9-DF5894A53CD7}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{8080CAC9-A80C-4DC3-80E9-DF5894A53CD7}.Release|Win32.ActiveCfg = Release|Any CPU
 		{8080CAC9-A80C-4DC3-80E9-DF5894A53CD7}.Release|Win32.Build.0 = Release|Any CPU
+		{B2FE75DF-527B-453A-8D83-17009A412545}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B2FE75DF-527B-453A-8D83-17009A412545}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B2FE75DF-527B-453A-8D83-17009A412545}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{B2FE75DF-527B-453A-8D83-17009A412545}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{B2FE75DF-527B-453A-8D83-17009A412545}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{B2FE75DF-527B-453A-8D83-17009A412545}.Debug|Win32.Build.0 = Debug|Any CPU
+		{B2FE75DF-527B-453A-8D83-17009A412545}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B2FE75DF-527B-453A-8D83-17009A412545}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B2FE75DF-527B-453A-8D83-17009A412545}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{B2FE75DF-527B-453A-8D83-17009A412545}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{B2FE75DF-527B-453A-8D83-17009A412545}.Release|Win32.ActiveCfg = Release|Any CPU
+		{B2FE75DF-527B-453A-8D83-17009A412545}.Release|Win32.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -513,5 +527,6 @@ Global
 		{ECB0F723-FD79-4AD5-BBDD-2A2407C2FA15} = {0F24BC06-D961-4A3F-9EFD-1B4A96688425}
 		{7C6833AA-010D-4A6F-9EFA-5E838F9CEE4D} = {A491A8CA-15CB-4741-9356-D9378A3AD48E}
 		{8080CAC9-A80C-4DC3-80E9-DF5894A53CD7} = {3A4DE7F7-1B80-4C8D-9175-A2CED54DA593}
+		{B2FE75DF-527B-453A-8D83-17009A412545} = {5681CC39-9FAB-4A2F-935B-3BE870EB18B6}
 	EndGlobalSection
 EndGlobal
