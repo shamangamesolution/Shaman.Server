@@ -13,6 +13,8 @@ namespace Shaman.DAL.SQL
         public string Password { get; set; }
         public int MaxPoolSize { get; set; }
     }
+    
+    //todo use dapper
 
 
     public class SqlDal : ISqlDal
