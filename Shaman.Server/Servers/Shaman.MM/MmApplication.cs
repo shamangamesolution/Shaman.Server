@@ -16,7 +16,7 @@ using Shaman.MM.Configuration;
 using Shaman.MM.MatchMaking;
 using Shaman.MM.Peers;
 using Shaman.MM.Players;
-using Shaman.ServerSharedUtilities.Backends;
+// using Shaman.ServerSharedUtilities.Backends;
 using Shaman.Messages.MM;
 using Shaman.MM.Managers;
 using Shaman.MM.Metrics;
@@ -27,7 +27,6 @@ namespace Shaman.MM
     public class MmApplication : ApplicationBase<MmPeerListener, MmPeer>
     {
         private readonly IMatchMaker _matchMaker;
-        private readonly IBackendProvider _backendProvider;
         private readonly IPacketSender _packetSender;
         private readonly IPlayersManager _playersManager;
         private readonly IMatchMakerServerInfoProvider _serverProvider;
@@ -45,13 +44,11 @@ namespace Shaman.MM
             IMatchMaker matchMaker,
             IRequestSender requestSender,
             ITaskSchedulerFactory taskSchedulerFactory,
-            IBackendProvider backendProvider, 
             IPacketSender packetSender, 
             IMatchMakerServerInfoProvider serverProvider,
             IRoomManager roomManager, IMatchMakingGroupsManager matchMakingGroupManager, IPlayersManager playersManager, IMmMetrics mmMetrics) : base(logger, config, serializer,
             socketFactory, taskSchedulerFactory, requestSender, mmMetrics)
         {
-            _backendProvider = backendProvider;
             _packetSender = packetSender;
             _serverProvider = serverProvider;
             _roomManager = roomManager;
@@ -86,11 +83,10 @@ namespace Shaman.MM
             _packetSender.Start(false);
             
             _matchMaker.Start();
-            _backendProvider.Start();
             var listeners = GetListeners();
             foreach (var listener in listeners)
             {
-                listener.Initialize(_matchMaker, _backendProvider, _packetSender, _roomManager, _matchMakingGroupManager, Config.GetAuthSecret());
+                listener.Initialize(_matchMaker, _packetSender, _roomManager, _matchMakingGroupManager, Config.GetAuthSecret());
             }
         }
 

@@ -8,7 +8,6 @@ namespace Shaman.Game.Contract
     {
         IRequestSender RequestSender { get; }
         IShamanLogger Logger { get; }
-        IBackendProvider BackendProvider { get; }
         ISerializer Serializer { get; }
     }
 }

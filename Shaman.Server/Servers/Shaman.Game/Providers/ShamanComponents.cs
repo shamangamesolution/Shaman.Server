@@ -18,7 +18,6 @@ namespace Shaman.Game.Providers
 
         public IRequestSender RequestSender => _serviceProvider.GetService<IRequestSender>();
         public IShamanLogger Logger => _serviceProvider.GetService<IShamanLogger>();
-        public IBackendProvider BackendProvider => _serviceProvider.GetService<IBackendProvider>();
         public ISerializer Serializer => _serviceProvider.GetService<ISerializer>();
     }
 }
