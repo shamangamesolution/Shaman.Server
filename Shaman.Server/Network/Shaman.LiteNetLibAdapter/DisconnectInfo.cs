@@ -1,3 +1,4 @@
+using System;
 using LiteNetLib;
 using Shaman.Common.Utils.Sockets;
 
@@ -42,6 +43,19 @@ namespace Shaman.LiteNetLibAdapter
         }
 
         public ClientDisconnectReason Reason { get; }
-        public byte[] Payload => _payload?.RawData;
+        public byte[] Payload
+        {
+            get
+            {
+                if (_payload != null && _payload.UserDataSize > 0)
+                {
+                    var payload = new byte[_payload.UserDataSize];
+                    Array.Copy(_payload.RawData, _payload.UserDataOffset, payload, 0, _payload.UserDataSize);
+                    return payload;
+                }
+
+                return null;
+            }
+        }
     }
 }
