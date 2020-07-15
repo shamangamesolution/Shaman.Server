@@ -31,7 +31,7 @@ namespace Shaman.Game.Rooms
 
         public void KickPlayer(Guid sessionId)
         {
-            _room.GetPlayer(sessionId).Peer.Disconnect(DisconnectReason.KickedByServer);
+            _room.GetPlayer(sessionId).Peer.Disconnect(ServerDisconnectReason.KickedByServer);
         }
         
         public void SendToAll(MessageData messageData, ushort opCode, bool isReliable, bool isOrdered,

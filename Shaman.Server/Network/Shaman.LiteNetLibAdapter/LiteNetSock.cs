@@ -4,6 +4,7 @@ using System.Net;
 using LiteNetLib;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Sockets;
+using DisconnectReason = LiteNetLib.DisconnectReason;
 
 namespace Shaman.LiteNetLibAdapter
 {
@@ -42,19 +43,31 @@ namespace Shaman.LiteNetLibAdapter
             _listener.PeerDisconnectedEvent += (peer, info) =>
             {
                 _serverPeer = null;
-                OnDisconnected?.Invoke(endPoint, info.Reason.ToString());
+                OnDisconnected?.Invoke(endPoint, BuildDisconnectInfo(info));
             };
             _peer.Connect(endPoint.Address.ToString(), endPoint.Port, "SomeConnectionKey333");
         }
 
-        public void AddEventCallbacks(Action<IPEndPoint, DataPacket, Action> onReceivePacket, Action<IPEndPoint> onConnect, Action<IPEndPoint, string> onDisconnect)
+        private static IDisconnectInfo BuildDisconnectInfo(DisconnectInfo info)
+        {
+            if (info.AdditionalData.AvailableBytes > 0)
+            {
+                return new LightNetDisconnectInfo(info.Reason,info.AdditionalData);
+            }
+
+            return new LightNetDisconnectInfo(info.Reason);
+        }
+
+        public void AddEventCallbacks(Action<IPEndPoint, DataPacket, Action> onReceivePacket, Action<IPEndPoint> onConnect, Action<IPEndPoint, IDisconnectInfo> onDisconnect)
         {
             _listener.ConnectionRequestEvent += request => { request.AcceptIfKey("SomeConnectionKey333"); };
 
             _listener.PeerDisconnectedEvent += (peer, info) =>
             {
                 _endPointReceivers.TryRemove(peer.EndPoint, out var con);
-                onDisconnect(peer.EndPoint, info.Reason.ToString());
+                onDisconnect(peer.EndPoint,
+                    new LightNetDisconnectInfo(info.Reason,
+                        info.Reason == DisconnectReason.RemoteConnectionClose ? info.AdditionalData : null));
             };
 
             _listener.NetworkReceiveEvent += (peer, dataReader, method) =>
@@ -176,6 +189,6 @@ namespace Shaman.LiteNetLibAdapter
 
         public event Action<IPEndPoint, DataPacket, Action> OnPacketReceived;
         public event Action<IPEndPoint> OnConnected;
-        public event Action<IPEndPoint, string> OnDisconnected;
+        public event Action<IPEndPoint, IDisconnectInfo> OnDisconnected;
     }
 }

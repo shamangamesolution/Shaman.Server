@@ -8,11 +8,13 @@ using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Serialization;
+using Shaman.Common.Utils.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Game.Contract;
 using Shaman.Game.Contract.Stats;
 using Shaman.Game.Metrics;
 using Shaman.Game.Rooms.RoomProperties;
+using Shaman.LiteNetLibAdapter;
 using Shaman.Messages;
 using Shaman.Messages.General.DTO.Responses;
 using Shaman.Messages.RoomFlow;
@@ -226,7 +228,7 @@ namespace Shaman.Game.Rooms
             return _sessionsToRooms.ContainsKey(sessionId);
         }
 
-        public void PeerDisconnected(IPeer peer, PeerDisconnectedReason reason)
+        public void PeerDisconnected(IPeer peer, IDisconnectInfo info)
         {
             lock (_syncPeersList)
             {
@@ -237,7 +239,7 @@ namespace Shaman.Game.Rooms
                     return;
                 }
 
-                if (room.PeerDisconnected(sessionId, reason))
+                if (room.PeerDisconnected(sessionId, info))
                     _gameMetrics.TrackPeerDisconnected();
                 
                 _sessionsToRooms.TryRemove(sessionId, out _);
@@ -298,7 +300,7 @@ namespace Shaman.Game.Rooms
                         
                         break;
                     case CustomOperationCode.LeaveRoom:
-                        PeerDisconnected(peer, PeerDisconnectedReason.PeerLeave);
+                        PeerDisconnected(peer, new LightNetDisconnectInfo(ClientDisconnectReason.PeerLeave));
                         break;
                     default:
                         if (_sessionsToRooms.TryGetValue(peer.GetSessionId(), out var room))
