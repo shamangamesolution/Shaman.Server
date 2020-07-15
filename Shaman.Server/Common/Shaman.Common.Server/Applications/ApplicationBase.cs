@@ -103,7 +103,7 @@ namespace Shaman.Common.Server.Applications
             //disconnect and remove peers
             foreach (var item in PeerCollection.GetAll())
             {
-                item.Value.Disconnect(DisconnectReason.ServerShutDown);                
+                item.Value.Disconnect(ServerDisconnectReason.ServerShutDown);                
             }            
             PeerCollection.RemoveAll();
 

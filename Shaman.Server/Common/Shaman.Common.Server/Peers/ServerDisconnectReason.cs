@@ -1,6 +1,6 @@
 namespace Shaman.Common.Server.Peers
 {
-    public enum DisconnectReason : byte
+    public enum ServerDisconnectReason : byte
     {
         JustBecause = 1,
         ServerShutDown = 2,

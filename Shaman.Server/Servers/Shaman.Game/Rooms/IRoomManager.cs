@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Shaman.Common.Server.Peers;
 using Shaman.Common.Utils.Messages;
+using Shaman.Common.Utils.Sockets;
 using Shaman.Game.Contract;
 
 namespace Shaman.Game.Rooms
@@ -22,6 +23,6 @@ namespace Shaman.Game.Rooms
         Dictionary<Guid, int> GetRoomPeerCount();
         IRoom GetOldestRoom();
         void ConfirmedJoin(Guid sessionId, IRoom room);
-        void PeerDisconnected(IPeer peer, PeerDisconnectedReason reason);
+        void PeerDisconnected(IPeer peer, IDisconnectInfo info);
     }
 }

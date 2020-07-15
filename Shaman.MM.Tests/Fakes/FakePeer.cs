@@ -3,7 +3,6 @@ using System.Net;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Server.Peers;
 using Shaman.Common.Utils.Logging;
-using Shaman.Common.Utils.Peers;
 using Shaman.Common.Utils.Serialization;
 using Shaman.Common.Utils.Sockets;
 
@@ -40,7 +39,7 @@ namespace Shaman.MM.Tests.Fakes
             throw new NotImplementedException();
         }
 
-        public void Disconnect(DisconnectReason reason)
+        public void Disconnect(ServerDisconnectReason reason)
         {
             throw new NotImplementedException();
         }
