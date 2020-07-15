@@ -99,12 +99,12 @@ namespace Shaman.Client.Peers
 
         public int GetRtt()
         {
-            return _socket.GetRtt();
+            return _socket?.GetRtt() ?? 0;
         }
         
         public int GetPing()
         {
-            return _socket.GetPing();
+            return _socket?.GetPing() ?? 0;
         }
 
         public void Connect(string address, int port)
