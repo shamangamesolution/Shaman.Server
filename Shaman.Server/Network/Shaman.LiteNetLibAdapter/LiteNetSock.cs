@@ -50,12 +50,8 @@ namespace Shaman.LiteNetLibAdapter
 
         private static IDisconnectInfo BuildDisconnectInfo(DisconnectInfo info)
         {
-            if (info.AdditionalData.AvailableBytes > 0)
-            {
-                return new LightNetDisconnectInfo(info.Reason,info.AdditionalData);
-            }
-
-            return new LightNetDisconnectInfo(info.Reason);
+            return new LightNetDisconnectInfo(info.Reason,
+                info.Reason == DisconnectReason.RemoteConnectionClose ? info.AdditionalData : null);
         }
 
         public void AddEventCallbacks(Action<IPEndPoint, DataPacket, Action> onReceivePacket, Action<IPEndPoint> onConnect, Action<IPEndPoint, IDisconnectInfo> onDisconnect)
@@ -64,10 +60,8 @@ namespace Shaman.LiteNetLibAdapter
 
             _listener.PeerDisconnectedEvent += (peer, info) =>
             {
-                _endPointReceivers.TryRemove(peer.EndPoint, out var con);
-                onDisconnect(peer.EndPoint,
-                    new LightNetDisconnectInfo(info.Reason,
-                        info.Reason == DisconnectReason.RemoteConnectionClose ? info.AdditionalData : null));
+                _endPointReceivers.TryRemove(peer.EndPoint, out var _);
+                onDisconnect(peer.EndPoint, BuildDisconnectInfo(info));
             };
 
             _listener.NetworkReceiveEvent += (peer, dataReader, method) =>
