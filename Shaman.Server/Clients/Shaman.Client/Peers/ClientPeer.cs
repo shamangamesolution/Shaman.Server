@@ -88,12 +88,12 @@ namespace Shaman.Client.Peers
             _connected = false;
         }
 
-        private void OnDisconnected(IPEndPoint obj, string reason)
+        private void OnDisconnected(IPEndPoint obj, IDisconnectInfo info)
         {
             if (_ep.Equals(obj))
             {
                 _connected = false;
-                OnDisconnectedFromServer?.Invoke(reason);
+                OnDisconnectedFromServer?.Invoke(info.Reason.ToString());
             }
         }
 
