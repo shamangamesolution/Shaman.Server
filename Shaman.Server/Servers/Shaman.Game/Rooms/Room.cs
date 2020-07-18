@@ -7,6 +7,7 @@ using Shaman.Common.Server.Peers;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Senders;
+using Shaman.Common.Utils.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Game.Contract;
 using Shaman.Messages;
@@ -176,8 +177,8 @@ namespace Shaman.Game.Rooms
                 {
                     //in case if player was disconnected during ProcessNewPlayer
                     
-                    // todo here we dont now true reason (plan to remove this workaround)
-                    _gameModeController.CleanupPlayer(peer.GetSessionId(), PeerDisconnectedReason.PeerLeave);
+                    // todo here we dont know true reason (plan to remove this workaround)
+                    _gameModeController.CleanupPlayer(peer.GetSessionId(), PeerDisconnectedReason.PeerLeave, null);
                 }
                 return processNewPlayerResult;;
             }
@@ -189,7 +190,7 @@ namespace Shaman.Game.Rooms
 
         }
 
-        public bool PeerDisconnected(Guid sessionId, PeerDisconnectedReason reason)
+        public bool PeerDisconnected(Guid sessionId, IDisconnectInfo reason)
         {
             var peerRemoved = _roomPlayers.TryRemove(sessionId, out var roomPlayer);
             if (peerRemoved)
@@ -197,7 +198,7 @@ namespace Shaman.Game.Rooms
             _roomPropertiesContainer.RemovePlayer(sessionId);
             try
             {
-                _gameModeController.CleanupPlayer(sessionId, reason);
+                _gameModeController.CleanupPlayer(sessionId, ResolveReason(reason.Reason), reason.Payload);
             }
             catch (Exception ex)
             {
@@ -205,6 +206,18 @@ namespace Shaman.Game.Rooms
             }
             UpdateRoomStateOnMm();
             return peerRemoved;
+        }
+        
+        
+        private static PeerDisconnectedReason ResolveReason(ClientDisconnectReason reason)
+        {
+            switch (reason)
+            {
+                case ClientDisconnectReason.PeerLeave:
+                    return PeerDisconnectedReason.PeerLeave;
+                default:
+                    return PeerDisconnectedReason.ConnectionLost;
+            }
         }
 
         public int AddToSendQueue(MessageBase message, Guid sessionId)
@@ -259,7 +272,7 @@ namespace Shaman.Game.Rooms
                 {
                     if (_roomPlayers.TryRemove(player.Key, out _))
                     {
-                        player.Value.Peer.Disconnect(DisconnectReason.RoomCleanup);
+                        player.Value.Peer.Disconnect(ServerDisconnectReason.RoomCleanup);
                         ++removedPlayers;
                     }
                 }
