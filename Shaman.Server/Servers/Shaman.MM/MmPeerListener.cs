@@ -8,6 +8,7 @@ using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Sockets;
 using Shaman.Game.Contract;
+using Shaman.LiteNetLibAdapter;
 using Shaman.MM.MatchMaking;
 using Shaman.MM.Peers;
 using Shaman.Messages;
@@ -86,7 +87,7 @@ namespace Shaman.MM
                     //ping processing
                     break;
                 case CustomOperationCode.Disconnect:
-                    OnClientDisconnect(endPoint, "On Disconnect event received");
+                    OnClientDisconnect(endPoint, new LightNetDisconnectInfo(ClientDisconnectReason.PeerLeave));
                     break;
                 case CustomOperationCode.Authorization:
                     var authMessage =
@@ -267,20 +268,11 @@ namespace Shaman.MM
             
             _packetSender.AddPacket(new ConnectedEvent(), peer);
         }
-        
-        public override void OnClientDisconnect(IPEndPoint endPoint, string reason)
+
+        protected override void ProcessDisconnectedPeer(MmPeer peer, IDisconnectInfo info)
         {
-            var peer = PeerCollection.Get(endPoint);
-            if (peer == null)
-            {
-                _logger.Warning($"GamePeerListener.OnClientDisconnect error: can not find peer for endpoint {endPoint.Address}:{endPoint.Port}");
-                return;
-            }
-            base.OnClientDisconnect(endPoint, reason);            
-            
             _matchMaker.RemovePlayer(peer.GetPeerId());
             _packetSender.PeerDisconnected(peer);
-            
         }
     }
 }

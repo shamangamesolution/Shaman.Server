@@ -7,7 +7,7 @@ namespace Shaman.Game.Contract
     public interface IGameModeController
     {
         Task<bool> ProcessNewPlayer(Guid sessionId, Dictionary<byte, object> properties);
-        void CleanupPlayer(Guid sessionId, PeerDisconnectedReason reason);
+        void CleanupPlayer(Guid sessionId, PeerDisconnectedReason reason, byte[] reasonPayload);
 
         /// <returns>true if room should be destroyed</returns>
         bool IsGameFinished();

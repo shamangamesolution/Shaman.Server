@@ -88,23 +88,23 @@ namespace Shaman.Client.Peers
             _connected = false;
         }
 
-        private void OnDisconnected(IPEndPoint obj, string reason)
+        private void OnDisconnected(IPEndPoint obj, IDisconnectInfo info)
         {
             if (_ep.Equals(obj))
             {
                 _connected = false;
-                OnDisconnectedFromServer?.Invoke(reason);
+                OnDisconnectedFromServer?.Invoke(info.Reason.ToString());
             }
         }
 
         public int GetRtt()
         {
-            return _socket.GetRtt();
+            return _socket?.GetRtt() ?? 0;
         }
         
         public int GetPing()
         {
-            return _socket.GetPing();
+            return _socket?.GetPing() ?? 0;
         }
 
         public void Connect(string address, int port)

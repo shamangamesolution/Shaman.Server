@@ -8,13 +8,13 @@ using Shaman.Common.Utils.Sockets;
 using Shaman.Game.Contract;
 using Shaman.Game.Peers;
 using Shaman.Game.Rooms;
+using Shaman.LiteNetLibAdapter;
 using Shaman.Messages;
 using Shaman.Messages.Authorization;
 using Shaman.Messages.General.DTO.Events;
 using Shaman.Messages.General.DTO.Requests.Auth;
 using Shaman.Messages.General.DTO.Responses;
 using Shaman.Messages.General.DTO.Responses.Auth;
-using DisconnectReason = LiteNetLib.DisconnectReason;
 
 namespace Shaman.Game
 {
@@ -56,7 +56,7 @@ namespace Shaman.Game
                     _packetSender.AddPacket(new PingEvent(), peer);
                     break;
                 case CustomOperationCode.Disconnect:
-                    OnClientDisconnect(endPoint, "On Disconnect event received");
+                    OnClientDisconnect(endPoint, new LightNetDisconnectInfo(ClientDisconnectReason.PeerLeave));
                     break;
                 case CustomOperationCode.Authorization:
                     var authMessage = Serializer.DeserializeAs<AuthorizationRequest>(messageData.Buffer, messageData.Offset, messageData.Length);
@@ -166,43 +166,12 @@ namespace Shaman.Game
             _packetSender.AddPacket(new ConnectedEvent(), peer);
         }
 
-        public override void OnClientDisconnect(IPEndPoint endPoint, string reason)
+        protected override void ProcessDisconnectedPeer(GamePeer peer, IDisconnectInfo info)
         {
-            var peer = PeerCollection.Get(endPoint);
-            if (peer == null)
-            {
-                _logger.Warning($"GamePeerListener.OnClientDisconnect error: can not find peer for endpoint {endPoint.Address}:{endPoint.Port}");
-                return;
-            }
-            base.OnClientDisconnect(endPoint, reason);
-
             if (_roomManager.IsInRoom(peer.GetSessionId()))
-                _roomManager.PeerDisconnected(peer, ResolveReason(reason));
+                _roomManager.PeerDisconnected(peer, info);
 
             _packetSender.PeerDisconnected(peer);
-            
-        }
-
-        private static PeerDisconnectedReason ResolveReason(string reason)
-        {
-            /* litenets reasons:
-               ConnectionFailed,
-               Timeout,
-               HostUnreachable,
-               RemoteConnectionClose,
-               DisconnectPeerCalled,
-               ConnectionRejected,
-               InvalidProtocol
-             */
-
-            switch (Enum.Parse<DisconnectReason>(reason))
-            {
-                case DisconnectReason.RemoteConnectionClose:
-                case DisconnectReason.DisconnectPeerCalled:
-                    return PeerDisconnectedReason.PeerLeave;
-                default:
-                    return PeerDisconnectedReason.ConnectionLost;
-            }
         }
     }
 }
