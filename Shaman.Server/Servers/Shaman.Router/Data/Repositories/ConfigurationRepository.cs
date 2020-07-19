@@ -1,21 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
-using MySql.Data.MySqlClient;
-using Shaman.Common.Server.Configuration;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Servers;
 using Shaman.DAL.Exceptions;
 using Shaman.DAL.Repositories;
 using Shaman.Messages;
-using Shaman.Messages.Extensions;
-using Shaman.Messages.General.Entity;
 using Shaman.Messages.General.Entity.Router;
-using Shaman.Messages.MM;
 using Shaman.Router.Config;
 using Shaman.Router.Data.Repositories.Interfaces;
 

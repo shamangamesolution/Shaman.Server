@@ -23,6 +23,7 @@ namespace Shaman.Client.Tests
         [SetUp]
         public void Setup()
         {
+            LocalBundleLauncher.LocalBundleLauncher.Launch();
         }
 
         [Test]
