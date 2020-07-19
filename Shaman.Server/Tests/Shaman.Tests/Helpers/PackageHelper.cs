@@ -1,3 +1,5 @@
+using Moq;
+using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Serialization;
 using Shaman.Common.Utils.Sockets;
@@ -10,7 +12,7 @@ namespace Shaman.Tests.Helpers
         {
             var serializerFactory = new BinarySerializer();
             var initMsgArray = serializerFactory.Serialize(message); //message.Serialize(_serializerFactory);
-            var packetInfo = new PacketInfo(initMsgArray, false, false, 300);
+            var packetInfo = new PacketInfo(initMsgArray, false, false, 300, Mock.Of<IShamanLogger>());
 
             return new DataPacket(packetInfo.Buffer, 0, packetInfo.Length, message.IsReliable);
         }

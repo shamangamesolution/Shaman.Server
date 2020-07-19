@@ -15,6 +15,7 @@ using Shaman.Game;
 using Shaman.Game.Configuration;
 using Shaman.Game.Contract;
 using Shaman.Game.Metrics;
+using Shaman.Game.Rooms;
 using Shaman.Game.Rooms.RoomProperties;
 using Shaman.MM;
 using Shaman.MM.Configuration;
@@ -113,7 +114,9 @@ namespace Shaman.Tests
             matchMaker.AddMatchMakingGroup(_measures);
             
             //setup mm server
-            _mmApplication = new MmApplication(_serverLogger, config, serializer, socketFactory,  matchMaker,requestSender, taskSchedulerFactory, _backendProvider, _mmPacketSender, _serverProvider, _mmRoomManager, _mmGroupManager, _playerManager);
+            _mmApplication = new MmApplication(_serverLogger, config, serializer, socketFactory, matchMaker,
+                requestSender, taskSchedulerFactory, _backendProvider, _mmPacketSender, _serverProvider, _mmRoomManager,
+                _mmGroupManager, _playerManager, Mock.Of<IMmMetrics>());
             matchMaker.AddRequiredProperty(PropertyCode.PlayerProperties.Level);
             
             _mmApplication.Start();
@@ -123,9 +126,12 @@ namespace Shaman.Tests
             _gameModeControllerFactory = new FakeGameModeControllerFactory();
 
             _roomManager = new RoomManager(_serverLogger, serializer, gameConfig, taskSchedulerFactory,
-                _gameModeControllerFactory, _mmPacketSender, Mock.Of<IGameMetrics>(), requestSender);
+                _gameModeControllerFactory, _mmPacketSender, Mock.Of<IGameMetrics>(), requestSender,
+                Mock.Of<IRoomStateUpdater>());
 
-            _gameApplication = new GameApplication(_serverLogger, gameConfig, serializer, socketFactory, taskSchedulerFactory, requestSender, _backendProvider, _roomManager, _gamePacketSender);
+            _gameApplication = new GameApplication(_serverLogger, gameConfig, serializer, socketFactory,
+                taskSchedulerFactory, requestSender, _backendProvider, _roomManager, _gamePacketSender,
+                Mock.Of<IGameMetrics>());
             _gameApplication.Start();
         }
         
