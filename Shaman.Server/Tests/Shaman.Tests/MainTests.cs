@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 using Shaman.Common.Utils.Senders;
+using Shaman.Common.Utils.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Game;
 using Shaman.Game.Configuration;
@@ -61,8 +62,8 @@ namespace Shaman.Tests
             //setup server
             _gameModeControllerFactory = new FakeGameModeControllerFactory();
             _packetSender = new PacketBatchSender(taskSchedulerFactory, config, serializer, _serverLogger);
-            _roomManager = new RoomManager(_serverLogger, serializer, config, taskSchedulerFactory,  _gameModeControllerFactory, _packetSender, Mock.Of<IGameMetrics>(), _requestSender);
-            _gameApplication = new GameApplication(_serverLogger, config, serializer, socketFactory, taskSchedulerFactory, _requestSender, _backendProvider, _roomManager, _packetSender);
+            _roomManager = new RoomManager(_serverLogger, serializer, config, taskSchedulerFactory,  _gameModeControllerFactory, _packetSender, Mock.Of<IGameMetrics>(), _requestSender, Mock.Of<IRoomStateUpdater>());
+            _gameApplication = new GameApplication(_serverLogger, config, serializer, socketFactory, taskSchedulerFactory, _requestSender, _backendProvider, _roomManager, _packetSender, Mock.Of<IGameMetrics>());
             _gameApplication.Start();
             
             //setup client
@@ -162,7 +163,7 @@ namespace Shaman.Tests
             Assert.AreEqual(0, stats.RoomCount);
             
             //disconnect
-            _gameApplication.GetListeners()[0].OnClientDisconnect(_ep, "manual disconnect");
+            _gameApplication.GetListeners()[0].OnClientDisconnect(_ep, Mock.Of<IDisconnectInfo>());
             stats = _gameApplication.GetStats();
             Assert.AreEqual(0, stats.PeerCount);
             Assert.AreEqual(0, stats.RoomCount);           
