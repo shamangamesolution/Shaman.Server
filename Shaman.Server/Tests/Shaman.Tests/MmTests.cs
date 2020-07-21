@@ -10,7 +10,7 @@ using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Servers;
 using Shaman.Common.Utils.TaskScheduling;
-using Shaman.Game.Contract;
+using Shaman.Contract.Bundle;
 using Shaman.Game.Providers;
 using Shaman.MM;
 using Shaman.MM.Configuration;

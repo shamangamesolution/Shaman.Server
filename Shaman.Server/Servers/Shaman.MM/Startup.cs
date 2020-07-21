@@ -15,7 +15,7 @@ using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Serialization;
 using Shaman.Common.Utils.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
-using Shaman.Game.Contract;
+using Shaman.Contract.Bundle;
 using Shaman.LiteNetLibAdapter;
 using Shaman.MM.Configuration;
 using Shaman.MM.MatchMaking;

@@ -1,6 +1,6 @@
 using System;
 using Shaman.Common.Utils.TaskScheduling;
-using Shaman.Game.Contract;
+using Shaman.Contract.Bundle;
 
 namespace Shaman.Game
 {

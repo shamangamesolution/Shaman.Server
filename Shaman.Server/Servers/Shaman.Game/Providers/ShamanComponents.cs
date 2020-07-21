@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Serialization;
-using Shaman.Game.Contract;
+using Shaman.Contract.Bundle;
 
 namespace Shaman.Game.Providers
 {

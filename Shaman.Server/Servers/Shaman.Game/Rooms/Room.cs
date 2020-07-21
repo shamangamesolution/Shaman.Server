@@ -9,7 +9,7 @@ using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
-using Shaman.Game.Contract;
+using Shaman.Contract.Bundle;
 using Shaman.Messages;
 using Shaman.Messages.MM;
 using RoomStats = Shaman.Game.Stats.RoomStats;

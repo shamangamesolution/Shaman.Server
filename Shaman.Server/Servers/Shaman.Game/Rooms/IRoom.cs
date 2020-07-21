@@ -5,7 +5,6 @@ using Shaman.Common.Contract;
 using Shaman.Common.Server.Peers;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Sockets;
-using Shaman.Game.Contract;
 using Shaman.Game.Stats;
 
 namespace Shaman.Game.Rooms

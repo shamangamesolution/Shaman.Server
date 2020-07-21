@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Shaman.Common.Contract;
 using Shaman.Common.Utils.Serialization;
 using Shaman.Common.Utils.TaskScheduling;
-using Shaman.Game.Contract;
+using Shaman.Contract.Bundle;
 using Shaman.Messages;
 
 namespace Shaman.Tests.GameModeControllers

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Shaman.Game.Contract
+namespace Shaman.Contract.Bundle
 {
     public interface IRoomPropertiesContainer
     {

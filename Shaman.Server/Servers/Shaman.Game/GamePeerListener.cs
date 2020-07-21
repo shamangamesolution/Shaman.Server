@@ -6,7 +6,7 @@ using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Sockets;
-using Shaman.Game.Contract;
+using Shaman.Contract.Bundle;
 using Shaman.Game.Peers;
 using Shaman.Game.Rooms;
 using Shaman.LiteNetLibAdapter;

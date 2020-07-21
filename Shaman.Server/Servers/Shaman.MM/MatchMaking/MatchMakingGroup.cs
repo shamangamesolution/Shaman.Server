@@ -6,7 +6,6 @@ using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Serialization;
 using Shaman.Common.Utils.TaskScheduling;
-using Shaman.Game.Contract;
 using Shaman.MM.Players;
 using Shaman.Messages;
 using Shaman.Messages.MM;

@@ -1,7 +1,7 @@
 using System;
 using Shaman.Common.Contract;
 using Shaman.Common.Server.Peers;
-using Shaman.Game.Contract;
+using Shaman.Contract.Bundle;
 
 namespace Shaman.Game.Rooms
 {

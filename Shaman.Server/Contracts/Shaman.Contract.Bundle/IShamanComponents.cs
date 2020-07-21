@@ -2,7 +2,7 @@ using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Serialization;
 
-namespace Shaman.Game.Contract
+namespace Shaman.Contract.Bundle
 {
     public interface IShamanComponents
     {
