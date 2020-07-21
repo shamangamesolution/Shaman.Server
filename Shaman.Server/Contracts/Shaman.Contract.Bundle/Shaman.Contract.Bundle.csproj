@@ -8,6 +8,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\Messages\Shaman.Messages\Shaman.Messages.csproj" />
-      <ProjectReference Include="..\Shaman.Common.Contract\Shaman.Common.Contract.csproj" />
+      <ProjectReference Include="..\Shaman.Contract.Common\Shaman.Contract.Common.csproj" />
     </ItemGroup>
 </Project>

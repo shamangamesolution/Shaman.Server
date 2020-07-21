@@ -25,7 +25,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Shaman.Common.Contract\Shaman.Common.Contract.csproj" />
+      <ProjectReference Include="..\..\Contracts\Shaman.Contract.Common\Shaman.Contract.Common.csproj" />
     </ItemGroup>
 
 
