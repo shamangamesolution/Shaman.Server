@@ -50,10 +50,10 @@ namespace Shaman.Game
             switch (operationCode)
             {
                 case ShamanOperationCode.Connect:
-                    _messageSender.AddPacket(new ConnectedEvent(), peer);
+                    _messageSender.Send(new ConnectedEvent(), peer);
                     break;
                 case ShamanOperationCode.Ping:
-                    _messageSender.AddPacket(new PingEvent(), peer);
+                    _messageSender.Send(new PingEvent(), peer);
                     break;
                 case ShamanOperationCode.Disconnect:
                     OnClientDisconnect(endPoint, new LightNetDisconnectInfo(ClientDisconnectReason.PeerLeave));
@@ -68,7 +68,7 @@ namespace Shaman.Game
                         peer.IsAuthorized = true;
                         //this sessionID will be got from backend, after we send authToken, which will come in player properties
                         peer.SetSessionId(authMessage.SessionId);
-                        _messageSender.AddPacket(new AuthorizationResponse(), peer);
+                        _messageSender.Send(new AuthorizationResponse(), peer);
                     }
                     else
                     {
@@ -94,12 +94,12 @@ namespace Shaman.Game
                                     peer.IsAuthorized = true;
                                     //this sessionID will be got from backend, after we send authToken, which will come in player properties
                                     peer.SetSessionId(authMessage.SessionId);
-                                    _messageSender.AddPacket(new AuthorizationResponse(), peer);
+                                    _messageSender.Send(new AuthorizationResponse(), peer);
                                 }
                                 else
                                 {
                                     peer.IsAuthorizing = false;
-                                    _messageSender.AddPacket(new AuthorizationResponse() {ResultCode = ResultCode.NotAuthorized}, peer);
+                                    _messageSender.Send(new AuthorizationResponse() {ResultCode = ResultCode.NotAuthorized}, peer);
                                 }
                             });
                     }
@@ -107,7 +107,7 @@ namespace Shaman.Game
                 default:
                     if (!peer.IsAuthorized && Config.IsAuthOn())
                     {
-                        _messageSender.AddPacket(new AuthorizationResponse() {ResultCode = ResultCode.NotAuthorized}, peer);
+                        _messageSender.Send(new AuthorizationResponse() {ResultCode = ResultCode.NotAuthorized}, peer);
                         return;
                     }
 
@@ -140,7 +140,7 @@ namespace Shaman.Game
                     {
                         _logger.Error($"Error processing message: {ex}");
                         if (peer != null)
-                            _messageSender.AddPacket(new ErrorResponse(ResultCode.MessageProcessingError), peer);
+                            _messageSender.Send(new ErrorResponse(ResultCode.MessageProcessingError), peer);
                     }
                 }
             }
@@ -148,7 +148,7 @@ namespace Shaman.Game
             {
                 _logger.Error($"OnReceivePacketFromClient: Error processing package: {ex}");
                 if (peer != null)
-                    _messageSender.AddPacket(new ErrorResponse(ResultCode.MessageProcessingError), peer);
+                    _messageSender.Send(new ErrorResponse(ResultCode.MessageProcessingError), peer);
             }
         }
 
@@ -163,7 +163,7 @@ namespace Shaman.Game
                 return;
             }
             
-            _messageSender.AddPacket(new ConnectedEvent(), peer);
+            _messageSender.Send(new ConnectedEvent(), peer);
         }
 
         protected override void ProcessDisconnectedPeer(GamePeer peer, IDisconnectInfo info)

@@ -29,7 +29,7 @@ namespace Shaman.Common.Utils.Senders
             _config = config;
         }
 
-        public int AddPacket(MessageBase message, IPeerSender peer)
+        public int Send(MessageBase message, IPeerSender peer)
         {
             using (var memoryStream = new PooledMemoryStream(GetBufferSize(message.GetType()), _logger))
             {
@@ -42,7 +42,7 @@ namespace Shaman.Common.Utils.Senders
             }
         }
 
-        public int AddPacket(MessageBase message, IEnumerable<IPeerSender> peers)
+        public int Send(MessageBase message, IEnumerable<IPeerSender> peers)
         {
             using (var memoryStream = new PooledMemoryStream(_config.GetBasePacketBufferSize(), _logger))
             {
