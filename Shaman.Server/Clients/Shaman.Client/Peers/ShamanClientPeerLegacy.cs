@@ -190,7 +190,7 @@ namespace Shaman.Client.Peers
 
         public void PingConnect(string address, ushort port, Action<bool> callback, int timeoutMs = 1000)
         {
-            var handlerId = RegisterOperationHandler(CustomOperationCode.Connect, (msg) =>
+            var handlerId = RegisterOperationHandler(ShamanOperationCode.Connect, (msg) =>
             {
                 Disconnect();
                 callback(true);
@@ -220,10 +220,10 @@ namespace Shaman.Client.Peers
                 SessionId = sessionId;
                 _backendId = backendId;
                 //waiting for join Info
-                _joinInfoEventId = RegisterOperationHandler(CustomOperationCode.JoinInfo, OnJoinInfoEvent);
+                _joinInfoEventId = RegisterOperationHandler(ShamanOperationCode.JoinInfo, OnJoinInfoEvent);
                 
                 SetAndReportStatus(ClientStatusLegacy.ConnectingMatchMaking, statusCallback);
-                RegisterOperationHandler(CustomOperationCode.Connect, OnConnectedToMatchMaker, true);
+                RegisterOperationHandler(ShamanOperationCode.Connect, OnConnectedToMatchMaker, true);
                 Connect(matchMakerAddress, matchMakerPort);
             }
             catch (Exception ex)
@@ -547,7 +547,7 @@ namespace Shaman.Client.Peers
             {
                 SetAndReportStatus(ClientStatusLegacy.ConnectingGameServer, _statusCallback);
 
-                RegisterOperationHandler(CustomOperationCode.Connect, OnConnectedToGameServer, true);
+                RegisterOperationHandler(ShamanOperationCode.Connect, OnConnectedToGameServer, true);
                 
                 _clientPeer.Connect(gameServerAddress, gameServerPort);
             }

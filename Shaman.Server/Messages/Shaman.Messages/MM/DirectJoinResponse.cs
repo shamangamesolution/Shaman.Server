@@ -16,7 +16,7 @@ namespace Shaman.Messages.MM
             JoinInfo = joinInfo;
         }
         
-        public DirectJoinResponse() : base(Messages.CustomOperationCode.DirectJoinResponse)
+        public DirectJoinResponse() : base(Messages.ShamanOperationCode.DirectJoinResponse)
         {
             
         }

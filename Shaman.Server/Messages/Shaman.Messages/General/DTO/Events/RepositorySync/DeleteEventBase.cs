@@ -11,7 +11,7 @@ namespace Shaman.Messages.General.DTO.Events.RepositorySync
         public List<DeletedInfo> DeletedInfoList { get; set; }
         public int ChangeId { get; set; }
         
-        public DeleteEventBase(ushort operationCode, List<DeletedInfo> deletedInfoList, int changeId)
+        public DeleteEventBase(byte operationCode, List<DeletedInfo> deletedInfoList, int changeId)
             :this(operationCode)
         {
             DeletedInfoList = deletedInfoList;
@@ -19,7 +19,7 @@ namespace Shaman.Messages.General.DTO.Events.RepositorySync
 
         }
         
-        public DeleteEventBase(ushort operationCode) : base(operationCode)
+        public DeleteEventBase(byte operationCode) : base(operationCode)
         {
         }
 

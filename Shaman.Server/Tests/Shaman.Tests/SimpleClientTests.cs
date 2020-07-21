@@ -92,8 +92,8 @@ namespace Shaman.Tests
             _backendProvider = new BackendProvider(taskSchedulerFactory, config, requestSender, _serverLogger);
             var gameConfig = new GameApplicationConfig("", "", "127.0.0.1", new List<ushort> {SERVER_PORT_GAME}, "", "", 7000,
                 isAuthOn: false);
-            _mmPacketSender = new PacketBatchSender(taskSchedulerFactory, config, serializer, _serverLogger);
-            _gamePacketSender = new PacketBatchSender(taskSchedulerFactory, gameConfig, serializer, _serverLogger);
+            _mmPacketSender = new PacketBatchSender(taskSchedulerFactory, config, _serverLogger);
+            _gamePacketSender = new PacketBatchSender(taskSchedulerFactory, gameConfig, _serverLogger);
             
             _playerManager = new PlayersManager( Mock.Of<IMmMetrics>(), _serverLogger);
             _statsProvider = new MM.Providers.StatisticsProvider(_playerManager);
@@ -169,7 +169,7 @@ namespace Shaman.Tests
                             _clientLogger.Info($"Client status changed {status.Status}, isSuccess = {status.IsSuccess}, error = {status.Error}, joinInfo.JoinStatus = {joinInfo.Status}, joinInfo.CurrentPlayers = {joinInfo.CurrentPlayers}, joinInfo.MaxPlayers = {joinInfo.MaxPlayers}");
                         }
                     });
-                client.RegisterOperationHandler(CustomOperationCode.Test, message =>
+                client.RegisterOperationHandler(ShamanOperationCode.Test, message =>
                 {
                     if (!_eventsCount.ContainsKey(sessionId))
                         _eventsCount.TryAdd(sessionId, 0);

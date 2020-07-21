@@ -11,13 +11,13 @@ namespace Shaman.Messages.General.DTO.Responses.RepositorySync
         public int Revision { get; set; }
         public List<T> Records { get; set; }
 
-        public GetAllResponse(ushort operationCode)
+        public GetAllResponse(byte operationCode)
             : base(operationCode)
         {
             
         }
         
-        public GetAllResponse(ushort operationCode, List<T> records, int revision)  : this(operationCode)
+        public GetAllResponse(byte operationCode, List<T> records, int revision)  : this(operationCode)
         {
             Records = records;
             Revision = revision;

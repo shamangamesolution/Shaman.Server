@@ -11,14 +11,14 @@ namespace Shaman.Messages.RoomFlow
         public Dictionary<byte, object> Properties { get; set; }
         
         public JoinRoomRequest(Guid roomId, Dictionary<byte, object> properties) 
-            : base(Messages.CustomOperationCode.JoinRoom)
+            : base(Messages.ShamanOperationCode.JoinRoom)
         {
             this.RoomId = roomId;
             this.Properties = properties;
         }
 
         public JoinRoomRequest() 
-            : base(Messages.CustomOperationCode.JoinRoom)
+            : base(Messages.ShamanOperationCode.JoinRoom)
         {
         }
 

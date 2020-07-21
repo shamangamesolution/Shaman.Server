@@ -16,7 +16,7 @@ namespace Shaman.Messages
         public List<int> TestList { get; set; }
         
         public TestRoomEvent(bool testBool, int testInt, float testFloat, List<int> testList) 
-            : base(Messages.CustomOperationCode.Test)
+            : base(0)
         {
             this.TestBool = testBool;
             this.TestInt = testInt;
@@ -24,7 +24,7 @@ namespace Shaman.Messages
             TestList = testList;
         }
 
-        public TestRoomEvent() : base(Messages.CustomOperationCode.Test)
+        public TestRoomEvent() : base(Messages.ShamanOperationCode.Test)
         {
         }
 

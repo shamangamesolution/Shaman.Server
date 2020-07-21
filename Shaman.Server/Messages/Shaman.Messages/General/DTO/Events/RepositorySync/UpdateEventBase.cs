@@ -11,14 +11,14 @@ namespace Shaman.Messages.General.DTO.Events.RepositorySync
         public List<UpdatedInfo> UpdatedInfoList { get; set; }
         public int ChangeId { get; set; }
 
-        public UpdateEventBase(ushort operationCode, List<UpdatedInfo> updatedInfoList, int changeId)
+        public UpdateEventBase(byte operationCode, List<UpdatedInfo> updatedInfoList, int changeId)
             :this(operationCode)
         {
             UpdatedInfoList = updatedInfoList;
             ChangeId = changeId;
         }
         
-        public UpdateEventBase(ushort operationCode) : base(operationCode)
+        public UpdateEventBase(byte operationCode) : base(operationCode)
         {
         }
 

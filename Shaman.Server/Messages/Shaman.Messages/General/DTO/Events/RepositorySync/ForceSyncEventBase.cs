@@ -7,7 +7,7 @@ namespace Shaman.Messages.General.DTO.Events.RepositorySync
     {
         public override bool IsReliable => true;
 
-        public ForceSyncEventBase(ushort operationCode) : base(operationCode)
+        public ForceSyncEventBase(byte operationCode) : base(operationCode)
         {
         }
 

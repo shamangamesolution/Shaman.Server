@@ -10,20 +10,20 @@ namespace Shaman.Messages.Authorization
         public int BackendId { get; set; }
         
         public AuthorizationRequest(Guid sessionId) 
-            : base(Messages.CustomOperationCode.Authorization)
+            : base(Messages.ShamanOperationCode.Authorization)
         {
             this.SessionId = sessionId;
         }
         
         public AuthorizationRequest(int backendId, Guid sessionId) 
-            : base(Messages.CustomOperationCode.Authorization)
+            : base(Messages.ShamanOperationCode.Authorization)
         {
             this.SessionId = sessionId;
             this.BackendId = backendId;
         }
         
         public AuthorizationRequest() 
-            : base(Messages.CustomOperationCode.Authorization)
+            : base(Messages.ShamanOperationCode.Authorization)
         {
         }
         

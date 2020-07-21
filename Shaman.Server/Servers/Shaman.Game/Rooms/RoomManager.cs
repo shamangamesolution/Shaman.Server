@@ -11,9 +11,10 @@ using Shaman.Common.Utils.Serialization;
 using Shaman.Common.Utils.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Game.Contract;
-using Shaman.Game.Contract.Stats;
 using Shaman.Game.Metrics;
+using Shaman.Game.Rooms.Exceptions;
 using Shaman.Game.Rooms.RoomProperties;
+using Shaman.Game.Stats;
 using Shaman.LiteNetLibAdapter;
 using Shaman.Messages;
 using Shaman.Messages.General.DTO.Responses;
@@ -32,18 +33,20 @@ namespace Shaman.Game.Rooms
         private readonly object _syncPeersList = new object();
         private readonly IApplicationConfig _config;
         private readonly IGameModeControllerFactory _gameModeControllerFactory;
-        private readonly IPacketSender _packetSender;
+        private readonly IShamanMessageSender _messageSender;
         private readonly IGameMetrics _gameMetrics;
-        private readonly IRequestSender _requestSender;
         private readonly IRoomStateUpdater _roomStateUpdater;
-        
+
         public RoomManager(
-            IShamanLogger logger, 
-            ISerializer serializer, 
-            IApplicationConfig config, 
-            ITaskSchedulerFactory taskSchedulerFactory, 
+            IShamanLogger logger,
+            ISerializer serializer,
+            IApplicationConfig config,
+            ITaskSchedulerFactory taskSchedulerFactory,
             IGameModeControllerFactory gameModeControllerFactory,
-            IPacketSender packetSender, IGameMetrics gameMetrics, IRequestSender requestSender, IRoomStateUpdater roomStateUpdater)
+            IPacketSender packetSender, 
+            IShamanMessageSenderFactory messageSenderFactory,
+            IGameMetrics gameMetrics, 
+            IRoomStateUpdater roomStateUpdater)
         {
             _logger = logger;
             _serializer = serializer;
@@ -53,11 +56,9 @@ namespace Shaman.Game.Rooms
             _taskScheduler.ScheduleOnInterval(CheckRoomsState, 0, 60000);
             _config = config;
             _taskSchedulerFactory = taskSchedulerFactory;
-            _packetSender = packetSender;
+            _messageSender = messageSenderFactory.Create(packetSender);
             _gameMetrics = gameMetrics;
-            _requestSender = requestSender;
             _roomStateUpdater = roomStateUpdater;
-            packetSender.Start();
         }
 
         private void CheckRoomsState()
@@ -107,14 +108,14 @@ namespace Shaman.Game.Rooms
                 }
                 
                 var roomPropertiesContainer = new RoomPropertiesContainer(_logger);
-                var packetSender = new PacketBatchSender(_taskSchedulerFactory, _config, _serializer, _logger);
+                var packetSender = new PacketBatchSender(_taskSchedulerFactory, _config, _logger);
                 
                 packetSender.Start(true);
                 
                 roomPropertiesContainer.Initialize(players, properties);
 
                 var room = new Room(_logger, _taskSchedulerFactory, this, roomPropertiesContainer,
-                    _gameModeControllerFactory, packetSender, _requestSender, roomId ?? Guid.NewGuid(), _roomStateUpdater);
+                    _gameModeControllerFactory, packetSender, roomId ?? Guid.NewGuid(), _roomStateUpdater);
 
                 if(_rooms.TryAdd(room.GetRoomId(), room))
                     _gameMetrics.TrackRoomCreated();
@@ -243,7 +244,7 @@ namespace Shaman.Game.Rooms
                     _gameMetrics.TrackPeerDisconnected();
                 
                 _sessionsToRooms.TryRemove(sessionId, out _);
-                _packetSender.PeerDisconnected(peer);
+                _messageSender.CleanupPeerData(peer);
 
                 if (room.IsGameFinished())
                 {
@@ -259,7 +260,7 @@ namespace Shaman.Game.Rooms
                 //room manager handles only room flow messages, others are sent to particular room
                 switch (operationCode)
                 {
-                    case CustomOperationCode.JoinRoom:
+                    case ShamanOperationCode.JoinRoom:
                         var joinMessage = _serializer.DeserializeAs<JoinRoomRequest>(message.Buffer, message.Offset, message.Length);
                         
                         var roomToJoin = GetRoomById(joinMessage.RoomId);
@@ -269,7 +270,7 @@ namespace Shaman.Game.Rooms
                         {
                             var msg = $"Peer {sessionId} attempted to join to non-exist room {joinMessage.RoomId}";
                             _logger.Error(msg);
-                            _packetSender.AddPacket(new JoinRoomResponse() { ResultCode = ResultCode.RequestProcessingError }, peer);
+                            _messageSender.AddPacket(new JoinRoomResponse() { ResultCode = ResultCode.RequestProcessingError }, peer);
                         }
                         else
                         {
@@ -281,43 +282,45 @@ namespace Shaman.Game.Rooms
                                     if (await roomToJoin.PeerJoined(peer, joinMessage.Properties))
                                     {
                                         _gameMetrics.TrackPeerJoin();
-                                        _packetSender.AddPacket(new JoinRoomResponse(), peer);
+                                        _messageSender.AddPacket(new JoinRoomResponse(), peer);
                                     }
                                     else
                                     {
                                         // todo disconnect doesn't work for now
                                         // peer.Disconnect(DisconnectReason.JustBecause);
-                                        _packetSender.AddPacket(new JoinRoomResponse() { ResultCode = ResultCode.RequestProcessingError }, peer);
+                                        _messageSender.AddPacket(new JoinRoomResponse() { ResultCode = ResultCode.RequestProcessingError }, peer);
                                     }
                                 }
                                 catch (Exception ex)
                                 {
                                     _logger.Error($"JoinRoom failed for player {peer.GetSessionId()}: {ex}");
-                                    _packetSender.AddPacket(new JoinRoomResponse() { ResultCode = ResultCode.RequestProcessingError }, peer);
+                                    _messageSender.AddPacket(new JoinRoomResponse() { ResultCode = ResultCode.RequestProcessingError }, peer);
                                 }
                             });
                         }
                         
                         break;
-                    case CustomOperationCode.LeaveRoom:
+                    case ShamanOperationCode.LeaveRoom:
                         PeerDisconnected(peer, new LightNetDisconnectInfo(ClientDisconnectReason.PeerLeave));
                         break;
-                    default:
+                    case ShamanOperationCode.Bundle:
                         if (_sessionsToRooms.TryGetValue(peer.GetSessionId(), out var room))
-                            room.ProcessMessage(operationCode, message, peer.GetSessionId());
+                            room.ProcessMessage(message, peer.GetSessionId());
                         else
                         {
                             _logger.Error($"ProcessMessage error: Can not get room for peer {peer.GetSessionId()}");
-                            _packetSender.AddPacket(new ErrorResponse() {ResultCode = ResultCode.MessageProcessingError}, peer);
+                            _messageSender.AddPacket(new ErrorResponse() {ResultCode = ResultCode.MessageProcessingError}, peer);
                         }
 
                         break;
+                    default:
+                        throw new RoomManagerException($"Unknown operation code received: {operationCode}");
                 }
             }
             catch (Exception ex)
             {
                 _logger.Error($"RoomManager.ProcessMessage: Error processing {operationCode} message: {ex}");
-                _packetSender.AddPacket(new ErrorResponse() {ResultCode = ResultCode.MessageProcessingError}, peer);
+                _messageSender.AddPacket(new ErrorResponse() {ResultCode = ResultCode.MessageProcessingError}, peer);
             }
 
         }

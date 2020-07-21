@@ -136,7 +136,7 @@ namespace Shaman.TestTools.ClientPeers
             });
 
             //save join info
-            if (operationCode == CustomOperationCode.JoinInfo)
+            if (operationCode == ShamanOperationCode.JoinInfo)
                 _joinInfo = _serializer.DeserializeAs<JoinInfoEvent>(buffer, offset, length).JoinInfo;
         }
         

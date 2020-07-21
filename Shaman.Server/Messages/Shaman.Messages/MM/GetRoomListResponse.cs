@@ -8,7 +8,7 @@ namespace Shaman.Messages.MM
     {
         public List<RoomInfo> Rooms { get; set; }
 
-        public GetRoomListResponse() : base(Messages.CustomOperationCode.GetRoomListResponse)
+        public GetRoomListResponse() : base(Messages.ShamanOperationCode.GetRoomListResponse)
         {
             
         }

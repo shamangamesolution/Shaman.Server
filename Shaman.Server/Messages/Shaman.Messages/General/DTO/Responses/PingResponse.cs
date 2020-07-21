@@ -7,11 +7,10 @@ namespace Shaman.Messages.General.DTO.Responses
     public class PingResponse : ResponseBase
     {
         public override bool IsReliable => false;
-        public override bool IsBroadcasted => false;
 
         public long SourceTicks { get; set; }
 
-        public PingResponse() : base(CustomOperationCode.PingResponse)
+        public PingResponse() : base(ShamanOperationCode.PingResponse)
         {
         }
 

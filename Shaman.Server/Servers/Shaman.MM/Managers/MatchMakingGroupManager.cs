@@ -23,7 +23,7 @@ namespace Shaman.MM.Managers
         private readonly IShamanLogger _logger;
         private readonly ITaskSchedulerFactory _taskSchedulerFactory;
         private readonly IPlayersManager _playersManager;
-        private readonly IPacketSender _packetSender;
+        private readonly IShamanMessageSender _messageSender;
         private readonly IMmMetrics _mmMetrics;
         private readonly IRoomManager _roomManager;
         private readonly IRoomPropertiesProvider _roomPropertiesProvider;
@@ -35,13 +35,13 @@ namespace Shaman.MM.Managers
         private bool _isStarted = false;
         
         public MatchMakingGroupManager(IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory,
-            IPlayersManager playersManager, IPacketSender packetSender, IMmMetrics mmMetrics, IRoomManager roomManager, 
+            IPlayersManager playersManager, IShamanMessageSender messageSender, IMmMetrics mmMetrics, IRoomManager roomManager, 
             IRoomPropertiesProvider roomPropertiesProvider, IApplicationConfig config)
         {
             _logger = logger;
             _taskSchedulerFactory = taskSchedulerFactory;
             _playersManager = playersManager;
-            _packetSender = packetSender;
+            _messageSender = messageSender;
             _mmMetrics = mmMetrics;
             _roomManager = roomManager;
             _roomPropertiesProvider = roomPropertiesProvider;
@@ -87,7 +87,7 @@ namespace Shaman.MM.Managers
                     roomProperties.Add(add.Key, add.Value);
 
                 var group = new MatchMakingGroup(roomProperties, _logger, _taskSchedulerFactory, _playersManager,
-                    _packetSender, _mmMetrics, _roomManager);
+                    _messageSender, _mmMetrics, _roomManager);
                 _groups.Add(group.Id, group);
                 _groupsToProperties.Add(group.Id, measures);
                 if (_isStarted)

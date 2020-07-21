@@ -14,7 +14,7 @@ namespace Shaman.Messages.MM
             JoinInfo = joinInfo;
         }
 
-        public JoinInfoEvent() : base(CustomOperationCode.JoinInfo)
+        public JoinInfoEvent() : base(ShamanOperationCode.JoinInfo)
         {
         }
 

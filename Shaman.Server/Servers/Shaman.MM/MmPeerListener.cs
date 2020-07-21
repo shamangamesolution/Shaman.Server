@@ -27,17 +27,17 @@ namespace Shaman.MM
     {
         private IMatchMaker _matchMaker;
         private IBackendProvider _backendProvider;
-        private IPacketSender _packetSender;
+        private IShamanMessageSender _messageSender;
         private IRoomManager _roomManager;
         private IMatchMakingGroupsManager _matchMakingGroupsManager;
         private string _authSecret;
 
-        public void Initialize(IMatchMaker matchMaker, IBackendProvider backendProvider, IPacketSender packetSender, IRoomManager roomManager, IMatchMakingGroupsManager matchMakingGroupsManager,
+        public void Initialize(IMatchMaker matchMaker, IBackendProvider backendProvider, IShamanMessageSender packetSender, IRoomManager roomManager, IMatchMakingGroupsManager matchMakingGroupsManager,
             string authSecret)
         {
             _matchMaker = matchMaker;
             _backendProvider = backendProvider;
-            _packetSender = packetSender;
+            _messageSender = packetSender;
             _authSecret = authSecret;
             _roomManager = roomManager;
             _matchMakingGroupsManager = matchMakingGroupsManager;
@@ -80,16 +80,16 @@ namespace Shaman.MM
             //listener handles only auth message, others are sent to roomManager
             switch (operationCode)
             {
-                case CustomOperationCode.Connect:
-                    _packetSender.AddPacket(new ConnectedEvent(), peer);
+                case ShamanOperationCode.Connect:
+                    _messageSender.AddPacket(new ConnectedEvent(), peer);
                     break;
-                case CustomOperationCode.Ping:
+                case ShamanOperationCode.Ping:
                     //ping processing
                     break;
-                case CustomOperationCode.Disconnect:
+                case ShamanOperationCode.Disconnect:
                     OnClientDisconnect(endPoint, new LightNetDisconnectInfo(ClientDisconnectReason.PeerLeave));
                     break;
-                case CustomOperationCode.Authorization:
+                case ShamanOperationCode.Authorization:
                     var authMessage =
                         Serializer.DeserializeAs<AuthorizationRequest>(buffer, offset, length);
                     
@@ -100,7 +100,7 @@ namespace Shaman.MM
                         peer.IsAuthorized = true;
                         //this sessionID will be got from backend, after we send authToken, which will come in player properties
                         peer.SetSessionId(authMessage.SessionId);
-                        _packetSender.AddPacket(new AuthorizationResponse(), peer);
+                        _messageSender.AddPacket(new AuthorizationResponse(), peer);
                     }
                     else
                     {
@@ -124,12 +124,12 @@ namespace Shaman.MM
                                     peer.IsAuthorized = true;
                                     //this sessionID will be got from backend, after we send authToken, which will come in player properties
                                     peer.SetSessionId(authMessage.SessionId);
-                                    _packetSender.AddPacket(new AuthorizationResponse(), peer);
+                                    _messageSender.AddPacket(new AuthorizationResponse(), peer);
                                 }
                                 else
                                 {
                                     peer.IsAuthorizing = false;
-                                    _packetSender.AddPacket(new AuthorizationResponse() {ResultCode = ResultCode.NotAuthorized}, peer);
+                                    _messageSender.AddPacket(new AuthorizationResponse() {ResultCode = ResultCode.NotAuthorized}, peer);
                                 }
                             });
                     }
@@ -137,16 +137,16 @@ namespace Shaman.MM
                 default:
                     if (!peer.IsAuthorized && Config.IsAuthOn())
                     {
-                        _packetSender.AddPacket(new AuthorizationResponse() {ResultCode = ResultCode.NotAuthorized}, peer);
+                        _messageSender.AddPacket(new AuthorizationResponse() {ResultCode = ResultCode.NotAuthorized}, peer);
                         return;
                     }
 
                     switch (operationCode)
                     {
-                        case CustomOperationCode.PingRequest:
-                            _packetSender.AddPacket(new PingResponse(), peer);
+                        case ShamanOperationCode.PingRequest:
+                            _messageSender.AddPacket(new PingResponse(), peer);
                             break;
-                        case CustomOperationCode.CreateRoomFromClient:
+                        case ShamanOperationCode.CreateRoomFromClient:
                             var createRequest =
                                 Serializer.DeserializeAs<CreateRoomFromClientRequest>(buffer, offset, length);
                             TaskScheduler.ScheduleOnceOnNow(async () =>
@@ -157,10 +157,10 @@ namespace Shaman.MM
                                 var createResponse = new CreateRoomFromClientResponse(GetJoinInfo(createResult));
                                 if (createResult.Result == RoomOperationResult.OK)
                                     _logger.Info($"Room {createResult.RoomId} created");
-                                _packetSender.AddPacket(createResponse, peer);
+                                _messageSender.AddPacket(createResponse, peer);
                             });
                             break;
-                        case CustomOperationCode.DirectJoin:
+                        case ShamanOperationCode.DirectJoin:
                             var joinRequest = Serializer.DeserializeAs<DirectJoinRequest>(buffer, offset, length);
                             TaskScheduler.ScheduleOnceOnNow(async () =>
                             {
@@ -172,19 +172,19 @@ namespace Shaman.MM
                                 var joinResponse = new DirectJoinResponse(GetJoinInfo(joinResult));
                                 if (joinResult.Result == RoomOperationResult.OK)
                                     _logger.Info($"Player direct joined room {joinResult.RoomId}");
-                                _packetSender.AddPacket(joinResponse, peer);
+                                _messageSender.AddPacket(joinResponse, peer);
                             });
                             break;
-                        case CustomOperationCode.GetRoomList:
+                        case ShamanOperationCode.GetRoomList:
                             var request = Serializer.DeserializeAs<GetRoomListRequest>(buffer, offset, length);
                             var rooms = _matchMakingGroupsManager.GetRooms(request.MatchMakingProperties)
                                 .Select(r => new RoomInfo(r.Id, r.TotalPlayersNeeded, r.CurrentPlayersCount, r.Properties, r.State))
                                 .ToList();
                             var getRoomsResponse = new GetRoomListResponse();
                             getRoomsResponse.Rooms = rooms;
-                            _packetSender.AddPacket(getRoomsResponse, peer);
+                            _messageSender.AddPacket(getRoomsResponse, peer);
                             break;
-                        case CustomOperationCode.EnterMatchMaking:
+                        case ShamanOperationCode.EnterMatchMaking:
                             var enterMessage =  Serializer.DeserializeAs<EnterMatchMakingRequest>(buffer, offset, length);
                             if (enterMessage == null)
                                 throw new Exception("Can not deserialize EnterMatchMakingRequest. Result is null");
@@ -199,7 +199,7 @@ namespace Shaman.MM
                                 if (!properties.ContainsKey(property))
                                 {
                                     _logger.Error($"Player {peer.GetPeerId()} tried to enter matchmaking without property {property}");
-                                    _packetSender.AddPacket(new EnterMatchMakingResponse(MatchMakingErrorCode.RequiredPlayerPropertyIsNotSet), peer);
+                                    _messageSender.AddPacket(new EnterMatchMakingResponse(MatchMakingErrorCode.RequiredPlayerPropertyIsNotSet), peer);
                                     return;
                                 }
                             }
@@ -207,17 +207,17 @@ namespace Shaman.MM
                             //add player
                             _matchMaker.AddPlayer(peer, enterMessage.MatchMakingProperties);
                             
-                            _packetSender.AddPacket(new EnterMatchMakingResponse(), peer);
+                            _messageSender.AddPacket(new EnterMatchMakingResponse(), peer);
 
                             break;
-                        case CustomOperationCode.LeaveMatchMaking:
+                        case ShamanOperationCode.LeaveMatchMaking:
                             //remove player
                             _matchMaker.RemovePlayer(peer.GetPeerId());
                             //send response
-                            _packetSender.AddPacket(new LeaveMatchMakingResponse(), peer);
+                            _messageSender.AddPacket(new LeaveMatchMakingResponse(), peer);
                             break;
                         default:
-                            _packetSender.AddPacket(new ErrorResponse(ResultCode.UnknownOperation), peer);
+                            _messageSender.AddPacket(new ErrorResponse(ResultCode.UnknownOperation), peer);
                             return;
                     }
 
@@ -242,7 +242,7 @@ namespace Shaman.MM
                     {
                         _logger.Error($"Error processing message: {ex}");
                         if (peer != null)
-                            _packetSender.AddPacket(new ErrorResponse(ResultCode.MessageProcessingError), peer);
+                            _messageSender.AddPacket(new ErrorResponse(ResultCode.MessageProcessingError), peer);
                     }
                 }
             }
@@ -250,7 +250,7 @@ namespace Shaman.MM
             {
                 _logger.Error($"Error processing message: {ex}");
                 if (peer != null)
-                    _packetSender.AddPacket(new ErrorResponse(ResultCode.MessageProcessingError), peer);
+                    _messageSender.AddPacket(new ErrorResponse(ResultCode.MessageProcessingError), peer);
             }
 
         }
@@ -266,13 +266,13 @@ namespace Shaman.MM
                 return;
             }
             
-            _packetSender.AddPacket(new ConnectedEvent(), peer);
+            _messageSender.AddPacket(new ConnectedEvent(), peer);
         }
 
         protected override void ProcessDisconnectedPeer(MmPeer peer, IDisconnectInfo info)
         {
             _matchMaker.RemovePlayer(peer.GetPeerId());
-            _packetSender.PeerDisconnected(peer);
+            _messageSender.CleanupPeerData(peer);
         }
     }
 }

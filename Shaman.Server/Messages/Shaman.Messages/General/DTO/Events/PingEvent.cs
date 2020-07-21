@@ -6,10 +6,9 @@ namespace Shaman.Messages.General.DTO.Events
     public class PingEvent : EventBase
     {
         public override bool IsReliable => false;
-        public override bool IsBroadcasted => false;
 
         public PingEvent()
-            : base(Messages.CustomOperationCode.Ping)
+            : base(Messages.ShamanOperationCode.Ping)
         {
         }
 

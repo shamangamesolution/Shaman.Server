@@ -92,8 +92,8 @@ namespace Shaman.Tests
                 "",
                 "",
                 7000);
-            _mmPacketSender = new PacketBatchSender(taskSchedulerFactory, config, serializer, _serverLogger);
-            _gamePacketSender = new PacketBatchSender(taskSchedulerFactory, gameConfig, serializer, _serverLogger);
+            _mmPacketSender = new PacketBatchSender(taskSchedulerFactory, config, _serverLogger);
+            _gamePacketSender = new PacketBatchSender(taskSchedulerFactory, gameConfig, _serverLogger);
             
             _playerManager = new PlayersManager( Mock.Of<IMmMetrics>(), _serverLogger);
             _statsProvider = new MM.Providers.StatisticsProvider(_playerManager);

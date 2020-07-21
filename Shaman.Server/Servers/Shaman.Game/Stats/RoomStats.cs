@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Shaman.Common.Utils.Messages;
 
-namespace Shaman.Game.Contract.Stats
+namespace Shaman.Game.Stats
 {
     
     public class RoomStats
