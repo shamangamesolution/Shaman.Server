@@ -1,5 +1,6 @@
 using System;
 using System.Net;
+using Shaman.Common.Contract;
 using Shaman.Common.Server.Peers;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Messages;
@@ -35,6 +36,7 @@ namespace Shaman.Game
         }
 
         private void ProcessMessage(IPEndPoint endPoint, MessageData messageData,
+            DeliveryOptions deliveryOptions,
             GamePeer peer)
         {
             var operationCode = MessageBase.GetOperationCode(messageData.Buffer, messageData.Offset);
@@ -114,7 +116,7 @@ namespace Shaman.Game
                     switch (operationCode)
                     {
                         default:
-                            _roomManager.ProcessMessage(operationCode, messageData, peer);
+                            _roomManager.ProcessMessage(operationCode, messageData, deliveryOptions, peer);
                             break;
                     }
 
@@ -133,8 +135,8 @@ namespace Shaman.Game
                 {
                     try
                     {
-                        var messageData = new MessageData(dataPacket.Buffer, item.Offset, item.Length, dataPacket.IsReliable);
-                        ProcessMessage(endPoint, messageData, peer);
+                        var messageData = new MessageData(dataPacket.Buffer, item.Offset, item.Length);
+                        ProcessMessage(endPoint, messageData, dataPacket.DeliveryOptions, peer);
                     }
                     catch (Exception ex)
                     {

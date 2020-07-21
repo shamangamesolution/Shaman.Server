@@ -2,7 +2,9 @@ using System;
 using System.Collections.Concurrent;
 using System.Net;
 using LiteNetLib;
+using Shaman.Common.Contract;
 using Shaman.Common.Utils.Logging;
+using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Sockets;
 using DisconnectReason = LiteNetLib.DisconnectReason;
 
@@ -31,7 +33,7 @@ namespace Shaman.LiteNetLibAdapter
             _listener.NetworkReceiveEvent += (fromPeer, dataReader, deliveryMethod) =>
             {
                 var dataPacket = new DataPacket(dataReader.RawData, dataReader.UserDataOffset, dataReader.UserDataSize,
-                    IsReliable(deliveryMethod));
+                    ConvertDeliveryMethod(deliveryMethod));
                 OnPacketReceived?.Invoke(endPoint, dataPacket, dataReader.Recycle);
             };
             _listener.PeerConnectedEvent += peer =>
@@ -67,7 +69,7 @@ namespace Shaman.LiteNetLibAdapter
             _listener.NetworkReceiveEvent += (peer, dataReader, method) =>
             {
                 var dataPacket = new DataPacket(dataReader.RawData, dataReader.UserDataOffset, dataReader.UserDataSize,
-                    IsReliable(method));
+                    ConvertDeliveryMethod(method));
                 onReceivePacket(peer.EndPoint, dataPacket, dataReader.Recycle);
             };
             
@@ -78,9 +80,22 @@ namespace Shaman.LiteNetLibAdapter
             };
         }
 
-        private static bool IsReliable(DeliveryMethod method)
+        private static DeliveryOptions ConvertDeliveryMethod(DeliveryMethod method)
         {
-            return method != DeliveryMethod.Unreliable && method != DeliveryMethod.Sequenced;
+            switch (method)
+            {
+                case DeliveryMethod.Unreliable:
+                    return new DeliveryOptions(false,false);
+                    break;
+                case DeliveryMethod.ReliableUnordered:
+                    return new DeliveryOptions(true,false);
+                    break;
+                case DeliveryMethod.ReliableOrdered:
+                    return new DeliveryOptions(true,false);
+                    break;
+                default:
+                    throw new NotSupportedException($"Delivery method {method} not supported");
+            }
         }
 
         public void Listen(int port)

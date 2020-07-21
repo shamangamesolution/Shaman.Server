@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Shaman.Common.Contract;
 using Shaman.Common.Utils.Serialization;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Game.Contract;
@@ -44,12 +45,12 @@ namespace Shaman.Tests.GameModeControllers
         {
         }
 
-        public void ProcessMessage(MessageData message, Guid sessionId)
+        public void ProcessMessage(MessageData message, DeliveryOptions deliveryOptions, Guid sessionId)
         {
             var testRoomEvent =
                 _serializer.DeserializeAs<TestRoomEvent>(message.Buffer, message.Offset, message.Length);
             _room.SendToAll(message,
-                new SendOptions
+                new TransportOptions
                     {IsReliable = testRoomEvent.IsReliable, IsOrdered = testRoomEvent.IsOrdered}, sessionId);
         }
     }
