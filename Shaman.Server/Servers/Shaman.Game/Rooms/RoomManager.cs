@@ -270,7 +270,7 @@ namespace Shaman.Game.Rooms
                         {
                             var msg = $"Peer {sessionId} attempted to join to non-exist room {joinMessage.RoomId}";
                             _logger.Error(msg);
-                            _messageSender.AddPacket(new JoinRoomResponse() { ResultCode = ResultCode.RequestProcessingError }, peer);
+                            _messageSender.Send(new JoinRoomResponse() { ResultCode = ResultCode.RequestProcessingError }, peer);
                         }
                         else
                         {
@@ -282,19 +282,19 @@ namespace Shaman.Game.Rooms
                                     if (await roomToJoin.PeerJoined(peer, joinMessage.Properties))
                                     {
                                         _gameMetrics.TrackPeerJoin();
-                                        _messageSender.AddPacket(new JoinRoomResponse(), peer);
+                                        _messageSender.Send(new JoinRoomResponse(), peer);
                                     }
                                     else
                                     {
                                         // todo disconnect doesn't work for now
                                         // peer.Disconnect(DisconnectReason.JustBecause);
-                                        _messageSender.AddPacket(new JoinRoomResponse() { ResultCode = ResultCode.RequestProcessingError }, peer);
+                                        _messageSender.Send(new JoinRoomResponse() { ResultCode = ResultCode.RequestProcessingError }, peer);
                                     }
                                 }
                                 catch (Exception ex)
                                 {
                                     _logger.Error($"JoinRoom failed for player {peer.GetSessionId()}: {ex}");
-                                    _messageSender.AddPacket(new JoinRoomResponse() { ResultCode = ResultCode.RequestProcessingError }, peer);
+                                    _messageSender.Send(new JoinRoomResponse() { ResultCode = ResultCode.RequestProcessingError }, peer);
                                 }
                             });
                         }
@@ -309,7 +309,7 @@ namespace Shaman.Game.Rooms
                         else
                         {
                             _logger.Error($"ProcessMessage error: Can not get room for peer {peer.GetSessionId()}");
-                            _messageSender.AddPacket(new ErrorResponse() {ResultCode = ResultCode.MessageProcessingError}, peer);
+                            _messageSender.Send(new ErrorResponse() {ResultCode = ResultCode.MessageProcessingError}, peer);
                         }
 
                         break;
@@ -320,7 +320,7 @@ namespace Shaman.Game.Rooms
             catch (Exception ex)
             {
                 _logger.Error($"RoomManager.ProcessMessage: Error processing {operationCode} message: {ex}");
-                _messageSender.AddPacket(new ErrorResponse() {ResultCode = ResultCode.MessageProcessingError}, peer);
+                _messageSender.Send(new ErrorResponse() {ResultCode = ResultCode.MessageProcessingError}, peer);
             }
 
         }

@@ -88,7 +88,7 @@ namespace Shaman.MM.MatchMaking
                     var joinInfo = new JoinInfo("", 0, Guid.Empty, JoinStatus.OnMatchmaking, _matchmakingPlayers.Count(),
                             _totalPlayersNeeded);
                     
-                    _messageSender.AddPacket(new JoinInfoEvent(joinInfo), player.Peer);
+                    _messageSender.Send(new JoinInfoEvent(joinInfo), player.Peer);
                 }
             }
         }
@@ -132,7 +132,7 @@ namespace Shaman.MM.MatchMaking
             _logger.Error($"Sending matchmaking failed info to {player.Id}: {message}");
             _playersManager.SetOnMatchmaking(player.Id, false);
             var joinInfo = new JoinInfo("", 0, Guid.Empty, JoinStatus.MatchMakingFailed, 0, 0);
-            _messageSender.AddPacket(new JoinInfoEvent(joinInfo), player.Peer);
+            _messageSender.Send(new JoinInfoEvent(joinInfo), player.Peer);
             _playersManager.Remove(player.Id);
         }
 
@@ -141,7 +141,7 @@ namespace Shaman.MM.MatchMaking
             _logger.Debug($"Sending join info to {player.Id}");
             var joinInfo = new JoinInfo(result.Address, result.Port, result.RoomId, JoinStatus.RoomIsReady,
                     _matchmakingPlayers.Count, _totalPlayersNeeded, true);
-            _messageSender.AddPacket(new JoinInfoEvent(joinInfo), player.Peer);
+            _messageSender.Send(new JoinInfoEvent(joinInfo), player.Peer);
             _playersManager.Remove(player.Id);
         }
 

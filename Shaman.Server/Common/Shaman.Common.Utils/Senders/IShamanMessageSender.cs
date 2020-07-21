@@ -6,8 +6,8 @@ namespace Shaman.Common.Utils.Senders
 {
     public interface IShamanMessageSender
     {
-        int AddPacket(MessageBase message, IPeerSender peer);
-        int AddPacket(MessageBase message, IEnumerable<IPeerSender> peer);
+        int Send(MessageBase message, IPeerSender peer);
+        int Send(MessageBase message, IEnumerable<IPeerSender> peer);
         void CleanupPeerData(IPeerSender peer);
     }
 }
