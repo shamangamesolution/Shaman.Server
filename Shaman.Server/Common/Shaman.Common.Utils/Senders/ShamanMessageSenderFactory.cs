@@ -18,7 +18,7 @@ namespace Shaman.Common.Utils.Senders
 
         public IShamanMessageSender Create(IPacketSender packetSender)
         {
-            return new ShamanMessageSender(_serializer, packetSender, _logger, _config);
+            return new ShamanMessageSender(new ShamanSender(_serializer, packetSender, _logger, _config));
         }
     }
 }

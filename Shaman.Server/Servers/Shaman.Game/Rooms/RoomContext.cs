@@ -1,4 +1,5 @@
 using System;
+using Shaman.Common.Contract;
 using Shaman.Common.Server.Peers;
 using Shaman.Game.Contract;
 
@@ -23,14 +24,14 @@ namespace Shaman.Game.Rooms
             _room.GetPlayer(sessionId).Peer.Disconnect(ServerDisconnectReason.KickedByServer);
         }
 
-        public void Send(MessageData messageData, SendOptions sendOptions, params Guid[] sessionIds)
+        public void Send(MessageData messageData, DeliveryOptions transportOptions, params Guid[] sessionIds)
         {
-            _room.Send(messageData, sendOptions, sessionIds);
+            _room.Send(messageData, transportOptions, sessionIds);
         }
 
-        public void SendToAll(MessageData messageData, SendOptions sendOptions, params Guid[] exceptionSessionIds)
+        public void SendToAll(MessageData messageData, DeliveryOptions transportOptions, params Guid[] exceptionSessionIds)
         {
-            _room.SendToAll(messageData, sendOptions, exceptionSessionIds);
+            _room.SendToAll(messageData, transportOptions, exceptionSessionIds);
         }
 
 

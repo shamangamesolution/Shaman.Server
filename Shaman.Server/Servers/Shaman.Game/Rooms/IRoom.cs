@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Shaman.Common.Contract;
 using Shaman.Common.Server.Peers;
+using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Sockets;
 using Shaman.Game.Contract;
-using Shaman.Game.Contract.Stats;
 using Shaman.Game.Stats;
 
 namespace Shaman.Game.Rooms
@@ -14,7 +15,7 @@ namespace Shaman.Game.Rooms
         Guid GetRoomId();
         Task<bool> PeerJoined(IPeer peer, Dictionary<byte, object> peerProperties);
         bool PeerDisconnected(Guid sessionId, IDisconnectInfo reason);
-        void ProcessMessage(MessageData message, Guid sessionId);
+        void ProcessMessage(MessageData message, DeliveryOptions deliveryOptions, Guid sessionId);
         /// <summary>
         /// Cleans up room
         /// </summary>
@@ -28,8 +29,8 @@ namespace Shaman.Game.Rooms
         RoomStats GetStats();
         bool IsGameFinished();
         void UpdateRoom(Dictionary<Guid, Dictionary<byte, object>> players);
-        void Send(MessageData messageData, SendOptions sendOptions, params Guid[] sessionIds);
-        void SendToAll(MessageData messageData, SendOptions sendOptions, params Guid[] exceptionSessionIds);
+        void Send(MessageData messageData, DeliveryOptions sendOptions, params Guid[] sessionIds);
+        void SendToAll(MessageData messageData, DeliveryOptions sendOptions, params Guid[] exceptionSessionIds);
         void Open();
         bool IsOpen();
         void Close();

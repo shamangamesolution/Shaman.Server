@@ -2,7 +2,9 @@
 using System.Buffers;
 using System.Collections.Generic;
 using System.Threading;
+using Shaman.Common.Contract;
 using Shaman.Common.Utils.Logging;
+using Shaman.Common.Utils.Senders;
 
 namespace Shaman.Common.Utils.Sockets
 {
@@ -20,18 +22,18 @@ namespace Shaman.Common.Utils.Sockets
 
     public struct DataPacket
     {
-        public DataPacket(byte[] buffer, int offset, int length, bool isReliable)
+        public DataPacket(byte[] buffer, int offset, int length, DeliveryOptions deliveryOptions)
         {
             Buffer = buffer;
             Offset = offset;
             Length = length;
-            IsReliable = isReliable;
+            DeliveryOptions = deliveryOptions;
         }
 
         public readonly byte[] Buffer;
         public readonly int Offset;
         public readonly int Length;
-        public readonly bool IsReliable;
+        public readonly DeliveryOptions DeliveryOptions;
     }
 
 

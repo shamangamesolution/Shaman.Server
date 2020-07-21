@@ -1,11 +1,11 @@
-namespace Shaman.Game.Contract
+namespace Shaman.Common.Contract
 {
-    public struct SendOptions
+    public struct DeliveryOptions
     {
         public bool IsReliable;
         public bool IsOrdered;
 
-        public SendOptions(bool isReliable, bool isOrdered)
+        public DeliveryOptions(bool isReliable, bool isOrdered)
         {
             IsReliable = isReliable;
             IsOrdered = isOrdered;

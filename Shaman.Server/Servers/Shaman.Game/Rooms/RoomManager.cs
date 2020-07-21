@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using Shaman.Common.Contract;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Server.Peers;
 using Shaman.Common.Utils.Logging;
@@ -253,7 +254,8 @@ namespace Shaman.Game.Rooms
             }
         }
 
-        public void ProcessMessage(ushort operationCode, MessageData message, IPeer peer)
+        public void ProcessMessage(ushort operationCode, MessageData message, DeliveryOptions deliveryOptions,
+            IPeer peer)
         {
             try
             {
@@ -305,7 +307,7 @@ namespace Shaman.Game.Rooms
                         break;
                     case ShamanOperationCode.Bundle:
                         if (_sessionsToRooms.TryGetValue(peer.GetSessionId(), out var room))
-                            room.ProcessMessage(message, peer.GetSessionId());
+                            room.ProcessMessage(message, deliveryOptions, peer.GetSessionId());
                         else
                         {
                             _logger.Error($"ProcessMessage error: Can not get room for peer {peer.GetSessionId()}");

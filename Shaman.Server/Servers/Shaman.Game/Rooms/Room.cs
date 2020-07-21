@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Shaman.Common.Contract;
 using Shaman.Common.Server.Peers;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Senders;
@@ -190,10 +191,10 @@ namespace Shaman.Game.Rooms
             }
         }
 
-        public void ProcessMessage(MessageData message, Guid sessionId)
+        public void ProcessMessage(MessageData message, DeliveryOptions deliveryOptions, Guid sessionId)
         {
-            _gameModeController.ProcessMessage(message, sessionId);
-            _roomStats.TrackReceivedMessage(ShamanOperationCode.Bundle, message.Length, message.IsReliable);
+            _gameModeController.ProcessMessage(message, deliveryOptions, sessionId);
+            _roomStats.TrackReceivedMessage(ShamanOperationCode.Bundle, message.Length, deliveryOptions.IsReliable);
         }
 
         public int CleanUp()
@@ -245,7 +246,7 @@ namespace Shaman.Game.Rooms
             return player;
         }
 
-        public void Send(MessageData messageData, SendOptions sendOptions, params Guid[] sessionIds)
+        public void Send(MessageData messageData, DeliveryOptions deliveryOptions, params Guid[] sessionIds)
         {
             foreach (var sessionId in sessionIds)
             {
@@ -256,12 +257,12 @@ namespace Shaman.Game.Rooms
                     messageData.Buffer,
                     messageData.Offset,
                     messageData.Length,
-                    sendOptions.IsReliable,
-                    sendOptions.IsOrdered);
+                    deliveryOptions.IsReliable,
+                    deliveryOptions.IsOrdered);
             }
         }
 
-        public void SendToAll(MessageData messageData, SendOptions sendOptions, params Guid[] exceptionSessionIds)
+        public void SendToAll(MessageData messageData, DeliveryOptions deliveryOptions, params Guid[] exceptionSessionIds)
         {
             foreach (var sessionId in _roomPlayers.Keys.Except(exceptionSessionIds))
             {
@@ -272,8 +273,8 @@ namespace Shaman.Game.Rooms
                     messageData.Buffer,
                     messageData.Offset,
                     messageData.Length,
-                    sendOptions.IsReliable,
-                    sendOptions.IsOrdered);
+                    deliveryOptions.IsReliable,
+                    deliveryOptions.IsOrdered);
             }
 
         }
