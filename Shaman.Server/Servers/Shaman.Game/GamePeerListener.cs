@@ -22,15 +22,15 @@ namespace Shaman.Game
     {
         private IRoomManager _roomManager;
         private IBackendProvider _backendProvider;
-        private IPacketSender _packetSender;
+        private IShamanMessageSender _messageSender;
         private string _authSecret;
 
-        public void Initialize(IRoomManager roomManager, IBackendProvider backendProvider, IPacketSender packetSender,
+        public void Initialize(IRoomManager roomManager, IBackendProvider backendProvider, IShamanMessageSender messageSender,
             string authSecret)
         {
             _roomManager = roomManager;
             _backendProvider = backendProvider;
-            _packetSender = packetSender;
+            _messageSender = messageSender;
             _authSecret = authSecret;
         }
 
@@ -49,16 +49,16 @@ namespace Shaman.Game
             //listener handles only auth message, others are sent to roomManager
             switch (operationCode)
             {
-                case CustomOperationCode.Connect:
-                    _packetSender.AddPacket(new ConnectedEvent(), peer);
+                case ShamanOperationCode.Connect:
+                    _messageSender.AddPacket(new ConnectedEvent(), peer);
                     break;
-                case CustomOperationCode.Ping:
-                    _packetSender.AddPacket(new PingEvent(), peer);
+                case ShamanOperationCode.Ping:
+                    _messageSender.AddPacket(new PingEvent(), peer);
                     break;
-                case CustomOperationCode.Disconnect:
+                case ShamanOperationCode.Disconnect:
                     OnClientDisconnect(endPoint, new LightNetDisconnectInfo(ClientDisconnectReason.PeerLeave));
                     break;
-                case CustomOperationCode.Authorization:
+                case ShamanOperationCode.Authorization:
                     var authMessage = Serializer.DeserializeAs<AuthorizationRequest>(messageData.Buffer, messageData.Offset, messageData.Length);
                     
                     if (!Config.IsAuthOn())
@@ -68,7 +68,7 @@ namespace Shaman.Game
                         peer.IsAuthorized = true;
                         //this sessionID will be got from backend, after we send authToken, which will come in player properties
                         peer.SetSessionId(authMessage.SessionId);
-                        _packetSender.AddPacket(new AuthorizationResponse(), peer);
+                        _messageSender.AddPacket(new AuthorizationResponse(), peer);
                     }
                     else
                     {
@@ -94,12 +94,12 @@ namespace Shaman.Game
                                     peer.IsAuthorized = true;
                                     //this sessionID will be got from backend, after we send authToken, which will come in player properties
                                     peer.SetSessionId(authMessage.SessionId);
-                                    _packetSender.AddPacket(new AuthorizationResponse(), peer);
+                                    _messageSender.AddPacket(new AuthorizationResponse(), peer);
                                 }
                                 else
                                 {
                                     peer.IsAuthorizing = false;
-                                    _packetSender.AddPacket(new AuthorizationResponse() {ResultCode = ResultCode.NotAuthorized}, peer);
+                                    _messageSender.AddPacket(new AuthorizationResponse() {ResultCode = ResultCode.NotAuthorized}, peer);
                                 }
                             });
                     }
@@ -107,7 +107,7 @@ namespace Shaman.Game
                 default:
                     if (!peer.IsAuthorized && Config.IsAuthOn())
                     {
-                        _packetSender.AddPacket(new AuthorizationResponse() {ResultCode = ResultCode.NotAuthorized}, peer);
+                        _messageSender.AddPacket(new AuthorizationResponse() {ResultCode = ResultCode.NotAuthorized}, peer);
                         return;
                     }
 
@@ -140,7 +140,7 @@ namespace Shaman.Game
                     {
                         _logger.Error($"Error processing message: {ex}");
                         if (peer != null)
-                            _packetSender.AddPacket(new ErrorResponse(ResultCode.MessageProcessingError), peer);
+                            _messageSender.AddPacket(new ErrorResponse(ResultCode.MessageProcessingError), peer);
                     }
                 }
             }
@@ -148,7 +148,7 @@ namespace Shaman.Game
             {
                 _logger.Error($"OnReceivePacketFromClient: Error processing package: {ex}");
                 if (peer != null)
-                    _packetSender.AddPacket(new ErrorResponse(ResultCode.MessageProcessingError), peer);
+                    _messageSender.AddPacket(new ErrorResponse(ResultCode.MessageProcessingError), peer);
             }
         }
 
@@ -163,7 +163,7 @@ namespace Shaman.Game
                 return;
             }
             
-            _packetSender.AddPacket(new ConnectedEvent(), peer);
+            _messageSender.AddPacket(new ConnectedEvent(), peer);
         }
 
         protected override void ProcessDisconnectedPeer(GamePeer peer, IDisconnectInfo info)
@@ -171,7 +171,7 @@ namespace Shaman.Game
             if (_roomManager.IsInRoom(peer.GetSessionId()))
                 _roomManager.PeerDisconnected(peer, info);
 
-            _packetSender.PeerDisconnected(peer);
+            _messageSender.CleanupPeerData(peer);
         }
     }
 }

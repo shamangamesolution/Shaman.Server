@@ -6,11 +6,9 @@ namespace Shaman.Messages.General.DTO.Events
     public class DisconnectEvent : EventBase
     {
         public override bool IsReliable => true;
-        public override bool IsBroadcasted => true;
-
 
         public DisconnectEvent() 
-            : base(Messages.CustomOperationCode.Disconnect)
+            : base(Messages.ShamanOperationCode.Disconnect)
         {
         }
 

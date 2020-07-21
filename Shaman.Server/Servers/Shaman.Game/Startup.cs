@@ -97,7 +97,9 @@ namespace Shaman.Game
            
             services.AddSingleton<IPacketSenderConfig>(c => c.GetRequiredService<IApplicationConfig>()); 
 
-            services.AddTransient<IPacketSender, PacketBatchSender>();
+            services.AddSingleton<IPacketSender, PacketBatchSender>();
+            services.AddTransient<IShamanMessageSenderFactory, ShamanMessageSenderFactory>();
+
             services.AddScoped<IRoomPropertiesContainer, RoomPropertiesContainer>();            
             services.AddSingleton<ISerializer, BinarySerializer>();            
             services.AddSingleton<IRoomManager, RoomManager>();
@@ -114,6 +116,7 @@ namespace Shaman.Game
             services.AddSingleton<IBundleInfoProvider, BundleInfoProvider>();
             services.AddSingleton<IServerActualizer, ServerActualizer>();
             services.AddSingleton<IGameServerApi, GameServerApi>();
+            
         }
         private void ConfigureMetrics(IServiceCollection services)
         {

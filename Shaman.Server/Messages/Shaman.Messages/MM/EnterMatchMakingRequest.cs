@@ -10,12 +10,12 @@ namespace Shaman.Messages.MM
     {
         public Dictionary<byte, object> MatchMakingProperties { get; set; }
 
-        public EnterMatchMakingRequest(Dictionary<byte, object> properties) : base(Messages.CustomOperationCode.EnterMatchMaking)
+        public EnterMatchMakingRequest(Dictionary<byte, object> properties) : base(Messages.ShamanOperationCode.EnterMatchMaking)
         {
             MatchMakingProperties = properties;
         }
 
-        public EnterMatchMakingRequest() : base(Messages.CustomOperationCode.EnterMatchMaking)
+        public EnterMatchMakingRequest() : base(Messages.ShamanOperationCode.EnterMatchMaking)
         {
             
         }

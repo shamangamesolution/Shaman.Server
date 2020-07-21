@@ -74,7 +74,7 @@ namespace Shaman.Tests
             _serverProvider = new FakeMatchMakerServerInfoProvider(requestSender, "127.0.0.1", "222");
             
             _backendProvider = new BackendProvider(taskSchedulerFactory, config, requestSender, _serverLogger);
-            _packetSender = new PacketBatchSender(taskSchedulerFactory, config, serializer, _serverLogger);
+            _packetSender = new PacketBatchSender(taskSchedulerFactory, config, _serverLogger);
             _playerManager = new PlayersManager( Mock.Of<IMmMetrics>(), _serverLogger);
             _mmRoomManager =
                 new MM.Managers.RoomManager(_serverProvider, _serverLogger, taskSchedulerFactory);

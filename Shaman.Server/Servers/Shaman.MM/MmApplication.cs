@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Shaman.Common.Server.Applications;
 using Shaman.Common.Server.Configuration;
@@ -10,14 +9,9 @@ using Shaman.Common.Utils.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Game.Contract;
 using Shaman.Game.Contract.Stats;
-using Shaman.Messages.General.DTO.Requests.Router;
-using Shaman.Messages.General.DTO.Responses.Router;
 using Shaman.MM.Configuration;
 using Shaman.MM.MatchMaking;
 using Shaman.MM.Peers;
-using Shaman.MM.Players;
-using Shaman.ServerSharedUtilities.Backends;
-using Shaman.Messages.MM;
 using Shaman.MM.Managers;
 using Shaman.MM.Metrics;
 using Shaman.MM.Providers;
@@ -29,6 +23,7 @@ namespace Shaman.MM
         private readonly IMatchMaker _matchMaker;
         private readonly IBackendProvider _backendProvider;
         private readonly IPacketSender _packetSender;
+        private readonly IShamanMessageSenderFactory _messageSenderFactory;
         private readonly IPlayersManager _playersManager;
         private readonly IMatchMakerServerInfoProvider _serverProvider;
         private readonly IRoomManager _roomManager;
@@ -47,12 +42,14 @@ namespace Shaman.MM
             ITaskSchedulerFactory taskSchedulerFactory,
             IBackendProvider backendProvider, 
             IPacketSender packetSender, 
+            IShamanMessageSenderFactory messageSenderFactory,
             IMatchMakerServerInfoProvider serverProvider,
             IRoomManager roomManager, IMatchMakingGroupsManager matchMakingGroupManager, IPlayersManager playersManager, IMmMetrics mmMetrics) : base(logger, config, serializer,
             socketFactory, taskSchedulerFactory, requestSender, mmMetrics)
         {
             _backendProvider = backendProvider;
             _packetSender = packetSender;
+            _messageSenderFactory = messageSenderFactory;
             _serverProvider = serverProvider;
             _roomManager = roomManager;
             _matchMakingGroupManager = matchMakingGroupManager;
@@ -88,9 +85,10 @@ namespace Shaman.MM
             _matchMaker.Start();
             _backendProvider.Start();
             var listeners = GetListeners();
+            var shamanMessageSender = _messageSenderFactory.Create(_packetSender);
             foreach (var listener in listeners)
             {
-                listener.Initialize(_matchMaker, _backendProvider, _packetSender, _roomManager, _matchMakingGroupManager, Config.GetAuthSecret());
+                listener.Initialize(_matchMaker, _backendProvider, shamanMessageSender, _roomManager, _matchMakingGroupManager, Config.GetAuthSecret());
             }
         }
 

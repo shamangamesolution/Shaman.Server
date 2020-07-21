@@ -8,11 +8,11 @@ namespace Shaman.Messages.General.DTO.Responses
         public ResultCode ErrorCode { get; set; }
         
         public ErrorResponse() 
-            : base(CustomOperationCode.Error)
+            : base(ShamanOperationCode.Error)
         {
         }
         public ErrorResponse(ResultCode errorCode) 
-            : base(CustomOperationCode.Error)
+            : base(ShamanOperationCode.Error)
         {
             ErrorCode = errorCode;
         }

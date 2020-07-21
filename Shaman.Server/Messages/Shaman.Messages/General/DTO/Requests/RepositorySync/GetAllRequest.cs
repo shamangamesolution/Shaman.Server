@@ -5,7 +5,7 @@ namespace Shaman.Messages.General.DTO.Requests.RepositorySync
 {
     public class GetAllRequestBase : RequestBase
     {
-        public GetAllRequestBase(ushort operationCode) : base(operationCode)
+        public GetAllRequestBase(byte operationCode) : base(operationCode)
         {
         }
 

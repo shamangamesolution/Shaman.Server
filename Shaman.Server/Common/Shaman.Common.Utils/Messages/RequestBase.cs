@@ -6,11 +6,10 @@ namespace Shaman.Common.Utils.Messages
     public abstract class RequestBase : MessageBase
     {
         public override bool IsReliable => true;
-        public override bool IsBroadcasted => false;
 
         public Guid SessionId { get; set; }
 
-        protected RequestBase(ushort operationCode) : base(operationCode)
+        protected RequestBase(byte operationCode) : base(operationCode)
         {
         }
         

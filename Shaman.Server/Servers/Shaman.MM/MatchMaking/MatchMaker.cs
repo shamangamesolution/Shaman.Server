@@ -1,40 +1,24 @@
 using System;
 using System.Collections.Generic;
-using Shaman.Common.Utils.Logging;
-using Shaman.Common.Utils.Senders;
-using Shaman.Common.Utils.Serialization;
-using Shaman.Common.Utils.TaskScheduling;
 using Shaman.MM.Peers;
 using Shaman.MM.Players;
-using Shaman.Messages.RoomFlow;
 using Shaman.MM.Managers;
-using Shaman.MM.Metrics;
-using Shaman.MM.Providers;
 
 namespace Shaman.MM.MatchMaking
 {
     public class MatchMaker : IMatchMaker
     {
-        private readonly IShamanLogger _logger;
         private readonly List<byte> _requiredMatchMakingProperties;
         private readonly IPlayersManager _playersManager;
         private readonly IMatchMakingGroupsManager _groupManager;
         
-        private readonly IPacketSender _packetSender;
-
-        private readonly IMmMetrics _mmMetrics;
         //hashcodes lists
         //private Dictionary<Guid, int> _hashCodeSets = new Dictionary<Guid, int>();
 
-        public MatchMaker(IShamanLogger logger,
-            IPacketSender packetSender, IMmMetrics mmMetrics, 
-            IPlayersManager playersManager, IMatchMakingGroupsManager groupManager)
+        public MatchMaker(IPlayersManager playersManager, IMatchMakingGroupsManager groupManager)
         {
-            _packetSender = packetSender;
-            _mmMetrics = mmMetrics;
             _playersManager = playersManager;
             _groupManager = groupManager;
-            _logger = logger;
             _requiredMatchMakingProperties = new List<byte>();
         }
         

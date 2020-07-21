@@ -14,7 +14,7 @@ namespace Shaman.Messages.MM
             MatchMakingProperties = matchMakingProperties;
         }
         
-        public CreateRoomFromClientRequest(): base(CustomOperationCode.CreateRoomFromClient)
+        public CreateRoomFromClientRequest(): base(ShamanOperationCode.CreateRoomFromClient)
         {
             
         }

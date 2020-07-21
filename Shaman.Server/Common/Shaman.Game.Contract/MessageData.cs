@@ -5,7 +5,7 @@ namespace Shaman.Game.Contract
         public readonly byte[] Buffer;
         public readonly int Offset;
         public readonly int Length;
-        public readonly bool IsReliable;
+        public readonly bool IsReliable;//todo shouldn't be here
 
         public MessageData(byte[] buffer, int offset, int length, bool isReliable)
         {

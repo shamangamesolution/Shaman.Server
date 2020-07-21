@@ -7,7 +7,7 @@ namespace Shaman.Messages.MM
     public class LeaveMatchMakingRequest : RequestBase
     {
 
-        public LeaveMatchMakingRequest() : base(Messages.CustomOperationCode.LeaveMatchMaking)
+        public LeaveMatchMakingRequest() : base(Messages.ShamanOperationCode.LeaveMatchMaking)
         {
 
         }

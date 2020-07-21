@@ -1,6 +1,5 @@
 using System;
 using Shaman.Common.Server.Peers;
-using Shaman.Common.Utils.Messages;
 using Shaman.Game.Contract;
 
 namespace Shaman.Game.Rooms
@@ -19,26 +18,21 @@ namespace Shaman.Game.Rooms
             return _room.GetRoomId();
         }
 
-        public int SendToAll(MessageBase message, params Guid[] exceptions)
-        {
-            return _room.SendToAll(message, exceptions);
-        }
-
-        public int AddToSendQueue(MessageBase message, Guid sessionId)
-        {
-            return _room.AddToSendQueue(message, sessionId);
-        }
-
         public void KickPlayer(Guid sessionId)
         {
             _room.GetPlayer(sessionId).Peer.Disconnect(ServerDisconnectReason.KickedByServer);
         }
-        
-        public void SendToAll(MessageData messageData, ushort opCode, bool isReliable, bool isOrdered,
-            params Guid[] exceptions)
+
+        public void Send(MessageData messageData, SendOptions sendOptions, params Guid[] sessionIds)
         {
-            _room.SendToAll(messageData, opCode, isReliable, isOrdered, exceptions);
+            _room.Send(messageData, sendOptions, sessionIds);
         }
+
+        public void SendToAll(MessageData messageData, SendOptions sendOptions, params Guid[] exceptionSessionIds)
+        {
+            _room.SendToAll(messageData, sendOptions, exceptionSessionIds);
+        }
+
 
         public void Open()
         {

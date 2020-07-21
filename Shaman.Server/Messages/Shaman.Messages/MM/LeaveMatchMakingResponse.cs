@@ -7,7 +7,7 @@ namespace Shaman.Messages.MM
     {
         public MatchMakingErrorCode MatchMakingErrorCode { get; set; }
 
-        public LeaveMatchMakingResponse() : base(CustomOperationCode.LeaveMatchMakingResponse)
+        public LeaveMatchMakingResponse() : base(ShamanOperationCode.LeaveMatchMakingResponse)
         {
             
         }

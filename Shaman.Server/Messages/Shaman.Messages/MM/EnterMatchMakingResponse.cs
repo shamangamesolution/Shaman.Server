@@ -8,12 +8,12 @@ namespace Shaman.Messages.MM
         public MatchMakingErrorCode MatchMakingErrorCode { get; set; }
         
         public EnterMatchMakingResponse(MatchMakingErrorCode matchMakingResultCode = MatchMakingErrorCode.OK) 
-            : base(Messages.CustomOperationCode.EnterMatchMakingResponse)
+            : base(Messages.ShamanOperationCode.EnterMatchMakingResponse)
         {
             MatchMakingErrorCode = matchMakingResultCode;
         }
 
-        public EnterMatchMakingResponse() : base(Messages.CustomOperationCode.EnterMatchMakingResponse)
+        public EnterMatchMakingResponse() : base(Messages.ShamanOperationCode.EnterMatchMakingResponse)
         {
             
         }

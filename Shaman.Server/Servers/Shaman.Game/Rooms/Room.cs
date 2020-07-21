@@ -5,14 +5,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using Shaman.Common.Server.Peers;
 using Shaman.Common.Utils.Logging;
-using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Game.Contract;
 using Shaman.Messages;
 using Shaman.Messages.MM;
-using RoomStats = Shaman.Game.Contract.Stats.RoomStats;
+using RoomStats = Shaman.Game.Stats.RoomStats;
 
 namespace Shaman.Game.Rooms
 {
@@ -29,17 +28,15 @@ namespace Shaman.Game.Rooms
         private readonly IPacketSender _packetSender;
         private readonly IGameModeController _gameModeController;
         private readonly RoomStats _roomStats;
-        private readonly IRequestSender _requestSender;
         private readonly IRoomStateUpdater _roomStateUpdater;
         
         private RoomState _roomState = RoomState.Closed;
 
-        private PendingTask _statTask, _updateStateTask;
         
         public Room(IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory, IRoomManager roomManager,
             IRoomPropertiesContainer roomPropertiesContainer,
             IGameModeControllerFactory gameModeControllerFactory, IPacketSender packetSender,
-            IRequestSender requestSender, Guid roomId, IRoomStateUpdater roomStateUpdater)
+            Guid roomId, IRoomStateUpdater roomStateUpdater)
         {
             _logger = logger;
             _roomId = roomId;
@@ -49,7 +46,6 @@ namespace Shaman.Game.Rooms
             _roomManager = roomManager;
             _roomPropertiesContainer = roomPropertiesContainer;
             _packetSender = packetSender;
-            _requestSender = requestSender;
 
             _roomStats = new RoomStats(GetRoomId(), roomPropertiesContainer.GetPlayersCount());
             
@@ -57,7 +53,7 @@ namespace Shaman.Game.Rooms
                 gameModeControllerFactory.GetGameModeController(
                     new RoomContext(this), _taskScheduler, roomPropertiesContainer);
 
-            _statTask = _taskScheduler.ScheduleOnInterval(() =>
+            _ = _taskScheduler.ScheduleOnInterval(() =>
             {
                 var maxQueueSIze = _packetSender.GetMaxQueueSIze();
                 _roomStats.AddMaxQueueSize(maxQueueSIze);
@@ -65,8 +61,7 @@ namespace Shaman.Game.Rooms
                 
             }, 0, 1000, true);
 
-            _updateStateTask =
-                _taskScheduler.ScheduleOnInterval(async () => await SendRoomStateUpdate(), 0, 2000, true); 
+            _ = _taskScheduler.ScheduleOnInterval(async () => await SendRoomStateUpdate(), 0, 2000, true); 
         }
 
         public TimeSpan ForceDestroyRoomAfter => _gameModeController.ForceDestroyRoomAfter;
@@ -105,31 +100,6 @@ namespace Shaman.Game.Rooms
             _roomStateUpdater.UpdateRoomState(GetRoomId(), _roomPlayers.Count(), _roomState, matchMakerUrl);
         }
 
-        public int SendToAll(MessageBase message, params Guid[] exceptions)
-        {
-            if (exceptions == null)
-                exceptions = Array.Empty<Guid>();
-            
-            var peers = _roomPlayers.Where(p => exceptions.All(e => e != p.Value.Peer.GetSessionId()))
-                .Select(p => p.Value.Peer);
-            
-            var length = _packetSender.AddPacket(message, peers);
-            _roomStats.TrackSentMessage(length, message.IsReliable, message.OperationCode);
-            return length;
-        }
-
-        public void SendToAll(MessageData messageData, ushort opCode, bool isReliable, bool isOrdered,
-            params Guid[] exceptions)
-        {
-            if (exceptions == null)
-                exceptions = Array.Empty<Guid>();
-
-            var peers = _roomPlayers.Where(p => exceptions.All(e => e != p.Value.Peer.GetSessionId()))
-                .Select(p => p.Value.Peer);
-            
-            _packetSender.AddPacket(peers, messageData.Buffer, messageData.Offset, messageData.Length, isReliable, isOrdered);
-            _roomStats.TrackSentMessage(messageData.Length, isReliable, opCode);
-        }
         public IEnumerable<RoomPlayer> GetAllPlayers()
         {
             return _roomPlayers.Values;
@@ -220,47 +190,10 @@ namespace Shaman.Game.Rooms
             }
         }
 
-        public int AddToSendQueue(MessageBase message, Guid sessionId)
+        public void ProcessMessage(MessageData message, Guid sessionId)
         {
-            if (!_roomPlayers.ContainsKey(sessionId))
-                return 0;
-            
-            var player = _roomPlayers[sessionId];
-            if (player != null)
-            {
-                var length = _packetSender.AddPacket(message, player.Peer);
-                _roomStats.TrackSentMessage(length, message.IsReliable, message.OperationCode);
-                return length;
-            }
-            else
-            {
-                _logger.Error($"Trying to send message {message.GetType()} to non-existing player {sessionId}");
-            }
-
-            return 0;
-        }
-        
-        public void AddToSendQueue(MessageData messageData, ushort opCode, Guid sessionId, bool isReliable, bool isOrdered)
-        {
-            if (!_roomPlayers.ContainsKey(sessionId))
-                return;
-            
-            var player = _roomPlayers[sessionId];
-            if (player != null)
-            {
-                _packetSender.AddPacket(player.Peer, messageData.Buffer, messageData.Offset, messageData.Length, isReliable, isOrdered);
-                _roomStats.TrackSentMessage(messageData.Length, isReliable, opCode);
-            }
-            else
-            {
-                _logger.Error($"Trying to send message with code {opCode} to non-existing player {sessionId}");
-            }
-        }
-
-        public void ProcessMessage(ushort operationCode, MessageData message, Guid sessionId)
-        {
-            _gameModeController.ProcessMessage(operationCode, message, sessionId);
-            _roomStats.TrackReceivedMessage(operationCode, message.Length, message.IsReliable);
+            _gameModeController.ProcessMessage(message, sessionId);
+            _roomStats.TrackReceivedMessage(ShamanOperationCode.Bundle, message.Length, message.IsReliable);
         }
 
         public int CleanUp()
@@ -310,6 +243,39 @@ namespace Shaman.Game.Rooms
         {            
             _roomPlayers.TryGetValue(sessionId, out var player);
             return player;
+        }
+
+        public void Send(MessageData messageData, SendOptions sendOptions, params Guid[] sessionIds)
+        {
+            foreach (var sessionId in sessionIds)
+            {
+                if (!_roomPlayers.TryGetValue(sessionId, out var player))
+                    return;
+
+                _packetSender.AddPacket(player.Peer,
+                    messageData.Buffer,
+                    messageData.Offset,
+                    messageData.Length,
+                    sendOptions.IsReliable,
+                    sendOptions.IsOrdered);
+            }
+        }
+
+        public void SendToAll(MessageData messageData, SendOptions sendOptions, params Guid[] exceptionSessionIds)
+        {
+            foreach (var sessionId in _roomPlayers.Keys.Except(exceptionSessionIds))
+            {
+                if (!_roomPlayers.TryGetValue(sessionId, out var player))
+                    return;
+
+                _packetSender.AddPacket(player.Peer,
+                    messageData.Buffer,
+                    messageData.Offset,
+                    messageData.Length,
+                    sendOptions.IsReliable,
+                    sendOptions.IsOrdered);
+            }
+
         }
     }
 }

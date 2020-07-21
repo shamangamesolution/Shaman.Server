@@ -5,12 +5,11 @@ namespace Shaman.Common.Utils.Messages
 {
     public abstract class MessageBase : ISerializable
     {       
-        public ushort OperationCode;
+        public byte OperationCode;
         public virtual bool IsReliable => false;
         public virtual bool IsOrdered => false;
-        public virtual bool IsBroadcasted => false;
         
-        public MessageBase(ushort operationCode)
+        public MessageBase(byte operationCode)
         {
             OperationCode = operationCode;
         }
@@ -36,7 +35,7 @@ namespace Shaman.Common.Utils.Messages
 
         public void Deserialize(ITypeReader typeReader)
         {
-            OperationCode = typeReader.ReadUShort();
+            OperationCode = typeReader.ReadByte();
             DeserializeBody(typeReader);
         }
     }

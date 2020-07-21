@@ -237,7 +237,7 @@ namespace Shaman.Client.Peers
             _logger = logger;
             _serializer = new BinarySerializer();
             _packetBatchSender = new PacketBatchSender(taskSchedulerFactory,
-                new ClientPacketSenderConfig(maxMessageSize, sendTickMs), _serializer, _logger);
+                new ClientPacketSenderConfig(maxMessageSize, sendTickMs), _logger);
             _serverSender = new ServerSender(logger, OnPackageReceived, taskSchedulerFactory.GetTaskScheduler());
         }
 
@@ -305,7 +305,7 @@ namespace Shaman.Client.Peers
         public int Send(MessageBase message, bool isReliable, bool isOrdered)
         {
             var initMsgArray = _serializer.Serialize(message);
-            _packetBatchSender.AddPacket(_serverSender, initMsgArray, isReliable, isOrdered);
+            _packetBatchSender.AddPacket(_serverSender, initMsgArray,0, initMsgArray.Length, isReliable, isOrdered);
             return initMsgArray.Length;
         }
 

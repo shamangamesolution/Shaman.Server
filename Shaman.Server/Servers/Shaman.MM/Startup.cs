@@ -86,6 +86,7 @@ namespace Shaman.MM
             services.AddSingleton<IMatchMakerServerInfoProvider, MatchMakerServerInfoProvider>();
 
             services.AddSingleton<IPacketSender, PacketBatchSender>();
+            services.AddTransient<IShamanMessageSenderFactory, ShamanMessageSenderFactory>();
             services.AddSingleton<ISerializer, BinarySerializer>();            
             //services.AddSingleton<ISocketFactory, HazelSockFactory>();
             services.AddSingleton<ISocketFactory, LiteNetSockFactory>();            

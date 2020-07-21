@@ -23,6 +23,6 @@ namespace Shaman.Game.Contract
         /// Cleanup here all allocated resources
         /// </summary>
         void Cleanup();
-        void ProcessMessage(ushort operationCode, MessageData message, Guid sessionId);
+        void ProcessMessage(MessageData message, Guid sessionId);
     }
 }

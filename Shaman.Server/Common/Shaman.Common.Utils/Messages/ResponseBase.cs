@@ -5,13 +5,12 @@ namespace Shaman.Common.Utils.Messages
     public abstract class ResponseBase : MessageBase
     {
         public override bool IsReliable => true;
-        public override bool IsBroadcasted => false;
         
         public ResultCode ResultCode { get; set; }
         public string Message { get; set; }
 
         
-        public ResponseBase(ushort operationCode) : base(operationCode)
+        public ResponseBase(byte operationCode) : base(operationCode)
         {
             ResultCode = ResultCode.OK;
         }
