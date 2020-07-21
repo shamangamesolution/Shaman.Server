@@ -1,7 +1,6 @@
 using System;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Senders;
-using Shaman.Game.Contract;
 using Shaman.Messages;
 using Shaman.Messages.MM;
 

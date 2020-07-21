@@ -1,4 +1,4 @@
-namespace Shaman.Game.Contract
+namespace Shaman.Common.Contract
 {
     public struct MessageData
     {

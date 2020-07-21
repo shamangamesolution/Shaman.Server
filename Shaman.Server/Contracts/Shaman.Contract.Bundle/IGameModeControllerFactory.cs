@@ -1,6 +1,6 @@
 using Shaman.Common.Utils.TaskScheduling;
 
-namespace Shaman.Game.Contract
+namespace Shaman.Contract.Bundle
 {
     public interface IGameModeControllerFactory
     {

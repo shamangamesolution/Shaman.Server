@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Shaman.Game.Contract.Stats
+namespace Shaman.Contract.Bundle.Stats
 {
     public class RegisteredServerStat
     {

@@ -11,7 +11,7 @@ using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Serialization;
 using Shaman.Common.Utils.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
-using Shaman.Game.Contract;
+using Shaman.Contract.Bundle;
 using Shaman.Game.Metrics;
 using Shaman.Game.Rooms.Exceptions;
 using Shaman.Game.Rooms.RoomProperties;

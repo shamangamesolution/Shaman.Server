@@ -1,5 +1,6 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
+using Shaman.Contract.Bundle;
 
 namespace Shaman.Game.Contract.DI
 {

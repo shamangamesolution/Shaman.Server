@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Shaman.Common.Utils.Extensions;
 using Shaman.Common.Utils.Logging;
-using Shaman.Game.Contract;
+using Shaman.Contract.Bundle;
 using Shaman.Messages;
 
 namespace Shaman.Game.Rooms.RoomProperties

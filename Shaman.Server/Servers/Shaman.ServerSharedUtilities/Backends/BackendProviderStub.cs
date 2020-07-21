@@ -1,4 +1,4 @@
-using Shaman.Game.Contract;
+using Shaman.Contract.Bundle;
 
 namespace Shaman.ServerSharedUtilities.Backends
 {
