@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+using Shaman.Common.Contract;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Peers;
@@ -201,9 +202,9 @@ namespace Shaman.Client.Peers
 
         public Action OnPackageAvailable;
 
-        private readonly ISerializer _serializer;
         private readonly PacketBatchSender _packetBatchSender;
         private readonly ServerSender _serverSender;
+        private readonly ShamanSender _shamanSender;
 
         public Action<string> OnDisconnectedFromServer
         {
@@ -235,9 +236,9 @@ namespace Shaman.Client.Peers
             int sendTickMs)
         {
             _logger = logger;
-            _serializer = new BinarySerializer();
-            _packetBatchSender = new PacketBatchSender(taskSchedulerFactory,
-                new ClientPacketSenderConfig(maxMessageSize, sendTickMs), _logger);
+            var clientPacketSenderConfig = new ClientPacketSenderConfig(maxMessageSize, sendTickMs);
+            _shamanSender = new ShamanSender(new BinarySerializer(), _packetBatchSender, _logger, clientPacketSenderConfig);
+            _packetBatchSender = new PacketBatchSender(taskSchedulerFactory, clientPacketSenderConfig, _logger);
             _serverSender = new ServerSender(logger, OnPackageReceived, taskSchedulerFactory.GetTaskScheduler());
         }
 
@@ -304,9 +305,7 @@ namespace Shaman.Client.Peers
 
         public int Send(MessageBase message, bool isReliable, bool isOrdered)
         {
-            var initMsgArray = _serializer.Serialize(message);
-            _packetBatchSender.AddPacket(_serverSender, initMsgArray,0, initMsgArray.Length, isReliable, isOrdered);
-            return initMsgArray.Length;
+            return _shamanSender.Send(message, new DeliveryOptions(isReliable, isOrdered), _serverSender);
         }
 
         public int GetSendQueueLength()

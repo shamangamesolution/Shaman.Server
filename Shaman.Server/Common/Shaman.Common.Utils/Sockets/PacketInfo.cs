@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Threading;
 using Shaman.Common.Contract;
 using Shaman.Common.Utils.Logging;
-using Shaman.Common.Utils.Senders;
 
 namespace Shaman.Common.Utils.Sockets
 {
@@ -40,7 +39,7 @@ namespace Shaman.Common.Utils.Sockets
     /// <summary>
     /// Temporary interface for for clientPeer
     /// </summary>
-    public interface IPacketInfo: IDisposable
+    public interface IPacketInfo : IDisposable
     {
         bool IsReliable { get; }
         bool IsOrdered { get; }
@@ -52,51 +51,82 @@ namespace Shaman.Common.Utils.Sockets
     public class PacketInfo : IPacketInfo
     {
         private readonly IShamanLogger _logger;
-        public  bool IsReliable{get;}
-        public  bool IsOrdered{get;}
-        public byte[] Buffer{get;}
-        public int Offset{get;}
-        public int Length{get; private set; }
+        public bool IsReliable { get; }
+        public bool IsOrdered { get; }
+        public byte[] Buffer { get; }
+        public int Offset { get; }
+        public int Length { get; private set; }
         private int _disposed = 0;
 
-        public PacketInfo(byte[] data, bool isReliable, bool isOrdered, int maxPacketSize, IShamanLogger logger) : this(data, 0, data.Length,
-            isReliable, isOrdered, maxPacketSize, logger)
+
+        public PacketInfo(DeliveryOptions deliveryOptions, int maxPacketSize,
+            IShamanLogger logger, Payload payloadPart1, Payload payloadPart2)
+            : this(deliveryOptions, maxPacketSize, logger, payloadPart1.Length + payloadPart2.Length)
         {
+            var sumLength = payloadPart1.Length + payloadPart2.Length;
+            AppendLength(sumLength);
+            AppendPayload(payloadPart1);
+            AppendPayload(payloadPart2);
         }
-        public PacketInfo(byte[] data, int offset, int length, bool isReliable, bool isOrdered, int maxPacketSize,
-            IShamanLogger logger)
+
+        public PacketInfo(DeliveryOptions deliveryOptions, int maxPacketSize,
+            IShamanLogger logger, Payload payload) : this(deliveryOptions, maxPacketSize, logger, payload.Length)
+        {
+            AppendLength(payload.Length);
+            AppendPayload(payload);
+        }
+
+        private PacketInfo(DeliveryOptions deliveryOptions, int maxPacketSize,
+            IShamanLogger logger, int length)
         {
             _logger = logger;
-            Buffer = ArrayPool<byte>.Shared.Rent(Math.Max(maxPacketSize, data.Length + 3));
+            Buffer = ArrayPool<byte>.Shared.Rent(Math.Max(maxPacketSize,
+                length + 3 /*ushort of single packet length + byte of packets count*/));
             Length = 1 /* packet number byte */;
             Offset = 0;
-            
+
             Buffer[0] = 1;
-            IsReliable = isReliable;
-            IsOrdered = isOrdered;
-            AddData(data, offset, length);
+            IsReliable = deliveryOptions.IsReliable;
+            IsOrdered = deliveryOptions.IsOrdered;
         }
 
-        public void Append(byte[] serializedMessage)
+        public void Append(Payload payload)
         {
             Buffer[0]++;
-            AddData(serializedMessage, 0, serializedMessage.Length);
-        }
-        public void Append(byte[] serializedMessage, int offset, int length)
-        {
-            Buffer[0]++;
-            AddData(serializedMessage, offset, length);
+            Buffer[Length] = (byte) payload.Length;
+            Buffer[Length + 1] = (byte) (payload.Length >> 8);
+
+            System.Buffer.BlockCopy(payload.Buffer, payload.Offset, Buffer, Length + sizeof(ushort),
+                payload.Length);
+
+            Length += sizeof(ushort) + payload.Length;
         }
 
-        private void AddData(byte[] serializedMessage, int offset, int length)
+        public void Append(Payload payloadPart1, Payload payloadPart2)
+        {
+            IncrementPackets();
+            var length = payloadPart1.Length + payloadPart2.Length;
+            AppendLength(length);
+            AppendPayload(payloadPart1);
+            AppendPayload(payloadPart2);
+        }
+
+        private void AppendPayload(Payload payload)
+        {
+            System.Buffer.BlockCopy(payload.Buffer, payload.Offset, Buffer, Length, payload.Length);
+            Length += payload.Length;
+        }
+
+        private void IncrementPackets()
+        {
+            Buffer[0]++;
+        }
+
+        private void AppendLength(int length)
         {
             Buffer[Length] = (byte) length;
             Buffer[Length + 1] = (byte) (length >> 8);
-
-            System.Buffer.BlockCopy(serializedMessage, offset, Buffer, Length + sizeof(ushort),
-                length);
-                
-            Length += sizeof(ushort) + length;
+            Length += 2;
         }
 
         public void Dispose()

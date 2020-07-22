@@ -165,7 +165,7 @@ namespace Shaman.Game.Rooms
         {
             var peerRemoved = _roomPlayers.TryRemove(sessionId, out var roomPlayer);
             if (peerRemoved)
-                _packetSender.PeerDisconnected(roomPlayer.Peer);
+                _packetSender.CleanupPeerData(roomPlayer.Peer);
             _roomPropertiesContainer.RemovePlayer(sessionId);
             try
             {
@@ -246,6 +246,8 @@ namespace Shaman.Game.Rooms
             return player;
         }
 
+        private static readonly Payload BundleMessagePrefix = new Payload(ShamanOperationCode.Bundle);
+
         public void Send(Payload payload, DeliveryOptions deliveryOptions, params Guid[] sessionIds)
         {
             foreach (var sessionId in sessionIds)
@@ -253,12 +255,7 @@ namespace Shaman.Game.Rooms
                 if (!_roomPlayers.TryGetValue(sessionId, out var player))
                     return;
 
-                _packetSender.AddPacket(player.Peer,
-                    payload.Buffer,
-                    payload.Offset,
-                    payload.Length,
-                    deliveryOptions.IsReliable,
-                    deliveryOptions.IsOrdered);
+                _packetSender.AddPacket(player.Peer, deliveryOptions, BundleMessagePrefix, payload);
             }
         }
 
@@ -269,12 +266,7 @@ namespace Shaman.Game.Rooms
                 if (!_roomPlayers.TryGetValue(sessionId, out var player))
                     return;
 
-                _packetSender.AddPacket(player.Peer,
-                    payload.Buffer,
-                    payload.Offset,
-                    payload.Length,
-                    deliveryOptions.IsReliable,
-                    deliveryOptions.IsOrdered);
+                _packetSender.AddPacket(player.Peer, deliveryOptions, BundleMessagePrefix, payload);
             }
 
         }
