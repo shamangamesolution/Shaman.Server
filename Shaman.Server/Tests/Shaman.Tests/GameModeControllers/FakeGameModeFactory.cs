@@ -45,7 +45,7 @@ namespace Shaman.Tests.GameModeControllers
         {
         }
 
-        public void ProcessMessage(MessageData message, DeliveryOptions deliveryOptions, Guid sessionId)
+        public void ProcessMessage(Payload message, DeliveryOptions deliveryOptions, Guid sessionId)
         {
             var testRoomEvent =
                 _serializer.DeserializeAs<TestRoomEvent>(message.Buffer, message.Offset, message.Length);

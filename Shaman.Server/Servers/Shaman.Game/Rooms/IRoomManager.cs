@@ -20,7 +20,7 @@ namespace Shaman.Game.Rooms
         int GetRoomsCount();
         IRoom GetRoomBySessionId(Guid sessionId);
         bool IsInRoom(Guid sessionId);
-        void ProcessMessage(ushort operationCode, MessageData message, DeliveryOptions deliveryOptions, IPeer peer);
+        void ProcessMessage(ushort operationCode, Payload message, DeliveryOptions deliveryOptions, IPeer peer);
         Dictionary<Guid, int> GetRoomPeerCount();
         IRoom GetOldestRoom();
         void ConfirmedJoin(Guid sessionId, IRoom room);

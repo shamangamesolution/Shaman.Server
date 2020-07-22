@@ -254,7 +254,7 @@ namespace Shaman.Game.Rooms
             }
         }
 
-        public void ProcessMessage(ushort operationCode, MessageData message, DeliveryOptions deliveryOptions,
+        public void ProcessMessage(ushort operationCode, Payload message, DeliveryOptions deliveryOptions,
             IPeer peer)
         {
             try

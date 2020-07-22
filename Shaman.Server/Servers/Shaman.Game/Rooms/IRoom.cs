@@ -14,7 +14,7 @@ namespace Shaman.Game.Rooms
         Guid GetRoomId();
         Task<bool> PeerJoined(IPeer peer, Dictionary<byte, object> peerProperties);
         bool PeerDisconnected(Guid sessionId, IDisconnectInfo reason);
-        void ProcessMessage(MessageData message, DeliveryOptions deliveryOptions, Guid sessionId);
+        void ProcessMessage(Payload message, DeliveryOptions deliveryOptions, Guid sessionId);
         /// <summary>
         /// Cleans up room
         /// </summary>
@@ -28,8 +28,8 @@ namespace Shaman.Game.Rooms
         RoomStats GetStats();
         bool IsGameFinished();
         void UpdateRoom(Dictionary<Guid, Dictionary<byte, object>> players);
-        void Send(MessageData messageData, DeliveryOptions sendOptions, params Guid[] sessionIds);
-        void SendToAll(MessageData messageData, DeliveryOptions sendOptions, params Guid[] exceptionSessionIds);
+        void Send(Payload payload, DeliveryOptions sendOptions, params Guid[] sessionIds);
+        void SendToAll(Payload payload, DeliveryOptions sendOptions, params Guid[] exceptionSessionIds);
         void Open();
         bool IsOpen();
         void Close();
