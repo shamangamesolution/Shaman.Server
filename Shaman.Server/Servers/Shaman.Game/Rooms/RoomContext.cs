@@ -1,5 +1,4 @@
 using System;
-using Shaman.Common.Contract;
 using Shaman.Common.Server.Peers;
 using Shaman.Contract.Bundle;
 
@@ -8,10 +7,12 @@ namespace Shaman.Game.Rooms
     public class RoomContext : IRoomContext
     {
         private readonly IRoom _room;
+        private readonly RoomSenderProxy _roomSender;
 
         public RoomContext(IRoom room)
         {
             _room = room;
+            _roomSender = new RoomSenderProxy(room);
         }
 
         public Guid GetRoomId()
@@ -25,16 +26,10 @@ namespace Shaman.Game.Rooms
                 player.Peer.Disconnect(ServerDisconnectReason.KickedByServer);
         }
 
-        public void Send(Payload payload, DeliveryOptions transportOptions, params Guid[] sessionIds)
+        public IRoomSender GetSender()
         {
-            _room.Send(payload, transportOptions, sessionIds);
+            return _roomSender;
         }
-
-        public void SendToAll(Payload payload, DeliveryOptions transportOptions, params Guid[] exceptionSessionIds)
-        {
-            _room.SendToAll(payload, transportOptions, exceptionSessionIds);
-        }
-
 
         public void Open()
         {

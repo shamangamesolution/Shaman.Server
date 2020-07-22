@@ -4,11 +4,12 @@ using System.Threading.Tasks;
 using Shaman.Common.Contract;
 using Shaman.Common.Server.Peers;
 using Shaman.Common.Utils.Sockets;
+using Shaman.Contract.Bundle;
 using Shaman.Game.Stats;
 
 namespace Shaman.Game.Rooms
 {
-    public interface IRoom
+    public interface IRoom:  IRoomSender
     {
         Guid GetRoomId();
         Task<bool> PeerJoined(IPeer peer, Dictionary<byte, object> peerProperties);
@@ -32,8 +33,5 @@ namespace Shaman.Game.Rooms
         bool IsOpen();
         void Close();
         TimeSpan ForceDestroyRoomAfter { get; }
-        void Send(Payload payload, DeliveryOptions deliveryOptions, params Guid[] sessionIds);
-        void SendToAll(Payload payload, DeliveryOptions deliveryOptions, params Guid[] exceptionSessionIds);
     }
-
 }

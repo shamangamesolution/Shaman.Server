@@ -7,8 +7,7 @@ namespace Shaman.Contract.Bundle
     {
         Guid GetRoomId();
         void KickPlayer(Guid sessionId);
-        void Send(Payload payload, DeliveryOptions transportOptions, params Guid[] sessionIds);
-        void SendToAll(Payload payload, DeliveryOptions transportOptions, params Guid[] exceptionSessionIds);
+        IRoomSender GetSender();
         void Open();
         void Close();
     }
