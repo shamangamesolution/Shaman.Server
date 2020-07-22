@@ -16,7 +16,7 @@ namespace Shaman.Game.Tests
         {
             var bundleMock = new Mock<IGameBundle>(MockBehavior.Loose);
             var controllerFactoryMock = new Mock<IGameModeControllerFactory>(MockBehavior.Loose);
-            var controllerMock = new Mock<IGameModeController>(MockBehavior.Loose);
+            var controllerMock = new Mock<IRoomController>(MockBehavior.Loose);
 
             bundleMock.Setup(b => b.GetGameModeControllerFactory()).Returns(controllerFactoryMock.Object);
             controllerFactoryMock.Setup(f =>

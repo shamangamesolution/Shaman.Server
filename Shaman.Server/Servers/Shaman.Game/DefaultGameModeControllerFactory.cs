@@ -29,7 +29,7 @@ namespace Shaman.Game
             }
         }
 
-        public IGameModeController GetGameModeController(IRoomContext room, ITaskScheduler taskScheduler,
+        public IRoomController GetGameModeController(IRoomContext room, ITaskScheduler taskScheduler,
             IRoomPropertiesContainer roomPropertiesContainer)
         {
             return _bundledGameModeControllerFactory.GetGameModeController(room, taskScheduler,

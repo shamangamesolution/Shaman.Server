@@ -1,7 +1,7 @@
 using System;
+using System.Threading.Tasks;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Senders;
-using Shaman.Messages;
 using Shaman.Messages.MM;
 
 namespace Shaman.Game.Rooms
@@ -17,7 +17,7 @@ namespace Shaman.Game.Rooms
             _logger = logger;
         }
 
-        public async void UpdateRoomState(Guid roomId, int roomPlayersCount, RoomState roomState, string matchMakerUrl)
+        public async Task UpdateRoomState(Guid roomId, int roomPlayersCount, RoomState roomState, string matchMakerUrl)
         {
             try
             {
