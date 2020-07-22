@@ -58,7 +58,7 @@ namespace Shaman.Common.Utils.Senders
                 var buffer = memoryStream.GetBuffer();
                 foreach (var peer in peers)
                 {
-                    _packetSender.AddPacket(peer, deliveryOptions, new Payload(memoryStream.GetBuffer(), 0, length));
+                    _packetSender.AddPacket(peer, deliveryOptions, new Payload(buffer, 0, length));
                 }
                 
                 UpdateBufferSizeStatistics(message.GetType(), length);
