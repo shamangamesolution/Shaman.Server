@@ -42,7 +42,7 @@ namespace Shaman.MM.Tests
             _logger = new ConsoleLogger();
             _taskSchedulerFactory = new TaskSchedulerFactory(_logger);
             _playersManager = new PlayersManager(Mock.Of<IMmMetrics>(), _logger);
-            _packetSender = new FakePacketSender();
+            _packetSender =Mock.Of<IPacketSender>();
             _serverProvider = new FakeServerProvider();
             _roomManager = new RoomManager(_serverProvider, _logger, _taskSchedulerFactory);
             

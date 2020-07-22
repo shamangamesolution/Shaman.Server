@@ -3,6 +3,7 @@ using System.Linq;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
+using Shaman.Common.Contract;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Serialization.Pooling;
 using Shaman.Common.Utils.Sockets;
@@ -16,10 +17,10 @@ namespace Shaman.Common.Utils.Tests
         [Test]
         public void Test()
         {
-            var packetInfo = new PacketInfo(new byte[] {1, 2, 3}, false, true, 100, ConsoleLogger);
+            var packetInfo = new PacketInfo(new DeliveryOptions(false, true), 100, ConsoleLogger, new Payload(new byte[] {1, 2, 3}, 0, 3));
 
-            packetInfo.Append(new byte[] {2, 1});
-            packetInfo.Append(new byte[] {3, 2, 3, 1});
+            packetInfo.Append(new Payload(new byte[] {2, 1}));
+            packetInfo.Append(new Payload(new byte[] {3, 2, 3, 1}, 0, 4));
 
             var offsets = PacketInfo.GetOffsetInfo(packetInfo.Buffer, packetInfo.Offset).ToArray();
             offsets.Length.Should().Be(3);
@@ -39,13 +40,13 @@ namespace Shaman.Common.Utils.Tests
         [Test]
         public void OffsetTest()
         {
-            var packetInfo = new PacketInfo(new byte[] {0, 0, 1, 2, 3, 9, 9}, 2, 3, false, true, 100, ConsoleLogger);
+            var packetInfo = new PacketInfo(new DeliveryOptions(false, true), 100, ConsoleLogger, new Payload(new byte[] {0, 0, 1, 2, 3, 9, 9}, 2, 3));
 
-            packetInfo.Append(new byte[] {2, 1});
-            packetInfo.Append(new byte[] {3, 1}, 0, 2);
-            packetInfo.Append(new byte[] {4, 2, 3, 1, 8}, 0, 4);
-            packetInfo.Append(new byte[] {8, 5, 2, 3, 1}, 1, 4);
-            packetInfo.Append(new byte[] {8, 6, 2, 3, 1, 0}, 1, 4);
+            packetInfo.Append(new Payload(new byte[] {2, 1}));
+            packetInfo.Append(new Payload(new byte[] {3, 1}, 0, 2));
+            packetInfo.Append(new Payload(new byte[] {4, 2, 3, 1, 8}, 0, 4));
+            packetInfo.Append(new Payload(new byte[] {8, 5, 2, 3, 1}, 1, 4));
+            packetInfo.Append(new Payload(new byte[] {8, 6, 2, 3, 1, 0}, 1, 4));
 
             var offsets = PacketInfo.GetOffsetInfo(packetInfo.Buffer, packetInfo.Offset).ToArray();
             offsets.Length.Should().Be(6);
@@ -76,7 +77,7 @@ namespace Shaman.Common.Utils.Tests
         {
             var mock = new Mock<IShamanLogger>();
             
-            var packetInfo = new PacketInfo(new byte[] {0, 0, 1, 2, 3, 9, 9}, 2, 3, false, true, 100, mock.Object);
+            var packetInfo = new PacketInfo(new DeliveryOptions(false, true), 100, mock.Object, new Payload(new byte[] {0, 0, 1, 2, 3, 9, 9}, 2, 3));
 
             packetInfo.Dispose();
             mock.Verify(s => s.Error(It.IsAny<string>()), Times.Never);

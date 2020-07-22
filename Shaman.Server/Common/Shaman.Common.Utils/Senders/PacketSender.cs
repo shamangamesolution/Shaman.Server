@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
+using Shaman.Common.Contract;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Peers;
 using Shaman.Common.Utils.TaskScheduling;
@@ -31,22 +32,34 @@ namespace Shaman.Common.Utils.Senders
             _peerToPackets = new ConcurrentDictionary<IPeerSender, IPacketQueue>();
         }
 
-        public void AddPacket(IPeerSender peer, byte[] data, int offset, int length, bool isReliable,
-            bool isOrdered)
+        public void AddPacket(IPeerSender peer, DeliveryOptions deliveryOptions, Payload payload)
         {
             lock (_sync)
             {
-                if (!_peerToPackets.TryGetValue(peer, out var packetsQueue))
-                {
-                    packetsQueue = new PacketQueue(_config.GetMaxPacketSize(), _logger);
-                    _peerToPackets.TryAdd(peer, packetsQueue);
-                }
-
-                packetsQueue.Enqueue(data, offset, length, isReliable, isOrdered);
+                var packetsQueue = GetPeerQueue(peer);
+                packetsQueue.Enqueue(deliveryOptions, payload);
+            }
+        }
+        public void AddPacket(IPeerSender peer, DeliveryOptions deliveryOptions, Payload payload1, Payload payload2)
+        {
+            lock (_sync)
+            {
+                var packetsQueue = GetPeerQueue(peer);
+                packetsQueue.Enqueue(deliveryOptions, payload1, payload2);
             }
         }
 
-        public void PeerDisconnected(IPeerSender peer)
+        private IPacketQueue GetPeerQueue(IPeerSender peer)
+        {
+            if (!_peerToPackets.TryGetValue(peer, out var packetsQueue))
+            {
+                packetsQueue = new PacketQueue(_config.GetMaxPacketSize(), _logger);
+                _peerToPackets.TryAdd(peer, packetsQueue);
+            }
+            return packetsQueue;
+        }
+
+        public void CleanupPeerData(IPeerSender peer)
         {
             if (_peerToPackets.TryRemove(peer, out var packetQueue))
             {

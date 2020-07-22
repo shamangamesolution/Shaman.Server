@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Shaman.Common.Contract;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Sockets;
 
@@ -11,11 +12,11 @@ namespace Shaman.Common.Utils.Senders
     /// </summary>
     public interface IPacketQueue : IEnumerable<PacketInfo>
     {
-        void Enqueue(byte[] data, int offset, int length, bool isReliable, bool isOrdered);
-        void Enqueue(byte[] data, bool isReliable, bool isOrdered);
         int Count { get; }
         bool TryDequeue(out PacketInfo packetInfo);
         void Clear();
+        void Enqueue(DeliveryOptions deliveryOptions, Payload payload);
+        void Enqueue(DeliveryOptions deliveryOptions, Payload payload1, Payload payload2);
     }
 
     public class PacketQueue : IPacketQueue
@@ -30,29 +31,51 @@ namespace Shaman.Common.Utils.Senders
             _logger = logger;
         }
 
-        public void Enqueue(byte[] data, int offset, int length, bool isReliable, bool isOrdered)
+        public void Enqueue(DeliveryOptions deliveryOptions, Payload payload)
+        {
+            var length = payload.Length;
+            if (TryGetMatchedPacket(deliveryOptions, length, out var packetInfo))
+            {
+                packetInfo.Append(payload);
+            }
+            else
+            {
+                //add new packet
+                var newPacket = new PacketInfo(deliveryOptions, _maxPacketSize, _logger, payload);
+                _packetsQueue.Enqueue(newPacket);
+            }
+        }
+        public void Enqueue(DeliveryOptions deliveryOptions, Payload payload1, Payload payload2)
+        {
+            var length = payload1.Length + payload2.Length;
+            if (TryGetMatchedPacket(deliveryOptions, length, out var packetInfo))
+            {
+                packetInfo.Append(payload1, payload2);
+            }
+            else
+            {
+                //add new packet
+                var newPacket = new PacketInfo(deliveryOptions, _maxPacketSize, _logger, payload1, payload2);
+                _packetsQueue.Enqueue(newPacket);
+            }
+        }
+
+        private bool TryGetMatchedPacket(DeliveryOptions deliveryOptions,  int length, out PacketInfo packetInfo)
         {
             if (_packetsQueue.Count > 0)
             {
                 var prevPacket = _packetsQueue.Last();
                 if (prevPacket.Length + length <= _maxPacketSize
-                    && prevPacket.IsReliable == isReliable
-                    && prevPacket.IsOrdered == isOrdered)
+                    && prevPacket.IsReliable == deliveryOptions.IsReliable
+                    && prevPacket.IsOrdered == deliveryOptions.IsOrdered)
                 {
-                    //add to previous
-                    prevPacket.Append(data, offset, length);
-                    return;
+                    packetInfo = prevPacket;
+                    return true;
                 }
             }
 
-            //add new packet
-            var newPacket = new PacketInfo(data, offset, length, isReliable, isOrdered, _maxPacketSize, _logger);
-            _packetsQueue.Enqueue(newPacket);
-        }
-
-        public void Enqueue(byte[] data, bool isReliable, bool isOrdered)
-        {
-            Enqueue(data, 0, data.Length, isReliable, isOrdered);
+            packetInfo = null;
+            return false;
         }
 
         public bool TryDequeue(out PacketInfo packetInfo)

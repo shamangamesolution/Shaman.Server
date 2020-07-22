@@ -43,8 +43,7 @@ namespace Shaman.Common.Utils.Senders
             {
                 _serializer.Serialize(message, memoryStream);
                 var length = (int) memoryStream.Length;
-                _packetSender.AddPacket(peer, memoryStream.GetBuffer(), 0, length, deliveryOptions.IsReliable,
-                    deliveryOptions.IsOrdered);
+                _packetSender.AddPacket(peer, deliveryOptions, new Payload(memoryStream.GetBuffer(), 0, length));
                 UpdateBufferSizeStatistics(message.GetType(), length);
                 return length;
             }
@@ -59,8 +58,7 @@ namespace Shaman.Common.Utils.Senders
                 var buffer = memoryStream.GetBuffer();
                 foreach (var peer in peers)
                 {
-                    _packetSender.AddPacket(peer, buffer, 0, length, deliveryOptions.IsReliable,
-                        deliveryOptions.IsOrdered);
+                    _packetSender.AddPacket(peer, deliveryOptions, new Payload(memoryStream.GetBuffer(), 0, length));
                 }
                 
                 UpdateBufferSizeStatistics(message.GetType(), length);
@@ -88,7 +86,7 @@ namespace Shaman.Common.Utils.Senders
 
         public void CleanupPeerData(IPeerSender peer)
         {
-            _packetSender.PeerDisconnected(peer);
+            _packetSender.CleanupPeerData(peer);
         }
 
         private int GetBufferSize(Type dtoType)
