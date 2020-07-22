@@ -191,7 +191,7 @@ namespace Shaman.Game.Rooms
             }
         }
 
-        public void ProcessMessage(MessageData message, DeliveryOptions deliveryOptions, Guid sessionId)
+        public void ProcessMessage(Payload message, DeliveryOptions deliveryOptions, Guid sessionId)
         {
             _gameModeController.ProcessMessage(message, deliveryOptions, sessionId);
             _roomStats.TrackReceivedMessage(ShamanOperationCode.Bundle, message.Length, deliveryOptions.IsReliable);
@@ -246,7 +246,7 @@ namespace Shaman.Game.Rooms
             return player;
         }
 
-        public void Send(MessageData messageData, DeliveryOptions deliveryOptions, params Guid[] sessionIds)
+        public void Send(Payload payload, DeliveryOptions deliveryOptions, params Guid[] sessionIds)
         {
             foreach (var sessionId in sessionIds)
             {
@@ -254,15 +254,15 @@ namespace Shaman.Game.Rooms
                     return;
 
                 _packetSender.AddPacket(player.Peer,
-                    messageData.Buffer,
-                    messageData.Offset,
-                    messageData.Length,
+                    payload.Buffer,
+                    payload.Offset,
+                    payload.Length,
                     deliveryOptions.IsReliable,
                     deliveryOptions.IsOrdered);
             }
         }
 
-        public void SendToAll(MessageData messageData, DeliveryOptions deliveryOptions, params Guid[] exceptionSessionIds)
+        public void SendToAll(Payload payload, DeliveryOptions deliveryOptions, params Guid[] exceptionSessionIds)
         {
             foreach (var sessionId in _roomPlayers.Keys.Except(exceptionSessionIds))
             {
@@ -270,9 +270,9 @@ namespace Shaman.Game.Rooms
                     return;
 
                 _packetSender.AddPacket(player.Peer,
-                    messageData.Buffer,
-                    messageData.Offset,
-                    messageData.Length,
+                    payload.Buffer,
+                    payload.Offset,
+                    payload.Length,
                     deliveryOptions.IsReliable,
                     deliveryOptions.IsOrdered);
             }

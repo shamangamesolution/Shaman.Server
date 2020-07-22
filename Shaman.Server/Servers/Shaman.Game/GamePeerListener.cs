@@ -35,11 +35,11 @@ namespace Shaman.Game
             _authSecret = authSecret;
         }
 
-        private void ProcessMessage(IPEndPoint endPoint, MessageData messageData,
+        private void ProcessMessage(IPEndPoint endPoint, Payload payload,
             DeliveryOptions deliveryOptions,
             GamePeer peer)
         {
-            var operationCode = MessageBase.GetOperationCode(messageData.Buffer, messageData.Offset);
+            var operationCode = MessageBase.GetOperationCode(payload.Buffer, payload.Offset);
             _logger.Debug($"Message received. Operation code: {operationCode}");
 
             if (peer == null)
@@ -61,7 +61,7 @@ namespace Shaman.Game
                     OnClientDisconnect(endPoint, new LightNetDisconnectInfo(ClientDisconnectReason.PeerLeave));
                     break;
                 case ShamanOperationCode.Authorization:
-                    var authMessage = Serializer.DeserializeAs<AuthorizationRequest>(messageData.Buffer, messageData.Offset, messageData.Length);
+                    var authMessage = Serializer.DeserializeAs<AuthorizationRequest>(payload.Buffer, payload.Offset, payload.Length);
                     
                     if (!Config.IsAuthOn())
                     {
@@ -116,7 +116,7 @@ namespace Shaman.Game
                     switch (operationCode)
                     {
                         default:
-                            _roomManager.ProcessMessage(operationCode, messageData, deliveryOptions, peer);
+                            _roomManager.ProcessMessage(operationCode, payload, deliveryOptions, peer);
                             break;
                     }
 
@@ -135,7 +135,7 @@ namespace Shaman.Game
                 {
                     try
                     {
-                        var messageData = new MessageData(dataPacket.Buffer, item.Offset, item.Length);
+                        var messageData = new Payload(dataPacket.Buffer, item.Offset, item.Length);
                         ProcessMessage(endPoint, messageData, dataPacket.DeliveryOptions, peer);
                     }
                     catch (Exception ex)

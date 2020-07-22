@@ -24,14 +24,14 @@ namespace Shaman.Game.Rooms
             _room.GetPlayer(sessionId).Peer.Disconnect(ServerDisconnectReason.KickedByServer);
         }
 
-        public void Send(MessageData messageData, DeliveryOptions transportOptions, params Guid[] sessionIds)
+        public void Send(Payload payload, DeliveryOptions transportOptions, params Guid[] sessionIds)
         {
-            _room.Send(messageData, transportOptions, sessionIds);
+            _room.Send(payload, transportOptions, sessionIds);
         }
 
-        public void SendToAll(MessageData messageData, DeliveryOptions transportOptions, params Guid[] exceptionSessionIds)
+        public void SendToAll(Payload payload, DeliveryOptions transportOptions, params Guid[] exceptionSessionIds)
         {
-            _room.SendToAll(messageData, transportOptions, exceptionSessionIds);
+            _room.SendToAll(payload, transportOptions, exceptionSessionIds);
         }
 
 

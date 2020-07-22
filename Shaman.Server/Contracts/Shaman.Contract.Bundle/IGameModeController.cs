@@ -24,6 +24,6 @@ namespace Shaman.Contract.Bundle
         /// Cleanup here all allocated resources
         /// </summary>
         void Cleanup();
-        void ProcessMessage(MessageData message, DeliveryOptions deliveryOptions, Guid sessionId);
+        void ProcessMessage(Payload message, DeliveryOptions deliveryOptions, Guid sessionId);
     }
 }
