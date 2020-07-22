@@ -21,7 +21,8 @@ namespace Shaman.Game.Rooms
 
         public void KickPlayer(Guid sessionId)
         {
-            _room.GetPlayer(sessionId).Peer.Disconnect(ServerDisconnectReason.KickedByServer);
+            if (_room.TryGetPlayer(sessionId, out var player))
+                player.Peer.Disconnect(ServerDisconnectReason.KickedByServer);
         }
 
         public void Send(Payload payload, DeliveryOptions transportOptions, params Guid[] sessionIds)

@@ -27,7 +27,7 @@ namespace Shaman.Game.Rooms
         private readonly IRoomManager _roomManager;
         private readonly IRoomPropertiesContainer _roomPropertiesContainer;
         private readonly IPacketSender _packetSender;
-        private readonly IGameModeController _gameModeController;
+        private readonly IRoomController _roomController;
         private readonly RoomStats _roomStats;
         private readonly IRoomStateUpdater _roomStateUpdater;
         
@@ -50,7 +50,7 @@ namespace Shaman.Game.Rooms
 
             _roomStats = new RoomStats(GetRoomId(), roomPropertiesContainer.GetPlayersCount());
             
-            _gameModeController =
+            _roomController =
                 gameModeControllerFactory.GetGameModeController(
                     new RoomContext(this), _taskScheduler, roomPropertiesContainer);
 
@@ -65,7 +65,7 @@ namespace Shaman.Game.Rooms
             _ = _taskScheduler.ScheduleOnInterval(async () => await SendRoomStateUpdate(), 0, 2000, true); 
         }
 
-        public TimeSpan ForceDestroyRoomAfter => _gameModeController.ForceDestroyRoomAfter;
+        public TimeSpan ForceDestroyRoomAfter => _roomController.ForceDestroyRoomAfter;
         public void UpdateRoom(Dictionary<Guid, Dictionary<byte, object>> players)
         {
             _roomPropertiesContainer.AddNewPlayers(players);
@@ -98,7 +98,7 @@ namespace Shaman.Game.Rooms
         {
             var matchMakerUrl =
                 _roomPropertiesContainer.GetRoomPropertyAsString(PropertyCode.RoomProperties.MatchMakerUrl);
-            _roomStateUpdater.UpdateRoomState(GetRoomId(), _roomPlayers.Count(), _roomState, matchMakerUrl);
+            await _roomStateUpdater.UpdateRoomState(GetRoomId(), _roomPlayers.Count(), _roomState, matchMakerUrl);
         }
 
         public IEnumerable<RoomPlayer> GetAllPlayers()
@@ -119,7 +119,7 @@ namespace Shaman.Game.Rooms
 
         public bool IsGameFinished()
         {
-            return _gameModeController.IsGameFinished();
+            return _roomController.IsGameFinished();
         }
 
         public Guid GetRoomId()
@@ -137,19 +137,19 @@ namespace Shaman.Game.Rooms
 
             try
             {
-                if (_gameModeController == null)
+                if (_roomController == null)
                 {
                     _logger.Error($"GameModeController == null while peer joining");
                     return false;
                 }
 
-                var processNewPlayerResult = await _gameModeController.ProcessNewPlayer(peer.GetSessionId(), peerProperties);
+                var processNewPlayerResult = await _roomController.ProcessNewPlayer(peer.GetSessionId(), peerProperties);
                 if (processNewPlayerResult && !_roomPlayers.ContainsKey(peer.GetSessionId()))
                 {
                     //in case if player was disconnected during ProcessNewPlayer
                     
                     // todo here we dont know true reason (plan to remove this workaround)
-                    _gameModeController.CleanupPlayer(peer.GetSessionId(), PeerDisconnectedReason.PeerLeave, null);
+                    _roomController.CleanupPlayer(peer.GetSessionId(), PeerDisconnectedReason.PeerLeave, null);
                 }
                 return processNewPlayerResult;;
             }
@@ -169,7 +169,7 @@ namespace Shaman.Game.Rooms
             _roomPropertiesContainer.RemovePlayer(sessionId);
             try
             {
-                _gameModeController.CleanupPlayer(sessionId, ResolveReason(reason.Reason), reason.Payload);
+                _roomController.CleanupPlayer(sessionId, ResolveReason(reason.Reason), reason.Payload);
             }
             catch (Exception ex)
             {
@@ -193,7 +193,8 @@ namespace Shaman.Game.Rooms
 
         public void ProcessMessage(Payload message, DeliveryOptions deliveryOptions, Guid sessionId)
         {
-            _gameModeController.ProcessMessage(message, deliveryOptions, sessionId);
+            var bundlePayload = new Payload(message.Buffer, message.Offset + 1, message.Length -1);
+            _roomController.ProcessMessage(bundlePayload, deliveryOptions, sessionId);
             _roomStats.TrackReceivedMessage(ShamanOperationCode.Bundle, message.Length, deliveryOptions.IsReliable);
         }
 
@@ -212,7 +213,7 @@ namespace Shaman.Game.Rooms
                 }
 
                 _packetSender.Stop();
-                _gameModeController.Cleanup();
+                _roomController.Dispose();
                 _taskScheduler.RemoveAll();
                 _roomPlayers.Clear();
                 //close room on matchmaker
@@ -240,19 +241,23 @@ namespace Shaman.Game.Rooms
             return _createdOn;
         }
 
-        public RoomPlayer GetPlayer(Guid sessionId)
-        {            
+        public RoomPlayer FindPlayer(Guid sessionId)
+        {
             _roomPlayers.TryGetValue(sessionId, out var player);
             return player;
         }
-
+        public bool TryGetPlayer(Guid sessionId, out RoomPlayer player)
+        {
+            return _roomPlayers.TryGetValue(sessionId, out player);
+        }
+        
         private static readonly Payload BundleMessagePrefix = new Payload(ShamanOperationCode.Bundle);
-
+        
         public void Send(Payload payload, DeliveryOptions deliveryOptions, params Guid[] sessionIds)
         {
             foreach (var sessionId in sessionIds)
             {
-                if (!_roomPlayers.TryGetValue(sessionId, out var player))
+                if (!TryGetPlayer(sessionId, out var player))
                     return;
 
                 _packetSender.AddPacket(player.Peer, deliveryOptions, BundleMessagePrefix, payload);
@@ -261,14 +266,12 @@ namespace Shaman.Game.Rooms
 
         public void SendToAll(Payload payload, DeliveryOptions deliveryOptions, params Guid[] exceptionSessionIds)
         {
-            foreach (var sessionId in _roomPlayers.Keys.Except(exceptionSessionIds))
+            foreach (var roomPlayer in GetAllPlayers())
             {
-                if (!_roomPlayers.TryGetValue(sessionId, out var player))
+                if (exceptionSessionIds.Contains(roomPlayer.Peer.GetSessionId()))
                     return;
-
-                _packetSender.AddPacket(player.Peer, deliveryOptions, BundleMessagePrefix, payload);
+                _packetSender.AddPacket(roomPlayer.Peer, deliveryOptions, BundleMessagePrefix, payload);
             }
-
         }
     }
 }

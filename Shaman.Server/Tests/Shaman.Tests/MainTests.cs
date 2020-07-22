@@ -272,7 +272,7 @@ namespace Shaman.Tests
 
             var peer = _gameApplication.GetListeners()[0].GetPeerCollection().GetAll().FirstOrDefault().Value;
             var room = _gameApplication.GetRoomManager().GetRoomBySessionId(peer.GetSessionId());
-            var roomPlayer = room.GetPlayer(peer.GetSessionId());
+            var roomPlayer = room.FindPlayer(peer.GetSessionId());
 
             Assert.AreEqual(props, roomPlayer.Properties);
         }

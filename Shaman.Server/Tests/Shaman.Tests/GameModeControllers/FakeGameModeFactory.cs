@@ -10,14 +10,14 @@ using Shaman.Messages;
 
 namespace Shaman.Tests.GameModeControllers
 {
-    public class FakeGameModeController : IGameModeController
+    public class FakeRoomController : IRoomController
     {
         private readonly IRoomContext _room;
         private readonly ISerializer _serializer;
 
         private int _playerCount = 0;
 
-        public FakeGameModeController(IRoomContext room)
+        public FakeRoomController(IRoomContext room)
         {
             _room = room;
             _serializer = new BinarySerializer();
@@ -57,10 +57,10 @@ namespace Shaman.Tests.GameModeControllers
 
     public class FakeGameModeControllerFactory : IGameModeControllerFactory
     {
-        public IGameModeController GetGameModeController(IRoomContext room, ITaskScheduler taskScheduler,
+        public IRoomController GetGameModeController(IRoomContext room, ITaskScheduler taskScheduler,
             IRoomPropertiesContainer roomPropertiesContainer)
         {
-            return new FakeGameModeController(room);
+            return new FakeRoomController(room);
         }
     }
 }

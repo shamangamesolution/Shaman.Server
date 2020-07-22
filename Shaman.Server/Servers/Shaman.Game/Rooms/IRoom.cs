@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Shaman.Common.Contract;
 using Shaman.Common.Server.Peers;
-using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Sockets;
 using Shaman.Game.Stats;
 
@@ -21,19 +20,20 @@ namespace Shaman.Game.Rooms
         /// <returns>amount of removed players in room</returns>
         int CleanUp();
         int GetPeerCount();
-        RoomPlayer GetPlayer(Guid sessionId);
+        RoomPlayer FindPlayer(Guid sessionId);
+        bool TryGetPlayer(Guid sessionId, out RoomPlayer player);
         DateTime GetCreatedOnDateTime();
         IEnumerable<RoomPlayer> GetAllPlayers();
         void ConfirmedJoin(Guid sessionId);
         RoomStats GetStats();
         bool IsGameFinished();
         void UpdateRoom(Dictionary<Guid, Dictionary<byte, object>> players);
-        void Send(Payload payload, DeliveryOptions sendOptions, params Guid[] sessionIds);
-        void SendToAll(Payload payload, DeliveryOptions sendOptions, params Guid[] exceptionSessionIds);
         void Open();
         bool IsOpen();
         void Close();
         TimeSpan ForceDestroyRoomAfter { get; }
+        void Send(Payload payload, DeliveryOptions deliveryOptions, params Guid[] sessionIds);
+        void SendToAll(Payload payload, DeliveryOptions deliveryOptions, params Guid[] exceptionSessionIds);
     }
 
 }
