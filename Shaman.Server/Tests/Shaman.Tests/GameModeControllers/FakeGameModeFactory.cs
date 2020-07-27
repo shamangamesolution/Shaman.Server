@@ -41,10 +41,6 @@ namespace Shaman.Tests.GameModeControllers
 
         public TimeSpan ForceDestroyRoomAfter => TimeSpan.MaxValue;
 
-        public void Cleanup()
-        {
-        }
-
         public void ProcessMessage(Payload message, DeliveryOptions deliveryOptions, Guid sessionId)
         {
             var testRoomEvent =
@@ -52,6 +48,10 @@ namespace Shaman.Tests.GameModeControllers
             _room.SendToAll(message,
                 new TransportOptions
                     {IsReliable = testRoomEvent.IsReliable, IsOrdered = testRoomEvent.IsOrdered}, sessionId);
+        }
+
+        public void Dispose()
+        {
         }
     }
 

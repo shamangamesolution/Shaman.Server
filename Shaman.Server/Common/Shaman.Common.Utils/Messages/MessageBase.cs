@@ -1,4 +1,3 @@
-using System;
 using Shaman.Common.Utils.Serialization;
 
 namespace Shaman.Common.Utils.Messages
@@ -24,7 +23,7 @@ namespace Shaman.Common.Utils.Messages
         }
         public static ushort GetOperationCode(byte[] param, int offset)
         {
-            return BitConverter.ToUInt16(new byte[2] {param[offset] , param[offset+1]}, 0);
+            return param[offset]; 
         }
 
         public void Serialize(ITypeWriter typeWriter)
