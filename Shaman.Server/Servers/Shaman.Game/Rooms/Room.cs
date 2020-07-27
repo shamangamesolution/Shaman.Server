@@ -193,7 +193,7 @@ namespace Shaman.Game.Rooms
 
         public void ProcessMessage(Payload message, DeliveryOptions deliveryOptions, Guid sessionId)
         {
-            var bundlePayload = new Payload(message.Buffer, message.Offset + 1, message.Length -1);
+            var bundlePayload = new Payload(message.Buffer, message.Offset + 1, message.Length - 1);
             _roomController.ProcessMessage(bundlePayload, deliveryOptions, sessionId);
             _roomStats.TrackReceivedMessage(ShamanOperationCode.Bundle, message.Length, deliveryOptions.IsReliable);
         }
@@ -252,15 +252,30 @@ namespace Shaman.Game.Rooms
         }
         
         private static readonly Payload BundleMessagePrefix = new Payload(ShamanOperationCode.Bundle);
-        
+
+        public void Send(Payload payload, DeliveryOptions deliveryOptions, Guid sessionId)
+        {
+            if (!TryGetPlayer(sessionId, out var player))
+                return;
+
+            _packetSender.AddPacket(player.Peer, deliveryOptions, BundleMessagePrefix, payload);
+        }
+
         public void Send(Payload payload, DeliveryOptions deliveryOptions, params Guid[] sessionIds)
         {
             foreach (var sessionId in sessionIds)
             {
-                if (!TryGetPlayer(sessionId, out var player))
-                    return;
+                Send(payload, deliveryOptions, sessionId);
+            }
+        }
 
-                _packetSender.AddPacket(player.Peer, deliveryOptions, BundleMessagePrefix, payload);
+        public void SendToAll(Payload payload, DeliveryOptions deliveryOptions, Guid exceptionSessionId)
+        {
+            foreach (var roomPlayer in GetAllPlayers())
+            {
+                if (Equals(exceptionSessionId, roomPlayer.Peer.GetSessionId()))
+                    return;
+                _packetSender.AddPacket(roomPlayer.Peer, deliveryOptions, BundleMessagePrefix, payload);
             }
         }
 
