@@ -1,11 +1,11 @@
 using Shaman.Common.Utils.Serialization;
 using Shaman.Common.Utils.Serialization.Messages;
 using Shaman.Common.Utils.Servers;
-using Shaman.Messages.Extensions;
 using Shaman.Messages.General.Entity.Router;
 using Shaman.Messages.MM;
 using Shaman.Serialization;
 using Shaman.Serialization.Messages;
+using Shaman.Serialization.Messages.Extensions;
 using Shaman.Serialization.Messages.Http;
 
 namespace Shaman.Messages.General.DTO.Requests.Router

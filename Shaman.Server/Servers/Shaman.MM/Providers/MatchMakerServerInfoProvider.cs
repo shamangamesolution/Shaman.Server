@@ -16,6 +16,7 @@ using Shaman.Messages.General.DTO.Responses.Router;
 using Shaman.Messages.General.Entity.Router;
 using Shaman.Messages.RoomFlow;
 using Shaman.MM.Configuration;
+using Shaman.Serialization.Messages;
 using Shaman.ServerSharedUtilities;
 
 namespace Shaman.MM.Providers

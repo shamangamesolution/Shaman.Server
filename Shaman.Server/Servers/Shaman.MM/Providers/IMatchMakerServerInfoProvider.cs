@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Shaman.Messages;
 using Shaman.Messages.General.Entity.Router;
+using Shaman.Serialization.Messages;
 
 namespace Shaman.MM.Providers
 {

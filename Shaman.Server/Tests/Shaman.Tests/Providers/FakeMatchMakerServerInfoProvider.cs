@@ -9,6 +9,7 @@ using Shaman.Messages;
 using Shaman.Messages.General.Entity.Router;
 using Shaman.Messages.RoomFlow;
 using Shaman.MM.Providers;
+using Shaman.Serialization.Messages;
 
 namespace Shaman.Tests.Providers
 {

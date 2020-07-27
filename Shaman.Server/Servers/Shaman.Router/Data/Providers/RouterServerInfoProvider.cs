@@ -11,6 +11,7 @@ using Shaman.Messages;
 using Shaman.Messages.General.Entity.Router;
 using Shaman.Router.Config;
 using Shaman.Router.Data.Repositories.Interfaces;
+using Shaman.Serialization.Messages;
 
 namespace Shaman.Router.Data.Providers
 {

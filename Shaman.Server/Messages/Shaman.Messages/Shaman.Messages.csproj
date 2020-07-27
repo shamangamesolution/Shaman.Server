@@ -10,4 +10,8 @@
         <ProjectReference Include="..\..\Common\Shaman.Common.Utils\Shaman.Common.Utils.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Extensions" />
+    </ItemGroup>
+
 </Project>

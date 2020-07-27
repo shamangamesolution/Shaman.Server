@@ -7,6 +7,7 @@ using Shaman.Common.Utils.Servers;
 using Shaman.Messages;
 using Shaman.Messages.General.Entity.Router;
 using Shaman.MM.Providers;
+using Shaman.Serialization.Messages;
 
 namespace Shaman.MM.Tests.Fakes
 {

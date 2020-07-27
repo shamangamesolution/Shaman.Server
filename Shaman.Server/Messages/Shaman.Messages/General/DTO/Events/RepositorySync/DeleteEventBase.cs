@@ -3,6 +3,7 @@ using Shaman.Common.Utils.Serialization;
 using Shaman.Common.Utils.Serialization.Messages;
 using Shaman.Messages.General.Entity;
 using Shaman.Serialization;
+using Shaman.Serialization.Extensions;
 using Shaman.Serialization.Messages;
 using Shaman.Serialization.Messages.Udp;
 

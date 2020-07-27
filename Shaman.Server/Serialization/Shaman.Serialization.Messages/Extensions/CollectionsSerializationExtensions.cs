@@ -2,103 +2,12 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using Shaman.Serialization;
-using Shaman.Serialization.Messages;
+using Shaman.Serialization.Extensions;
 
-namespace Shaman.Messages.Extensions
+namespace Shaman.Serialization.Messages.Extensions
 {
-    public static class EntitySerializationSerializerExtensions
+    public static class CollectionsSerializationExtensions
     {
-        public static void WriteEntityDictionary<T>(this ITypeWriter typeWriter, EntityDictionary<T> list)
-            where T :EntityBase
-        {
-            try
-            {
-                if (list == null)
-                    list = new EntityDictionary<T>();
-                
-                typeWriter.Write(list.Count());
-                foreach (var item in list)
-                {
-                    item.Serialize(typeWriter);
-                }
-            }
-            catch (Exception e)
-            {
-                throw new Exception($"Error serializing EntityDictionary<{typeof(T)}>: {e}");
-            }
-        }
-        public static void Write<T>(this ITypeWriter typeWriter, EntityDictionary<T> list)
-            where T :EntityBase
-        {
-            WriteEntityDictionary<T>(typeWriter, list);
-        }
-        
-        public static EntityDictionary<T> ReadEntityDictionary<T>(this ITypeReader typeReader)
-            where T:EntityBase, new()
-        {
-            var result = new EntityDictionary<T>();
-            
-            try
-            {
-                var length = typeReader.ReadInt();                   
-                
-                if (length != 0)
-                {
-                    for (int i = 0; i < length; i++)
-                    {
-                        var item = new T();
-                        item.Deserialize(typeReader);
-                        result.Add(item);
-                        
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                throw new Exception($"Error deserializing EntityDictionary<{typeof(T)}>: {e}");
-            }
-
-            
-            return result;
-        }
-        
-        public static void WriteEntity<T>(this ITypeWriter typeWriter, T entity)
-            where T :EntityBase
-        {
-            try
-            {
-                typeWriter.Write(entity != null);
-
-                if (entity == null)
-                    return;
-                
-                entity.Serialize(typeWriter);
-            }
-            catch (Exception e)
-            {
-                throw new Exception($"Error serializing entity <{typeof(T)}>: {e}");
-            }
-        }
-        
-        public static T ReadEntity<T>(this ITypeReader typeReader)
-            where T :EntityBase, new()
-        {
-            try
-            {
-                if (!typeReader.ReadBool())
-                    return null;
-
-                var item = new T();
-                item.Deserialize(typeReader);
-                return item;
-            }
-            catch (Exception e)
-            {
-                throw new Exception($"Error serializing entity <{typeof(T)}>: {e}");
-            }
-        }
-        
         public static void Write(this ITypeWriter typeWriter, HashSet<int> hashSet)
         {
             try
@@ -117,7 +26,7 @@ namespace Shaman.Messages.Extensions
                 throw new Exception($"Error serializing HashSet<int>: {e}");
             }
         }
-        
+
         public static HashSet<int> ReadIntHashSet(this ITypeReader typeReader)
         {
             var result = new HashSet<int>();
@@ -176,6 +85,7 @@ namespace Shaman.Messages.Extensions
                 }
             }
         }
+
         public static void Write(this ITypeWriter serializer, ConcurrentDictionary<int, ConcurrentDictionary<byte, byte>> dict)
         {
             if (dict == null)
@@ -193,6 +103,7 @@ namespace Shaman.Messages.Extensions
                 }
             }
         }
+
         public static void Write(this ITypeWriter serializer, ConcurrentDictionary<int, ConcurrentDictionary<byte, byte?>> dict)
         {
             if (dict == null)
@@ -210,6 +121,7 @@ namespace Shaman.Messages.Extensions
                 }
             }
         }
+
         public static void Write(this ITypeWriter serializer, ConcurrentDictionary<int, ConcurrentDictionary<byte, float?>> dict)
         {
             if (dict == null)
@@ -227,6 +139,7 @@ namespace Shaman.Messages.Extensions
                 }
             }
         }
+
         public static ConcurrentDictionary<int, ConcurrentDictionary<byte, int>> ReadIntFieldDictionary(this ITypeReader serializer)
         {
             var result = new ConcurrentDictionary<int, ConcurrentDictionary<byte, int>>();
@@ -254,6 +167,7 @@ namespace Shaman.Messages.Extensions
 
             return result;
         }
+
         public static ConcurrentDictionary<int, ConcurrentDictionary<byte, int?>> ReadNullableIntFieldDictionary(this ITypeReader serializer)
         {
             var result = new ConcurrentDictionary<int, ConcurrentDictionary<byte, int?>>();
@@ -281,6 +195,7 @@ namespace Shaman.Messages.Extensions
 
             return result;
         }
+
         public static ConcurrentDictionary<int, ConcurrentDictionary<byte, byte>> ReadByteFieldDictionary(this ITypeReader serializer)
         {
             var result = new ConcurrentDictionary<int, ConcurrentDictionary<byte, byte>>();
@@ -308,6 +223,7 @@ namespace Shaman.Messages.Extensions
 
             return result;
         }
+
         public static ConcurrentDictionary<int, ConcurrentDictionary<byte, byte?>> ReadNullableByteFieldDictionary(this ITypeReader serializer)
         {
             var result = new ConcurrentDictionary<int, ConcurrentDictionary<byte, byte?>>();
@@ -335,6 +251,7 @@ namespace Shaman.Messages.Extensions
 
             return result;
         }
+
         public static ConcurrentDictionary<int, ConcurrentDictionary<byte, float?>> ReadNullableFloatFieldDictionary(this ITypeReader serializer)
         {
             var result = new ConcurrentDictionary<int, ConcurrentDictionary<byte, float?>>();
@@ -362,6 +279,5 @@ namespace Shaman.Messages.Extensions
 
             return result;
         }
-
     }
 }

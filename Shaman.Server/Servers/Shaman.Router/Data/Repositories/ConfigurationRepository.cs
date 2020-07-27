@@ -12,12 +12,12 @@ using Shaman.Common.Utils.Servers;
 using Shaman.DAL.Exceptions;
 using Shaman.DAL.Repositories;
 using Shaman.Messages;
-using Shaman.Messages.Extensions;
 using Shaman.Messages.General.Entity;
 using Shaman.Messages.General.Entity.Router;
 using Shaman.Messages.MM;
 using Shaman.Router.Config;
 using Shaman.Router.Data.Repositories.Interfaces;
+using Shaman.Serialization.Messages;
 
 namespace Shaman.Router.Data.Repositories
 {

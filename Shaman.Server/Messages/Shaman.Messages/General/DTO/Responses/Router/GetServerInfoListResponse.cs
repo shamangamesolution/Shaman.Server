@@ -1,9 +1,9 @@
 using Shaman.Common.Utils.Serialization;
 using Shaman.Common.Utils.Serialization.Messages;
-using Shaman.Messages.Extensions;
 using Shaman.Messages.General.Entity.Router;
 using Shaman.Serialization;
 using Shaman.Serialization.Messages;
+using Shaman.Serialization.Messages.Extensions;
 using Shaman.Serialization.Messages.Http;
 
 namespace Shaman.Messages.General.DTO.Responses.Router
@@ -24,7 +24,7 @@ namespace Shaman.Messages.General.DTO.Responses.Router
 
         protected override void SerializeResponseBody(ITypeWriter typeWriter)
         {
-            typeWriter.WriteEntityDictionary(ServerInfoList);
+            typeWriter.Write(ServerInfoList);
         }
 
         protected override void DeserializeResponseBody(ITypeReader typeReader)
