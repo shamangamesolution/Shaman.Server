@@ -25,6 +25,7 @@ using Shaman.MM.Contract;
 using Shaman.MM.Managers;
 using Shaman.MM.Metrics;
 using Shaman.MM.Providers;
+using Shaman.Serialization;
 using Shaman.ServerSharedUtilities;
 using Shaman.ServerSharedUtilities.Bundling;
 using GameProject = Shaman.Messages.General.Entity.GameProject;

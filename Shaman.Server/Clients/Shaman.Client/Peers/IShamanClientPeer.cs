@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Shaman.Common.Utils.Messages;
+using Shaman.Common.Utils.Serialization.Messages;
 using Shaman.Messages.General.Entity.Router;
 using Shaman.Messages.RoomFlow;
+using Shaman.Serialization.Messages;
+using Shaman.Serialization.Messages.Http;
+using Shaman.Serialization.Messages.Udp;
 
 namespace Shaman.Client.Peers
 {

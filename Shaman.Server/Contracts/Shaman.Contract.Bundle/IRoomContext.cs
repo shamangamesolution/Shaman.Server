@@ -1,5 +1,4 @@
 using System;
-using Shaman.Common.Contract;
 
 namespace Shaman.Contract.Bundle
 {

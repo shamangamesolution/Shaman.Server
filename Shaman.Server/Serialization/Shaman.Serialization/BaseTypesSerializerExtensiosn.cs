@@ -1,6 +1,4 @@
-using Shaman.Common.Utils.Serialization;
-
-namespace Shaman.Messages.Extensions
+namespace Shaman.Serialization
 {
     public static class BaseTypesSerializerExtensions
     {

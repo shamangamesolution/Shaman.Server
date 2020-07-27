@@ -1,6 +1,6 @@
 using System;
 
-namespace Shaman.Common.Utils.Serialization
+namespace Shaman.Serialization
 {
     public interface ITypeReader
     {

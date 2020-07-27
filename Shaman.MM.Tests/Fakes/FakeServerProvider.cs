@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Shaman.Common.Utils.Messages;
+using Shaman.Common.Utils.Serialization.Messages;
 using Shaman.Common.Utils.Servers;
 using Shaman.Messages;
 using Shaman.Messages.General.Entity.Router;

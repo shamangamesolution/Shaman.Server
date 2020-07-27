@@ -1,8 +1,6 @@
-
 using System.IO;
-using Shaman.Common.Utils.Messages;
 
-namespace Shaman.Common.Utils.Serialization
+namespace Shaman.Serialization
 {
     public interface ISerializer
     {

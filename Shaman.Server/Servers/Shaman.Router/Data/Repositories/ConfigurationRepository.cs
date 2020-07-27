@@ -7,7 +7,7 @@ using Microsoft.Extensions.Options;
 using MySql.Data.MySqlClient;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Utils.Logging;
-using Shaman.Common.Utils.Messages;
+using Shaman.Common.Utils.Serialization.Messages;
 using Shaman.Common.Utils.Servers;
 using Shaman.DAL.Exceptions;
 using Shaman.DAL.Repositories;

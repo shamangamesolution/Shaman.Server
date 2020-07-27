@@ -1,8 +1,6 @@
 using System.IO;
-using System.Text;
-using Shaman.Common.Utils.Messages;
 
-namespace Shaman.Common.Utils.Serialization
+namespace Shaman.Serialization
 {
     public class BinarySerializer : ISerializer
     {

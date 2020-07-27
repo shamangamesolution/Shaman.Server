@@ -5,6 +5,7 @@ using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Peers;
 using Shaman.Common.Utils.Serialization;
 using Shaman.Common.Utils.Sockets;
+using Shaman.Serialization;
 
 namespace Shaman.Common.Server.Peers
 {

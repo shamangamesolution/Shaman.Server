@@ -4,8 +4,8 @@ using System.Linq;
 using System.Net;
 using Shaman.Common.Server.Peers;
 using Shaman.Common.Utils.Logging;
-using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Senders;
+using Shaman.Common.Utils.Serialization.Messages;
 using Shaman.Common.Utils.Sockets;
 using Shaman.Contract.Bundle;
 using Shaman.LiteNetLibAdapter;
@@ -20,6 +20,8 @@ using Shaman.Messages.General.DTO.Responses.Auth;
 using Shaman.Messages.MM;
 using Shaman.Messages.RoomFlow;
 using Shaman.MM.Managers;
+using Shaman.Serialization.Messages;
+using Shaman.Serialization.Messages.Udp;
 
 namespace Shaman.MM
 {

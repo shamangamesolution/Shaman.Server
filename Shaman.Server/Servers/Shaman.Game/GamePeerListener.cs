@@ -3,8 +3,8 @@ using System.Net;
 using Shaman.Common.Contract;
 using Shaman.Common.Server.Peers;
 using Shaman.Common.Utils.Logging;
-using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Senders;
+using Shaman.Common.Utils.Serialization.Messages;
 using Shaman.Common.Utils.Sockets;
 using Shaman.Contract.Bundle;
 using Shaman.Game.Peers;
@@ -16,6 +16,8 @@ using Shaman.Messages.General.DTO.Events;
 using Shaman.Messages.General.DTO.Requests.Auth;
 using Shaman.Messages.General.DTO.Responses;
 using Shaman.Messages.General.DTO.Responses.Auth;
+using Shaman.Serialization.Messages;
+using Shaman.Serialization.Messages.Udp;
 
 namespace Shaman.Game
 {

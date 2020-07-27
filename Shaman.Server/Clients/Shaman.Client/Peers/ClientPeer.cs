@@ -3,13 +3,16 @@ using System.Collections.Generic;
 using System.Net;
 using Shaman.Common.Contract;
 using Shaman.Common.Utils.Logging;
-using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Peers;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Serialization;
+using Shaman.Common.Utils.Serialization.Messages;
 using Shaman.Common.Utils.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.LiteNetLibAdapter;
+using Shaman.Serialization;
+using Shaman.Serialization.Messages;
+using Shaman.Serialization.Messages.Udp;
 
 namespace Shaman.Client.Peers
 {

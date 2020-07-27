@@ -1,4 +1,4 @@
-namespace Shaman.Common.Utils.Messages
+namespace Shaman.Serialization.Messages.Udp
 {
     public abstract class EventBase : MessageBase
     {

@@ -5,6 +5,7 @@ using Shaman.Common.Server.Peers;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Serialization;
 using Shaman.Common.Utils.Sockets;
+using Shaman.Serialization;
 
 namespace Shaman.MM.Tests.Fakes
 {

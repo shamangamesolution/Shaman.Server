@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using Shaman.Common.Server.Configuration;
-using Shaman.Common.Utils.Messages;
+using Shaman.Common.Utils.Serialization.Messages;
 
 namespace Shaman.Game.Configuration
 {

@@ -13,6 +13,7 @@ using Shaman.Game.Configuration;
 using Shaman.Game.Metrics;
 using Shaman.Game.Peers;
 using Shaman.Game.Rooms;
+using Shaman.Serialization;
 
 namespace Shaman.Game
 {

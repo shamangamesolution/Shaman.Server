@@ -6,9 +6,9 @@ using Shaman.Common.Contract;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Server.Peers;
 using Shaman.Common.Utils.Logging;
-using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Serialization;
+using Shaman.Common.Utils.Serialization.Messages;
 using Shaman.Common.Utils.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Bundle;
@@ -20,6 +20,8 @@ using Shaman.LiteNetLibAdapter;
 using Shaman.Messages;
 using Shaman.Messages.General.DTO.Responses;
 using Shaman.Messages.RoomFlow;
+using Shaman.Serialization;
+using Shaman.Serialization.Messages;
 
 namespace Shaman.Game.Rooms
 {

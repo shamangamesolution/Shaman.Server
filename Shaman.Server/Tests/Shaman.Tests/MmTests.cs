@@ -6,7 +6,6 @@ using Moq;
 using NUnit.Framework;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Server.Providers;
-using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Servers;
 using Shaman.Common.Utils.TaskScheduling;

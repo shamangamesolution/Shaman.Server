@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-namespace Shaman.Common.Utils.Serialization
+namespace Shaman.Serialization
 {
     public class BinaryTypeReader : ITypeReader
     {

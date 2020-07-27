@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Shaman.Common.Utils.Messages;
+using Shaman.Common.Utils.Serialization.Messages;
 using Shaman.Common.Utils.Servers;
 
 namespace Shaman.Common.Server.Configuration

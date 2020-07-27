@@ -1,6 +1,4 @@
-using Shaman.Common.Utils.Serialization;
-
-namespace Shaman.Common.Utils.Messages
+namespace Shaman.Serialization.Messages.Http
 {
     public abstract class HttpResponseBase : ISerializable
     {
