@@ -16,9 +16,19 @@ namespace Shaman.Game.Rooms
             _roomSender = roomSender;
         }
 
+        public void Send(Payload payload, DeliveryOptions deliveryOptions, Guid sessionId)
+        {
+            _roomSender.Send(payload, deliveryOptions, sessionId);
+        }
+
         public void Send(Payload payload, DeliveryOptions deliveryOptions, params Guid[] sessionIds)
         {
             _roomSender.Send(payload, deliveryOptions, sessionIds);
+        }
+
+        public void SendToAll(Payload payload, DeliveryOptions deliveryOptions, Guid exceptionSessionId)
+        {
+            _roomSender.SendToAll(payload, deliveryOptions, exceptionSessionId);
         }
 
         public void SendToAll(Payload payload, DeliveryOptions deliveryOptions, params Guid[] exceptionSessionIds)
