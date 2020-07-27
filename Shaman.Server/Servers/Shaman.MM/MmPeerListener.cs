@@ -26,17 +26,17 @@ namespace Shaman.MM
     public class MmPeerListener : PeerListenerBase<MmPeer>
     {
         private IMatchMaker _matchMaker;
-        private IBackendProvider _backendProvider;
         private IPacketSender _packetSender;
         private IRoomManager _roomManager;
         private IMatchMakingGroupsManager _matchMakingGroupsManager;
         private string _authSecret;
 
-        public void Initialize(IMatchMaker matchMaker, IBackendProvider backendProvider, IPacketSender packetSender, IRoomManager roomManager, IMatchMakingGroupsManager matchMakingGroupsManager,
+        public void Initialize(IMatchMaker matchMaker, 
+            IPacketSender packetSender,
+            IRoomManager roomManager, IMatchMakingGroupsManager matchMakingGroupsManager,
             string authSecret)
         {
             _matchMaker = matchMaker;
-            _backendProvider = backendProvider;
             _packetSender = packetSender;
             _authSecret = authSecret;
             _roomManager = roomManager;
@@ -104,34 +104,8 @@ namespace Shaman.MM
                     }
                     else
                     {
-                        if (peer.IsAuthorizing)
-                            return;
-                        
-                        // todo Review auth flow
-                        RequestSender.SendRequest<ValidateSessionIdResponse>(
-                            _backendProvider.GetBackendUrl(authMessage.BackendId),
-                            new ValidateSessionIdRequest
-                            {
-                                SessionId = authMessage.SessionId, 
-                                Secret = _authSecret
-                            },
-                            (response) =>
-                            {
-                                if (response.Success)
-                                {
-                                    //if success - send auth success
-                                    peer.IsAuthorizing = false;
-                                    peer.IsAuthorized = true;
-                                    //this sessionID will be got from backend, after we send authToken, which will come in player properties
-                                    peer.SetSessionId(authMessage.SessionId);
-                                    _packetSender.AddPacket(new AuthorizationResponse(), peer);
-                                }
-                                else
-                                {
-                                    peer.IsAuthorizing = false;
-                                    _packetSender.AddPacket(new AuthorizationResponse() {ResultCode = ResultCode.NotAuthorized}, peer);
-                                }
-                            });
+                        //TODO authorizing logic
+                        throw new NotImplementedException();
                     }
                     break;
                 default:

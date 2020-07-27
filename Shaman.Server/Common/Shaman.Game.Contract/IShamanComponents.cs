@@ -1,3 +1,4 @@
+using Shaman.Common.Utils.Configuration;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Serialization;
@@ -8,7 +9,7 @@ namespace Shaman.Game.Contract
     {
         IRequestSender RequestSender { get; }
         IShamanLogger Logger { get; }
-        IBackendProvider BackendProvider { get; }
         ISerializer Serializer { get; }
+        IApplicationCoreConfig ApplicationCoreConfig { get; } 
     }
 }

@@ -11,6 +11,7 @@ using Shaman.Common.Server.Applications;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Server.Providers;
 using Shaman.Common.Server.Senders;
+using Shaman.Common.Utils.Configuration;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Serialization;
@@ -25,7 +26,7 @@ using Shaman.Game.Rooms;
 using Shaman.Game.Rooms.RoomProperties;
 using Shaman.LiteNetLibAdapter;
 using Shaman.ServerSharedUtilities;
-using Shaman.ServerSharedUtilities.Backends;
+// using Shaman.ServerSharedUtilities.Backends;
 using Shaman.ServerSharedUtilities.Bundling;
 using Shaman.ServerSharedUtilities.Logging;
 
@@ -56,7 +57,6 @@ namespace Shaman.Game
             if (StandaloneServerLauncher.IsStandaloneMode)
             {
                 services.AddSingleton<IGameModeControllerFactory, StandaloneModeGameModeControllerFactory>();
-                services.AddSingleton<IBackendProvider, BackendProviderStub>();
                 services.AddSingleton<IApplicationConfig>(c => StandaloneServerLauncher.Config);
                 services.AddSingleton<IGameMetrics, GameMetricsStub>();
                 services.AddSingleton<IRoomStateUpdater, RoomStateUpdaterStub>();
@@ -64,7 +64,6 @@ namespace Shaman.Game
             else
             {
                 services.AddSingleton<IGameModeControllerFactory, DefaultGameModeControllerFactory>();
-                services.AddSingleton<IBackendProvider, BackendProvider>();
                 services.AddSingleton<IRoomStateUpdater, RoomStateUpdater>();
 
                 services.Configure<GameApplicationConfig>(Configuration);
@@ -96,6 +95,7 @@ namespace Shaman.Game
 
            
             services.AddSingleton<IPacketSenderConfig>(c => c.GetRequiredService<IApplicationConfig>()); 
+            services.AddSingleton<IApplicationCoreConfig>(c => c.GetRequiredService<IApplicationConfig>()); 
 
             services.AddTransient<IPacketSender, PacketBatchSender>();
             services.AddScoped<IRoomPropertiesContainer, RoomPropertiesContainer>();            
