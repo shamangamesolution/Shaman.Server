@@ -6,6 +6,7 @@ using Shaman.Messages;
 using Shaman.Messages.General.Entity;
 using Shaman.Messages.General.Entity.Router;
 using Shaman.Messages.MM;
+using Shaman.Serialization.Messages;
 
 namespace Shaman.Router.Data.Repositories.Interfaces
 {

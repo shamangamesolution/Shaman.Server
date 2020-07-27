@@ -1,10 +1,8 @@
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using Shaman.Common.Utils.Serialization.Messages;
-using Shaman.Serialization.Messages;
 
-namespace Shaman.Messages
+namespace Shaman.Serialization.Messages
 {
     public class EntityDictionary<T> : IEnumerable<T> where T:EntityBase
     {

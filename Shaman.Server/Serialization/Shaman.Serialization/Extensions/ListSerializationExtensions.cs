@@ -1,74 +1,10 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Shaman.Serialization
+namespace Shaman.Serialization.Extensions
 {
-    public static class SerializationExtensions
+    public static class ListSerializationExtensions
     {
-        public static void Write(this ITypeWriter writer, DateTime? dateTime)
-        {
-            writer.Write(dateTime?.ToBinary() ?? 0L);
-        }
-
-        public static void Write(this ITypeWriter writer, Guid? guid)
-        {
-            if (guid.HasValue)
-            {
-                writer.Write((byte) 1);
-                writer.Write(guid.Value);
-            }
-            else
-            {
-                writer.Write((byte) 0);
-            }
-        }
-
-        public static void WriteNullable<T>(this ITypeWriter writer, T obj) where T : class, ISerializable
-        {
-            if (obj != null)
-            {
-                writer.Write(true);
-                writer.Write(obj);
-            }
-            else
-            {
-                writer.Write(false);
-            }
-        }
-        
-        public static void Write(this ITypeWriter typeWriter, ISerializable data)
-        {
-            data.Serialize(typeWriter);
-        }
-        public static T Read<T>(this ITypeReader typeReader) where T:ISerializable, new()
-        {
-            var data = new T(); 
-            data.Deserialize(typeReader);
-            return data;
-        }
-
-        public static Guid? ReadNullableGuid(this ITypeReader reader)
-        {
-            return reader.ReadByte() != 0 ? reader.ReadGuid() : (Guid?) null;
-        }
-
-        public static DateTime? ReadNullableDate(this ITypeReader reader)
-        {
-            var dateData = reader.ReadLong();
-            if (dateData == 0)
-            {
-                return null;
-            }
-
-            return DateTime.FromBinary(dateData);
-        }
-
-        public static T ReadNullable<T>(this ITypeReader reader) where T : class, ISerializable, new()
-        {
-            return reader.ReadBool() ? reader.Read<T>() : default;
-        }
-
         public static List<T> ReadList<T>(this ITypeReader reader)
             where T : ISerializable, new()
         {
@@ -121,6 +57,7 @@ namespace Shaman.Serialization
                 bw.Write(0);
             }
         }
+
         public static void WriteList(this ITypeWriter bw, IList<string> list)
         {
             if (list != null && list.Any())
@@ -136,6 +73,7 @@ namespace Shaman.Serialization
                 bw.Write(0);
             }
         }
+
         public static List<int> ReadListOfInt(this ITypeReader reader)
         {
             var list = new List<int>();
@@ -150,6 +88,7 @@ namespace Shaman.Serialization
 
             return list;
         }
+
         public static List<string> ReadListOfString(this ITypeReader reader)
         {
             var list = new List<string>();
@@ -164,6 +103,7 @@ namespace Shaman.Serialization
 
             return list;
         }
+
         public static List<byte> ReadListOfByte(this ITypeReader reader)
         {
             var list = new List<byte>();
