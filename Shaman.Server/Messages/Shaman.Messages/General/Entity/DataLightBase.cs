@@ -1,4 +1,5 @@
-using Shaman.Common.Utils.Messages;
+using Shaman.Common.Utils.Serialization.Messages;
+using Shaman.Serialization.Messages;
 
 namespace Shaman.Messages.General.Entity
 {

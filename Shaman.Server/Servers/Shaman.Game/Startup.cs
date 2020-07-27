@@ -24,6 +24,7 @@ using Shaman.Game.Providers;
 using Shaman.Game.Rooms;
 using Shaman.Game.Rooms.RoomProperties;
 using Shaman.LiteNetLibAdapter;
+using Shaman.Serialization;
 using Shaman.ServerSharedUtilities;
 using Shaman.ServerSharedUtilities.Backends;
 using Shaman.ServerSharedUtilities.Bundling;

@@ -1,5 +1,6 @@
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Serialization;
+using Shaman.Serialization;
 
 namespace Shaman.Common.Utils.Senders
 {

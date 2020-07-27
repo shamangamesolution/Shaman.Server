@@ -6,12 +6,14 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Shaman.Common.Server.Applications;
 using Shaman.Common.Utils.Logging;
-using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Serialization;
+using Shaman.Common.Utils.Serialization.Messages;
 using Shaman.MM.Extensions;
 using Shaman.Messages.MM;
 using Shaman.Messages.RoomFlow;
 using Shaman.MM.Managers;
+using Shaman.Serialization;
+using Shaman.Serialization.Messages;
 
 
 namespace Shaman.MM.Controllers

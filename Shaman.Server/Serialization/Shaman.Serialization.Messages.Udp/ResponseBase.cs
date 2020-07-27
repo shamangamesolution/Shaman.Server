@@ -1,6 +1,4 @@
-using Shaman.Common.Utils.Serialization;
-
-namespace Shaman.Common.Utils.Messages
+namespace Shaman.Serialization.Messages.Udp
 {
     public abstract class ResponseBase : MessageBase
     {

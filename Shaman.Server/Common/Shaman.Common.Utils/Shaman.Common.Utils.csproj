@@ -26,6 +26,15 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\Contracts\Shaman.Contract.Common\Shaman.Contract.Common.csproj" />
+      <ProjectReference Include="..\..\Serialization\Shaman.Serialization.Messages.Http\Shaman.Serialization.Messages.Http.csproj" />
+      <ProjectReference Include="..\..\Serialization\Shaman.Serialization.Messages.Udp\Shaman.Serialization.Messages.Udp.csproj" />
+      <ProjectReference Include="..\..\Serialization\Shaman.Serialization.Messages\Shaman.Serialization.Messages.csproj" />
+      <ProjectReference Include="..\..\Serialization\Shaman.Serialization.Udp\Shaman.Serialization.Udp.csproj" />
+      <ProjectReference Include="..\..\Serialization\Shaman.Serialization\Shaman.Serialization.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Messages" />
     </ItemGroup>
 
 

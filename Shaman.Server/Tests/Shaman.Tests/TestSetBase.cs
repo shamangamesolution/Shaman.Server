@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Shaman.Common.Utils.Logging;
-using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Serialization;
+using Shaman.Common.Utils.Serialization.Messages;
 using Shaman.Common.Utils.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.LiteNetLibAdapter;
@@ -14,6 +14,9 @@ using Shaman.Messages.General.DTO.Responses.Auth;
 using Shaman.Messages.General.DTO.Responses.Router;
 using Shaman.Messages.General.Entity.Router;
 using Shaman.Messages.RoomFlow;
+using Shaman.Serialization;
+using Shaman.Serialization.Messages;
+using Shaman.Serialization.Messages.Http;
 
 namespace Shaman.Tests
 {

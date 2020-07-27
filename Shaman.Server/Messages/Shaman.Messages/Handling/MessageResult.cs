@@ -1,4 +1,6 @@
-using Shaman.Common.Utils.Messages;
+using Shaman.Common.Utils.Serialization.Messages;
+using Shaman.Serialization.Messages;
+using Shaman.Serialization.Messages.Udp;
 
 namespace Shaman.Messages.Handling
 {

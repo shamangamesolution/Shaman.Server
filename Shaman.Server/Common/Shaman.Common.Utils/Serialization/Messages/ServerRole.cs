@@ -1,4 +1,4 @@
-namespace Shaman.Common.Utils.Messages
+namespace Shaman.Common.Utils.Serialization.Messages
 {
     public enum ServerRole : byte
     {

@@ -3,9 +3,12 @@ using System.Diagnostics;
 using System.Net;
 using System.Threading.Tasks;
 using Shaman.Common.Utils.Logging;
-using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Serialization;
+using Shaman.Common.Utils.Serialization.Messages;
+using Shaman.Serialization;
+using Shaman.Serialization.Messages;
+using Shaman.Serialization.Messages.Http;
 
 namespace Shaman.Common.Server.Senders
 {

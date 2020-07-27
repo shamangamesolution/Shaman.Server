@@ -1,8 +1,7 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 
-namespace Shaman.Common.Utils.Serialization
+namespace Shaman.Serialization
 {
     public class BinaryTypeWriter : ITypeWriter
     {

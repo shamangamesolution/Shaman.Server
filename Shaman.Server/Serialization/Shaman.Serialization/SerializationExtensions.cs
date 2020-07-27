@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Shaman.Common.Utils.Messages;
 
-namespace Shaman.Common.Utils.Serialization
+namespace Shaman.Serialization
 {
     public static class SerializationExtensions
     {

@@ -8,6 +8,7 @@ using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Serialization;
 using Shaman.Messages.General.Entity.Router;
+using Shaman.Serialization;
 
 namespace Shaman.TestTools.Monkeys
 {

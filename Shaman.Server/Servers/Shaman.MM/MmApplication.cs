@@ -15,6 +15,7 @@ using Shaman.MM.Peers;
 using Shaman.MM.Managers;
 using Shaman.MM.Metrics;
 using Shaman.MM.Providers;
+using Shaman.Serialization;
 
 namespace Shaman.MM
 {

@@ -1,6 +1,6 @@
 using System;
 
-namespace Shaman.Common.Utils.Serialization
+namespace Shaman.Serialization
 {
     public interface ITypeWriter
     {
@@ -13,7 +13,7 @@ namespace Shaman.Common.Utils.Serialization
         void Write(bool value);
         void Write(long value);
         void Write(ulong value);
-        void Write(byte[] value);
+        void Write(byte[] value); // todo use stream instead, to avoid allocation-related problems
         void Write(sbyte value);
         void Write(string value);
         void Write(Guid value);

@@ -1,6 +1,8 @@
 using System;
 using System.Threading.Tasks;
-using Shaman.Common.Utils.Messages;
+using Shaman.Common.Utils.Serialization.Messages;
+using Shaman.Serialization.Messages;
+using Shaman.Serialization.Messages.Http;
 
 namespace Shaman.Common.Utils.Senders
 {

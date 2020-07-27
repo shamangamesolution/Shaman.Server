@@ -8,6 +8,7 @@ using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Bundle;
 using Shaman.Messages.General.DTO.Events.RepositorySync;
 using Shaman.Messages.General.Entity;
+using Shaman.Serialization;
 using Shaman.SyncedRepositories.Managers;
 
 namespace Shaman.SyncedRepositories.Syncers

@@ -1,6 +1,7 @@
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Serialization;
 using Shaman.Common.Utils.TaskScheduling;
+using Shaman.Serialization;
 
 namespace Shaman.TestTools.ClientPeers
 {
