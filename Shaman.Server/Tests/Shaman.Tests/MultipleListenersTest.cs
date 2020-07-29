@@ -33,7 +33,7 @@ namespace Shaman.Tests
         private IRequestSender _requestSender;
         private IBackendProvider _backendProvider;
         private IRoomManager _roomManager;
-        private IGameModeControllerFactory _gameModeControllerFactory;
+        private IRoomControllerFactory _roomControllerFactory;
         private IPacketSender _packetSender;
         [SetUp]
         public void Setup()
@@ -44,9 +44,9 @@ namespace Shaman.Tests
             _requestSender = new FakeSender();
             _backendProvider = new BackendProvider(taskSchedulerFactory, config, _requestSender, _serverLogger);
             //setup server
-            _gameModeControllerFactory = new FakeGameModeControllerFactory();
+            _roomControllerFactory = new FakeRoomControllerFactory();
             _packetSender = new PacketBatchSender(taskSchedulerFactory, config, _serverLogger);
-            _roomManager = new RoomManager(_serverLogger, serializer, config, taskSchedulerFactory,  _gameModeControllerFactory, _packetSender,Mock.Of<IGameMetrics>(), _requestSender);
+            _roomManager = new RoomManager(_serverLogger, serializer, config, taskSchedulerFactory,  _roomControllerFactory, _packetSender,Mock.Of<IGameMetrics>(), _requestSender);
             _gameApplication = new GameApplication(_serverLogger, config, serializer, socketFactory, taskSchedulerFactory, _requestSender, _backendProvider, _roomManager, _packetSender);
             _gameApplication.Start();
             

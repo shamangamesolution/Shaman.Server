@@ -1,6 +1,6 @@
 using System;
 
-namespace Shaman.Common.Utils.Logging
+namespace Shaman.Common.Contract.Logging
 {
     [Flags]
     public enum LogLevel

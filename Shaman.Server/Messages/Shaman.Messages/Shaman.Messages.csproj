@@ -11,7 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Extensions" />
+      <Folder Include="General\Entity\Router" />
     </ItemGroup>
 
 </Project>

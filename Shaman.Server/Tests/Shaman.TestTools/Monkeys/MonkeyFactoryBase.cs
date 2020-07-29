@@ -3,11 +3,13 @@ using System.Linq;
 using Newtonsoft.Json;
 using Shaman.Client.Peers;
 using Shaman.Client.Providers;
+using Shaman.Common.Contract;
+using Shaman.Common.Contract.Logging;
 using Shaman.Common.Server.Senders;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Serialization;
-using Shaman.Messages.General.Entity.Router;
+using Shaman.Router.Messages;
 using Shaman.Serialization;
 
 namespace Shaman.TestTools.Monkeys

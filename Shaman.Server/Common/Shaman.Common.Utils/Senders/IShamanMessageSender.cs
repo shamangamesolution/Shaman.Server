@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Shaman.Common.Utils.Peers;
-using Shaman.Common.Utils.Serialization.Messages;
 using Shaman.Serialization.Messages;
 using Shaman.Serialization.Messages.Udp;
 

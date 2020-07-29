@@ -1,5 +1,7 @@
 using System;
 using System.Net;
+using Shaman.Common.Contract;
+using Shaman.Common.Contract.Logging;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Server.Peers;
 using Shaman.Common.Utils.Logging;

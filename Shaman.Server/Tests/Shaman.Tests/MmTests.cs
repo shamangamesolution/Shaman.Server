@@ -7,7 +7,6 @@ using NUnit.Framework;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Server.Providers;
 using Shaman.Common.Utils.Senders;
-using Shaman.Common.Utils.Servers;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Bundle;
 using Shaman.Game.Providers;

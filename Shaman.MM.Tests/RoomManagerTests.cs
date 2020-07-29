@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
 using Newtonsoft.Json.Bson;
 using NUnit.Framework;
+using Shaman.Common.Contract;
+using Shaman.Common.Contract.Logging;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Messages;

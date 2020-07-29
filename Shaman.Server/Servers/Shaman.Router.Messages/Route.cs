@@ -1,4 +1,4 @@
-namespace Shaman.Messages.General.Entity.Router
+namespace Shaman.Router.Messages
 {
     public class Route
     {

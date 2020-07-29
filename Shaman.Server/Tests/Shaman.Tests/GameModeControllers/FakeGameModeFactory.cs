@@ -56,7 +56,7 @@ namespace Shaman.Tests.GameModeControllers
         }
     }
 
-    public class FakeGameModeControllerFactory : IGameModeControllerFactory
+    public class FakeRoomControllerFactory : IRoomControllerFactory
     {
         public IRoomController GetGameModeController(IRoomContext room, ITaskScheduler taskScheduler,
             IRoomPropertiesContainer roomPropertiesContainer)

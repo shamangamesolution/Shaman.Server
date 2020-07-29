@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Serialization;
+using Shaman.Common.Contract;
+using Shaman.Common.Contract.Logging;
 using Shaman.Common.Metrics;
 using Shaman.Common.Server.Applications;
 using Shaman.Common.Server.Configuration;
@@ -56,7 +58,7 @@ namespace Shaman.Game
 
             if (StandaloneServerLauncher.IsStandaloneMode)
             {
-                services.AddSingleton<IGameModeControllerFactory, StandaloneModeGameModeControllerFactory>();
+                services.AddSingleton<IRoomControllerFactory, StandaloneModeRoomControllerFactory>();
                 services.AddSingleton<IBackendProvider, BackendProviderStub>();
                 services.AddSingleton<IApplicationConfig>(c => StandaloneServerLauncher.Config);
                 services.AddSingleton<IGameMetrics, GameMetricsStub>();
@@ -64,7 +66,7 @@ namespace Shaman.Game
             }
             else
             {
-                services.AddSingleton<IGameModeControllerFactory, DefaultGameModeControllerFactory>();
+                services.AddSingleton<IRoomControllerFactory, DefaultRoomControllerFactory>();
                 services.AddSingleton<IBackendProvider, BackendProvider>();
                 services.AddSingleton<IRoomStateUpdater, RoomStateUpdater>();
 
@@ -130,7 +132,7 @@ namespace Shaman.Game
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplication server,
-            IGameServerInfoProvider serverInfoProvider, IGameModeControllerFactory controllerFactory /* init bundle */,
+            IGameServerInfoProvider serverInfoProvider, IRoomControllerFactory controllerFactory /* init bundle */,
             IGameServerApi gameServerApi, IShamanLogger logger)
         {
             if (env.IsDevelopment())

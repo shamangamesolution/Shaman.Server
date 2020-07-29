@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Shaman.Messages.General.Entity.Router;
+using Shaman.Common.Contract;
+using Shaman.Router.Messages;
 
 namespace Shaman.Client.Providers
 {

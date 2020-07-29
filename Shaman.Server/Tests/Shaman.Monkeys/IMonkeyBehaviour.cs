@@ -1,4 +1,6 @@
 using System.Threading.Tasks;
+using Shaman.Common.Contract;
+using Shaman.Common.Contract.Logging;
 using Shaman.Common.Utils.Logging;
 using Shaman.TestTools.Monkeys;
 

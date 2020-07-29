@@ -1,9 +1,9 @@
 using System;
 using System.Net;
+using Shaman.Common.Contract;
+using Shaman.Common.Contract.Logging;
 using Shaman.Common.Server.Configuration;
-using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Senders;
-using Shaman.Common.Utils.Serialization;
 using Shaman.Common.Utils.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Serialization;
@@ -24,7 +24,7 @@ namespace Shaman.Common.Server.Peers
         protected IApplicationConfig Config;
         private ITaskSchedulerFactory _taskSchedulerFactory;
         protected ITaskScheduler TaskScheduler;
-        private PendingTask _socketTickTask;
+        private IPendingTask _socketTickTask;
 
         private int _maxSendDuration = int.MinValue;
         private DateTime _lastTick = DateTime.UtcNow;

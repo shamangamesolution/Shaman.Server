@@ -1,21 +1,22 @@
 using System;
+using Shaman.Common.Contract;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Bundle;
 
 namespace Shaman.Game
 {
-    public class StandaloneModeGameModeControllerFactory : IGameModeControllerFactory
+    public class StandaloneModeRoomControllerFactory : IRoomControllerFactory
     {
         // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
         private readonly IGameBundle _bundle;
-        private readonly IGameModeControllerFactory _gameModeControllerFactory;
+        private readonly IRoomControllerFactory _roomControllerFactory;
 
-        public StandaloneModeGameModeControllerFactory(IShamanComponents shamanComponents)
+        public StandaloneModeRoomControllerFactory(IShamanComponents shamanComponents)
         {
             _bundle = StandaloneServerLauncher.StandaloneBundle;
             _bundle.OnInitialize(shamanComponents);
-            _gameModeControllerFactory = _bundle.GetGameModeControllerFactory();
-            if (_gameModeControllerFactory == null)
+            _roomControllerFactory = _bundle.GetRoomControllerFactory();
+            if (_roomControllerFactory == null)
             {
                 throw new NullReferenceException("Game bundle returned null factory");
             }
@@ -24,7 +25,7 @@ namespace Shaman.Game
         public IRoomController GetGameModeController(IRoomContext room, ITaskScheduler taskScheduler,
             IRoomPropertiesContainer roomPropertiesContainer)
         {
-            return _gameModeControllerFactory.GetGameModeController(room, taskScheduler,
+            return _roomControllerFactory.GetGameModeController(room, taskScheduler,
                 roomPropertiesContainer);
         }
     }

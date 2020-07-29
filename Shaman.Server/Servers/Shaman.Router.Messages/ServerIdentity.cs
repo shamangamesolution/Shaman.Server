@@ -2,13 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Shaman.Common.Utils.Helpers;
-using Shaman.Common.Utils.Serialization;
-using Shaman.Common.Utils.Serialization.Messages;
+using Shaman.Common.Contract;
 using Shaman.Serialization;
 using Shaman.Serialization.Messages;
 
-namespace Shaman.Common.Utils.Servers
+namespace Shaman.Router.Messages
 {
     public class ServerIdentity : EntityBase, IEquatable<ServerIdentity>
     {

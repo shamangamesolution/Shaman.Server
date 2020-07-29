@@ -4,13 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using Shaman.Common.Utils.Logging;
-using Shaman.Common.Utils.Serialization.Messages;
+using Shaman.Common.Contract;
+using Shaman.Common.Contract.Logging;
 using Shaman.Common.Utils.TaskScheduling;
-using Shaman.Messages;
-using Shaman.Messages.General.Entity.Router;
 using Shaman.Router.Config;
 using Shaman.Router.Data.Repositories.Interfaces;
+using Shaman.Router.Messages;
 using Shaman.Serialization.Messages;
 
 namespace Shaman.Router.Data.Providers

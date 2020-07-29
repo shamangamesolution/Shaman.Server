@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Shaman.Common.Contract;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Server.Providers;
 using Shaman.Common.Utils.TaskScheduling;

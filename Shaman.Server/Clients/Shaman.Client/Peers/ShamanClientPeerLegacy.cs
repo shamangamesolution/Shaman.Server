@@ -2,10 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Shaman.Common.Contract;
+using Shaman.Common.Contract.Logging;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Serialization;
-using Shaman.Common.Utils.Serialization.Messages;
 using Shaman.Common.Utils.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Messages;
@@ -60,7 +61,7 @@ namespace Shaman.Client.Peers
         private readonly ITaskScheduler _taskScheduler;
         private ISerializer _serializer;
         private ClientStatusLegacy _status;
-        private PendingTask _pollingTask;
+        private IPendingTask _pollingTask;
         private readonly int _pollPackageQueueIntervalMs;
         private readonly IRequestSender _requestSender;
         private int _backendId;
@@ -75,8 +76,8 @@ namespace Shaman.Client.Peers
         
 
         private Guid _joinInfoEventId;
-        private PendingTask _pingTask;
-        private PendingTask _resetPingTask;
+        private IPendingTask _pingTask;
+        private IPendingTask _resetPingTask;
         private bool _isPinging = false;
         private DateTime? _pingRequestSentOn = null;
         private JoinType _joinType;

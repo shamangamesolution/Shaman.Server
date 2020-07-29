@@ -2,11 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Shaman.Common.Utils.Serialization.Messages;
-using Shaman.Common.Utils.Servers;
+using Shaman.Common.Contract;
 using Shaman.Messages;
-using Shaman.Messages.General.Entity.Router;
 using Shaman.MM.Providers;
+using Shaman.Router.Messages;
 using Shaman.Serialization.Messages;
 
 namespace Shaman.MM.Tests.Fakes

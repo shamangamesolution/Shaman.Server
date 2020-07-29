@@ -1,14 +1,8 @@
-using Shaman.Common.Utils.Serialization;
-using Shaman.Common.Utils.Serialization.Messages;
-using Shaman.Common.Utils.Servers;
-using Shaman.Messages.General.Entity.Router;
-using Shaman.Messages.MM;
 using Shaman.Serialization;
-using Shaman.Serialization.Messages;
 using Shaman.Serialization.Messages.Extensions;
 using Shaman.Serialization.Messages.Http;
 
-namespace Shaman.Messages.General.DTO.Requests.Router
+namespace Shaman.Router.Messages
 {
     public class ActualizeServerOnRouterRequest : HttpRequestBase
     {
@@ -19,7 +13,7 @@ namespace Shaman.Messages.General.DTO.Requests.Router
         public ushort HttpPort { get; set; }
         public ushort HttpsPort { get; set; }
         
-        public ActualizeServerOnRouterRequest() : base(BackEndEndpoints.ActualizeServer)
+        public ActualizeServerOnRouterRequest() : base(RouterEndpoints.ActualizeServer)
         {
             
         }

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
+using Shaman.Common.Contract;
 using Shaman.Common.Utils.Senders;
-using Shaman.Common.Utils.Serialization.Messages;
-using Shaman.Common.Utils.Servers;
+using Shaman.Router.Messages;
 
 namespace Shaman.Common.Server.Configuration
 {

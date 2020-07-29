@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Net;
 using LiteNetLib;
 using Shaman.Common.Contract;
+using Shaman.Common.Contract.Logging;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Sockets;

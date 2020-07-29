@@ -1,4 +1,6 @@
 using System;
+using Shaman.Common.Contract;
+using Shaman.Common.Contract.Logging;
 
 namespace Shaman.Common.Utils.Logging
 {

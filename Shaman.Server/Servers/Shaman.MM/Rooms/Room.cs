@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Shaman.Common.Utils.Servers;
 using Shaman.Messages;
 using Shaman.Messages.MM;
 
