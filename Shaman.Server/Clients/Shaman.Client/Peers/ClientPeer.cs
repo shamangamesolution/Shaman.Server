@@ -2,16 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using Shaman.Common.Contract;
-using Shaman.Common.Utils.Logging;
+using Shaman.Common.Contract.Logging;
 using Shaman.Common.Utils.Peers;
 using Shaman.Common.Utils.Senders;
-using Shaman.Common.Utils.Serialization;
-using Shaman.Common.Utils.Serialization.Messages;
 using Shaman.Common.Utils.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.LiteNetLibAdapter;
 using Shaman.Serialization;
-using Shaman.Serialization.Messages;
 using Shaman.Serialization.Messages.Udp;
 
 namespace Shaman.Client.Peers
@@ -74,7 +71,7 @@ namespace Shaman.Client.Peers
         private readonly IShamanLogger _logger;
         private readonly Action<DataPacket, Action> _onPackageReceived;
         private IReliableSock _socket;
-        private PendingTask _socketTickTask = null;
+        private IPendingTask _socketTickTask = null;
         private IPEndPoint _ep;
         private readonly ITaskScheduler _taskScheduler;
         public Action<string> OnDisconnectedFromServer;
