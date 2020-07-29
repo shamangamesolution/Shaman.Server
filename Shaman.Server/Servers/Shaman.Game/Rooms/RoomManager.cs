@@ -82,8 +82,7 @@ namespace Shaman.Game.Rooms
                    destroyRoomAfter;
         }
 
-        /// <returns>IRoom?</returns>
-        private IRoom GetRoomById(Guid id)
+        public IRoom GetRoomById(Guid id)
         {
             _rooms.TryGetValue(id, out var room);
             return room;
@@ -152,30 +151,6 @@ namespace Shaman.Game.Rooms
                 TrackRoomMetricsOnDelete(roomStats);
             }
         }
-
-        public bool CanJoinRoom(Guid roomId)
-        {
-            lock (_syncPeersList)
-            {
-                try
-                {
-                    if (_rooms.TryGetValue(roomId, out var room))
-                    {
-                        if (room.IsOpen())
-                        {
-                            return true;
-                        }
-                    }
-                }
-                catch (Exception e)
-                {
-                    _logger.Error($"CanJoinRoom error: {e}");
-                }
-                
-                return false;
-            }
-        }
-
         private void TrackRoomMetricsOnDelete(RoomStats roomStats)
         {
             _gameMetrics.TrackRoomDestroyed();
