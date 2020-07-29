@@ -2,15 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Shaman.Common.Contract;
+using Shaman.Common.Contract.Logging;
 using Shaman.Common.Server.Configuration;
-using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Senders;
-using Shaman.Common.Utils.Serialization.Messages;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Bundle;
-using Shaman.Messages.General.DTO.Requests.Router;
-using Shaman.Messages.General.DTO.Responses.Router;
-using Shaman.Messages.General.Entity.Router;
+using Shaman.Router.Messages;
 using Shaman.Serialization.Messages;
 
 namespace Shaman.ServerSharedUtilities.Backends

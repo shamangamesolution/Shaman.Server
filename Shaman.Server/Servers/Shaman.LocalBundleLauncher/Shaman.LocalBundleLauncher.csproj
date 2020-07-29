@@ -9,7 +9,6 @@
 
     <ItemGroup>
                 <PackageReference Include="Microsoft.AspNetCore.App" />
-                <ProjectReference Include="..\..\Common\Shaman.Game.Contract\Shaman.Game.Contract.csproj" />
     
       <ProjectReference Include="..\Shaman.Game\Shaman.Game.csproj" />
     

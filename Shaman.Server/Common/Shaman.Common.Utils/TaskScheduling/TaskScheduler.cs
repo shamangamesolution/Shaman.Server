@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Shaman.Common.Utils.Logging;
+using Shaman.Common.Contract;
+using Shaman.Common.Contract.Logging;
 
 namespace Shaman.Common.Utils.TaskScheduling
 {
@@ -33,16 +34,16 @@ namespace Shaman.Common.Utils.TaskScheduling
             }, 0, 1000);
         }
 
-        public PendingTask Schedule(Action action, long firstInMs)
+        public IPendingTask Schedule(Action action, long firstInMs)
         {
             return ScheduleOnInterval(action, firstInMs, Timeout.Infinite, true);
         }
-        public PendingTask Schedule(Func<Task> action, long firstInMs)
+        public IPendingTask Schedule(Func<Task> action, long firstInMs)
         {
             return ScheduleOnInterval(action, firstInMs, Timeout.Infinite, true);
         }
 
-        public PendingTask ScheduleOnInterval(Action action, long firstInMs, long regularInMs, bool shortLiving = false)
+        public IPendingTask ScheduleOnInterval(Action action, long firstInMs, long regularInMs, bool shortLiving = false)
         {
             var pending = new PendingTask(action, firstInMs, regularInMs, _logger, shortLiving);
             pending.Schedule();
@@ -53,7 +54,7 @@ namespace Shaman.Common.Utils.TaskScheduling
 
             return pending;
         }
-        public PendingTask ScheduleOnInterval(Func<Task> action, long firstInMs, long regularInMs, bool shortLiving = false)
+        public IPendingTask ScheduleOnInterval(Func<Task> action, long firstInMs, long regularInMs, bool shortLiving = false)
         {
             var pending = new PendingTask(async () =>
             {
@@ -114,18 +115,19 @@ namespace Shaman.Common.Utils.TaskScheduling
             });
         }
 
-        public void Remove(PendingTask task)
+        public void Remove(IPendingTask task)
         {
-            if (task == null)
+            var pt = task as PendingTask; 
+            if (pt == null)
                 return;
             lock (_listLock)
             {
-                var pendingTask = _tasks.FirstOrDefault(t => t == task);
+                var pendingTask = _tasks.FirstOrDefault(t => t == pt);
                 if (pendingTask == null)
                     return;
                 _logger?.Debug($"Removing {pendingTask.GetActionName()}");
                 pendingTask.Dispose();
-                _tasks.Remove(task);
+                _tasks.Remove(pt);
             }   
         }
 

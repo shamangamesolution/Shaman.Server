@@ -1,10 +1,12 @@
 using System;
 using System.Threading;
+using Shaman.Common.Contract;
+using Shaman.Common.Contract.Logging;
 using Shaman.Common.Utils.Logging;
 
 namespace Shaman.Common.Utils.TaskScheduling
 {
-    public class PendingTask : IDisposable
+    public class PendingTask : IPendingTask
     {
         private readonly long _firstIntervalInMs;
         private readonly long _intervalInMs;
@@ -24,6 +26,7 @@ namespace Shaman.Common.Utils.TaskScheduling
         private static int _executingActionsCount;
 
         public static int GetActiveTimersCount()
+        
         {
             return _activeTimersCount;
         }

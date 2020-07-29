@@ -1,12 +1,12 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Shaman.Common.Contract;
+using Shaman.Common.Contract.Logging;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Senders;
-using Shaman.Common.Utils.Servers;
-using Shaman.Messages.General.DTO.Requests.Router;
-using Shaman.Messages.General.DTO.Responses.Router;
+using Shaman.Router.Messages;
 
 namespace Shaman.ServerSharedUtilities.Bundling
 {

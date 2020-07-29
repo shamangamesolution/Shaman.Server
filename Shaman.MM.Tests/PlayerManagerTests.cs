@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
+using Shaman.Common.Contract;
+using Shaman.Common.Contract.Logging;
 using Shaman.Common.Server.Peers;
 using Shaman.Common.Utils.Logging;
 using Shaman.MM.Managers;

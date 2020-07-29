@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Shaman.Common.Contract;
+using Shaman.Common.Contract.Logging;
 using Shaman.Common.Server.Peers;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Senders;
@@ -36,7 +37,7 @@ namespace Shaman.Game.Rooms
         
         public Room(IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory, IRoomManager roomManager,
             IRoomPropertiesContainer roomPropertiesContainer,
-            IGameModeControllerFactory gameModeControllerFactory, IPacketSender packetSender,
+            IRoomControllerFactory roomControllerFactory, IPacketSender packetSender,
             Guid roomId, IRoomStateUpdater roomStateUpdater)
         {
             _logger = logger;
@@ -51,7 +52,7 @@ namespace Shaman.Game.Rooms
             _roomStats = new RoomStats(GetRoomId(), roomPropertiesContainer.GetPlayersCount());
             
             _roomController =
-                gameModeControllerFactory.GetGameModeController(
+                roomControllerFactory.GetGameModeController(
                     new RoomContext(this), _taskScheduler, roomPropertiesContainer);
 
             _ = _taskScheduler.ScheduleOnInterval(() =>

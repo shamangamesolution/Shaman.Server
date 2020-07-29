@@ -5,11 +5,12 @@ using Moq;
 using NUnit.Framework;
 using Shaman.Client;
 using Shaman.Client.Peers;
+using Shaman.Common.Contract;
+using Shaman.Common.Contract.Logging;
 using Shaman.Common.Server.Providers;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Serialization;
-using Shaman.Common.Utils.Serialization.Messages;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Bundle;
 using Shaman.Game;
@@ -62,7 +63,7 @@ namespace Shaman.Tests
         private IBackendProvider _backendProvider;
         private IRoomPropertiesContainer _roomPropertiesContainer;
         private IRoomManager _roomManager;
-        private IGameModeControllerFactory _gameModeControllerFactory;
+        private IRoomControllerFactory _roomControllerFactory;
         private IPacketSender _mmPacketSender, _gamePacketSender;
         private IStatisticsProvider _statsProvider;
         private IMatchMakerServerInfoProvider _serverProvider;
@@ -123,10 +124,10 @@ namespace Shaman.Tests
             
             //setup game server
             _roomPropertiesContainer = new RoomPropertiesContainer(_serverLogger);
-            _gameModeControllerFactory = new FakeGameModeControllerFactory();
+            _roomControllerFactory = new FakeRoomControllerFactory();
 
             _roomManager = new RoomManager(_serverLogger, serializer, gameConfig, taskSchedulerFactory,
-                _gameModeControllerFactory, _mmPacketSender, Mock.Of<IGameMetrics>(), requestSender);
+                _roomControllerFactory, _mmPacketSender, Mock.Of<IGameMetrics>(), requestSender);
 
             _gameApplication = new GameApplication(_serverLogger, gameConfig, serializer, socketFactory, taskSchedulerFactory, requestSender, _backendProvider, _roomManager, _gamePacketSender);
             _gameApplication.Start();

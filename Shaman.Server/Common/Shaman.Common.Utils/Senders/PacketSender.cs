@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using Shaman.Common.Contract;
+using Shaman.Common.Contract.Logging;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Peers;
 using Shaman.Common.Utils.TaskScheduling;
@@ -21,7 +22,7 @@ namespace Shaman.Common.Utils.Senders
         private readonly ConcurrentDictionary<IPeerSender, IPacketQueue> _peerToPackets;
         private readonly IPacketSenderConfig _config;
         private readonly IShamanLogger _logger;
-        private PendingTask _sendTaskId;
+        private IPendingTask _sendTaskId;
 
         public PacketBatchSender(ITaskSchedulerFactory taskSchedulerFactory, IPacketSenderConfig config,
             IShamanLogger logger)

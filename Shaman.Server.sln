@@ -96,6 +96,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Serialization.Messag
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Serialization.Messages.Udp", "Shaman.Server\Serialization\Shaman.Serialization.Messages.Udp\Shaman.Serialization.Messages.Udp.csproj", "{C875A5A1-D08C-41E6-84F3-FB7B2E36F102}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Router.Messages", "Shaman.Server\Servers\Shaman.Router.Messages\Shaman.Router.Messages.csproj", "{3E9BDE4B-ECAC-40E9-AED0-50E5226CE604}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -538,6 +540,18 @@ Global
 		{C875A5A1-D08C-41E6-84F3-FB7B2E36F102}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{C875A5A1-D08C-41E6-84F3-FB7B2E36F102}.Release|Win32.ActiveCfg = Release|Any CPU
 		{C875A5A1-D08C-41E6-84F3-FB7B2E36F102}.Release|Win32.Build.0 = Release|Any CPU
+		{3E9BDE4B-ECAC-40E9-AED0-50E5226CE604}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E9BDE4B-ECAC-40E9-AED0-50E5226CE604}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E9BDE4B-ECAC-40E9-AED0-50E5226CE604}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{3E9BDE4B-ECAC-40E9-AED0-50E5226CE604}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{3E9BDE4B-ECAC-40E9-AED0-50E5226CE604}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{3E9BDE4B-ECAC-40E9-AED0-50E5226CE604}.Debug|Win32.Build.0 = Debug|Any CPU
+		{3E9BDE4B-ECAC-40E9-AED0-50E5226CE604}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E9BDE4B-ECAC-40E9-AED0-50E5226CE604}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3E9BDE4B-ECAC-40E9-AED0-50E5226CE604}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{3E9BDE4B-ECAC-40E9-AED0-50E5226CE604}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{3E9BDE4B-ECAC-40E9-AED0-50E5226CE604}.Release|Win32.ActiveCfg = Release|Any CPU
+		{3E9BDE4B-ECAC-40E9-AED0-50E5226CE604}.Release|Win32.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -577,5 +591,6 @@ Global
 		{712E926F-B340-41B4-8C45-A423E8B3C709} = {B37AFF3F-4078-4D9E-9845-8F029C8B5E58}
 		{6E17AA64-84FA-4313-8AFE-2475E27C65FA} = {B37AFF3F-4078-4D9E-9845-8F029C8B5E58}
 		{C875A5A1-D08C-41E6-84F3-FB7B2E36F102} = {B37AFF3F-4078-4D9E-9845-8F029C8B5E58}
+		{3E9BDE4B-ECAC-40E9-AED0-50E5226CE604} = {5681CC39-9FAB-4A2F-935B-3BE870EB18B6}
 	EndGlobalSection
 EndGlobal

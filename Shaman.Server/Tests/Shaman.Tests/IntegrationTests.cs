@@ -55,7 +55,7 @@ namespace Shaman.Tests
         private List<TestClientPeer> _clients = new List<TestClientPeer>();
         private IBackendProvider _backendProvider;
         private IRoomManager _roomManager;
-        private IGameModeControllerFactory _gameModeControllerFactory;
+        private IRoomControllerFactory _roomControllerFactory;
         private IPacketSender _mmPacketSender, _gamePacketSender;
         private IStatisticsProvider _statsProvider;
         private IMatchMakerServerInfoProvider _serverProvider;
@@ -118,9 +118,9 @@ namespace Shaman.Tests
             
             _mmApplication.Start();
 
-            _gameModeControllerFactory = new FakeGameModeControllerFactory();
+            _roomControllerFactory = new FakeRoomControllerFactory();
 
-            _roomManager = new RoomManager(_serverLogger, serializer, gameConfig, taskSchedulerFactory, _gameModeControllerFactory, _mmPacketSender, Mock.Of<IGameMetrics>(), requestSender);
+            _roomManager = new RoomManager(_serverLogger, serializer, gameConfig, taskSchedulerFactory, _roomControllerFactory, _mmPacketSender, Mock.Of<IGameMetrics>(), requestSender);
 
             
             //setup game server

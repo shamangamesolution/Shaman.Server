@@ -3,13 +3,15 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Shaman.Common.Contract;
+using Shaman.Common.Contract.Logging;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Messages;
-using Shaman.Messages.General.Entity.Router;
 using Shaman.Messages.MM;
 using Shaman.MM.Providers;
 using Shaman.MM.Rooms;
+using Shaman.Router.Messages;
 
 namespace Shaman.MM.Managers
 {
@@ -23,7 +25,7 @@ namespace Shaman.MM.Managers
         private readonly ConcurrentDictionary<Guid, List<Room>> _groupToRoom = new ConcurrentDictionary<Guid, List<Room>>();
         private readonly ConcurrentDictionary<Guid, Guid> _roomToGroupId = new ConcurrentDictionary<Guid, Guid>();
         private readonly Queue<Room> _roomsQueue = new Queue<Room>();
-        private PendingTask _clearTask, _closeTask;
+        private IPendingTask _clearTask, _closeTask;
         
         private readonly object _roomQueueSync = new object();
 

@@ -8,18 +8,16 @@ namespace Shaman.Game.Contract.DI
     {
         private ServiceProvider _serviceProvider;
 
-        public IGameModeControllerFactory GetGameModeControllerFactory()
+        public IRoomControllerFactory GetRoomControllerFactory()
         {
-            return _serviceProvider.GetService<IGameModeControllerFactory>();
+            return _serviceProvider.GetService<IRoomControllerFactory>();
         }
 
         public void OnInitialize(IShamanComponents shamanComponents)
         {
             var serviceCollection = new ServiceCollection();
 
-            serviceCollection.AddTransient((c) => shamanComponents.RequestSender);
             serviceCollection.AddTransient((c) => shamanComponents.Logger);
-            serviceCollection.AddTransient((c) => shamanComponents.Serializer);
             serviceCollection.AddTransient((c) => shamanComponents.BackendProvider);
 
             OnConfigureServices(serviceCollection);

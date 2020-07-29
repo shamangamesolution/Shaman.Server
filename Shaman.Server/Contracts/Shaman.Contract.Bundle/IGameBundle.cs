@@ -2,7 +2,7 @@ namespace Shaman.Contract.Bundle
 {
     public interface IGameBundle
     {
-        IGameModeControllerFactory GetGameModeControllerFactory();
+        IRoomControllerFactory GetRoomControllerFactory();
         void OnInitialize(IShamanComponents shamanComponents);
     }
 }

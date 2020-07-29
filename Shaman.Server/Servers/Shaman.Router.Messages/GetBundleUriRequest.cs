@@ -1,18 +1,14 @@
-using Shaman.Common.Utils.Serialization;
-using Shaman.Common.Utils.Serialization.Messages;
-using Shaman.Common.Utils.Servers;
 using Shaman.Serialization;
-using Shaman.Serialization.Messages;
 using Shaman.Serialization.Messages.Extensions;
 using Shaman.Serialization.Messages.Http;
 
-namespace Shaman.Messages.General.DTO.Requests.Router
+namespace Shaman.Router.Messages
 {
     public class GetBundleUriRequest : HttpRequestBase
     {
         public ServerIdentity ServerIdentity { get; set; }
         
-        public GetBundleUriRequest() : base(BackEndEndpoints.GetBundleUri)
+        public GetBundleUriRequest() : base(RouterEndpoints.GetBundleUri)
         {
             
         }

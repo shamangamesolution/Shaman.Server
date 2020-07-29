@@ -2,7 +2,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Shaman.Common.Utils.Serialization;
-using Shaman.Common.Utils.Serialization.Messages;
 using Shaman.Serialization;
 using Shaman.Serialization.Extensions;
 using Shaman.Serialization.Messages;

@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Shaman.Common.Contract;
+using Shaman.Common.Contract.Logging;
 using Shaman.Common.Server.Peers;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Senders;
@@ -37,7 +39,7 @@ namespace Shaman.MM.MatchMaking
         private object _queueSync = new object();
         private Queue<MatchMakingPlayer> _matchmakingPlayers;
         private bool _isGroupWorking;
-        private PendingTask _mainTask;
+        private IPendingTask _mainTask;
 
         public MatchMakingGroup(Dictionary<byte, object> roomProperties, 
             IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory, IPlayersManager playersManager,

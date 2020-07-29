@@ -3,12 +3,12 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Shaman.Common.Contract;
+using Shaman.Common.Contract.Logging;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Server.Peers;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Serialization;
-using Shaman.Common.Utils.Serialization.Messages;
 using Shaman.Common.Utils.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Bundle;
@@ -35,7 +35,7 @@ namespace Shaman.Game.Rooms
         private readonly ISerializer _serializer;
         private readonly object _syncPeersList = new object();
         private readonly IApplicationConfig _config;
-        private readonly IGameModeControllerFactory _gameModeControllerFactory;
+        private readonly IRoomControllerFactory _roomControllerFactory;
         private readonly IShamanMessageSender _messageSender;
         private readonly IGameMetrics _gameMetrics;
         private readonly IRoomStateUpdater _roomStateUpdater;
@@ -45,7 +45,7 @@ namespace Shaman.Game.Rooms
             ISerializer serializer,
             IApplicationConfig config,
             ITaskSchedulerFactory taskSchedulerFactory,
-            IGameModeControllerFactory gameModeControllerFactory,
+            IRoomControllerFactory roomControllerFactory,
             IPacketSender packetSender, 
             IShamanMessageSenderFactory messageSenderFactory,
             IGameMetrics gameMetrics, 
@@ -54,7 +54,7 @@ namespace Shaman.Game.Rooms
             _logger = logger;
             _serializer = serializer;
             _taskSchedulerFactory = taskSchedulerFactory;
-            _gameModeControllerFactory = gameModeControllerFactory;
+            _roomControllerFactory = roomControllerFactory;
             _taskScheduler = _taskSchedulerFactory.GetTaskScheduler();
             _taskScheduler.ScheduleOnInterval(CheckRoomsState, 0, 60000);
             _config = config;
@@ -118,7 +118,7 @@ namespace Shaman.Game.Rooms
                 roomPropertiesContainer.Initialize(players, properties);
 
                 var room = new Room(_logger, _taskSchedulerFactory, this, roomPropertiesContainer,
-                    _gameModeControllerFactory, packetSender, roomId ?? Guid.NewGuid(), _roomStateUpdater);
+                    _roomControllerFactory, packetSender, roomId ?? Guid.NewGuid(), _roomStateUpdater);
 
                 if(_rooms.TryAdd(room.GetRoomId(), room))
                     _gameMetrics.TrackRoomCreated();

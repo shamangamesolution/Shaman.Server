@@ -1,11 +1,7 @@
-using Shaman.Common.Utils.Serialization;
-using Shaman.Common.Utils.Serialization.Messages;
-using Shaman.Messages.General.Entity.Router;
 using Shaman.Serialization;
-using Shaman.Serialization.Messages;
 using Shaman.Serialization.Messages.Http;
 
-namespace Shaman.Messages.General.DTO.Responses.Router
+namespace Shaman.Router.Messages
 {
     public class ActualizeServerOnRouterResponse : HttpResponseBase
     {

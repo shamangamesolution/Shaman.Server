@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
+using Shaman.Common.Contract;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Bundle;
 using Shaman.Game.Rooms;
@@ -15,10 +16,10 @@ namespace Shaman.Game.Tests
         public async Task TestLaunchAndReceiveApi()
         {
             var bundleMock = new Mock<IGameBundle>(MockBehavior.Loose);
-            var controllerFactoryMock = new Mock<IGameModeControllerFactory>(MockBehavior.Loose);
+            var controllerFactoryMock = new Mock<IRoomControllerFactory>(MockBehavior.Loose);
             var controllerMock = new Mock<IRoomController>(MockBehavior.Loose);
 
-            bundleMock.Setup(b => b.GetGameModeControllerFactory()).Returns(controllerFactoryMock.Object);
+            bundleMock.Setup(b => b.GetRoomControllerFactory()).Returns(controllerFactoryMock.Object);
             controllerFactoryMock.Setup(f =>
                 f.GetGameModeController(It.IsAny<IRoomContext>(), It.IsAny<ITaskScheduler>(),
                     It.IsAny<IRoomPropertiesContainer>())).Returns(controllerMock.Object);

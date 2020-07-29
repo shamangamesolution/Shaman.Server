@@ -9,7 +9,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\Messages\Shaman.Messages\Shaman.Messages.csproj" />
       <ProjectReference Include="..\..\Database\Shaman.DAL\Shaman.DAL.csproj" />
       <ProjectReference Include="..\Shaman.ServerSharedUtilities\Shaman.ServerSharedUtilities.csproj" />
     </ItemGroup>
