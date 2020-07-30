@@ -156,31 +156,28 @@ namespace Shaman.Game.Rooms
             return _roomId;
         }
 
-        public async Task<bool> PeerJoined(IPeer peer, Dictionary<byte, object> peerProperties)
+        public bool AddPeerToRoom(IPeer peer, Dictionary<byte, object> peerProperties)
         {
             if (!_roomPlayers.TryAdd(peer.GetSessionId(), new RoomPlayer(peer, peerProperties)))
             {
                 _logger.Error($"Error adding player to peer collection");
                 return false;
             }
+            return true;
+        }
+        
+        public async Task<bool> PeerJoined(IPeer peer, Dictionary<byte, object> peerProperties)
+        {
+            if (_gameModeController == null)
+            {
+                _logger.Error($"GameModeController == null while peer joining");
+                return false;
+            }
 
             try
             {
-                if (_gameModeController == null)
-                {
-                    _logger.Error($"GameModeController == null while peer joining");
-                    return false;
-                }
-
-                var processNewPlayerResult = await _gameModeController.ProcessNewPlayer(peer.GetSessionId(), peerProperties);
-                if (processNewPlayerResult && !_roomPlayers.ContainsKey(peer.GetSessionId()))
-                {
-                    //in case if player was disconnected during ProcessNewPlayer
-                    
-                    // todo here we dont know true reason (plan to remove this workaround)
-                    _gameModeController.CleanupPlayer(peer.GetSessionId(), PeerDisconnectedReason.PeerLeave, null);
-                }
-                return processNewPlayerResult;;
+                return await _gameModeController.ProcessNewPlayer(peer.GetSessionId(), peerProperties) && 
+                       _roomPlayers.ContainsKey(peer.GetSessionId());// if player still in room
             }
             catch (Exception ex)
             {
@@ -198,7 +195,7 @@ namespace Shaman.Game.Rooms
             _roomPropertiesContainer.RemovePlayer(sessionId);
             try
             {
-                _gameModeController.CleanupPlayer(sessionId, ResolveReason(reason.Reason), reason.Payload);
+                _gameModeController.ProcessPlayerDisconnected(sessionId, ResolveReason(reason.Reason), reason.Payload);
             }
             catch (Exception ex)
             {

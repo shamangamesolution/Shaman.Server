@@ -249,18 +249,20 @@ namespace Shaman.Game.Rooms
                         else
                         {
                             roomToJoin.ConfirmedJoin(sessionId);
+                            if (!roomToJoin.AddPeerToRoom(peer, joinMessage.Properties))
+                                _packetSender.AddPacket(new JoinRoomResponse() { ResultCode = ResultCode.RequestProcessingError }, peer);
+                            
+                            _gameMetrics.TrackPeerJoin();
                             _taskScheduler.ScheduleOnceOnNow(async () =>
                             {
                                 try
                                 {
                                     if (await roomToJoin.PeerJoined(peer, joinMessage.Properties))
                                     {
-                                        _gameMetrics.TrackPeerJoin();
                                         _packetSender.AddPacket(new JoinRoomResponse(), peer);
                                     }
                                     else
                                     {
-                                        // todo disconnect doesn't work for now
                                         // peer.Disconnect(DisconnectReason.JustBecause);
                                         _packetSender.AddPacket(new JoinRoomResponse() { ResultCode = ResultCode.RequestProcessingError }, peer);
                                     }
