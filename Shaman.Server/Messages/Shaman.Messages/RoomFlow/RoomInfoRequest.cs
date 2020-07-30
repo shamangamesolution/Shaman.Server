@@ -8,7 +8,7 @@ namespace Shaman.Messages.RoomFlow
     {
         public Guid RoomId { get; set; }
         
-        public RoomInfoRequest() : base("canjoinroom")
+        public RoomInfoRequest() : base("getroominfo")
         {
         }
 
