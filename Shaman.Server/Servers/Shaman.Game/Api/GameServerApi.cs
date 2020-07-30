@@ -31,24 +31,5 @@ namespace Shaman.Game.Api
             var room = _roomManager.GetRoomById(roomId);
             return room != null && room.IsOpen();
         }
-
-        public RoomInfo GetRoomInfo(Guid roomId)
-        {
-            var room = _roomManager.GetRoomById(roomId);
-            if (room == null)
-                return null;
-            var stats = room.GetStats();
-            return new RoomInfo
-            {
-                CreatedDate = stats.CreatedOn,
-                IsOpen = room.IsOpen()
-            };
-        }
-    }
-
-    public class RoomInfo
-    {
-        public bool IsOpen { get; set; }
-        public DateTime CreatedDate { get; set; }
     }
 }
