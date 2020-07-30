@@ -67,40 +67,7 @@ namespace Shaman.Game.Controllers
 
             try
             {
-                var roomInfo = _gameServerApi.GetRoomInfo(request.RoomId);
-                response.CanJoin = roomInfo != null && roomInfo.IsOpen;
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex);
-                response.ResultCode = ResultCode.RequestProcessingError;
-            }
-            
-            return new FileContentResult(_serializer.Serialize(response), "text/html");
-
-        }
-        
-        [HttpPost("getroominfo")]
-        public async Task<ActionResult> GetRoomInfo()
-        {
-            //Request.Body.Position = 0;            
-            var input = await Request.GetRawBodyBytesAsync(); 
-
-            var request = _serializer.DeserializeAs<RoomInfoRequest>(input);
-            var response = new RoomInfoResponse();
-
-            try
-            {
-                var roomInfo = _gameServerApi.GetRoomInfo(request.RoomId);
-                if (roomInfo == null)
-                {
-                    response.SetError($"Room not {request.RoomId} found");
-                }
-                else
-                {
-                    response.CreatedDate = roomInfo.CreatedDate;
-                    response.IsOpen = roomInfo.IsOpen;
-                }
+                response.CanJoin = _gameServerApi.CanJoinRoom(request.RoomId);
             }
             catch (Exception ex)
             {

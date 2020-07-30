@@ -2,7 +2,7 @@ using System;
 using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Serialization;
 
-namespace Shaman.Messages.RoomFlow
+namespace Shaman.Messages.MM
 {
     public class RoomInfoRequest : HttpRequestBase
     {
