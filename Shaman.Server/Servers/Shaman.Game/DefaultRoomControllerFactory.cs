@@ -1,8 +1,8 @@
 using System;
-using Shaman.Common.Contract;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Bundle;
+using Shaman.Contract.Common;
 using Shaman.Game.Configuration;
 using Shaman.ServerSharedUtilities;
 using Shaman.ServerSharedUtilities.Bundling;

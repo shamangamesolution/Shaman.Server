@@ -3,8 +3,7 @@
     <PropertyGroup>
         <TargetFramework>netcoreapp2.2</TargetFramework>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <PackageVersion>1.7.6</PackageVersion>
-        <RootNamespace>Shaman.Game.Contract.DI</RootNamespace>
+        <PackageVersion>1.9.0</PackageVersion>
     </PropertyGroup>
 
     <ItemGroup>

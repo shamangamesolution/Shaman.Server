@@ -1,6 +1,6 @@
-using Shaman.Common.Contract;
-using Shaman.Common.Contract.Logging;
 using Shaman.Common.Utils.Logging;
+using Shaman.Contract.Common;
+using Shaman.Contract.Common.Logging;
 
 namespace Shaman.Common.Utils.TaskScheduling
 {

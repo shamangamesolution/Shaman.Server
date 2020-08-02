@@ -1,6 +1,6 @@
 using System;
-using Shaman.Common.Contract;
 using Shaman.Contract.Bundle;
+using Shaman.Contract.Common;
 
 namespace Shaman.Game.Rooms
 {

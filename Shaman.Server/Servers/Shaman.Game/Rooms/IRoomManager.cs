@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Shaman.Common.Contract;
 using Shaman.Common.Server.Peers;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Sockets;
+using Shaman.Contract.Common;
 
 namespace Shaman.Game.Rooms
 {

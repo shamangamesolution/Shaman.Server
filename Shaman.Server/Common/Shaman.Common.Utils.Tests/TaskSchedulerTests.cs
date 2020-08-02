@@ -4,10 +4,9 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
-using Shaman.Common.Contract;
-using Shaman.Common.Contract.Logging;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.TaskScheduling;
+using Shaman.Contract.Common.Logging;
 using TaskScheduler = Shaman.Common.Utils.TaskScheduling.TaskScheduler;
 
 namespace Shaman.Common.Utils.Tests

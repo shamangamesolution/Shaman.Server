@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Shaman.Common.Contract;
-using Shaman.Common.Contract.Logging;
 using Shaman.Common.Server.Applications;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Utils.Logging;
@@ -11,6 +9,7 @@ using Shaman.Common.Utils.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Bundle;
 using Shaman.Contract.Bundle.Stats;
+using Shaman.Contract.Common.Logging;
 using Shaman.Game.Configuration;
 using Shaman.Game.Metrics;
 using Shaman.Game.Peers;

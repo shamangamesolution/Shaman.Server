@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace Shaman.Common.Contract
+namespace Shaman.Contract.Common
 {
     public interface ITaskScheduler : IDisposable
     {

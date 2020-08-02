@@ -1,6 +1,6 @@
 using System;
 
-namespace Shaman.Common.Contract
+namespace Shaman.Contract.Common
 {
     public interface IPendingTask : IDisposable
     {

@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
+using Shaman.Contract.MM;
 using Shaman.MM.Peers;
 using Shaman.Messages.RoomFlow;
-using Shaman.MM.Contract;
 
 namespace Shaman.MM.MatchMaking
 {

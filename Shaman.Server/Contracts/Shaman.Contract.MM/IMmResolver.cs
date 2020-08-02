@@ -1,4 +1,4 @@
-namespace Shaman.MM.Contract
+namespace Shaman.Contract.MM
 {
     public interface IMmResolver
     {

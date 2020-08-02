@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Shaman.MM.Contract
+namespace Shaman.Contract.MM
 {
     public interface IMatchMakingConfigurator
     {

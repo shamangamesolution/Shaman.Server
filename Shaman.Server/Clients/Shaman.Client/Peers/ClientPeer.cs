@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
-using Shaman.Common.Contract;
-using Shaman.Common.Contract.Logging;
 using Shaman.Common.Utils.Peers;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
+using Shaman.Contract.Common;
+using Shaman.Contract.Common.Logging;
 using Shaman.LiteNetLibAdapter;
 using Shaman.Serialization;
 using Shaman.Serialization.Messages.Udp;

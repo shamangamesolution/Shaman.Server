@@ -1,5 +1,5 @@
 using System;
-using Shaman.Common.Contract;
+using Shaman.Contract.Common;
 
 namespace Shaman.Contract.Bundle
 {

@@ -3,11 +3,12 @@
     <PropertyGroup>
         <TargetFramework>netcoreapp2.2</TargetFramework>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <PackageVersion>1.7.3</PackageVersion>
+        <PackageVersion>1.9.0</PackageVersion>
     </PropertyGroup>
 
     <ItemGroup>
       <PackageReference Include="MongoDB.Driver" Version="2.10.4" />
+<!--        TODO remove dep-->
       <PackageReference Include="Shaman.Messages" Version="1.7.7" />
     </ItemGroup>
 

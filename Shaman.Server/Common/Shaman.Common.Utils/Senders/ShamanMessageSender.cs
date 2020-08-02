@@ -1,6 +1,6 @@
 using System.Collections.Generic;
-using Shaman.Common.Contract;
 using Shaman.Common.Utils.Peers;
+using Shaman.Contract.Common;
 using Shaman.Serialization.Messages;
 using Shaman.Serialization.Messages.Udp;
 

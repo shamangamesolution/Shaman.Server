@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using Shaman.Common.Contract.Logging;
+using Shaman.Contract.Common.Logging;
 using Shaman.Router.Config;
 using Shaman.Router.Data.Repositories.Interfaces;
 using Shaman.Router.Models;

@@ -1,8 +1,8 @@
 using System.Threading.Tasks;
-using Shaman.Common.Contract;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Server.Providers;
 using Shaman.Common.Utils.TaskScheduling;
+using Shaman.Contract.Common;
 using Shaman.Game.Configuration;
 using Shaman.ServerSharedUtilities;
 

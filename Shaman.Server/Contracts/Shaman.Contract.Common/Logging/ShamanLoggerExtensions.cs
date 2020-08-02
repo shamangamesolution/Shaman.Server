@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace Shaman.Common.Contract.Logging
+namespace Shaman.Contract.Common.Logging
 {
     public static class ShamanLoggerExtensions
     {

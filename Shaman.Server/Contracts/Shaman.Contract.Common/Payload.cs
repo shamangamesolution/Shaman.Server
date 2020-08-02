@@ -1,4 +1,4 @@
-namespace Shaman.Common.Contract
+namespace Shaman.Contract.Common
 {
     public struct Payload
     {

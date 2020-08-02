@@ -1,9 +1,8 @@
 using System;
 using System.Threading.Tasks;
-using Shaman.Common.Contract;
-using Shaman.Common.Contract.Logging;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Senders;
+using Shaman.Contract.Common.Logging;
 using Shaman.Messages.MM;
 
 namespace Shaman.Game.Rooms

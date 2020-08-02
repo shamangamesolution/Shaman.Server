@@ -1,4 +1,4 @@
-using Shaman.Common.Contract;
+using Shaman.Contract.Common;
 
 namespace Shaman.Common.Utils.TaskScheduling
 {
