@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Shaman.Common.Contract;
-using Shaman.Common.Contract.Logging;
+using Shaman.Contract.Common;
+using Shaman.Contract.Common.Logging;
 
 namespace Shaman.Common.Utils.TaskScheduling
 {

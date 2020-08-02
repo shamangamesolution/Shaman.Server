@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Shaman.Common.Contract;
+using Shaman.Contract.Common;
 
 namespace Shaman.Contract.Bundle
 {

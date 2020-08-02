@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Shaman.Common.Contract;
 using Shaman.Common.Server.Configuration;
 using Shaman.Messages.General.Entity;
 using Shaman.Router.Messages;

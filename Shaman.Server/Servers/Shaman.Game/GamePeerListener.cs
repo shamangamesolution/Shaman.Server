@@ -1,12 +1,12 @@
 using System;
 using System.Net;
-using Shaman.Common.Contract;
-using Shaman.Common.Contract.Logging;
 using Shaman.Common.Server.Peers;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Sockets;
 using Shaman.Contract.Bundle;
+using Shaman.Contract.Common;
+using Shaman.Contract.Common.Logging;
 using Shaman.Game.Peers;
 using Shaman.Game.Rooms;
 using Shaman.LiteNetLibAdapter;

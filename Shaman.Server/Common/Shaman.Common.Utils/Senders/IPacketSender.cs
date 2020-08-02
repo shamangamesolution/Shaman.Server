@@ -1,5 +1,5 @@
-using Shaman.Common.Contract;
 using Shaman.Common.Utils.Peers;
+using Shaman.Contract.Common;
 
 namespace Shaman.Common.Utils.Senders
 {

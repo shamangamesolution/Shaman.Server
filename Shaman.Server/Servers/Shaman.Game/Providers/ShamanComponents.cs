@@ -1,11 +1,10 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
-using Shaman.Common.Contract;
-using Shaman.Common.Contract.Logging;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Serialization;
 using Shaman.Contract.Bundle;
+using Shaman.Contract.Common.Logging;
 using Shaman.Serialization;
 
 namespace Shaman.Game.Providers

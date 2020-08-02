@@ -2,9 +2,8 @@ using System;
 using System.Buffers;
 using System.IO;
 using System.Threading;
-using Shaman.Common.Contract;
-using Shaman.Common.Contract.Logging;
 using Shaman.Common.Utils.Logging;
+using Shaman.Contract.Common.Logging;
 
 namespace Shaman.Common.Utils.Serialization.Pooling
 {

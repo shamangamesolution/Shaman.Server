@@ -1,4 +1,4 @@
-using Shaman.Common.Contract.Logging;
+using Shaman.Contract.Common.Logging;
 
 namespace Shaman.Contract.Bundle
 {

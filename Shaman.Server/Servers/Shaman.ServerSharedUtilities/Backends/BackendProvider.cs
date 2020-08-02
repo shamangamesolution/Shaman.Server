@@ -2,12 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Shaman.Common.Contract;
-using Shaman.Common.Contract.Logging;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Bundle;
+using Shaman.Contract.Common;
+using Shaman.Contract.Common.Logging;
 using Shaman.Router.Messages;
 using Shaman.Serialization.Messages;
 

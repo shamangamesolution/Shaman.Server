@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Shaman.Common.Contract;
 using Shaman.Serialization;
 using Shaman.Serialization.Messages;
 

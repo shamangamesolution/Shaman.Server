@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
-using Shaman.Common.Contract.Logging;
+using Shaman.Contract.Common.Logging;
 using Shaman.DAL.Exceptions;
 using Shaman.DAL.Repositories;
 using Shaman.Router.Config;

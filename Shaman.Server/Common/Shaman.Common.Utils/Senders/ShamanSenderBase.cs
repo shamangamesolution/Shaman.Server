@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using Shaman.Common.Contract;
-using Shaman.Common.Contract.Logging;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Serialization.Pooling;
+using Shaman.Contract.Common;
+using Shaman.Contract.Common.Logging;
 using Shaman.Serialization;
 
 namespace Shaman.Common.Utils.Senders

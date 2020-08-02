@@ -1,7 +1,6 @@
-using Shaman.Common.Contract;
-using Shaman.Common.Contract.Logging;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Serialization;
+using Shaman.Contract.Common.Logging;
 using Shaman.Serialization;
 
 namespace Shaman.Common.Utils.Senders

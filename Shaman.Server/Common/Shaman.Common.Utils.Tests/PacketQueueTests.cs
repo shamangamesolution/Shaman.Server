@@ -1,10 +1,10 @@
 using System.Collections;
 using FluentAssertions;
 using NUnit.Framework;
-using Shaman.Common.Contract;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Sockets;
+using Shaman.Contract.Common;
 
 namespace Shaman.Common.Utils.Tests
 {

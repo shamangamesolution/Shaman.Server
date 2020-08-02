@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Shaman.Common.Contract;
 using Shaman.Messages.RoomFlow;
 using Shaman.Router.Messages;
 using Shaman.Serialization.Messages;

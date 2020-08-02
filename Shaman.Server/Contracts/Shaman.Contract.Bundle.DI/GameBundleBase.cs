@@ -1,8 +1,7 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
-using Shaman.Contract.Bundle;
 
-namespace Shaman.Game.Contract.DI
+namespace Shaman.Contract.Bundle.DI
 {
     public abstract class GameBundleBase : IGameBundle
     {

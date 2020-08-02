@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using Shaman.Common.Contract;
-using Shaman.Common.Contract.Logging;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Peers;
 using Shaman.Common.Utils.Serialization;
+using Shaman.Contract.Common;
+using Shaman.Contract.Common.Logging;
 using Shaman.Serialization;
 using Shaman.Serialization.Messages;
 
