@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using Shaman.Common.Utils.Logging;
 using Shaman.Contract.Common.Logging;
 using Shaman.DAL.MySQL;
 
