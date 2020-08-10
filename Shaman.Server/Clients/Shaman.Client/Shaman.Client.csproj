@@ -4,7 +4,7 @@
         <LangVersion>default</LangVersion>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <PackageVersion>1.9.0</PackageVersion>
+        <PackageVersion>1.9.2</PackageVersion>
     </PropertyGroup>
 
     <ItemGroup>
