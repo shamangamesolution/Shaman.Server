@@ -1,6 +1,6 @@
-using Shaman.Common.Utils.Servers;
+using Shaman.Router.Messages;
 
-namespace Shaman.Common.Utils.Configuration
+namespace Shaman.Common.Server.Configuration
 {
     public interface IApplicationCoreConfig
     {

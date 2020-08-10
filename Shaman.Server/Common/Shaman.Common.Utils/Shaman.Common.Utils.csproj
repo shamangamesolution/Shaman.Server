@@ -33,6 +33,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="Configuration" />
       <Folder Include="Exceptions" />
       <Folder Include="Serialization\Messages" />
     </ItemGroup>

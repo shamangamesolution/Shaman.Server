@@ -2,12 +2,9 @@ using System;
 using System.Collections.Generic;
 using Shaman.Common.Server.Applications;
 using Shaman.Common.Server.Configuration;
-using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Senders;
-using Shaman.Common.Utils.Serialization;
 using Shaman.Common.Utils.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
-using Shaman.Contract.Bundle;
 using Shaman.Contract.Bundle.Stats;
 using Shaman.Contract.Common.Logging;
 using Shaman.Game.Configuration;
@@ -24,10 +21,11 @@ namespace Shaman.Game
         private readonly IPacketSender _packetSender;
         private readonly IShamanMessageSenderFactory _messageSenderFactory;
 
-        ublic GameApplication(IShamanLogger logger, IApplicationConfig config, ISerializer serializer,
+        public GameApplication(IShamanLogger logger, IApplicationConfig config, ISerializer serializer,
             ISocketFactory socketFactory, ITaskSchedulerFactory taskSchedulerFactory, IRequestSender requestSender,
-            IRoomManager roomManager, IPacketSender packetSender, IGameMetrics gameMetrics,IShamanMessageSenderFactory messageSenderFactory) : base(logger, config, serializer, socketFactory, taskSchedulerFactory,
-            requestSender, gameMetrics)
+            IRoomManager roomManager, IPacketSender packetSender, IGameMetrics gameMetrics,
+            IShamanMessageSenderFactory messageSenderFactory) :
+            base(logger, config, serializer, socketFactory, taskSchedulerFactory, requestSender, gameMetrics)
         {
             _roomManager = roomManager;
             _packetSender = packetSender;

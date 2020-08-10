@@ -3,7 +3,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
-using Shaman.Common.Utils.Logging;
+using Shaman.Contract.Common.Logging;
 using Shaman.ServerSharedUtilities;
 
 namespace Shaman.LocalBundleLauncher
