@@ -24,15 +24,13 @@ namespace Shaman.Game
     public class GamePeerListener : PeerListenerBase<GamePeer>
     {
         private IRoomManager _roomManager;
-        private IBackendProvider _backendProvider;
         private IShamanMessageSender _messageSender;
         private string _authSecret;
 
-        public void Initialize(IRoomManager roomManager, IBackendProvider backendProvider, IShamanMessageSender messageSender,
+        public void Initialize(IRoomManager roomManager, IShamanMessageSender messageSender,
             string authSecret)
         {
             _roomManager = roomManager;
-            _backendProvider = backendProvider;
             _messageSender = messageSender;
             _authSecret = authSecret;
         }
@@ -76,36 +74,8 @@ namespace Shaman.Game
                     }
                     else
                     {
-                        if (peer.IsAuthorizing)
-                            return;
-                        
-                        peer.IsAuthorizing = true;
-
-                        // todo remove backend provider dep
-                        RequestSender.SendRequest<ValidateSessionIdResponse>(
-                            _backendProvider.GetBackendUrl(authMessage.BackendId),
-                            new ValidateSessionIdRequest
-                            {
-                                SessionId = authMessage.SessionId,
-                                Secret = _authSecret
-                            },
-                            (response) =>
-                            {
-                                if (response.Success)
-                                {
-                                    //if success - send auth success
-                                    peer.IsAuthorizing = false;
-                                    peer.IsAuthorized = true;
-                                    //this sessionID will be got from backend, after we send authToken, which will come in player properties
-                                    peer.SetSessionId(authMessage.SessionId);
-                                    _messageSender.Send(new AuthorizationResponse(), peer);
-                                }
-                                else
-                                {
-                                    peer.IsAuthorizing = false;
-                                    _messageSender.Send(new AuthorizationResponse() {ResultCode = ResultCode.NotAuthorized}, peer);
-                                }
-                            });
+                        //TODO authorizing logic
+                        throw new NotImplementedException();
                     }
                     break;
                 default:

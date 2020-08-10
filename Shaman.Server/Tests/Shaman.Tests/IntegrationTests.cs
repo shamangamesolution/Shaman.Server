@@ -4,6 +4,7 @@ using System.Linq;
 using Moq;
 using NUnit.Framework;
 using Shaman.Common.Server.Providers;
+using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Bundle;
@@ -11,6 +12,7 @@ using Shaman.Contract.MM;
 using Shaman.Game;
 using Shaman.Game.Configuration;
 using Shaman.Game.Metrics;
+using Shaman.Game.Rooms;
 using Shaman.MM;
 using Shaman.MM.Configuration;
 using Shaman.MM.MatchMaking;
@@ -114,7 +116,9 @@ namespace Shaman.Tests
             matchMaker.AddRequiredProperty(PropertyCode.PlayerProperties.Level);
             
             //setup mm server
-            _mmApplication = new MmApplication(_serverLogger, config, serializer, socketFactory, matchMaker,requestSender, taskSchedulerFactory, _backendProvider, _mmPacketSender, _serverProvider, _mmRoomManager, _mmGroupManager, _playerManager);
+            _mmApplication = new MmApplication(_serverLogger, config, serializer, socketFactory, matchMaker,
+                requestSender, taskSchedulerFactory, _backendProvider, _mmPacketSender, _serverProvider, _mmRoomManager,
+                _mmGroupManager, _playerManager, Mock.Of<IMmMetrics>());
             
             _mmApplication.Start();
 
@@ -125,15 +129,16 @@ namespace Shaman.Tests
             
             //setup game server
             _gameApplication = new GameApplication(
-                _serverLogger, 
-                gameConfig, 
-                serializer, 
-                socketFactory, 
-                taskSchedulerFactory, 
-                requestSender, 
+                _serverLogger,
+                gameConfig,
+                serializer,
+                socketFactory,
+                taskSchedulerFactory,
+                requestSender,
                 _backendProvider,
                 _roomManager,
-                _gamePacketSender);
+                _gamePacketSender,
+                Mock.Of<IGameMetrics>());
             
             _gameApplication.Start();
             

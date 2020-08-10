@@ -22,11 +22,6 @@ namespace Shaman.Game.Api
         /// <param name="players">Players collection</param>
         void UpdateRoom(Guid roomId, Dictionary<Guid, Dictionary<byte, object>> players);
 
-        /// <summary>
-        /// Check if Room is available for joining
-        /// </summary>
-        /// <param name="roomId">Room ID</param>
-        /// <returns></returns>
         bool CanJoinRoom(Guid roomId);
     }
 }

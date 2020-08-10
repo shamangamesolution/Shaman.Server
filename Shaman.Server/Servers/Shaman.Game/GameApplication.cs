@@ -21,17 +21,14 @@ namespace Shaman.Game
     public class GameApplication : ApplicationBase<GamePeerListener, GamePeer>
     {
         private readonly IRoomManager _roomManager;
-        private readonly IBackendProvider _backendProvider;
         private readonly IPacketSender _packetSender;
         private readonly IShamanMessageSenderFactory _messageSenderFactory;
 
-        public GameApplication(IShamanLogger logger, IApplicationConfig config, ISerializer serializer,
+        ublic GameApplication(IShamanLogger logger, IApplicationConfig config, ISerializer serializer,
             ISocketFactory socketFactory, ITaskSchedulerFactory taskSchedulerFactory, IRequestSender requestSender,
-            IBackendProvider backendProvider, IRoomManager roomManager,
-            IPacketSender packetSender, IGameMetrics gameMetrics,IShamanMessageSenderFactory messageSenderFactory) : base(logger, config, serializer, socketFactory, taskSchedulerFactory,
+            IRoomManager roomManager, IPacketSender packetSender, IGameMetrics gameMetrics,IShamanMessageSenderFactory messageSenderFactory) : base(logger, config, serializer, socketFactory, taskSchedulerFactory,
             requestSender, gameMetrics)
         {
-            _backendProvider = backendProvider;
             _roomManager = roomManager;
             _packetSender = packetSender;
             _messageSenderFactory = messageSenderFactory;
@@ -82,13 +79,12 @@ namespace Shaman.Game
             
             var config = GetConfigAs<GameApplicationConfig>();
             Logger.Info($"Game server started...");
-            _backendProvider.Start();
             
             var listeners = GetListeners();
             var shamanMessageSender = _messageSenderFactory.Create(_packetSender);
             foreach (var listener in listeners)
             {
-                listener.Initialize(_roomManager, _backendProvider, shamanMessageSender, Config.GetAuthSecret());
+                listener.Initialize(_roomManager, shamanMessageSender, Config.GetAuthSecret());
             }
         }
 

@@ -47,8 +47,18 @@ namespace Shaman.Router
             services.AddSingleton<ITaskSchedulerFactory, TaskSchedulerFactory>();
             services.AddSingleton<ISerializer, BinarySerializer>();
             services.AddSingleton<IRouterServerInfoProvider, RouterServerInfoProvider>();
-            
-            services.AddTransient<IConfigurationRepository, ConfigurationRepository>();
+
+            var staticRoutesSection = Configuration.GetSection("StaticRoutes");
+            if (staticRoutesSection.Exists())
+            {
+                var staticRoutes = new StaticConfigurationRepository.StaticRoutes();
+                staticRoutesSection.Bind(staticRoutes);
+                services.AddSingleton<IConfigurationRepository>(new StaticConfigurationRepository(staticRoutes));
+            }
+            else
+            {
+                services.AddTransient<IConfigurationRepository, ConfigurationRepository>();
+            }
             
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }

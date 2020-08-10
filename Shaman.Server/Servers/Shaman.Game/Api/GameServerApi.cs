@@ -28,7 +28,8 @@ namespace Shaman.Game.Api
 
         public bool CanJoinRoom(Guid roomId)
         {
-            return _roomManager.CanJoinRoom(roomId);
+            var room = _roomManager.GetRoomById(roomId);
+            return room != null && room.IsOpen();
         }
     }
 }
