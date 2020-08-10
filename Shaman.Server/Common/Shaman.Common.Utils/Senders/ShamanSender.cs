@@ -1,37 +1,43 @@
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Peers;
-using Shaman.Common.Utils.Serialization;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
 using Shaman.Serialization;
-using Shaman.Serialization.Messages;
 
 namespace Shaman.Common.Utils.Senders
 {
     public interface IShamanSender
     {
         int Send(ISerializable message, DeliveryOptions deliveryOptions, IPeerSender peer);
-        int Send(ISerializable message, DeliveryOptions deliveryOptions, IEnumerable<IPeerSender> peers);
         void CleanupPeerData(IPeerSender peer);
     }
 
-    public class ShamanSender : ShamanSenderBase<IPeerSender>, IShamanSender
+    public class ShamanSender : IShamanSender
     {
+        private readonly ISerializer _serializer;
         private readonly IPacketSender _packetSender;
-        
-        private static readonly ConcurrentDictionary<Type, int> BufferStatistics = new ConcurrentDictionary<Type, int>();
+        private readonly ShamanStreamPool _shamanStreamPool;
 
         public ShamanSender(ISerializer serializer, IPacketSender packetSender, IShamanLogger logger,
-            IPacketSenderConfig config): base(serializer, logger, config.GetBasePacketBufferSize())
+            IPacketSenderConfig config)
         {
+            _shamanStreamPool = new ShamanStreamPool(config.GetBasePacketBufferSize());
+            _serializer = serializer;
             _packetSender = packetSender;
         }
-        protected override void Send(DeliveryOptions deliveryOptions, IPeerSender peer, Payload payload)
+
+        public int Send(ISerializable message, DeliveryOptions deliveryOptions, IPeerSender peer)
         {
-            _packetSender.AddPacket(peer, deliveryOptions, payload);
+            var stream = _shamanStreamPool.Rent(message.GetType());
+            try
+            {
+                _serializer.Serialize(message, stream);
+                _packetSender.AddPacket(peer, deliveryOptions, new Payload(stream.GetBuffer()));
+                return (int) stream.Length;
+            }
+            finally
+            {
+                _shamanStreamPool.Return(stream, message.GetType());
+            }
         }
 
         public void CleanupPeerData(IPeerSender peer)

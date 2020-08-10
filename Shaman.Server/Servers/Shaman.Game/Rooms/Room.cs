@@ -259,7 +259,7 @@ namespace Shaman.Game.Rooms
             _packetSender.AddPacket(player.Peer, deliveryOptions, BundleMessagePrefix, payload);
         }
 
-        public void Send(Payload payload, DeliveryOptions deliveryOptions, params Guid[] sessionIds)
+        public void Send(Payload payload, DeliveryOptions deliveryOptions, IEnumerable<Guid> sessionIds)
         {
             foreach (var sessionId in sessionIds)
             {
@@ -277,12 +277,10 @@ namespace Shaman.Game.Rooms
             }
         }
 
-        public void SendToAll(Payload payload, DeliveryOptions deliveryOptions, params Guid[] exceptionSessionIds)
+        public void SendToAll(Payload payload, DeliveryOptions deliveryOptions)
         {
             foreach (var roomPlayer in GetAllPlayers())
             {
-                if (exceptionSessionIds.Contains(roomPlayer.Peer.GetSessionId()))
-                    return;
                 _packetSender.AddPacket(roomPlayer.Peer, deliveryOptions, BundleMessagePrefix, payload);
             }
         }
