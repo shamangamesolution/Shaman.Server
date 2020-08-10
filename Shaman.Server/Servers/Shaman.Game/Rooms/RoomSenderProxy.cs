@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Shaman.Contract.Bundle;
 using Shaman.Contract.Common;
 
@@ -21,7 +22,7 @@ namespace Shaman.Game.Rooms
             _roomSender.Send(payload, deliveryOptions, sessionId);
         }
 
-        public void Send(Payload payload, DeliveryOptions deliveryOptions, params Guid[] sessionIds)
+        public void Send(Payload payload, DeliveryOptions deliveryOptions, IEnumerable<Guid> sessionIds)
         {
             _roomSender.Send(payload, deliveryOptions, sessionIds);
         }
@@ -31,9 +32,9 @@ namespace Shaman.Game.Rooms
             _roomSender.SendToAll(payload, deliveryOptions, exceptionSessionId);
         }
 
-        public void SendToAll(Payload payload, DeliveryOptions deliveryOptions, params Guid[] exceptionSessionIds)
+        public void SendToAll(Payload payload, DeliveryOptions deliveryOptions)
         {
-            _roomSender.SendToAll(payload, deliveryOptions, exceptionSessionIds);
+            _roomSender.SendToAll(payload, deliveryOptions);
         }
     }
 }

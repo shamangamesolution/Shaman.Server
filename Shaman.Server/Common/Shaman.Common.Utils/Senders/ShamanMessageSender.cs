@@ -1,7 +1,5 @@
-using System.Collections.Generic;
 using Shaman.Common.Utils.Peers;
 using Shaman.Contract.Common;
-using Shaman.Serialization.Messages;
 using Shaman.Serialization.Messages.Udp;
 
 namespace Shaman.Common.Utils.Senders
@@ -18,11 +16,6 @@ namespace Shaman.Common.Utils.Senders
         public int Send(MessageBase message, IPeerSender peer)
         {
             return _shamanSender.Send(message, new DeliveryOptions(message.IsReliable, message.IsOrdered), peer);
-        }
-
-        public int Send(MessageBase message, IEnumerable<IPeerSender> peers)
-        {
-            return _shamanSender.Send(message, new DeliveryOptions(message.IsReliable, message.IsOrdered), peers);
         }
 
         public void CleanupPeerData(IPeerSender peer)

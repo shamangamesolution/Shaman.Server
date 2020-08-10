@@ -2,25 +2,21 @@ using System;
 using System.Buffers;
 using System.IO;
 using System.Threading;
-using Shaman.Common.Utils.Logging;
-using Shaman.Contract.Common.Logging;
 
 namespace Shaman.Common.Utils.Serialization.Pooling
 {
     public class PooledMemoryStream : Stream
     {
         private readonly int _baseLength;
-        private readonly IShamanLogger _logger;
         private byte[] _buffer;
         private int _writeIndex;
 
         private int _disposed = 0;
         private bool _wasExtended = false;
 
-        public PooledMemoryStream(int baseLength, IShamanLogger logger)
+        public PooledMemoryStream(int baseLength)
         {
             _baseLength = baseLength;
-            _logger = logger;
             _writeIndex = 0;
             _buffer = ArrayPool<byte>.Shared.Rent(baseLength);
         }
@@ -34,10 +30,6 @@ namespace Shaman.Common.Utils.Serialization.Pooling
             if (Interlocked.CompareExchange(ref _disposed, 1, 0) == 0)
             {
                 ArrayPool<byte>.Shared.Return(_buffer);
-            }
-            else
-            {
-                _logger.Error($"DOUBLE_RENT_RETURN in PooledMemoryStream: wasExtended {_wasExtended}, baseLength {_baseLength}");
             }
             base.Close();
         }
