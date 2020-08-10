@@ -3,12 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Shaman.Common.Server.Configuration;
-using Shaman.Common.Utils.Configuration;
-using Shaman.Common.Utils.Logging;
-using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.TaskScheduling;
-using Shaman.Contract.Bundle;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
 using Shaman.Router.Messages;
@@ -35,7 +31,7 @@ namespace Shaman.ServerSharedUtilities.Backends
         private List<ServerInfo> _backends = new List<ServerInfo>();
         private int _getBackendsListRequestCount = 0;
         private ServerInfo _me;
-        private PendingTask _tickTask;
+        private IPendingTask _tickTask;
         
         public BackendProvider(ITaskSchedulerFactory taskSchedulerFactory, IApplicationCoreConfig config, IRequestSender requestSender, IShamanLogger logger)
         {

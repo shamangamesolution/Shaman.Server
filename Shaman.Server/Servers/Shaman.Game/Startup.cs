@@ -11,10 +11,7 @@ using Shaman.Common.Server.Applications;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Server.Providers;
 using Shaman.Common.Server.Senders;
-using Shaman.Common.Utils.Configuration;
-using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Senders;
-using Shaman.Common.Utils.Serialization;
 using Shaman.Common.Utils.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Bundle;
@@ -28,7 +25,6 @@ using Shaman.Game.Rooms.RoomProperties;
 using Shaman.LiteNetLibAdapter;
 using Shaman.Serialization;
 using Shaman.ServerSharedUtilities;
-// using Shaman.ServerSharedUtilities.Backends;
 using Shaman.ServerSharedUtilities.Bundling;
 using Shaman.ServerSharedUtilities.Logging;
 
@@ -59,7 +55,6 @@ namespace Shaman.Game
             if (StandaloneServerLauncher.IsStandaloneMode)
             {
                 services.AddSingleton<IRoomControllerFactory, StandaloneModeRoomControllerFactory>();
-                services.AddSingleton<IBackendProvider, BackendProviderStub>();
                 services.AddSingleton<IApplicationConfig>(c => StandaloneServerLauncher.Config);
                 services.AddSingleton<IGameMetrics, GameMetricsStub>();
                 services.AddSingleton<IRoomStateUpdater, RoomStateUpdaterStub>();
