@@ -100,7 +100,9 @@ namespace Shaman.Tests
             matchMaker.AddRequiredProperty(PropertyCode.PlayerProperties.Level);
 
             //setup server
-            _mmApplication = new MmApplication(_serverLogger, config, serializer, socketFactory,  matchMaker,requestSender, taskSchedulerFactory, _backendProvider, _packetSender,  _serverProvider, _mmRoomManager, _mmGroupManager, _playerManager);
+            _mmApplication = new MmApplication(_serverLogger, config, serializer, socketFactory, matchMaker,
+                requestSender, taskSchedulerFactory, _backendProvider, _packetSender, _serverProvider, _mmRoomManager,
+                _mmGroupManager, _playerManager, Mock.Of<IMmMetrics>());
 
             _mmApplication.Start();
             

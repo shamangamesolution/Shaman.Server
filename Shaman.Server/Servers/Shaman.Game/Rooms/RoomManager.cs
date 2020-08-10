@@ -86,8 +86,7 @@ namespace Shaman.Game.Rooms
                    destroyRoomAfter;
         }
 
-        /// <returns>IRoom?</returns>
-        private IRoom GetRoomById(Guid id)
+        public IRoom GetRoomById(Guid id)
         {
             _rooms.TryGetValue(id, out var room);
             return room;
@@ -156,30 +155,6 @@ namespace Shaman.Game.Rooms
                 TrackRoomMetricsOnDelete(roomStats);
             }
         }
-
-        public bool CanJoinRoom(Guid roomId)
-        {
-            lock (_syncPeersList)
-            {
-                try
-                {
-                    if (_rooms.TryGetValue(roomId, out var room))
-                    {
-                        if (room.IsOpen())
-                        {
-                            return true;
-                        }
-                    }
-                }
-                catch (Exception e)
-                {
-                    _logger.Error($"CanJoinRoom error: {e}");
-                }
-                
-                return false;
-            }
-        }
-
         private void TrackRoomMetricsOnDelete(RoomStats roomStats)
         {
             _gameMetrics.TrackRoomDestroyed();
@@ -279,18 +254,20 @@ namespace Shaman.Game.Rooms
                         else
                         {
                             roomToJoin.ConfirmedJoin(sessionId);
+                            if (!roomToJoin.AddPeerToRoom(peer, joinMessage.Properties))
+                                _packetSender.AddPacket(new JoinRoomResponse() { ResultCode = ResultCode.RequestProcessingError }, peer);
+                            
+                            _gameMetrics.TrackPeerJoin();
                             _taskScheduler.ScheduleOnceOnNow(async () =>
                             {
                                 try
                                 {
                                     if (await roomToJoin.PeerJoined(peer, joinMessage.Properties))
                                     {
-                                        _gameMetrics.TrackPeerJoin();
                                         _messageSender.Send(new JoinRoomResponse(), peer);
                                     }
                                     else
                                     {
-                                        // todo disconnect doesn't work for now
                                         // peer.Disconnect(DisconnectReason.JustBecause);
                                         _messageSender.Send(new JoinRoomResponse() { ResultCode = ResultCode.RequestProcessingError }, peer);
                                     }

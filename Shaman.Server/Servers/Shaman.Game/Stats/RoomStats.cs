@@ -10,7 +10,7 @@ namespace Shaman.Game.Stats
     public class RoomStats
     {
         private Guid Id { get; }
-        private DateTime CreatedOn { get; }
+        public DateTime CreatedOn { get; }
         private int PlayersCount { get; }
         private Dictionary<ushort, int> MessagesReceivedCount { get; }
         private Dictionary<ushort, int> MessagesSentCount { get; }

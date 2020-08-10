@@ -7,9 +7,14 @@ namespace Shaman.Contract.Bundle
 {
     public interface IRoomController: IDisposable
     {
+        /// <summary>
+        /// Note: controller should handle case when player disconnected during ProcessNewPlayer
+        /// </summary>
+        /// <param name="sessionId"></param>
+        /// <param name="properties"></param>
+        /// <returns></returns>
         Task<bool> ProcessNewPlayer(Guid sessionId, Dictionary<byte, object> properties);
-        void CleanupPlayer(Guid sessionId, PeerDisconnectedReason reason, byte[] reasonPayload);
-
+        void ProcessPlayerDisconnected(Guid sessionId, PeerDisconnectedReason reason, byte[] reasonPayload);
         /// <returns>true if room should be destroyed</returns>
         bool IsGameFinished();
 

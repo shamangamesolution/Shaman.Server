@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 using Shaman.Common.Utils.Senders;
+using Shaman.Common.Utils.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Bundle;
 using Shaman.Game;
@@ -162,7 +163,7 @@ namespace Shaman.Tests
             Assert.AreEqual(0, stats.RoomCount);
             
             //disconnect
-            _gameApplication.GetListeners()[0].OnClientDisconnect(_ep, "manual disconnect");
+            _gameApplication.GetListeners()[0].OnClientDisconnect(_ep, Mock.Of<IDisconnectInfo>());
             stats = _gameApplication.GetStats();
             Assert.AreEqual(0, stats.PeerCount);
             Assert.AreEqual(0, stats.RoomCount);           

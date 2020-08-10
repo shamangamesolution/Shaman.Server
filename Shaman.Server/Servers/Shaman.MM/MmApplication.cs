@@ -23,7 +23,6 @@ namespace Shaman.MM
     public class MmApplication : ApplicationBase<MmPeerListener, MmPeer>
     {
         private readonly IMatchMaker _matchMaker;
-        private readonly IBackendProvider _backendProvider;
         private readonly IPacketSender _packetSender;
         private readonly IShamanMessageSenderFactory _messageSenderFactory;
         private readonly IPlayersManager _playersManager;
@@ -42,14 +41,12 @@ namespace Shaman.MM
             IMatchMaker matchMaker,
             IRequestSender requestSender,
             ITaskSchedulerFactory taskSchedulerFactory,
-            IBackendProvider backendProvider, 
             IPacketSender packetSender, 
             IShamanMessageSenderFactory messageSenderFactory,
             IMatchMakerServerInfoProvider serverProvider,
             IRoomManager roomManager, IMatchMakingGroupsManager matchMakingGroupManager, IPlayersManager playersManager, IMmMetrics mmMetrics) : base(logger, config, serializer,
             socketFactory, taskSchedulerFactory, requestSender, mmMetrics)
         {
-            _backendProvider = backendProvider;
             _packetSender = packetSender;
             _messageSenderFactory = messageSenderFactory;
             _serverProvider = serverProvider;
@@ -85,12 +82,11 @@ namespace Shaman.MM
             _packetSender.Start(false);
             
             _matchMaker.Start();
-            _backendProvider.Start();
             var listeners = GetListeners();
             var shamanMessageSender = _messageSenderFactory.Create(_packetSender);
             foreach (var listener in listeners)
             {
-                listener.Initialize(_matchMaker, _backendProvider, shamanMessageSender, _roomManager, _matchMakingGroupManager, Config.GetAuthSecret());
+                listener.Initialize(_matchMaker, shamanMessageSender, _roomManager, _matchMakingGroupManager, Config.GetAuthSecret());
             }
         }
 
