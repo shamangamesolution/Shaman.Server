@@ -1,5 +1,5 @@
 using Shaman.Serialization;
-using Shaman.Serialization.Messages.Extensions;
+using Shaman.Serialization.Extensions;
 using Shaman.Serialization.Messages.Http;
 
 namespace Shaman.Router.Messages
@@ -20,12 +20,12 @@ namespace Shaman.Router.Messages
 
         protected override void SerializeRequestBody(ITypeWriter typeWriter)
         {
-            typeWriter.WriteEntity(ServerIdentity);
+            typeWriter.Write(ServerIdentity);
         }
 
         protected override void DeserializeRequestBody(ITypeReader typeReader)
         {
-            ServerIdentity = typeReader.ReadEntity<ServerIdentity>();
+            ServerIdentity = typeReader.Read<ServerIdentity>();
         }
     }
 }

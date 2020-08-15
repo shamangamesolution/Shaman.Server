@@ -1,4 +1,5 @@
 using Shaman.Serialization;
+using Shaman.Serialization.Extensions;
 using Shaman.Serialization.Messages.Extensions;
 using Shaman.Serialization.Messages.Http;
 
@@ -30,7 +31,7 @@ namespace Shaman.Router.Messages
 
         protected override void SerializeRequestBody(ITypeWriter typeWriter)
         {
-            typeWriter.WriteEntity(ServerIdentity);
+            typeWriter.Write(ServerIdentity);
             typeWriter.Write(Name);
             typeWriter.Write(Region);
             typeWriter.Write(PeersCount);
@@ -40,7 +41,7 @@ namespace Shaman.Router.Messages
 
         protected override void DeserializeRequestBody(ITypeReader typeReader)
         {
-            ServerIdentity = typeReader.ReadEntity<ServerIdentity>();
+            ServerIdentity = typeReader.Read<ServerIdentity>();
             Name = typeReader.ReadString();
             Region = typeReader.ReadString();
             PeersCount = typeReader.ReadInt();
