@@ -3,7 +3,7 @@
     <PropertyGroup>
         <TargetFramework>netcoreapp2.2</TargetFramework>
         <RootNamespace>Shaman.Router.Backend</RootNamespace>
-        <PackageVersion>1.9.7</PackageVersion>
+        <PackageVersion>1.9.8</PackageVersion>
     </PropertyGroup>
 
     <ItemGroup>
