@@ -18,8 +18,7 @@ namespace Shaman.Common.Udp.Senders
         private readonly IPacketSender _packetSender;
         private readonly ShamanStreamPool _shamanStreamPool;
 
-        public ShamanSender(ISerializer serializer, IPacketSender packetSender, IShamanLogger logger,
-            IPacketSenderConfig config)
+        public ShamanSender(ISerializer serializer, IPacketSender packetSender, IPacketSenderConfig config)
         {
             _shamanStreamPool = new ShamanStreamPool(config.GetBasePacketBufferSize());
             _serializer = serializer;

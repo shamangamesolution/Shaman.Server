@@ -7,18 +7,16 @@ namespace Shaman.Common.Udp.Senders
     {
         private readonly ISerializer _serializer;
         private readonly IPacketSenderConfig _config;
-        private readonly IShamanLogger _logger;
 
-        public ShamanMessageSenderFactory(ISerializer serializer, IPacketSenderConfig config, IShamanLogger logger)
+        public ShamanMessageSenderFactory(ISerializer serializer, IPacketSenderConfig config)
         {
             _serializer = serializer;
             _config = config;
-            _logger = logger;
         }
 
         public IShamanMessageSender Create(IPacketSender packetSender)
         {
-            return new ShamanMessageSender(new ShamanSender(_serializer, packetSender, _logger, _config));
+            return new ShamanMessageSender(new ShamanSender(_serializer, packetSender, _config));
         }
     }
 }
