@@ -5,11 +5,10 @@ using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using Shaman.Common.Utils.Logging;
-using Shaman.Common.Utils.Serialization;
-using Shaman.Common.Utils.Serialization.Pooling;
 using Shaman.Contract.Common.Logging;
 using Shaman.Serialization;
 using Shaman.Serialization.Messages;
+using Shaman.Serialization.Utils.Pooling;
 
 namespace Shaman.Common.Utils.Tests
 {
@@ -63,7 +62,7 @@ namespace Shaman.Common.Utils.Tests
             long size = 0;
             for (int i = 0; i < Cycles; i++)
             {
-                using (var memoryStream = new PooledMemoryStream(128, ConsoleLogger))
+                using (var memoryStream = new PooledMemoryStream(new ArrayPool(), 128))
                 {
                     serializer.Serialize(Objects[i % ObjectsCount], memoryStream);
                     size += memoryStream.Position;
@@ -98,7 +97,7 @@ namespace Shaman.Common.Utils.Tests
         {
             var serializer = new BinarySerializer();
             {
-                using (var memoryStream = new PooledMemoryStream(128, ConsoleLogger))
+                using (var memoryStream = new PooledMemoryStream(new ArrayPool(), 128))
                 {
                     serializer.Serialize(Objects[0], memoryStream);
                     var data = memoryStream.GetBuffer();
@@ -111,16 +110,16 @@ namespace Shaman.Common.Utils.Tests
         [Test]
         public void DoubleReturnError()
         {
-            var mock = new Mock<IShamanLogger>();
+            var mock = new Mock<IArrayPool>();
             
-            using (var memoryStream = new PooledMemoryStream(128, mock.Object))
+            using (var memoryStream = new PooledMemoryStream(mock.Object, 128))
             {
+                mock.Verify(s => s.Return(It.IsAny<byte[]>()), Times.Never);
                 memoryStream.Close();
-                mock.Verify(s => s.Error(It.IsAny<string>()), Times.Never);
+                mock.Verify(s => s.Return(It.IsAny<byte[]>()), Times.Once);
             }
             
-            mock.Verify(s =>
-                s.Error("DOUBLE_RENT_RETURN in PooledMemoryStream: wasExtended False, baseLength 128"));
+            mock.Verify(s => s.Return(It.IsAny<byte[]>()), Times.Once);
         }
     }
 }

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Shaman.Serialization;
 
-namespace Shaman.Common.Utils.Serialization
+namespace Shaman.Messages.Helpers
 {
     [Obsolete]
     public static class DeprecatedSerializationExtensions

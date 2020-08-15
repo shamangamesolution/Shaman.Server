@@ -1,4 +1,3 @@
-using Shaman.Common.Utils.Logging;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
 
@@ -6,7 +5,7 @@ namespace Shaman.Common.Utils.TaskScheduling
 {
     public class TaskSchedulerFactory : ITaskSchedulerFactory
     {
-        private IShamanLogger _logger;
+        private readonly IShamanLogger _logger;
         
         public TaskSchedulerFactory(IShamanLogger logger)
         {

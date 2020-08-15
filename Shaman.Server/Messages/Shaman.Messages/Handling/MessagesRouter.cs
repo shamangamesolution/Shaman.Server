@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using Shaman.Common.Utils.Serialization;
 using Shaman.Serialization;
 
 namespace Shaman.Messages.Handling

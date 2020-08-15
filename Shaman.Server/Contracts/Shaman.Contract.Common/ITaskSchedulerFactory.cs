@@ -1,6 +1,4 @@
-using Shaman.Contract.Common;
-
-namespace Shaman.Common.Utils.TaskScheduling
+namespace Shaman.Contract.Common
 {
     public interface ITaskSchedulerFactory
     {

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Shaman.Common.Utils.Serialization;
 using Shaman.Serialization;
 using Shaman.Serialization.Extensions;
 using Shaman.Serialization.Messages;

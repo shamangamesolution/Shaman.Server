@@ -12,7 +12,6 @@ using Shaman.Common.Server.Providers;
 using Shaman.Common.Server.Senders;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Senders;
-using Shaman.Common.Utils.Serialization;
 using Shaman.Common.Utils.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Bundle;

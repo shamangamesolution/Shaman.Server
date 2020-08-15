@@ -1,5 +1,4 @@
 using NUnit.Framework;
-using Shaman.Common.Utils.Serialization;
 using Shaman.Messages.General.Entity;
 using Shaman.Messages.Helpers;
 using Shaman.Serialization;

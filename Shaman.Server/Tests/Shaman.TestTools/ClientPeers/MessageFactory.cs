@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Shaman.Common.Utils.Serialization;
 using Shaman.Messages.General.DTO.Requests;
 using Shaman.Serialization;
 using Shaman.Serialization.Messages;

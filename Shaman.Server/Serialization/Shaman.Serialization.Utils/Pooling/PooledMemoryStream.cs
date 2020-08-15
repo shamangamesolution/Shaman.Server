@@ -3,22 +3,41 @@ using System.Buffers;
 using System.IO;
 using System.Threading;
 
-namespace Shaman.Common.Utils.Serialization.Pooling
+namespace Shaman.Serialization.Utils.Pooling
 {
+
+    public interface IArrayPool
+    {
+        byte[] Rent(int length);
+        void Return(byte[] array);
+    }
+
+    public class ArrayPool : IArrayPool
+    {
+        public byte[] Rent(int length)
+        {
+            return ArrayPool<byte>.Shared.Rent(length);   
+        }
+        public void Return(byte[] array)
+        {
+            ArrayPool<byte>.Shared.Return(array);
+        }
+        
+    }
+
     public class PooledMemoryStream : Stream
     {
-        private readonly int _baseLength;
+        private readonly IArrayPool _arrayPool;
         private byte[] _buffer;
         private int _writeIndex;
 
         private int _disposed = 0;
-        private bool _wasExtended = false;
 
-        public PooledMemoryStream(int baseLength)
+        public PooledMemoryStream(IArrayPool arrayPool, int baseLength)
         {
-            _baseLength = baseLength;
+            _arrayPool = arrayPool;
             _writeIndex = 0;
-            _buffer = ArrayPool<byte>.Shared.Rent(baseLength);
+            _buffer = arrayPool.Rent(baseLength);
         }
 
         public override void Flush()
@@ -29,7 +48,7 @@ namespace Shaman.Common.Utils.Serialization.Pooling
         {
             if (Interlocked.CompareExchange(ref _disposed, 1, 0) == 0)
             {
-                ArrayPool<byte>.Shared.Return(_buffer);
+                _arrayPool.Return(_buffer);
             }
             base.Close();
         }
@@ -60,10 +79,9 @@ namespace Shaman.Common.Utils.Serialization.Pooling
         private void ExpandBuffer(int appendingCount)
         {
             var oldBuffer = _buffer;
-            _buffer = ArrayPool<byte>.Shared.Rent(Math.Max(_buffer.Length * 2, _buffer.Length + appendingCount));
+            _buffer = _arrayPool.Rent(Math.Max(_buffer.Length * 2, _buffer.Length + appendingCount));
             Buffer.BlockCopy(oldBuffer, 0, _buffer, 0, _writeIndex);
-            ArrayPool<byte>.Shared.Return(oldBuffer);
-            _wasExtended = true;
+            _arrayPool.Return(oldBuffer);
         }
 
         public override bool CanRead => false;
