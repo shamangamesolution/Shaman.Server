@@ -1,4 +1,3 @@
-using Shaman.Common.Utils.Logging;
 using Shaman.Contract.Common.Logging;
 using Shaman.Serialization;
 

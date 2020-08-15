@@ -3,12 +3,10 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using Shaman.Common.Utils.Logging;
 using Shaman.Contract.Common.Logging;
 using Shaman.Router.Config;
 using Shaman.Router.Data.Repositories.Interfaces;
 using Shaman.Serialization;
-using Shaman.Serialization.Messages;
 using Shaman.Serialization.Messages.Http;
 
 namespace Shaman.Router.Controllers

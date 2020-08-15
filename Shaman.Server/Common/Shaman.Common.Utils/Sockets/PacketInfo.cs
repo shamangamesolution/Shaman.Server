@@ -2,7 +2,6 @@
 using System.Buffers;
 using System.Collections.Generic;
 using System.Threading;
-using Shaman.Common.Utils.Logging;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
 

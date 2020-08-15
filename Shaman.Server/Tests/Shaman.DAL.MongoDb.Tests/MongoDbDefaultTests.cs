@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using MongoDB.Driver;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using Shaman.Common.Utils.Messages;

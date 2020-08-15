@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
-using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Peers;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Common;

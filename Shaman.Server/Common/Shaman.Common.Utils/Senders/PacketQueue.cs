@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Sockets;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;

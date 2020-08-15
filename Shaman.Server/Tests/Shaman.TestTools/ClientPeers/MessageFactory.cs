@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using Shaman.Messages.General.DTO.Requests;
 using Shaman.Serialization;
-using Shaman.Serialization.Messages;
 using Shaman.Serialization.Messages.Udp;
 
 namespace Shaman.TestTools.ClientPeers

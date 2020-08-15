@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Shaman.Common.Server.Peers;
 using Shaman.Messages.MM;
 using Shaman.MM.Rooms;
 

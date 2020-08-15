@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using Shaman.Messages.Helpers;
 using Shaman.Serialization;
-using Shaman.Serialization.Messages;
 using Shaman.Serialization.Messages.Udp;
 
 namespace Shaman.Messages.RoomFlow

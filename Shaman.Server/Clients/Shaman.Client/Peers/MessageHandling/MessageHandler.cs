@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Concurrent;
-using Shaman.Common.Utils.Logging;
 using Shaman.Contract.Common.Logging;
 using Shaman.Serialization;
-using Shaman.Serialization.Messages;
 using Shaman.Serialization.Messages.Udp;
 
 namespace Shaman.Client.Peers.MessageHandling

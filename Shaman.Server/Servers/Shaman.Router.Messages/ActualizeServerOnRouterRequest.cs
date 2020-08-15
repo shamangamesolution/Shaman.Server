@@ -1,6 +1,5 @@
 using Shaman.Serialization;
 using Shaman.Serialization.Extensions;
-using Shaman.Serialization.Messages.Extensions;
 using Shaman.Serialization.Messages.Http;
 
 namespace Shaman.Router.Messages

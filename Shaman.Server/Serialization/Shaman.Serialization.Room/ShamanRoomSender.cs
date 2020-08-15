@@ -1,5 +1,4 @@
 using System;
-using Shaman.Common.Utils.Senders;
 using Shaman.Contract.Bundle;
 using Shaman.Contract.Common;
 using Shaman.Serialization.Utils.Pooling;

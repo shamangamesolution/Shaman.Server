@@ -1,6 +1,5 @@
 ﻿using System;
 using Shaman.Serialization;
-using Shaman.Serialization.Messages;
 using Shaman.Serialization.Messages.Http;
 
 namespace Shaman.Messages.General.DTO.Requests.Auth

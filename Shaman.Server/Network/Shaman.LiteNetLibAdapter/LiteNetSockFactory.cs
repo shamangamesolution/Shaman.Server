@@ -1,4 +1,3 @@
-using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Sockets;
 using Shaman.Contract.Common.Logging;
 

@@ -4,7 +4,6 @@ using App.Metrics.Histogram;
 using Shaman.Common.Metrics;
 using Shaman.Common.Server.Applications;
 using Shaman.Common.Utils.TaskScheduling;
-using Shaman.Contract.Common;
 using Shaman.ServerSharedUtilities.Metrics;
 
 namespace Shaman.Game.Metrics

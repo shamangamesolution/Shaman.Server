@@ -1,8 +1,6 @@
 using System.Collections.Generic;
-using Shaman.Messages.General;
 using Shaman.Messages.Helpers;
 using Shaman.Serialization;
-using Shaman.Serialization.Messages;
 using Shaman.Serialization.Messages.Udp;
 
 namespace Shaman.Messages.MM

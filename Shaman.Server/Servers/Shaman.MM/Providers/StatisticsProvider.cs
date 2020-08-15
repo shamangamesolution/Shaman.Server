@@ -1,6 +1,5 @@
 using Shaman.Common.Server.Providers;
 using Shaman.MM.Managers;
-using Shaman.MM.Players;
 
 namespace Shaman.MM.Providers
 {

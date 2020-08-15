@@ -1,7 +1,6 @@
 
 using System;
 using Shaman.Serialization;
-using Shaman.Serialization.Messages;
 using Shaman.Serialization.Messages.Udp;
 
 namespace Shaman.Messages.Authorization

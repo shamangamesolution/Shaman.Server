@@ -2,7 +2,6 @@ using System;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Shaman.Common.Utils.Logging;
 using Shaman.Contract.Common.Logging;
 using Shaman.MM.Extensions;
 using Shaman.Messages.MM;

@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using Shaman.Messages.General.Entity;
 using Shaman.Serialization;
 using Shaman.Serialization.Extensions;
-using Shaman.Serialization.Messages;
 using Shaman.Serialization.Messages.Udp;
 
 namespace Shaman.Messages.General.DTO.Events.RepositorySync
