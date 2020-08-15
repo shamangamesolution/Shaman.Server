@@ -17,6 +17,7 @@ namespace Shaman.Contract.Bundle.DI
             var serviceCollection = new ServiceCollection();
 
             serviceCollection.AddTransient((c) => shamanComponents.Logger);
+            serviceCollection.AddTransient((c) => shamanComponents.Config);
 
             OnConfigureServices(serviceCollection);
 
