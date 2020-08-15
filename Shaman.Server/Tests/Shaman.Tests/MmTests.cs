@@ -15,7 +15,6 @@ using Shaman.MM;
 using Shaman.MM.Configuration;
 using Shaman.MM.MatchMaking;
 using Shaman.MM.Players;
-using Shaman.ServerSharedUtilities.Backends;
 using Shaman.Messages;
 using Shaman.Messages.Authorization;
 using Shaman.Messages.General.DTO.Events;

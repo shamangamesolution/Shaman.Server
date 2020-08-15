@@ -3,7 +3,6 @@ using System.Linq;
 using Newtonsoft.Json;
 using Shaman.Client.Peers;
 using Shaman.Client.Providers;
-using Shaman.Common.Server.Senders;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Senders;
 using Shaman.Contract.Common.Logging;

@@ -1,7 +1,6 @@
 using System;
 using System.Threading.Tasks;
-using Shaman.Common.Utils.Logging;
-using Shaman.Common.Utils.Senders;
+using Shaman.Common.Http;
 using Shaman.Contract.Common.Logging;
 using Shaman.Messages.MM;
 

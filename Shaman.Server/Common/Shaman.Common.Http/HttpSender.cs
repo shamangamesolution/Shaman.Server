@@ -3,14 +3,12 @@ using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Shaman.Common.Utils.Logging;
-using Shaman.Common.Utils.Senders;
 using Shaman.Contract.Common.Logging;
 using Shaman.Serialization;
 using Shaman.Serialization.Messages;
 using Shaman.Serialization.Messages.Http;
 
-namespace Shaman.Common.Server.Senders
+namespace Shaman.Common.Http
 {
     public class HttpSender: IRequestSender
     {

@@ -2,15 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Shaman.Common.Server.Configuration;
-using Shaman.Common.Utils.Senders;
+using Shaman.Common.Http;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
 using Shaman.Router.Messages;
 using Shaman.Serialization.Messages;
 
-namespace Shaman.ServerSharedUtilities.Backends
+namespace Shaman.Router.Backend
 {
     public interface IBackendProvider
     {
@@ -22,23 +21,22 @@ namespace Shaman.ServerSharedUtilities.Backends
     
     public class BackendProvider : IBackendProvider
     {
+        private readonly IRouterClient _routerClient;
         private readonly IShamanLogger _logger;
-        private readonly ITaskSchedulerFactory _taskSchedulerFactory;
         private readonly ITaskScheduler _taskScheduler;
-        private readonly IApplicationCoreConfig _config;
-        private readonly IRequestSender _requestSender;
+        private readonly ServerIdentity _serverIdentity;
     
         private List<ServerInfo> _backends = new List<ServerInfo>();
         private int _getBackendsListRequestCount = 0;
         private ServerInfo _me;
         private IPendingTask _tickTask;
-        
-        public BackendProvider(ITaskSchedulerFactory taskSchedulerFactory, IApplicationCoreConfig config, IRequestSender requestSender, IShamanLogger logger)
+
+        public BackendProvider(ITaskSchedulerFactory taskSchedulerFactory, IRouterClient routerClient,
+            IServerIdentityProvider serverIdentityProvider, IShamanLogger logger)
         {
-            _taskSchedulerFactory = taskSchedulerFactory;
-            _taskScheduler = _taskSchedulerFactory.GetTaskScheduler();
-            _config = config;
-            _requestSender = requestSender;
+            _serverIdentity = serverIdentityProvider.Get();
+            _taskScheduler = taskSchedulerFactory.GetTaskScheduler();
+            _routerClient = routerClient;
             _logger = logger;
             Load().Wait();
         }
@@ -82,31 +80,27 @@ namespace Shaman.ServerSharedUtilities.Backends
             var requestNumber = _getBackendsListRequestCount++;
     
             //request backends list
-            var response = await _requestSender.SendRequest<GetServerInfoListResponse>(_config.GetRouterUrl(),
-                    new GetServerInfoListRequest());
-    
-            if (response.ResultCode != ResultCode.OK)
-            {
-                _logger.Error($"BackendProvider error: error getting backends {response.ResultCode}|{response.Message}");
+            var serverInfos = await _routerClient.GetServerInfoList();
+
+            if (!serverInfos.Any())
                 return;
-            }
-    
+
             var meList =
-                response.ServerInfoList.Where(s => s.Identity.Equals(_config.GetIdentity())).ToArray();
+                serverInfos.Where(s => s.Identity.Equals(_serverIdentity)).ToArray();
             if (!meList.Any())
             {
-                _logger.Error($"BackendProvider.Load error: can not find me({_config.GetIdentity()}) in serve list");
+                _logger.Error($"BackendProvider.Load error: can not find me({_serverIdentity}) in serve list");
                 return;
             }
     
             if (meList.Length > 1)
             {
-                _logger.Error($"BackendProvider.Load attention: more than 1 servers matched me - (record ids: {string.Join(",",meList.Select(m=>m.Id))}) in serve list");
+                _logger.Error($"BackendProvider.Load attention: more than 1 servers matched me - (record ids: {string.Join<int>(",",meList.Select(m=>m.Id))}) in serve list");
             }
     
             _me = meList.First();
     
-            var backends = response.ServerInfoList.Where(s =>
+            var backends = serverInfos.Where(s =>
                 s.ServerRole == ServerRole.BackEnd && s.Region == _me.Region &&
                 s.IsApproved && s.ClientVersion == _me.ClientVersion).ToList();
     

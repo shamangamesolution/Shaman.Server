@@ -42,10 +42,10 @@ namespace Shaman.Router.Messages
         }
         #endregion
         
-        public ServerIdentity(string address, List<ushort> ports, ServerRole serverRole)
+        public ServerIdentity(string address, IEnumerable<ushort> ports, ServerRole serverRole)
         {
             Address = address;
-            Ports = ports;
+            Ports = ports.ToList();
             ServerRole = serverRole;
             PortsString = GetAsPortString(Ports);
         }

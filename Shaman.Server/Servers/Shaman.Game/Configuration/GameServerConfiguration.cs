@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Shaman.Common.Server.Configuration;
+using Shaman.Contract.Bundle;
 using Shaman.Router.Messages;
 
 namespace Shaman.Game.Configuration
@@ -35,6 +36,11 @@ namespace Shaman.Game.Configuration
             MatchMakerUrl = matchMakerUrl;
             ActualizationTimeoutMs = actualizationTimeoutMs;
             ServerInfoListUpdateIntervalMs = serverInfoListUpdateIntervalMs;
+        }
+
+        public IConfig GetBundleConfig()
+        {
+            return new BundleConfig(this);
         }
     }
 }

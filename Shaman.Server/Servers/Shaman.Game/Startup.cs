@@ -6,16 +6,15 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Serialization;
+using Shaman.Common.Http;
 using Shaman.Common.Metrics;
 using Shaman.Common.Server.Applications;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Server.Providers;
-using Shaman.Common.Server.Senders;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Bundle;
-using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
 using Shaman.Game.Api;
 using Shaman.Game.Configuration;
@@ -94,7 +93,7 @@ namespace Shaman.Game
 
            
             services.AddSingleton<IPacketSenderConfig>(c => c.GetRequiredService<IApplicationConfig>()); 
-            services.AddSingleton<IApplicationCoreConfig>(c => c.GetRequiredService<IApplicationConfig>()); 
+            services.AddSingleton(c => ((GameApplicationConfig)c.GetRequiredService<IApplicationConfig>()).GetBundleConfig()); 
 
             services.AddSingleton<IPacketSender, PacketBatchSender>();
             services.AddTransient<IShamanMessageSenderFactory, ShamanMessageSenderFactory>();

@@ -11,7 +11,6 @@ using Shaman.Game;
 using Shaman.Game.Configuration;
 using Shaman.Game.Metrics;
 using Shaman.Game.Rooms;
-using Shaman.ServerSharedUtilities.Backends;
 using Shaman.Tests.GameModeControllers;
 using Shaman.Messages;
 using Shaman.Messages.Authorization;
