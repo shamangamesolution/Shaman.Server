@@ -1,6 +1,6 @@
 namespace Shaman.Contract.Common
 {
-    public struct Payload
+    public readonly struct Payload
     {
         public readonly byte[] Buffer;
         public readonly int Offset;
