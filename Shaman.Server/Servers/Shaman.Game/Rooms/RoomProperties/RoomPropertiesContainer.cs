@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Shaman.Common.Utils.Extensions;
-using Shaman.Common.Utils.Logging;
 using Shaman.Contract.Bundle;
 using Shaman.Contract.Common.Logging;
 using Shaman.Messages;
