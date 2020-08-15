@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using Shaman.Contract.MM;
 using Shaman.MM.Peers;
-using Shaman.Messages.RoomFlow;
 
 namespace Shaman.MM.MatchMaking
 {

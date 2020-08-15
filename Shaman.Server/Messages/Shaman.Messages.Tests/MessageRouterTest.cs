@@ -3,7 +3,6 @@ using FluentAssertions;
 using NUnit.Framework;
 using Shaman.Messages.Handling;
 using Shaman.Serialization;
-using Shaman.Serialization.Messages;
 using Shaman.Serialization.Messages.Udp;
 
 namespace Shaman.Messages.Tests

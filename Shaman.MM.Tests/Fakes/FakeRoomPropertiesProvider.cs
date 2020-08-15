@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Shaman.Contract.MM;
-using Shaman.MM.Providers;
 
 namespace Shaman.MM.Tests.Fakes
 {

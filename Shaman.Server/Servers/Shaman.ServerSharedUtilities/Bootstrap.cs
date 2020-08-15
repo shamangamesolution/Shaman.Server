@@ -7,7 +7,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Events;
-using Shaman.Common.Utils.Logging;
 using Shaman.Contract.Common.Logging;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 

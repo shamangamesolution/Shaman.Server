@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Shaman.Common.Utils.Logging;
-using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
 using Shaman.Messages.General.DTO.Events.RepositorySync;

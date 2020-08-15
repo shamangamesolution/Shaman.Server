@@ -1,4 +1,3 @@
-using MongoDB.Bson.Serialization;
 using Shaman.Common.Utils.Messages;
 
 namespace Shaman.DAL.MongoDb

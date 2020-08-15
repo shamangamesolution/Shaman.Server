@@ -1,5 +1,4 @@
 using System;
-using Shaman.Common.Utils.Logging;
 using Shaman.Contract.Common.Logging;
 
 namespace Shaman.Monkeys.Logging

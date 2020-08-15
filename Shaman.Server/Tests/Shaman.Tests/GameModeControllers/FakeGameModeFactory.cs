@@ -2,10 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Bundle;
 using Shaman.Contract.Common;
-using Shaman.Messages;
 using Shaman.Serialization;
 
 namespace Shaman.Tests.GameModeControllers

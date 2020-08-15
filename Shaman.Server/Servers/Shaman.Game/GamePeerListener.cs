@@ -1,10 +1,8 @@
 using System;
 using System.Net;
 using Shaman.Common.Server.Peers;
-using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Sockets;
-using Shaman.Contract.Bundle;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
 using Shaman.Game.Peers;
@@ -13,9 +11,7 @@ using Shaman.LiteNetLibAdapter;
 using Shaman.Messages;
 using Shaman.Messages.Authorization;
 using Shaman.Messages.General.DTO.Events;
-using Shaman.Messages.General.DTO.Requests.Auth;
 using Shaman.Messages.General.DTO.Responses;
-using Shaman.Messages.General.DTO.Responses.Auth;
 using Shaman.Serialization.Messages;
 using Shaman.Serialization.Messages.Udp;
 

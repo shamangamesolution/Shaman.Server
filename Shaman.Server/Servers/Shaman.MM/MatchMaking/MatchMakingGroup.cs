@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Shaman.Common.Server.Peers;
-using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Common;
@@ -13,8 +11,6 @@ using Shaman.Messages.MM;
 using Shaman.Messages.RoomFlow;
 using Shaman.MM.Managers;
 using Shaman.MM.Metrics;
-using Shaman.MM.Providers;
-using Shaman.MM.Rooms;
 
 namespace Shaman.MM.MatchMaking
 {

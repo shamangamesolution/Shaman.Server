@@ -1,6 +1,5 @@
 using System;
 using Microsoft.Extensions.Logging;
-using Shaman.Common.Utils.Logging;
 using Shaman.Contract.Common.Logging;
 
 namespace Shaman.ServerSharedUtilities.Logging

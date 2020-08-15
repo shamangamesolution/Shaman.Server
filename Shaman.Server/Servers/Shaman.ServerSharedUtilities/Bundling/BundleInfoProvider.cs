@@ -3,8 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Shaman.Common.Http;
 using Shaman.Common.Server.Configuration;
-using Shaman.Common.Utils.Logging;
-using Shaman.Common.Utils.Senders;
 using Shaman.Contract.Common.Logging;
 using Shaman.Router.Messages;
 

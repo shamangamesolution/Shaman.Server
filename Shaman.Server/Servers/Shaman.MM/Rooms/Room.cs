@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using Shaman.Messages;
 using Shaman.Messages.MM;
 
 namespace Shaman.MM.Rooms

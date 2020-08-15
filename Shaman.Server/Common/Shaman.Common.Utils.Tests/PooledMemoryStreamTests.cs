@@ -5,9 +5,7 @@ using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using Shaman.Common.Utils.Logging;
-using Shaman.Contract.Common.Logging;
 using Shaman.Serialization;
-using Shaman.Serialization.Messages;
 using Shaman.Serialization.Utils.Pooling;
 
 namespace Shaman.Common.Utils.Tests

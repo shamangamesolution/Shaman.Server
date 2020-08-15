@@ -7,7 +7,6 @@ using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Bundle.Stats;
-using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
 using Shaman.Game.Configuration;
 using Shaman.Game.Metrics;

@@ -1,6 +1,5 @@
 using System;
 using System.Threading;
-using Shaman.Common.Utils.Logging;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
 
