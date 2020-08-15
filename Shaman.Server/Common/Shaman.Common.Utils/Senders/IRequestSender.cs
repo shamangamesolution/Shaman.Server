@@ -1,6 +1,5 @@
 using System;
 using System.Threading.Tasks;
-using Shaman.Serialization.Messages;
 using Shaman.Serialization.Messages.Http;
 
 namespace Shaman.Common.Utils.Senders
