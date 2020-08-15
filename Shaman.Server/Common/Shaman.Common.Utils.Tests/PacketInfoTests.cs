@@ -1,10 +1,8 @@
 using System;
-using System.Linq;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using Shaman.Common.Utils.Logging;
-using Shaman.Common.Utils.Sockets;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
 

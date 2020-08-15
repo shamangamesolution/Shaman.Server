@@ -4,7 +4,6 @@ using System.Linq;
 using Moq;
 using NUnit.Framework;
 using Shaman.Common.Server.Providers;
-using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Bundle;
 using Shaman.Contract.MM;

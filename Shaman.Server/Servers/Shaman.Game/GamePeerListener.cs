@@ -1,8 +1,8 @@
 using System;
 using System.Net;
 using Shaman.Common.Server.Peers;
-using Shaman.Common.Utils.Senders;
-using Shaman.Common.Utils.Sockets;
+using Shaman.Common.Udp.Senders;
+using Shaman.Common.Udp.Sockets;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
 using Shaman.Game.Peers;

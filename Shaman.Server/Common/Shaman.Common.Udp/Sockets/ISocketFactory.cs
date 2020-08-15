@@ -1,6 +1,6 @@
 using Shaman.Contract.Common.Logging;
 
-namespace Shaman.Common.Utils.Sockets
+namespace Shaman.Common.Udp.Sockets
 {
     public interface ISocketFactory
     {

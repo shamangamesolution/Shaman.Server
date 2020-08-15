@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 using Shaman.Common.Utils.Logging;
-using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Common.Logging;
 using Shaman.Messages;

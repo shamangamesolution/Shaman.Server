@@ -1,8 +1,8 @@
-using Shaman.Common.Utils.Peers;
+using Shaman.Common.Udp.Peers;
 using Shaman.Contract.Common;
 using Shaman.Serialization.Messages.Udp;
 
-namespace Shaman.Common.Utils.Senders
+namespace Shaman.Common.Udp.Senders
 {
     public class ShamanMessageSender : IShamanMessageSender
     {

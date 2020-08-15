@@ -1,6 +1,6 @@
 using System;
 using LiteNetLib;
-using Shaman.Common.Utils.Sockets;
+using Shaman.Common.Udp.Sockets;
 
 namespace Shaman.LiteNetLibAdapter
 {

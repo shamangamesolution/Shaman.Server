@@ -1,7 +1,7 @@
 using System;
 using System.Net;
 
-namespace Shaman.Common.Utils.Sockets
+namespace Shaman.Common.Udp.Sockets
 {
     public enum ClientDisconnectReason
     {

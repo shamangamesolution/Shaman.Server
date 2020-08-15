@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Shaman.Common.Utils.Senders;
+using Shaman.Common.Udp.Senders;
 using Shaman.Router.Messages;
 
 namespace Shaman.Common.Server.Configuration

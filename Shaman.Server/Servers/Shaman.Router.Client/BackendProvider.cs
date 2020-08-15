@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Common;

@@ -1,4 +1,4 @@
-using Shaman.Common.Utils.Sockets;
+using Shaman.Common.Udp.Sockets;
 using Shaman.Contract.Common.Logging;
 
 namespace Shaman.LiteNetLibAdapter

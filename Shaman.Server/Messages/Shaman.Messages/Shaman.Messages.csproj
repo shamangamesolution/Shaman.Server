@@ -3,11 +3,13 @@
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <PackageVersion>1.9.6</PackageVersion>
+        <PackageVersion>1.9.7</PackageVersion>
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\Common\Shaman.Common.Utils\Shaman.Common.Utils.csproj" />
+        <ProjectReference Include="..\..\Serialization\Shaman.Serialization.Messages.Http\Shaman.Serialization.Messages.Http.csproj" />
+        <ProjectReference Include="..\..\Serialization\Shaman.Serialization.Messages.Udp\Shaman.Serialization.Messages.Udp.csproj" />
+        <ProjectReference Include="..\..\Serialization\Shaman.Serialization\Shaman.Serialization.csproj" />
     </ItemGroup>
 
 </Project>

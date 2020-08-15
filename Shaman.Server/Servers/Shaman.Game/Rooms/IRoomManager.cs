@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Shaman.Common.Server.Peers;
-using Shaman.Common.Utils.Sockets;
+using Shaman.Common.Udp.Sockets;
 using Shaman.Contract.Common;
 
 namespace Shaman.Game.Rooms

@@ -1,7 +1,7 @@
 using Shaman.Contract.Common.Logging;
 using Shaman.Serialization;
 
-namespace Shaman.Common.Utils.Senders
+namespace Shaman.Common.Udp.Senders
 {
     public class ShamanMessageSenderFactory : IShamanMessageSenderFactory
     {

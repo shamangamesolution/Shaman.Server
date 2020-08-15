@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Shaman.Common.Server.Peers;
-using Shaman.Common.Utils.Sockets;
+using Shaman.Common.Udp.Sockets;
 using Shaman.Contract.Bundle;
 using Shaman.Contract.Common;
 using Shaman.Game.Stats;

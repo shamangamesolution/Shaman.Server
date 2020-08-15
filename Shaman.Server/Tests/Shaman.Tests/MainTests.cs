@@ -5,8 +5,6 @@ using System.Net;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
-using Shaman.Common.Utils.Senders;
-using Shaman.Common.Utils.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Bundle;
 using Shaman.Game;

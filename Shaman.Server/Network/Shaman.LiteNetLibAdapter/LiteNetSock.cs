@@ -2,7 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Net;
 using LiteNetLib;
-using Shaman.Common.Utils.Sockets;
+using Shaman.Common.Udp.Sockets;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
 using DisconnectReason = LiteNetLib.DisconnectReason;

@@ -3,14 +3,13 @@
     <PropertyGroup>
         <TargetFramework>netcoreapp2.2</TargetFramework>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <PackageVersion>1.9.6</PackageVersion>
+        <PackageVersion>1.9.7</PackageVersion>
     </PropertyGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\..\Common\Shaman.Common.Metrics\Shaman.Common.Metrics.csproj" />
       <ProjectReference Include="..\..\Common\Shaman.Common.Server\Shaman.Common.Server.csproj" />
       <ProjectReference Include="..\..\Common\Shaman.Common.Utils\Shaman.Common.Utils.csproj" />
-      <ProjectReference Include="..\..\Contracts\Shaman.Contract.Bundle\Shaman.Contract.Bundle.csproj" />
       <ProjectReference Include="..\Shaman.Router.Messages\Shaman.Router.Messages.csproj" />
     </ItemGroup>
 

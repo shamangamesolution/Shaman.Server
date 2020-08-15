@@ -3,10 +3,11 @@
     <PropertyGroup>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <PackageVersion>1.9.6</PackageVersion>
+        <PackageVersion>1.9.7</PackageVersion>
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\Common\Shaman.Common.Udp\Shaman.Common.Udp.csproj" />
       <ProjectReference Include="..\..\Common\Shaman.Common.Utils\Shaman.Common.Utils.csproj" />
     </ItemGroup>
 
