@@ -12,24 +12,44 @@ namespace Shaman.LocalBundleLauncher
     {
         public static void Launch()
         {
-            var routerConfig = LoadConfigFor("router");
-            var gameConfig = LoadConfigFor("game");
-            var mmConfig = LoadConfigFor("mm");
-
-            var routerTask =
-                Task.Factory.StartNew(action: () => Bootstrap.Launch<Router.Startup>(SourceType.Router, routerConfig));
-
-            var routerHttpPort = int.Parse(routerConfig["BindToPortHttp"]);
-            while (!CheckRouterIsAvailable(routerHttpPort) && routerTask.Status == TaskStatus.Running)
-                Thread.Sleep(500);
-
-            var gameTask =
-                Task.Factory.StartNew(() => Bootstrap.Launch<Game.Startup>(SourceType.GameServer, gameConfig));
-            var mmTask = Task.Factory.StartNew(() => Bootstrap.Launch<MM.Startup>(SourceType.GameServer, mmConfig));
+            var routerTask = LaunchRouterAndWaitUntilItStarts();
+            var gameTask = LaunchGame();
+            var mmTask = LaunchMM();
 
             gameTask.Wait();
             mmTask.Wait();
             routerTask.Wait();
+        }
+
+        private static Task LaunchMM()
+        {
+            var mmConfig = LoadConfigFor("mm");
+            var mmTask = Task.Factory.StartNew(() => Bootstrap.Launch<MM.Startup>(SourceType.MatchMaker, mmConfig));
+            return mmTask;
+        }
+
+        private static Task LaunchGame()
+        {
+            var gameConfig = LoadConfigFor("game");
+            var gameTask =
+                Task.Factory.StartNew(() => Bootstrap.Launch<Game.Startup>(SourceType.GameServer, gameConfig));
+            return gameTask;
+        }
+
+        private static Task LaunchRouterAndWaitUntilItStarts()
+        {
+            var routerConfig = LoadConfigFor("router");
+            var routerTask =
+                Task.Factory.StartNew(action: () => Bootstrap.Launch<Router.Startup>(SourceType.Router, routerConfig));
+            EnsureRouterStarted(routerConfig, routerTask);
+            return routerTask;
+        }
+
+        private static void EnsureRouterStarted(IConfigurationRoot routerConfig, Task routerTask)
+        {
+            var routerHttpPort = int.Parse(routerConfig["BindToPortHttp"]);
+            while (!CheckRouterIsAvailable(routerHttpPort) && routerTask.Status == TaskStatus.Running)
+                Thread.Sleep(500);
         }
 
         private static bool CheckRouterIsAvailable(int routerPort)
