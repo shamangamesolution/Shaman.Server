@@ -102,6 +102,9 @@ namespace Shaman.MM
             services.AddSingleton<IServerActualizer, ServerActualizer>();
             services.AddSingleton<IBundleInfoProvider, BundleInfoProvider>();
             services.AddSingleton<IRoomPropertiesProvider, RoomPropertiesProvider>();
+            services.AddSingleton<IShamanSender, ShamanSender>();
+            services.AddSingleton<IShamanMessageSender, ShamanMessageSender>();
+            services.AddSingleton<IShamanMessageSenderFactory, ShamanMessageSenderFactory>();
         }
         
         private void ConfigureMetrics(IServiceCollection services)
