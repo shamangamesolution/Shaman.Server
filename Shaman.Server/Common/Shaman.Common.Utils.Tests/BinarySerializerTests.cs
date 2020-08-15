@@ -1,7 +1,5 @@
 using System;
-using FluentAssertions;
 using NUnit.Framework;
-using Shaman.Serialization;
 
 namespace Shaman.Common.Utils.Tests
 {

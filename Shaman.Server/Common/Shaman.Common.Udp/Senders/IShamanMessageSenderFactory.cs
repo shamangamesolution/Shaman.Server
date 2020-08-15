@@ -1,4 +1,4 @@
-namespace Shaman.Common.Utils.Senders
+namespace Shaman.Common.Udp.Senders
 {
     public interface IShamanMessageSenderFactory
     {

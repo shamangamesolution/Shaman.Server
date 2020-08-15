@@ -5,7 +5,7 @@ using System.Threading;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
 
-namespace Shaman.Common.Utils.Sockets
+namespace Shaman.Common.Udp.Sockets
 {
     public struct OffsetInfo
     {
@@ -61,7 +61,7 @@ namespace Shaman.Common.Utils.Sockets
 
         public PacketInfo(DeliveryOptions deliveryOptions, int maxPacketSize,
             IShamanLogger logger, Payload payloadPart1, Payload payloadPart2)
-            : this(deliveryOptions, maxPacketSize, logger, payloadPart1.Length + payloadPart2.Length)
+            : this(deliveryOptions, maxPacketSize, logger, (int) (payloadPart1.Length + payloadPart2.Length))
         {
             var sumLength = payloadPart1.Length + payloadPart2.Length;
             AppendLength(sumLength);
@@ -70,7 +70,7 @@ namespace Shaman.Common.Utils.Sockets
         }
 
         public PacketInfo(DeliveryOptions deliveryOptions, int maxPacketSize,
-            IShamanLogger logger, Payload payload) : this(deliveryOptions, maxPacketSize, logger, payload.Length)
+            IShamanLogger logger, Payload payload) : this(deliveryOptions, maxPacketSize, logger, (int) payload.Length)
         {
             AppendLength(payload.Length);
             AppendPayload(payload);

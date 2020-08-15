@@ -1,12 +1,9 @@
 using System;
 using System.Collections.Generic;
 using AutoFixture;
-using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using Shaman.Common.Utils.Logging;
-using Shaman.Serialization;
-using Shaman.Serialization.Utils.Pooling;
 
 namespace Shaman.Common.Utils.Tests
 {

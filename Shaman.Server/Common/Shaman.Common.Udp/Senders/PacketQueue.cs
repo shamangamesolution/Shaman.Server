@@ -1,11 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Shaman.Common.Utils.Sockets;
+using Shaman.Common.Udp.Sockets;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
 
-namespace Shaman.Common.Utils.Senders
+namespace Shaman.Common.Udp.Senders
 {
     /// <summary>
     /// Not thread safe

@@ -1,5 +1,4 @@
 using Shaman.Common.Utils.Logging;
-using Shaman.Common.Utils.Sockets;
 using Shaman.Contract.Common;
 using Shaman.Serialization;
 using Shaman.Serialization.Messages.Udp;

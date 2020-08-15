@@ -1,10 +1,10 @@
-using Shaman.Common.Utils.Peers;
+using Shaman.Common.Udp.Peers;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
 using Shaman.Serialization;
 using Shaman.Serialization.Utils.Pooling;
 
-namespace Shaman.Common.Utils.Senders
+namespace Shaman.Common.Udp.Senders
 {
     public interface IShamanSender
     {

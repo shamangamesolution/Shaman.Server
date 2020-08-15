@@ -1,6 +1,6 @@
 using System.Collections.Concurrent;
 using System.Net;
-using Shaman.Common.Utils.Sockets;
+using Shaman.Common.Udp.Sockets;
 
 namespace Shaman.Common.Server.Peers
 {
