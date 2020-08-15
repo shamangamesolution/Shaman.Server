@@ -7,12 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="System.Buffers">
-        <Version>4.5.0</Version>
-      </PackageReference>
-    </ItemGroup>
-
-    <ItemGroup>
       <Compile Remove="Buffers\**" />
     </ItemGroup>
 
@@ -29,12 +23,8 @@
       <ProjectReference Include="..\..\Serialization\Shaman.Serialization.Messages.Http\Shaman.Serialization.Messages.Http.csproj" />
       <ProjectReference Include="..\..\Serialization\Shaman.Serialization.Messages.Udp\Shaman.Serialization.Messages.Udp.csproj" />
       <ProjectReference Include="..\..\Serialization\Shaman.Serialization.Messages\Shaman.Serialization.Messages.csproj" />
+      <ProjectReference Include="..\..\Serialization\Shaman.Serialization.Utils\Shaman.Serialization.Utils.csproj" />
       <ProjectReference Include="..\..\Serialization\Shaman.Serialization\Shaman.Serialization.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Configuration" />
-      <Folder Include="Serialization\Messages" />
     </ItemGroup>
 
 

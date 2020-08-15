@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Shaman.Common.Utils.Serialization;
 using Shaman.Messages.RoomFlow;
 using Shaman.Serialization;
 using Shaman.Serialization.Messages;

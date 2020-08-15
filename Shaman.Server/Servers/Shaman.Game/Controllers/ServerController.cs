@@ -3,7 +3,6 @@ using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Shaman.Common.Utils.Logging;
-using Shaman.Common.Utils.Serialization;
 using Shaman.Contract.Common.Logging;
 using Shaman.Game.Api;
 using Shaman.Game.Extensions;

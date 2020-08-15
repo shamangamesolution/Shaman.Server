@@ -1,8 +1,7 @@
 using System;
 using System.Collections.Concurrent;
-using Shaman.Common.Utils.Serialization.Pooling;
 
-namespace Shaman.Common.Utils.Senders
+namespace Shaman.Serialization.Utils.Pooling
 {
     public class ShamanStreamPool
     {
@@ -15,7 +14,7 @@ namespace Shaman.Common.Utils.Senders
 
         public PooledMemoryStream Rent(Type type) 
         {
-            return new PooledMemoryStream(GetBufferSize(type));
+            return new PooledMemoryStream( StaticArrayPool, GetBufferSize(type));
         }
 
         public void Return(PooledMemoryStream stream, Type type)
@@ -49,5 +48,6 @@ namespace Shaman.Common.Utils.Senders
         }
 
         private static readonly ConcurrentDictionary<Type, int> BufferStatistics = new ConcurrentDictionary<Type, int>();
+        private static readonly ArrayPool StaticArrayPool = new ArrayPool();
     }
 }
