@@ -1,15 +1,13 @@
 using System.Collections.Generic;
 using Shaman.Serialization;
 using Shaman.Serialization.Extensions;
-using Shaman.Serialization.Messages;
 using Shaman.Serialization.Messages.Udp;
 
-namespace Shaman.Messages
+namespace Shaman.Tests.GameModeControllers
 {
     public class TestRoomEvent : EventBase
     {
         public override bool IsReliable => true;
-        public override bool IsBroadcasted => true;
 
         public bool TestBool { get; set; }
         public int TestInt { get; set; }
@@ -26,7 +24,7 @@ namespace Shaman.Messages
             TestList = testList;
         }
 
-        public TestRoomEvent() : base(Messages.ShamanOperationCode.Test)
+        public TestRoomEvent() : base(0)
         {
         }
 
