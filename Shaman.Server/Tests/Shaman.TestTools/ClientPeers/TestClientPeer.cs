@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Shaman.Client.Peers;
 using Shaman.Client.Providers;
-using Shaman.Common.Server.Senders;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Sockets;
 using Shaman.Common.Utils.TaskScheduling;

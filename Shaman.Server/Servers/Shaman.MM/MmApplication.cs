@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using Shaman.Common.Http;
 using Shaman.Common.Server.Applications;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Utils.Logging;

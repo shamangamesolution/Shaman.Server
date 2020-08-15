@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Shaman.Common.Http;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Server.Peers;
 using Shaman.Common.Utils.Logging;

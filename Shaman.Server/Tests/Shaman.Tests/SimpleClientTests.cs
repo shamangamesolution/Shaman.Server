@@ -20,7 +20,6 @@ using Shaman.Game.Rooms.RoomProperties;
 using Shaman.MM;
 using Shaman.MM.Configuration;
 using Shaman.MM.MatchMaking;
-using Shaman.ServerSharedUtilities.Backends;
 using Shaman.Tests.GameModeControllers;
 using Shaman.Messages;
 using Shaman.Messages.MM;

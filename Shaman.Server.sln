@@ -102,6 +102,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Serialization.Room",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Serialization.Utils", "Shaman.Server\Serialization\Shaman.Serialization.Utils\Shaman.Serialization.Utils.csproj", "{863C806A-0DF5-4830-A8C4-646C0A184F7B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Router.Client", "Shaman.Server\Servers\Shaman.Router.Client\Shaman.Router.Client.csproj", "{2C4EBBEF-5DB2-4819-ACEE-3CB2CDDFDA44}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Common.Http", "Shaman.Server\Common\Shaman.Common.Http\Shaman.Common.Http.csproj", "{245E1558-3DB0-4B1F-950E-7BB37D754A2A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -580,6 +584,30 @@ Global
 		{863C806A-0DF5-4830-A8C4-646C0A184F7B}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{863C806A-0DF5-4830-A8C4-646C0A184F7B}.Release|Win32.ActiveCfg = Release|Any CPU
 		{863C806A-0DF5-4830-A8C4-646C0A184F7B}.Release|Win32.Build.0 = Release|Any CPU
+		{2C4EBBEF-5DB2-4819-ACEE-3CB2CDDFDA44}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2C4EBBEF-5DB2-4819-ACEE-3CB2CDDFDA44}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2C4EBBEF-5DB2-4819-ACEE-3CB2CDDFDA44}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{2C4EBBEF-5DB2-4819-ACEE-3CB2CDDFDA44}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{2C4EBBEF-5DB2-4819-ACEE-3CB2CDDFDA44}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{2C4EBBEF-5DB2-4819-ACEE-3CB2CDDFDA44}.Debug|Win32.Build.0 = Debug|Any CPU
+		{2C4EBBEF-5DB2-4819-ACEE-3CB2CDDFDA44}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2C4EBBEF-5DB2-4819-ACEE-3CB2CDDFDA44}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2C4EBBEF-5DB2-4819-ACEE-3CB2CDDFDA44}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{2C4EBBEF-5DB2-4819-ACEE-3CB2CDDFDA44}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{2C4EBBEF-5DB2-4819-ACEE-3CB2CDDFDA44}.Release|Win32.ActiveCfg = Release|Any CPU
+		{2C4EBBEF-5DB2-4819-ACEE-3CB2CDDFDA44}.Release|Win32.Build.0 = Release|Any CPU
+		{245E1558-3DB0-4B1F-950E-7BB37D754A2A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{245E1558-3DB0-4B1F-950E-7BB37D754A2A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{245E1558-3DB0-4B1F-950E-7BB37D754A2A}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{245E1558-3DB0-4B1F-950E-7BB37D754A2A}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{245E1558-3DB0-4B1F-950E-7BB37D754A2A}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{245E1558-3DB0-4B1F-950E-7BB37D754A2A}.Debug|Win32.Build.0 = Debug|Any CPU
+		{245E1558-3DB0-4B1F-950E-7BB37D754A2A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{245E1558-3DB0-4B1F-950E-7BB37D754A2A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{245E1558-3DB0-4B1F-950E-7BB37D754A2A}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{245E1558-3DB0-4B1F-950E-7BB37D754A2A}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{245E1558-3DB0-4B1F-950E-7BB37D754A2A}.Release|Win32.ActiveCfg = Release|Any CPU
+		{245E1558-3DB0-4B1F-950E-7BB37D754A2A}.Release|Win32.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -622,5 +650,7 @@ Global
 		{3E9BDE4B-ECAC-40E9-AED0-50E5226CE604} = {5681CC39-9FAB-4A2F-935B-3BE870EB18B6}
 		{5E895C94-5A89-4E79-B0F2-7B537BFEF33D} = {B37AFF3F-4078-4D9E-9845-8F029C8B5E58}
 		{863C806A-0DF5-4830-A8C4-646C0A184F7B} = {B37AFF3F-4078-4D9E-9845-8F029C8B5E58}
+		{2C4EBBEF-5DB2-4819-ACEE-3CB2CDDFDA44} = {5681CC39-9FAB-4A2F-935B-3BE870EB18B6}
+		{245E1558-3DB0-4B1F-950E-7BB37D754A2A} = {0F24BC06-D961-4A3F-9EFD-1B4A96688425}
 	EndGlobalSection
 EndGlobal

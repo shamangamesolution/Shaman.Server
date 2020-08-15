@@ -1,5 +1,6 @@
 using System;
 using System.Net;
+using Shaman.Common.Http;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Sockets;

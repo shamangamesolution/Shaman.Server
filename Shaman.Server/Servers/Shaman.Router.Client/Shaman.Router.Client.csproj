@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp2.2</TargetFramework>
+        <RootNamespace>Shaman.Router.Backend</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\Common\Shaman.Common.Http\Shaman.Common.Http.csproj" />
+      <ProjectReference Include="..\..\Common\Shaman.Common.Utils\Shaman.Common.Utils.csproj" />
+      <ProjectReference Include="..\Shaman.Router.Messages\Shaman.Router.Messages.csproj" />
+    </ItemGroup>
+
+</Project>

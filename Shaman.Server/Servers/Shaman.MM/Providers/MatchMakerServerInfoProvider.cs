@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Shaman.Common.Http;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Server.Providers;
 using Shaman.Common.Utils.Helpers;

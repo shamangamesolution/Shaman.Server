@@ -10,7 +10,7 @@ namespace Shaman.Common.Server.Configuration
         ThreadSocket = 2
     }
     
-    public interface IApplicationConfig: IPacketSenderConfig, IApplicationCoreConfig
+    public interface IApplicationConfig: IPacketSenderConfig
     {
 //        void Initialize(string publicDomainNameOrIpAddress, ushort[] ports, int socketTickTimeMs, int receiveTickTimeMs, int sendTickTimeMs, string routerUrl, SocketType socketType = SocketType.BareSocket, bool isAuthOn = true, int backEndsListRequestIntervalMs = 30000, int maxPacketSize = 300);
         string GetPublicName();
@@ -25,5 +25,7 @@ namespace Shaman.Common.Server.Configuration
         string GetRegion();
         ServerRole GetServerRole();
         ushort BindToPortHttp { get; set; }
+        ServerIdentity GetIdentity();
+        string GetRouterUrl();
     }
 }
