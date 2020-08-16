@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Shaman.Client.TestBundle
+﻿namespace Shaman.Client.TestBundle
 {
     class Program
     {

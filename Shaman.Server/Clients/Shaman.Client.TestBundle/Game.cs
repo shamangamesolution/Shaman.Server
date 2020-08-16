@@ -1,43 +1,43 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Shaman.Common.Utils.TaskScheduling;
-using Shaman.Game.Contract;
+using Shaman.Contract.Bundle;
+using Shaman.Contract.Common;
 
 namespace Shaman.Client.TestBundle
 {
     public class Game:IGameBundle
     {
-        public IGameModeControllerFactory GetGameModeControllerFactory()
+        public IRoomControllerFactory GetRoomControllerFactory()
         {
-            throw new System.NotImplementedException();
+            return new TestRoomControllerFactory();
         }
 
         public void OnInitialize(IShamanComponents shamanComponents)
         {
-            throw new System.NotImplementedException();
         }
     }
 
-    class MyClass:IGameModeControllerFactory
+    class TestRoomControllerFactory:IRoomControllerFactory
     {
-        public IGameModeController GetGameModeController(IRoomContext room, ITaskScheduler taskScheduler,
+        public IRoomController GetGameModeController(IRoomContext room, ITaskScheduler taskScheduler,
             IRoomPropertiesContainer roomPropertiesContainer)
         {
             return new TestGameController();
         }
     }
 
-    class TestGameController:IGameModeController
+    class TestGameController:IRoomController
     {
         public Task<bool> ProcessNewPlayer(Guid sessionId, Dictionary<byte, object> properties)
         {
             return Task.FromResult(true);
         }
 
-        public void CleanupPlayer(Guid sessionId, PeerDisconnectedReason reason, byte[] reasonPayload)
+        public void ProcessPlayerDisconnected(Guid sessionId, PeerDisconnectedReason reason, byte[] reasonPayload)
         {
         }
+
 
         public bool IsGameFinished()
         {
@@ -45,11 +45,11 @@ namespace Shaman.Client.TestBundle
         }
 
         public TimeSpan ForceDestroyRoomAfter => TimeSpan.FromMinutes(5);
-        public void Cleanup()
+        public void ProcessMessage(Payload message, DeliveryOptions deliveryOptions, Guid sessionId)
         {
         }
 
-        public void ProcessMessage(ushort operationCode, MessageData message, Guid sessionId)
+        public void Dispose()
         {
         }
     }

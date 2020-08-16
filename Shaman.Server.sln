@@ -116,6 +116,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Router.Tests", "Sham
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.DAL.MySQL", "Shaman.Server\Database\Shaman.DAL.MySQL\Shaman.DAL.MySQL.csproj", "{245DB37E-A1CA-4D39-88D0-F0CB9EBBE16D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Client.Tests", "Shaman.Server\Clients\Shaman.Client.Tests\Shaman.Client.Tests.csproj", "{DC64B265-A5CC-4532-B89B-BA925B4C01D1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Client.TestBundle", "Shaman.Server\Clients\Shaman.Client.TestBundle\Shaman.Client.TestBundle.csproj", "{4911038D-2428-41A0-905B-AB5163C43C9A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -678,6 +682,30 @@ Global
 		{245DB37E-A1CA-4D39-88D0-F0CB9EBBE16D}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{245DB37E-A1CA-4D39-88D0-F0CB9EBBE16D}.Release|Win32.ActiveCfg = Release|Any CPU
 		{245DB37E-A1CA-4D39-88D0-F0CB9EBBE16D}.Release|Win32.Build.0 = Release|Any CPU
+		{DC64B265-A5CC-4532-B89B-BA925B4C01D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC64B265-A5CC-4532-B89B-BA925B4C01D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC64B265-A5CC-4532-B89B-BA925B4C01D1}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{DC64B265-A5CC-4532-B89B-BA925B4C01D1}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{DC64B265-A5CC-4532-B89B-BA925B4C01D1}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{DC64B265-A5CC-4532-B89B-BA925B4C01D1}.Debug|Win32.Build.0 = Debug|Any CPU
+		{DC64B265-A5CC-4532-B89B-BA925B4C01D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC64B265-A5CC-4532-B89B-BA925B4C01D1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DC64B265-A5CC-4532-B89B-BA925B4C01D1}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{DC64B265-A5CC-4532-B89B-BA925B4C01D1}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{DC64B265-A5CC-4532-B89B-BA925B4C01D1}.Release|Win32.ActiveCfg = Release|Any CPU
+		{DC64B265-A5CC-4532-B89B-BA925B4C01D1}.Release|Win32.Build.0 = Release|Any CPU
+		{4911038D-2428-41A0-905B-AB5163C43C9A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4911038D-2428-41A0-905B-AB5163C43C9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4911038D-2428-41A0-905B-AB5163C43C9A}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{4911038D-2428-41A0-905B-AB5163C43C9A}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{4911038D-2428-41A0-905B-AB5163C43C9A}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{4911038D-2428-41A0-905B-AB5163C43C9A}.Debug|Win32.Build.0 = Debug|Any CPU
+		{4911038D-2428-41A0-905B-AB5163C43C9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4911038D-2428-41A0-905B-AB5163C43C9A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4911038D-2428-41A0-905B-AB5163C43C9A}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{4911038D-2428-41A0-905B-AB5163C43C9A}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{4911038D-2428-41A0-905B-AB5163C43C9A}.Release|Win32.ActiveCfg = Release|Any CPU
+		{4911038D-2428-41A0-905B-AB5163C43C9A}.Release|Win32.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -727,5 +755,7 @@ Global
 		{54F1A8F6-BDDE-4974-9945-3C0CDC3C929B} = {B37AFF3F-4078-4D9E-9845-8F029C8B5E58}
 		{B2FE75DF-527B-453A-8D83-17009A412545} = {5681CC39-9FAB-4A2F-935B-3BE870EB18B6}
 		{245DB37E-A1CA-4D39-88D0-F0CB9EBBE16D} = {A491A8CA-15CB-4741-9356-D9378A3AD48E}
+		{DC64B265-A5CC-4532-B89B-BA925B4C01D1} = {6D2BFABF-B635-44CE-B8D1-535521B1174C}
+		{4911038D-2428-41A0-905B-AB5163C43C9A} = {6D2BFABF-B635-44CE-B8D1-535521B1174C}
 	EndGlobalSection
 EndGlobal
