@@ -54,7 +54,7 @@ namespace Shaman.SyncedRepositories.Syncers
         private readonly IConfirmationManager _confirmationManager;
 
         private int _currentRevision = 0;
-        private PendingTask _getPlayersForForSyncTask;
+        private IPendingTask _getPlayersForForSyncTask;
         private int _baseRevisionSaved = 0;
         //private EventBase[] _sendEvents;
         private readonly object _mutex = new object();
@@ -115,6 +115,7 @@ namespace Shaman.SyncedRepositories.Syncers
                     {
                         var sessionId = _playerRepo.GetPlayerSessionId(item.Key);
                         _logger.Error($"Forcing player {item.Key} to refresh repo with {typeof(TEvent)} (miss rate {item.Value})");
+                        // todo fix (at least need to decide is it bundle or core message)
                         Room.AddToSendQueue(new TEvent(), sessionId);
                         _confirmationManager.ConfirmAllChanges(_id, item.Key);
                     }
