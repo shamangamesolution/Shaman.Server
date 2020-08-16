@@ -8,6 +8,7 @@ using Shaman.Contract.Common.Logging;
 using Shaman.Messages.General.DTO.Events.RepositorySync;
 using Shaman.Messages.General.Entity;
 using Shaman.Serialization;
+using Shaman.Serialization.Room;
 using Shaman.SyncedRepositories.Managers;
 
 namespace Shaman.SyncedRepositories.Syncers
@@ -66,7 +67,8 @@ namespace Shaman.SyncedRepositories.Syncers
         private Guid _id;
         private int _maxSendTimes = 3;
         private ConcurrentDictionary<int, int> _revisionSendTimes = new ConcurrentDictionary<int, int>();
-        
+        private readonly ShamanRoomSender _shamanRoomSender;
+
         public RepositorySyncerBase(ISyncedRepository<T> repo, IRoomContext room, ITaskScheduler taskScheduler, IPlayerRepository playerRepo, ISerializer serializer, IConfirmationManager confirmationManager, IShamanLogger logger)
         {
             _repo = repo;
@@ -77,6 +79,7 @@ namespace Shaman.SyncedRepositories.Syncers
             _confirmationManager = confirmationManager;
             _logger = logger;
             _id = Guid.NewGuid();
+            _shamanRoomSender = new ShamanRoomSender(Room.GetSender(), _serializer);
         }
 
         protected abstract void SendEvents(List<ChangesContainerInfo<T>> list);
@@ -115,12 +118,18 @@ namespace Shaman.SyncedRepositories.Syncers
                     {
                         var sessionId = _playerRepo.GetPlayerSessionId(item.Key);
                         _logger.Error($"Forcing player {item.Key} to refresh repo with {typeof(TEvent)} (miss rate {item.Value})");
-                        // todo fix (at least need to decide is it bundle or core message)
-                        Room.AddToSendQueue(new TEvent(), sessionId);
+                        SendForceSync(sessionId);
                         _confirmationManager.ConfirmAllChanges(_id, item.Key);
                     }
                 }
             }
+        }
+
+        private void SendForceSync(Guid sessionId)
+        {
+            var forceSyncEvent = new TEvent();
+            _shamanRoomSender.Send(forceSyncEvent,
+                new DeliveryOptions(forceSyncEvent.IsReliable, forceSyncEvent.IsOrdered), sessionId);
         }
 
         public Guid GetId()
