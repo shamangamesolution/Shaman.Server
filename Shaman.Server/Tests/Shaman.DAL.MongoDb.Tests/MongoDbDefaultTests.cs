@@ -4,9 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using NUnit.Framework;
-using Shaman.Common.Utils.Messages;
-using Shaman.Common.Utils.Serialization;
-using Shaman.Messages;
+using Shaman.Serialization;
+using Shaman.Serialization.Messages;
 
 namespace Shaman.DAL.MongoDb.Tests
 {
@@ -21,13 +20,13 @@ namespace Shaman.DAL.MongoDb.Tests
 
         public bool BoolField { get; set; }
         public float FloatField { get; set; }
-        
-        protected override void SerializeBody(ITypeWriter typeWriter)
+
+        protected override void SerializeBody(Serialization.ITypeWriter typeWriter)
         {
             throw new NotImplementedException();
         }
 
-        protected override void DeserializeBody(ITypeReader typeReader)
+        protected override void DeserializeBody(Serialization.ITypeReader typeReader)
         {
             throw new NotImplementedException();
         }
@@ -52,12 +51,12 @@ namespace Shaman.DAL.MongoDb.Tests
 
         protected override void SerializeBody(ITypeWriter typeWriter)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         protected override void DeserializeBody(ITypeReader typeReader)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
     }
     

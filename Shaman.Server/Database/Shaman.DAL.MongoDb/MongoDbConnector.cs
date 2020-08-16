@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using MongoDB.Driver;
-using Shaman.Common.Utils.Messages;
 using Shaman.DAL.MongoDb.FluentOperators;
+using Shaman.Serialization.Messages;
 
 namespace Shaman.DAL.MongoDb
 {

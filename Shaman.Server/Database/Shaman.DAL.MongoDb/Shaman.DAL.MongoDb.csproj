@@ -8,8 +8,10 @@
 
     <ItemGroup>
       <PackageReference Include="MongoDB.Driver" Version="2.10.4" />
-<!--        TODO remove dep-->
-      <PackageReference Include="Shaman.Messages" Version="1.7.7" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\Serialization\Shaman.Serialization.Messages\Shaman.Serialization.Messages.csproj" />
     </ItemGroup>
 
 </Project>
