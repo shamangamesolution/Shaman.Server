@@ -6,9 +6,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="sqlite">
-        <Version>3.13.0</Version>
-      </PackageReference>
       <ProjectReference Include="..\..\Servers\Shaman.LocalBundleLauncher\Shaman.LocalBundleLauncher.csproj" />
         <PackageReference Include="Microsoft.AspNetCore.App" />
 

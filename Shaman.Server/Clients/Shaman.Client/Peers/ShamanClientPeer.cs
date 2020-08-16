@@ -35,7 +35,6 @@ namespace Shaman.Client.Peers
         private IPendingTask _pollingTask;
         private readonly int _pollPackageQueueIntervalMs;
         private readonly IRequestSender _requestSender;
-        private int _backendId;
 
         private Dictionary<byte, object> _matchMakingProperties;
         private Dictionary<byte, object> _joinGameProperties;
@@ -131,7 +130,7 @@ namespace Shaman.Client.Peers
             SetAndReportStatus(ShamanClientStatus.AuthorizingMatchMaking, _statusCallback);
                 
             //authorizing matchmaker
-            SendShamanRequest<AuthorizationResponse>(new AuthorizationRequest(_backendId, SessionId), OmMmAuthorizationResponse);
+            SendShamanRequest<AuthorizationResponse>(new AuthorizationRequest{SessionId = SessionId}, OmMmAuthorizationResponse);
         }
 
         private void GetRooms()
@@ -166,7 +165,7 @@ namespace Shaman.Client.Peers
             });
         }
 
-        private void StartConnect(string matchMakerAddress, ushort matchMakerPort, int backendId, Guid sessionId,
+        private void StartConnect(string matchMakerAddress, ushort matchMakerPort, Guid sessionId,
             Dictionary<byte, object> matchMakingProperties, Dictionary<byte, object> joinGameProperties,
             Action<ShamanConnectionStatus, JoinInfo> statusCallback)
         {
@@ -176,13 +175,12 @@ namespace Shaman.Client.Peers
                 _joinGameProperties = joinGameProperties;
                 _statusCallback = statusCallback;
                 SessionId = sessionId;
-                _backendId = backendId;
                 //waiting for join Info
                 _joinInfoEventId = RegisterOperationHandler<JoinInfoEvent>(OnJoinInfoEvent);
 
                 SetAndReportStatus(ShamanClientStatus.ConnectingMatchMaking, statusCallback);
-                RegisterOperationHandler<ConnectedEvent>(OnConnectedToMatchMaker, true);
-                RegisterOperationHandler<ErrorResponse>(
+                RegisterShamanOperationHandler<ConnectedEvent>(OnConnectedToMatchMaker, true);
+                RegisterShamanOperationHandler<ErrorResponse>(
                     errorResponse =>
                     {
                         SetAndReportStatus(ShamanClientStatus.ErrorReceived, _statusCallback, false,
@@ -390,7 +388,7 @@ namespace Shaman.Client.Peers
             SetAndReportStatus(ShamanClientStatus.AuthorizingGameServer, _statusCallback);
                 
             //authorizing matchmaker
-            SendShamanRequest<AuthorizationResponse>(new AuthorizationRequest(_backendId, SessionId), OnGameAuthorizationResponse);
+            SendShamanRequest<AuthorizationResponse>(new AuthorizationRequest{SessionId = SessionId}, OnGameAuthorizationResponse);
         }
         
         private void ConnectToGameServer(string gameServerAddress, ushort gameServerPort)
@@ -399,7 +397,7 @@ namespace Shaman.Client.Peers
             {
                 SetAndReportStatus(ShamanClientStatus.ConnectingGameServer, _statusCallback);
 
-                RegisterOperationHandler<ConnectedEvent>(OnConnectedToGameServer, true);
+                RegisterShamanOperationHandler<ConnectedEvent>(OnConnectedToGameServer, true);
                 
                 _clientPeer.Connect(gameServerAddress, gameServerPort);
             }
@@ -444,7 +442,7 @@ namespace Shaman.Client.Peers
             
             SetAndReportStatus(ShamanClientStatus.ConnectingGameServer, _statusCallback);
             
-            RegisterOperationHandler<ConnectedEvent>(OnConnectedToGameServer, true);
+            RegisterShamanOperationHandler<ConnectedEvent>(OnConnectedToGameServer, true);
             
             _clientPeer.Connect(gameServerAddress, gameServerPort);
             
@@ -472,7 +470,7 @@ namespace Shaman.Client.Peers
                     try
                     {
                         var operationCode = MessageBase.GetOperationCode(packet.Buffer, item.Offset);
-                        if (operationCode == ShamanOperationCode.Bundle)
+                        if (operationCode != ShamanOperationCode.Bundle)
                         {
                             _logger.Debug($"Shaman message received. Operation code: {operationCode}");
                             _shamanMessageHandler.ProcessMessage(operationCode, packet.Buffer, item.Offset, item.Length);
@@ -538,11 +536,13 @@ namespace Shaman.Client.Peers
 
         public Guid RegisterOperationHandler<T>(Action<T> handler, bool callOnce = false) where T : MessageBase, new()
         {
+            _logger.Debug("Bundle message register");
             return _bundleMessageHandler.RegisterOperationHandler(handler, callOnce);
         }
 
         private Guid RegisterShamanOperationHandler<T>(Action<T> handler, bool callOnce = false) where T : MessageBase, new()
         {
+            _logger.Debug("Shaman message register");
             return _shamanMessageHandler.RegisterOperationHandler(handler, callOnce);
         }
 
@@ -579,7 +579,7 @@ namespace Shaman.Client.Peers
                 _clientPeer.Send(new BundleMessageWrapper<TMessage>(eve), eve.IsReliable, eve.IsOrdered));
         }
         
-        public Task<JoinInfo> JoinGame(string matchMakerAddress, ushort matchMakerPort, int backendId, Guid sessionId,
+        public Task<JoinInfo> JoinGame(string matchMakerAddress, ushort matchMakerPort, Guid sessionId,
             Dictionary<byte, object> matchMakingProperties, Dictionary<byte, object> joinGameProperties)
         {
             _joinType = JoinType.RandomJoin;
@@ -587,7 +587,7 @@ namespace Shaman.Client.Peers
             var cancellationTokenSource = new CancellationTokenSource(JoinGameTimeout);
             cancellationTokenSource.Token.Register(() => joinTask.TrySetCanceled());
 
-            StartConnect(matchMakerAddress, matchMakerPort, backendId, sessionId, matchMakingProperties,
+            StartConnect(matchMakerAddress, matchMakerPort, sessionId, matchMakingProperties,
                 joinGameProperties, (status, info) =>
                 {
                     if (joinTask.Task.IsCompleted)
@@ -611,20 +611,20 @@ namespace Shaman.Client.Peers
                 });
             return joinTask.Task;
         }
-        public void CreateGame(string matchMakerAddress, ushort matchMakerPort, int backendId, Guid sessionId,
+        public void CreateGame(string matchMakerAddress, ushort matchMakerPort, Guid sessionId,
             Dictionary<byte, object> matchMakingProperties, Dictionary<byte, object> joinGameProperties,
             Action<ShamanConnectionStatus, JoinInfo> statusCallback)
         {
             _joinType = JoinType.CreateGame;
-            StartConnect(matchMakerAddress, matchMakerPort, backendId, sessionId, matchMakingProperties,
+            StartConnect(matchMakerAddress, matchMakerPort, sessionId, matchMakingProperties,
                 joinGameProperties, statusCallback);
         }
-        public void JoinRandomGame(string matchMakerAddress, ushort matchMakerPort, int backendId, Guid sessionId,
+        public void JoinRandomGame(string matchMakerAddress, ushort matchMakerPort, Guid sessionId,
             Dictionary<byte, object> matchMakingProperties, Dictionary<byte, object> joinGameProperties,
             Action<ShamanConnectionStatus, JoinInfo> statusCallback)
         {
             _joinType = JoinType.RandomJoin;
-            StartConnect(matchMakerAddress, matchMakerPort, backendId, sessionId, matchMakingProperties,
+            StartConnect(matchMakerAddress, matchMakerPort, sessionId, matchMakingProperties,
                 joinGameProperties, statusCallback);
         }
         
