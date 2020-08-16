@@ -65,7 +65,7 @@ namespace Shaman.ServerSharedUtilities.Bundling
                 throw new BundleNotFoundException($"Bundle not found for: {serverIdentity}");
             }
 
-            _logger.Error($"Bandle uri received for '{serverIdentity}': {response.BundleUri}");
+            _logger.Error($"Bundle uri received for '{serverIdentity}': {response.BundleUri}");
             return response.BundleUri;
         }
     }
