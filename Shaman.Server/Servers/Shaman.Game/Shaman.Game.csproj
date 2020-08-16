@@ -5,7 +5,7 @@
         <TargetFramework>netcoreapp2.2</TargetFramework>
         <IsPackable>true</IsPackable>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <PackageVersion>1.9.8</PackageVersion>
+        <PackageVersion>1.9.10</PackageVersion>
     </PropertyGroup>
 
     <ItemGroup>
@@ -27,5 +27,6 @@
       <ProjectReference Include="..\..\Messages\Shaman.Messages\Shaman.Messages.csproj" />
       <ProjectReference Include="..\..\Network\Shaman.LiteNetLibAdapter\Shaman.LiteNetLibAdapter.csproj" />
       <ProjectReference Include="..\Shaman.ServerSharedUtilities\Shaman.ServerSharedUtilities.csproj" />
+      <ProjectReference Include="..\Shaman.ServiceBootstrap\Shaman.ServiceBootstrap.csproj" />
     </ItemGroup>
 </Project>

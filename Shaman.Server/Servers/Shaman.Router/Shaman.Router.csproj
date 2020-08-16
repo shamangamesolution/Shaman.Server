@@ -11,6 +11,7 @@
     <ItemGroup>
       <ProjectReference Include="..\..\Database\Shaman.DAL\Shaman.DAL.csproj" />
       <ProjectReference Include="..\Shaman.ServerSharedUtilities\Shaman.ServerSharedUtilities.csproj" />
+      <ProjectReference Include="..\Shaman.ServiceBootstrap\Shaman.ServiceBootstrap.csproj" />
     </ItemGroup>
 
     <ItemGroup>

@@ -20,13 +20,13 @@ using Shaman.LiteNetLibAdapter;
 using Shaman.MM.Configuration;
 using Shaman.MM.MatchMaking;
 // using Shaman.ServerSharedUtilities.Backends;
-using Shaman.ServerSharedUtilities.Logging;
 using Shaman.MM.Managers;
 using Shaman.MM.Metrics;
 using Shaman.MM.Providers;
 using Shaman.Serialization;
 using Shaman.ServerSharedUtilities;
 using Shaman.ServerSharedUtilities.Bundling;
+using Shaman.ServiceBootstrap.Logging;
 using GameProject = Shaman.Messages.General.Entity.GameProject;
 
 namespace Shaman.MM

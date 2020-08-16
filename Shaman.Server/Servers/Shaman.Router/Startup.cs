@@ -13,7 +13,7 @@ using Shaman.Router.Data.Providers;
 using Shaman.Router.Data.Repositories;
 using Shaman.Router.Data.Repositories.Interfaces;
 using Shaman.Serialization;
-using Shaman.ServerSharedUtilities.Logging;
+using Shaman.ServiceBootstrap.Logging;
 
 namespace Shaman.Router
 {

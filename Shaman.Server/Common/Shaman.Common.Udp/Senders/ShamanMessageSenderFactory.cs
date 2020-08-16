@@ -1,4 +1,3 @@
-using Shaman.Contract.Common.Logging;
 using Shaman.Serialization;
 
 namespace Shaman.Common.Udp.Senders
