@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
 using AutoFixture;
+using Castle.Core.Logging;
+using FluentAssertions;
 using Moq;
 using NUnit.Framework;
-using Shaman.Common.Utils.Logging;
+using Shaman.Serialization.Utils.Pooling;
 
-namespace Shaman.Common.Utils.Tests
+namespace Shaman.Serialization.Tests
 {
     [TestFixture]
     public class PooledMemoryStreamTests

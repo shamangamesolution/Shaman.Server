@@ -1,10 +1,12 @@
 using System.Collections;
 using FluentAssertions;
 using NUnit.Framework;
+using Shaman.Common.Udp.Senders;
+using Shaman.Common.Udp.Sockets;
 using Shaman.Common.Utils.Logging;
 using Shaman.Contract.Common;
 
-namespace Shaman.Common.Utils.Tests
+namespace Shaman.Common.Udp.Tests
 {
     public class PacketQueueTests
     {
