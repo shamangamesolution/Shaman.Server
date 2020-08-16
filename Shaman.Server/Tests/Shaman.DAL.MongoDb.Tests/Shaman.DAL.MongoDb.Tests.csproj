@@ -13,6 +13,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\Database\Shaman.DAL.MongoDb\Shaman.DAL.MongoDb.csproj" />
+      <ProjectReference Include="..\..\Serialization\Shaman.Serialization.Messages\Shaman.Serialization.Messages.csproj" />
     </ItemGroup>
 
 
