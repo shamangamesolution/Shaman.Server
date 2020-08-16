@@ -68,6 +68,7 @@ namespace Shaman.Client.Tests
 
             await peer.JoinGame("127.0.0.1", 24451, Guid.NewGuid(), new Dictionary<byte, object>(),
                 new Dictionary<byte, object>());
+            peer.Disconnect();
 
             // await peer.DirectConnectToGameServer("127.0.0.1", 24452, Guid.NewGuid(), Guid.NewGuid(),
             //     new Dictionary<byte, object>());
