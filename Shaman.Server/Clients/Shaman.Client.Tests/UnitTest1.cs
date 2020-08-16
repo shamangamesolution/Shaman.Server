@@ -63,9 +63,14 @@ namespace Shaman.Client.Tests
                     SendTickMs = 30,
                     StartOtherThreadMessageProcessing = true
                 });
+            
+            
 
-            await peer.DirectConnectToGameServer("127.0.0.1", 23453, Guid.NewGuid(), Guid.NewGuid(),
+            await peer.JoinGame("127.0.0.1", 24451, Guid.NewGuid(), new Dictionary<byte, object>(),
                 new Dictionary<byte, object>());
+
+            // await peer.DirectConnectToGameServer("127.0.0.1", 24452, Guid.NewGuid(), Guid.NewGuid(),
+            //     new Dictionary<byte, object>());
         }
     }
 }

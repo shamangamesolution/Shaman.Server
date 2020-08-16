@@ -137,7 +137,6 @@ namespace Shaman.Client.Peers
                     if (!_connected)
                         return;
                     
-                    _logger?.Debug($"Socket tick started");
                     _socket.Tick();
                 }
             }, 0, 10);
@@ -237,9 +236,9 @@ namespace Shaman.Client.Peers
         {
             _logger = logger;
             var clientPacketSenderConfig = new ClientPacketSenderConfig(maxMessageSize, sendTickMs);
-            _shamanSender = new ShamanSender(new BinarySerializer(), _packetBatchSender, clientPacketSenderConfig);
             _packetBatchSender = new PacketBatchSender(taskSchedulerFactory, clientPacketSenderConfig, _logger);
             _serverSender = new ServerSender(logger, OnPackageReceived, taskSchedulerFactory.GetTaskScheduler());
+            _shamanSender = new ShamanSender(new BinarySerializer(), _packetBatchSender, clientPacketSenderConfig);
         }
 
         private void OnPackageReceived(DataPacket packetInfo, Action release)

@@ -136,7 +136,7 @@ namespace Shaman.Client.Peers
             SetAndReportStatus(ClientStatusLegacy.AuthorizingMatchMaking, _statusCallback);
                 
             //authorizing matchmaker
-            SendRequest(new AuthorizationRequest(_backendId, SessionId), OmMmAuthorizationResponse);
+            SendRequest(new AuthorizationRequest {SessionId = SessionId}, OmMmAuthorizationResponse);
         }
 
         private void GetRooms()
@@ -539,7 +539,7 @@ namespace Shaman.Client.Peers
             SetAndReportStatus(ClientStatusLegacy.AuthorizingGameServer, _statusCallback);
                 
             //authorizing matchmaker
-            SendRequest(new AuthorizationRequest(_backendId, SessionId), OnGameAuthorizationResponse);
+            SendRequest(new AuthorizationRequest {SessionId = SessionId}, OnGameAuthorizationResponse);
         }
         
         private void ConnectToGameServer(string gameServerAddress, ushort gameServerPort)
