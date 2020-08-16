@@ -72,7 +72,7 @@ namespace Shaman.Client.Peers
         }
 
         private readonly IShamanClientPeerListener _listener;
-        private static readonly TimeSpan JoinGameTimeout = TimeSpan.FromSeconds(30);
+        private static readonly TimeSpan JoinGameTimeout = TimeSpan.FromSeconds(3);
         private static readonly TimeSpan ReceiveEventTimeout = TimeSpan.FromSeconds(5);
         private readonly IMessageHandler _shamanMessageHandler;
         private readonly IMessageHandler _bundleMessageHandler;
@@ -176,7 +176,7 @@ namespace Shaman.Client.Peers
                 _statusCallback = statusCallback;
                 SessionId = sessionId;
                 //waiting for join Info
-                _joinInfoEventId = RegisterOperationHandler<JoinInfoEvent>(OnJoinInfoEvent);
+                _joinInfoEventId = RegisterShamanOperationHandler<JoinInfoEvent>(OnJoinInfoEvent);
 
                 SetAndReportStatus(ShamanClientStatus.ConnectingMatchMaking, statusCallback);
                 RegisterShamanOperationHandler<ConnectedEvent>(OnConnectedToMatchMaker, true);
@@ -335,7 +335,7 @@ namespace Shaman.Client.Peers
                 //connect to game server
                 _taskScheduler.ScheduleOnceOnNow(() =>
                 {
-                    UnregisterOperationHandler(_joinInfoEventId);
+                    UnregisterShamanOperationHandler(_joinInfoEventId);
                     ConnectToGameServer(JoinInfo.ServerIpAddress, JoinInfo.ServerPort);
                 });
             }
