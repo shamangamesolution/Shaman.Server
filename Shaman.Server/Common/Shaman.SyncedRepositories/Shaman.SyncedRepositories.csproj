@@ -9,6 +9,7 @@
     <ItemGroup>
       <ProjectReference Include="..\..\Contracts\Shaman.Contract.Bundle\Shaman.Contract.Bundle.csproj" />
       <ProjectReference Include="..\..\Messages\Shaman.Messages\Shaman.Messages.csproj" />
+      <ProjectReference Include="..\..\Serialization\Shaman.Serialization.Room\Shaman.Serialization.Room.csproj" />
     </ItemGroup>
 
 </Project>
