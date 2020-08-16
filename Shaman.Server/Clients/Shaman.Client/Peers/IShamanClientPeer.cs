@@ -29,7 +29,7 @@ namespace Shaman.Client.Peers
         Task<T> SendWebRequest<T>(string url, HttpRequestBase request)
             where T : HttpResponseBase, new();
 
-        void SendEvent(MessageBase eve);
+        void SendEvent<TMessage>(TMessage eve) where TMessage : MessageBase;
         void Disconnect();
         void ProcessMessages();
         ShamanClientStatus GetStatus();

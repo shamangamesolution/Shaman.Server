@@ -303,7 +303,7 @@ namespace Shaman.Client.Peers
             }
         }
 
-        public int Send(MessageBase message, bool isReliable, bool isOrdered)
+        public int Send(ISerializable message, bool isReliable, bool isOrdered)
         {
             return _shamanSender.Send(message, new DeliveryOptions(isReliable, isOrdered), _serverSender);
         }
