@@ -1,12 +1,14 @@
 using System;
+using System.Linq;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
+using Shaman.Common.Udp.Sockets;
 using Shaman.Common.Utils.Logging;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
 
-namespace Shaman.Common.Utils.Tests
+namespace Shaman.Common.Udp.Tests
 {
     public class PacketInfoTests
     {

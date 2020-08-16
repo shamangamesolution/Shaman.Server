@@ -1,9 +1,8 @@
 using System;
 using FluentAssertions;
 using NUnit.Framework;
-using Shaman.Serialization;
 
-namespace Shaman.Common.Utils.Tests
+namespace Shaman.Serialization.Tests
 {
     public class TestDto : ISerializable
     {
@@ -35,7 +34,7 @@ namespace Shaman.Common.Utils.Tests
 
             var moreData = new byte[data.Length + 5];
             
-            Array.Copy(data,0,moreData,2, data.Length);
+            Array.Copy((Array) data,(int) 0,(Array) moreData,(int) 2, (int) data.Length);
             
             binarySerializer.DeserializeAs<TestDto>(moreData, 2, data.Length).Should().BeEquivalentTo(testDto);
         }
