@@ -56,10 +56,8 @@ namespace Shaman.Router
             else
             {
                 services.AddTransient<IConfigurationRepository, ConfigurationRepository>();
+                services.AddScoped<IRouterSqlDalProvider, RouterSqlDalProvider>();
             }
-            
-            services.AddTransient<IConfigurationRepository, ConfigurationRepository>();
-            services.AddScoped<IRouterSqlDalProvider, RouterSqlDalProvider>();
             
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
