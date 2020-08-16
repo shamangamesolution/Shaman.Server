@@ -2,7 +2,7 @@ using System;
 using Microsoft.Extensions.Logging;
 using Shaman.Contract.Common.Logging;
 
-namespace Shaman.ServerSharedUtilities.Logging
+namespace Shaman.ServiceBootstrap.Logging
 {
     public class SerilogLogger : IShamanLogger
     {

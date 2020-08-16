@@ -1,4 +1,4 @@
-namespace Shaman.ServerSharedUtilities
+namespace Shaman.ServiceBootstrap
 {
     public enum SourceType
     {

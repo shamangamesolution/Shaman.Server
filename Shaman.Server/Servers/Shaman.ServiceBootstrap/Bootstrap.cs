@@ -9,7 +9,7 @@ using Serilog;
 using Serilog.Events;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
-namespace Shaman.ServerSharedUtilities
+namespace Shaman.ServiceBootstrap
 {
     public class Bootstrap
     {

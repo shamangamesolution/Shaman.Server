@@ -1,5 +1,4 @@
-using Shaman.Contract.Common.Logging;
-using Shaman.ServerSharedUtilities;
+using Shaman.ServiceBootstrap;
 
 namespace Shaman.MM
 {

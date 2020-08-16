@@ -26,7 +26,7 @@ using Shaman.LiteNetLibAdapter;
 using Shaman.Serialization;
 using Shaman.ServerSharedUtilities;
 using Shaman.ServerSharedUtilities.Bundling;
-using Shaman.ServerSharedUtilities.Logging;
+using Shaman.ServiceBootstrap.Logging;
 
 namespace Shaman.Game
 {

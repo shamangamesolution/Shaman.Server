@@ -4,7 +4,7 @@
         <TargetFramework>netcoreapp2.2</TargetFramework>
         <RootNamespace>Shaman.Router.Client</RootNamespace>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <PackageVersion>1.9.8</PackageVersion>
+        <PackageVersion>1.9.10</PackageVersion>
     </PropertyGroup>
 
     <ItemGroup>

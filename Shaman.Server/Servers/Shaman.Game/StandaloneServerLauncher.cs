@@ -5,10 +5,9 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
 using Shaman.Contract.Bundle;
-using Shaman.Contract.Common.Logging;
 using Shaman.Game.Api;
 using Shaman.Game.Configuration;
-using Shaman.ServerSharedUtilities;
+using Shaman.ServiceBootstrap;
 
 namespace Shaman.Game
 {
