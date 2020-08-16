@@ -2,7 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Shaman.Serialization.Messages.Http;
 
-namespace Shaman.Common.Http
+namespace Shaman.Client
 {
     public interface IRequestSender
     {
