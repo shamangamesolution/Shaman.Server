@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+using Shaman.Common.Udp.Peers;
+using Shaman.Common.Udp.Senders;
+using Shaman.Common.Udp.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
@@ -234,7 +237,7 @@ namespace Shaman.Client.Peers
         {
             _logger = logger;
             var clientPacketSenderConfig = new ClientPacketSenderConfig(maxMessageSize, sendTickMs);
-            _shamanSender = new ShamanSender(new BinarySerializer(), _packetBatchSender, _logger, clientPacketSenderConfig);
+            _shamanSender = new ShamanSender(new BinarySerializer(), _packetBatchSender, clientPacketSenderConfig);
             _packetBatchSender = new PacketBatchSender(taskSchedulerFactory, clientPacketSenderConfig, _logger);
             _serverSender = new ServerSender(logger, OnPackageReceived, taskSchedulerFactory.GetTaskScheduler());
         }
