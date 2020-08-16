@@ -72,7 +72,7 @@ namespace Shaman.Client.Peers
         }
 
         private readonly IShamanClientPeerListener _listener;
-        private static readonly TimeSpan JoinGameTimeout = TimeSpan.FromSeconds(3);
+        private static readonly TimeSpan JoinGameTimeout = TimeSpan.FromSeconds(30);
         private static readonly TimeSpan ReceiveEventTimeout = TimeSpan.FromSeconds(5);
         private readonly IMessageHandler _shamanMessageHandler;
         private readonly IMessageHandler _bundleMessageHandler;
