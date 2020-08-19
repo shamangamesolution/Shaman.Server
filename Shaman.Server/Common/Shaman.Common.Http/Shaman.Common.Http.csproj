@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>netcoreapp2.2</TargetFramework>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <PackageVersion>1.9.10</PackageVersion>
+        <PackageVersion>1.9.11</PackageVersion>
+        <TargetFrameworks>netstandard2.0;netcoreapp2.2</TargetFrameworks>
     </PropertyGroup>
 
     <ItemGroup>
