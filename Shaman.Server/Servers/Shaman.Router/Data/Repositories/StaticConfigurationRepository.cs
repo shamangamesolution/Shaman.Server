@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Shaman.Common.Server.Messages;
 using Shaman.Router.Data.Repositories.Interfaces;
 using Shaman.Router.Messages;
 using Shaman.Serialization.Messages;

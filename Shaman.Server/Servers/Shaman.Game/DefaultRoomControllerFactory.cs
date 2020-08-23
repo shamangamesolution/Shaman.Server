@@ -1,4 +1,5 @@
 using System;
+using Shaman.Common.Server.Actualization;
 using Shaman.Common.Server.Configuration;
 using Shaman.Contract.Bundle;
 using Shaman.Contract.Common;

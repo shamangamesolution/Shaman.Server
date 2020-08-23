@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp2.2</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\Common\Shaman.Common.Server\Shaman.Common.Server.csproj" />
+      <ProjectReference Include="..\..\Common\Shaman.Common.Utils\Shaman.Common.Utils.csproj" />
+      <ProjectReference Include="..\Shaman.Router.Client\Shaman.Router.Client.csproj" />
+      <ProjectReference Include="..\Shaman.ServerSharedUtilities\Shaman.ServerSharedUtilities.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Actualization" />
+    </ItemGroup>
+
+</Project>

@@ -1,44 +1,40 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Shaman.Common.Http;
 using Shaman.Common.Server.Configuration;
-using Shaman.Common.Server.Providers;
-using Shaman.Common.Utils.Helpers;
+using Shaman.Common.Server.Messages;
+using Shaman.Common.Server.MM.Configuration;
+using Shaman.Common.Server.MM.Providers;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
-using Shaman.Messages.RoomFlow;
-using Shaman.MM.Configuration;
+using Shaman.Messages.General.Entity;
 using Shaman.Router.Messages;
 using Shaman.Serialization.Messages;
-using Shaman.ServerSharedUtilities;
 
-namespace Shaman.MM.Providers
+namespace Shaman.Router.Client.MM.Providers
 {
     public class MatchMakerServerInfoProvider : IMatchMakerServerInfoProvider
     {
         private readonly IRequestSender _requestSender;
         private readonly IShamanLogger _logger;
-        private readonly IStatisticsProvider _statisticsProvider;
-        private readonly IServerActualizer _serverActualizer;
         private readonly ITaskScheduler _taskScheduler;
+        private IRouterClient _routerClient;
         private readonly MmApplicationConfig _config;
         private bool _isRequestingNow;
+        private IPendingTask _getServerInfoTask;
         
         private EntityDictionary<ServerInfo> _gameServerList = new EntityDictionary<ServerInfo>();
         private EntityDictionary<ServerInfo> _serverList = new EntityDictionary<ServerInfo>();
 
         public MatchMakerServerInfoProvider(IRequestSender requestSender, ITaskSchedulerFactory taskSchedulerFactory,
-            IApplicationConfig config, IShamanLogger logger, IStatisticsProvider statisticsProvider,
-            IServerActualizer serverActualizer)
+            IApplicationConfig config, IShamanLogger logger, IRouterClient routerClient)
         {
             _requestSender = requestSender;
             _logger = logger;
-            _statisticsProvider = statisticsProvider;
-            _serverActualizer = serverActualizer;
+            _routerClient = routerClient;
             _taskScheduler = taskSchedulerFactory.GetTaskScheduler();
             _config = (MmApplicationConfig) config;
             _isRequestingNow = false;
@@ -48,47 +44,23 @@ namespace Shaman.MM.Providers
         {
             _logger.Info($"Starting MatchMakerServerInfoProvider with period {_config.ServerInfoListUpdateIntervalMs} ms (actualizing once per {_config.ActualizeMatchmakerIntervalMs} ms)");
 
-            _taskScheduler.ScheduleOnInterval(async () =>
+            _getServerInfoTask = _taskScheduler.ScheduleOnInterval(async () =>
             {
                 if (_isRequestingNow)
                     return;
 
                 _isRequestingNow = true;
-
-                await _requestSender.SendRequest<GetServerInfoListResponse>(_config.GetRouterUrl(),
-                    new GetServerInfoListRequest(), (response) =>
-                    {
-                        if (!response.Success)
-                        {
-                            _logger.Error($"MatchMakerServerInfoProvider.GetServerInfoListResponse: {response.Message}");
-                            _isRequestingNow = false;
-                            return;
-                        }
-
-                        _serverList = response.ServerInfoList;
-                        _gameServerList = BuildGameServersList();
+                _serverList = await _routerClient.GetServerInfoList();
+                _gameServerList = BuildGameServersList();
                         
-                        _logger.Info($"MatchMakerServerInfoProvider.GetServerInfoListResponse: i have {_gameServerList.Count()} game servers");
-                        _isRequestingNow = false;
-                    });
-
-
+                _logger.Info($"MatchMakerServerInfoProvider.GetServerInfoListResponse: i have {_gameServerList.Count()} game servers");
+                _isRequestingNow = false;
             }, 0, _config.ServerInfoListUpdateIntervalMs);
-            
-            
-            _taskScheduler.ScheduleOnInterval(async () =>
-            {
-                //actualize
-                //if (_gameServerList.Any())
-                    await ActualizeMe();
-
-            }, 0, _config.ActualizeMatchmakerIntervalMs);
-            
         }
 
         public void Stop()
         {
-            _taskScheduler.RemoveAll();
+            _taskScheduler.Remove(_getServerInfoTask);
         }
 
         public EntityDictionary<ServerInfo> GetGameServers()
@@ -102,11 +74,6 @@ namespace Shaman.MM.Providers
                 return null;
 
             return _serverList[serverId];
-        }
-
-        public async Task ActualizeMe()
-        {
-            await _serverActualizer.Actualize(_statisticsProvider.GetPeerCount());
         }
 
         public ServerInfo GetLessLoadedServer()
@@ -153,44 +120,6 @@ namespace Shaman.MM.Providers
             return _serverList.Where(s => s.Identity.Equals(_config.GetIdentity())).Select(s => s.Id).ToList();
         }
 
-        private string GetUrl(int gameServerId)
-        {
-            var server = _gameServerList[gameServerId];
-            if (server == null)
-                throw new Exception($"GetUrl error: there is no game server with id = {gameServerId}");
 
-            return UrlHelper.GetUrl(server.HttpPort, server.HttpsPort, server.Address);
-        }
-        
-        public async Task<Guid> CreateRoom(int serverId, Guid roomId, Dictionary<byte, object> properties, Dictionary<Guid, Dictionary<byte, object>> players)
-        {
-            var url = GetUrl(serverId);
-            var response = await _requestSender.SendRequest<CreateRoomResponse>(url, new CreateRoomRequest(properties, players)
-            {
-                RoomId = roomId
-            });
-            
-            if (!response.Success)
-            {
-                var msg = $"CreateRoom error: {response.Message}";
-                _logger.Error(msg);
-                throw new Exception(msg);
-            }
-            
-            return response.RoomId;
-        }
-
-        public async Task UpdateRoom(int serverId, Dictionary<Guid, Dictionary<byte, object>> players, Guid roomId)
-        {
-            var url = GetUrl(serverId);
-            var response = await _requestSender.SendRequest<UpdateRoomResponse>(url, new UpdateRoomRequest(roomId, players));
-            
-            if (!response.Success)
-            {
-                var msg = $"UpdateRoom error: {response.Message}";
-                _logger.Error(msg);
-                throw new Exception(msg);
-            }
-        }
     }
 }

@@ -1,9 +1,10 @@
 using System.Collections.Generic;
 using Shaman.Common.Server.Configuration;
+using Shaman.Common.Server.Messages;
 using Shaman.Messages.General.Entity;
 using Shaman.Router.Messages;
 
-namespace Shaman.MM.Configuration
+namespace Shaman.Common.Server.MM.Configuration
 {
     public class MmApplicationConfig : ApplicationConfig
     {

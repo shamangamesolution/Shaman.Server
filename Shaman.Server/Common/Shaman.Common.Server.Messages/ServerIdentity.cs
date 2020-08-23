@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using Shaman.Serialization;
 
-namespace Shaman.Router.Messages
+namespace Shaman.Common.Server.Messages
 {
     public class ServerIdentity : ISerializable
     {

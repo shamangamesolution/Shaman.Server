@@ -1,7 +1,8 @@
 using System.Collections.Generic;
+using Shaman.Common.Server.Messages;
 using Shaman.Router.Messages;
 
-namespace Shaman.Router.Backend
+namespace Shaman.Router.Client
 {
     public interface IServerIdentityProvider
     {
