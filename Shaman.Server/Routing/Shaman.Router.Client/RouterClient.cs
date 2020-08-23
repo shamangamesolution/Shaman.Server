@@ -1,14 +1,16 @@
 using System.Threading.Tasks;
 using Shaman.Common.Http;
+using Shaman.Common.Server.Messages;
 using Shaman.Contract.Common.Logging;
 using Shaman.Router.Messages;
 using Shaman.Serialization.Messages;
 
-namespace Shaman.Router.Backend
+namespace Shaman.Router.Client
 {
     public interface IRouterClient
     {
         Task<EntityDictionary<ServerInfo>> GetServerInfoList();
+        Task Actualize(ServerIdentity identity, string serverName, string region, int peersCount, ushort httpPort);
     }
 
     public class RouterClient : IRouterClient
@@ -38,6 +40,16 @@ namespace Shaman.Router.Backend
             }
 
             return response.ServerInfoList;
+        }
+
+        public async Task Actualize(ServerIdentity identity, string serverName, string region, int peersCount, ushort httpPort)
+        {
+            var response = await _requestSender.SendRequest<ActualizeServerOnRouterResponse>(_routerConfig.RouterUrl,
+                new ActualizeServerOnRouterRequest(identity, serverName, region, peersCount, httpPort));
+            if (!response.Success)
+            {
+                _logger.Error($"MatchMakerServerInfoProvider.ActualizeMe error: {response.Message}");
+            }
         }
     }
 }

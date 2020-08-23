@@ -3,14 +3,17 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Shaman.Common.Server.Messages;
+using Shaman.Common.Server.MM.Providers;
+using Shaman.Common.Utils.Helpers;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
 using Shaman.Messages;
+using Shaman.Messages.General.Entity;
 using Shaman.Messages.MM;
 using Shaman.MM.Providers;
 using Shaman.MM.Rooms;
-using Shaman.Router.Messages;
 
 namespace Shaman.MM.Managers
 {
@@ -19,6 +22,7 @@ namespace Shaman.MM.Managers
         private readonly IMatchMakerServerInfoProvider _serverProvider;
         private readonly IShamanLogger _logger;
         private readonly ITaskScheduler _taskScheduler;
+        private readonly IRoomApiProvider _roomApiProvider;
         
         private readonly ConcurrentDictionary<Guid, Room> _rooms = new ConcurrentDictionary<Guid, Room>();
         private readonly ConcurrentDictionary<Guid, List<Room>> _groupToRoom = new ConcurrentDictionary<Guid, List<Room>>();
@@ -28,10 +32,11 @@ namespace Shaman.MM.Managers
         
         private readonly object _roomQueueSync = new object();
 
-        public RoomManager(IMatchMakerServerInfoProvider serverProvider, IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory)
+        public RoomManager(IMatchMakerServerInfoProvider serverProvider, IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory, IRoomApiProvider roomApiProvider)
         {
             _serverProvider = serverProvider;
             _logger = logger;
+            _roomApiProvider = roomApiProvider;
             _taskScheduler = taskSchedulerFactory.GetTaskScheduler();
         }
 
@@ -59,7 +64,8 @@ namespace Shaman.MM.Managers
             var room = RegisterRoom(groupId, roomProperties, Guid.NewGuid(), server, playersToSendToRoom);
             try
             {
-                await _serverProvider.CreateRoom(server.Id, room.Id, roomProperties, playersToSendToRoom);
+                var url = UrlHelper.GetUrl(server.HttpPort, server.HttpsPort, server.Address);
+                await _roomApiProvider.CreateRoom(url, room.Id, roomProperties, playersToSendToRoom);
 
                 //add to queue
                 lock (_roomQueueSync)
@@ -114,7 +120,8 @@ namespace Shaman.MM.Managers
 
             try
             {
-                await _serverProvider.UpdateRoom(room.ServerId, players, roomId);
+                var url = UrlHelper.GetUrl(server.HttpPort, server.HttpsPort, server.Address);
+                await _roomApiProvider.UpdateRoom(url, players, roomId);
             
                 var port = server.GetLessLoadedPort();
             

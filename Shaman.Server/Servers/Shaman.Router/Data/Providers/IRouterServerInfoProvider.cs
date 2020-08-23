@@ -1,3 +1,4 @@
+using Shaman.Common.Server.Messages;
 using Shaman.Router.Messages;
 using Shaman.Serialization.Messages;
 

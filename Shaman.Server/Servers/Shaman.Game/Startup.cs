@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Serialization;
 using Shaman.Common.Http;
 using Shaman.Common.Metrics;
+using Shaman.Common.Server.Actualization;
 using Shaman.Common.Server.Applications;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Server.Providers;
@@ -108,11 +109,11 @@ namespace Shaman.Game
             services.AddSingleton<IRequestSender, HttpSender>();            
             services.AddSingleton<IApplication, GameApplication>();
             
-            services.AddSingleton<IGameServerInfoProvider, GameServerInfoProvider>();
+            // services.AddSingleton<IGameServerInfoProvider, GameServerInfoProvider>();
             services.AddSingleton<IStatisticsProvider, StatisticsProvider>();
             services.AddSingleton<IShamanComponents, ShamanComponents>();
             services.AddSingleton<IBundleInfoProvider, BundleInfoProvider>();
-            services.AddSingleton<IServerActualizer, ServerActualizer>();
+            // services.AddSingleton<IServerActualizer, ServerActualizer>();
             services.AddSingleton<IGameServerApi, GameServerApi>();
         }
         private void ConfigureMetrics(IServiceCollection services)
@@ -126,7 +127,7 @@ namespace Shaman.Game
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplication server,
-            IGameServerInfoProvider serverInfoProvider, IRoomControllerFactory controllerFactory /* init bundle */,
+            IServerActualizer serverActualizer, IRoomControllerFactory controllerFactory /* init bundle */,
             IGameServerApi gameServerApi, IShamanLogger logger)
         {
             if (env.IsDevelopment())
@@ -143,7 +144,7 @@ namespace Shaman.Game
             server.Start();
             
             if (!StandaloneServerLauncher.IsStandaloneMode)
-                serverInfoProvider.Start();
+                serverActualizer.Start(Convert.ToInt32(Configuration["ActualizationTimeoutMs"]));
             else
                 StandaloneServerLauncher.Api = gameServerApi;
         }

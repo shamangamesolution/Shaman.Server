@@ -7,8 +7,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Serialization;
 using Shaman.Common.Http;
 using Shaman.Common.Metrics;
+using Shaman.Common.Server.Actualization;
 using Shaman.Common.Server.Applications;
 using Shaman.Common.Server.Configuration;
+using Shaman.Common.Server.MM.Configuration;
+using Shaman.Common.Server.MM.Providers;
 using Shaman.Common.Server.Providers;
 using Shaman.Common.Udp.Senders;
 using Shaman.Common.Udp.Sockets;
@@ -17,7 +20,6 @@ using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
 using Shaman.Contract.MM;
 using Shaman.LiteNetLibAdapter;
-using Shaman.MM.Configuration;
 using Shaman.MM.MatchMaking;
 // using Shaman.ServerSharedUtilities.Backends;
 using Shaman.MM.Managers;
@@ -83,7 +85,7 @@ namespace Shaman.MM
                 ));    
             
             services.AddSingleton<IPacketSenderConfig>(c => c.GetRequiredService<IApplicationConfig>()); 
-            services.AddSingleton<IMatchMakerServerInfoProvider, MatchMakerServerInfoProvider>();
+            // services.AddSingleton<IMatchMakerServerInfoProvider, MatchMakerServerInfoProvider>();
 
             services.AddSingleton<IPacketSender, PacketBatchSender>();
             services.AddTransient<IShamanMessageSenderFactory, ShamanMessageSenderFactory>();
@@ -99,7 +101,7 @@ namespace Shaman.MM
             services.AddSingleton<IMatchMakingGroupsManager, MatchMakingGroupManager>();
             services.AddSingleton<IPlayersManager, PlayersManager>();
             services.AddSingleton<IRoomManager, RoomManager>();
-            services.AddSingleton<IServerActualizer, ServerActualizer>();
+            // services.AddSingleton<IServerActualizer, ServerActualizer>();
             services.AddSingleton<IBundleInfoProvider, BundleInfoProvider>();
             services.AddSingleton<IRoomPropertiesProvider, RoomPropertiesProvider>();
             services.AddSingleton<IShamanSender, ShamanSender>();

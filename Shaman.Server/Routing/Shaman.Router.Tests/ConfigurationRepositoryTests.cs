@@ -5,10 +5,10 @@ using FluentAssertions;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using NUnit.Framework;
+using Shaman.Common.Server.Messages;
 using Shaman.DAL.SQL;
 using Shaman.Router.Config;
 using Shaman.Router.Data.Repositories;
-using Shaman.Router.Messages;
 
 namespace Shaman.Router.Tests
 {

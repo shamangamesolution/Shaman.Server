@@ -11,13 +11,13 @@ namespace Shaman.LocalBundleLauncher
     {
         public static void Launch()
         {
-            var routerTask = LaunchRouterAndWaitUntilItStarts();
+            // var routerTask = LaunchRouterAndWaitUntilItStarts();
             var gameTask = LaunchGame();
             var mmTask = LaunchMM();
 
             gameTask.Wait();
             mmTask.Wait();
-            routerTask.Wait();
+            // routerTask.Wait();
         }
 
         private static Task LaunchMM()

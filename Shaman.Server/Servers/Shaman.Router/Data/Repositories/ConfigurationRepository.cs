@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
+using Shaman.Common.Server.Messages;
 using Shaman.DAL.SQL.Repositories;
 using Shaman.Router.Data.Repositories.Interfaces;
 using Shaman.Router.Messages;

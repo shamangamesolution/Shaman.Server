@@ -1,4 +1,4 @@
-namespace Shaman.Router.Backend
+namespace Shaman.Router.Client
 {
     public class RouterConfig
     {

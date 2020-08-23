@@ -1,3 +1,4 @@
+using Shaman.Common.Server.Messages;
 using Shaman.Serialization;
 using Shaman.Serialization.Messages;
 using Shaman.Serialization.Messages.Extensions;

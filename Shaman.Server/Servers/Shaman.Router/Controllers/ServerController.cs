@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using Shaman.Common.Server.Messages;
 using Shaman.Contract.Common.Logging;
 using Shaman.Router.Config;
 using Shaman.Router.Data.Repositories.Interfaces;
@@ -86,7 +87,6 @@ namespace Shaman.Router.Controllers
                 {
                     throw new Exception($"No server found with specified identity: {request.ServerIdentity}");
                 }
-
                 var bundleInfo = _serverInfoProvider.GetAllBundles().SingleOrDefault(b => b.ServerId == serverInfoIdList.First());
                 if (bundleInfo == null)
                 {

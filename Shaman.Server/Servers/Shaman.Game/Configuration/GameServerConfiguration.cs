@@ -1,7 +1,8 @@
 using System.Collections.Generic;
 using Shaman.Common.Server.Configuration;
+using Shaman.Common.Server.Messages;
 using Shaman.Contract.Bundle;
-using Shaman.Router.Messages;
+using Shaman.Messages.General.Entity;
 
 namespace Shaman.Game.Configuration
 {

@@ -10,6 +10,7 @@
     <ItemGroup>
       <ProjectReference Include="..\..\Servers\Shaman.Router.Messages\Shaman.Router.Messages.csproj" />
       <ProjectReference Include="..\Shaman.Common.Http\Shaman.Common.Http.csproj" />
+      <ProjectReference Include="..\Shaman.Common.Server.Messages\Shaman.Common.Server.Messages.csproj" />
       <ProjectReference Include="..\Shaman.Common.Udp\Shaman.Common.Udp.csproj" />
       <ProjectReference Include="..\Shaman.Common.Utils\Shaman.Common.Utils.csproj" />
     </ItemGroup>

@@ -16,7 +16,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Shaman.Router\Shaman.Router.csproj" />
+      <ProjectReference Include="..\..\Servers\Shaman.Router\Shaman.Router.csproj" />
     </ItemGroup>
 
 </Project>
