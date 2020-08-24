@@ -1,7 +1,6 @@
 using System.Collections.Generic;
-using Shaman.Common.Server.Messages;
 
-namespace Shaman.Routing.Balancing.Client
+namespace Shaman.Common.Server.Messages
 {
     public interface IServerIdentityProvider
     {
