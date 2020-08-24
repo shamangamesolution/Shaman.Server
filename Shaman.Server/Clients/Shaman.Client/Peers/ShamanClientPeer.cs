@@ -14,7 +14,7 @@ using Shaman.Messages.General.DTO.Events;
 using Shaman.Messages.General.DTO.Responses;
 using Shaman.Messages.MM;
 using Shaman.Messages.RoomFlow;
-using Shaman.Router.Messages;
+using Shaman.Routing.Common;
 using Shaman.Serialization;
 using Shaman.Serialization.Messages;
 using Shaman.Serialization.Messages.Http;

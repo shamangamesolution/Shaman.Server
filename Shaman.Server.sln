@@ -94,13 +94,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Serialization.Messag
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Serialization.Messages.Udp", "Shaman.Server\Serialization\Shaman.Serialization.Messages.Udp\Shaman.Serialization.Messages.Udp.csproj", "{C875A5A1-D08C-41E6-84F3-FB7B2E36F102}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Router.Messages", "Shaman.Server\Routing\Shaman.Router.Messages\Shaman.Router.Messages.csproj", "{3E9BDE4B-ECAC-40E9-AED0-50E5226CE604}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Routing.Balancing.Messages", "Shaman.Server\Routing\Shaman.Routing.Balancing.Messages\Shaman.Routing.Balancing.Messages.csproj", "{3E9BDE4B-ECAC-40E9-AED0-50E5226CE604}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Serialization.Room", "Shaman.Server\Serialization\Shaman.Serialization.Room\Shaman.Serialization.Room.csproj", "{5E895C94-5A89-4E79-B0F2-7B537BFEF33D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Serialization.Utils", "Shaman.Server\Serialization\Shaman.Serialization.Utils\Shaman.Serialization.Utils.csproj", "{863C806A-0DF5-4830-A8C4-646C0A184F7B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Router.Client", "Shaman.Server\Routing\Shaman.Router.Client\Shaman.Router.Client.csproj", "{2C4EBBEF-5DB2-4819-ACEE-3CB2CDDFDA44}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Routing.Balancing.Client", "Shaman.Server\Routing\Shaman.Routing.Balancing.Client\Shaman.Routing.Balancing.Client.csproj", "{2C4EBBEF-5DB2-4819-ACEE-3CB2CDDFDA44}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Common.Http", "Shaman.Server\Common\Shaman.Common.Http\Shaman.Common.Http.csproj", "{245E1558-3DB0-4B1F-950E-7BB37D754A2A}"
 EndProject
@@ -112,7 +112,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Common.Udp.Tests", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Serialization.Tests", "Shaman.Server\Serialization\Shaman.Serialization.Tests\Shaman.Serialization.Tests.csproj", "{54F1A8F6-BDDE-4974-9945-3C0CDC3C929B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Router.Tests", "Shaman.Server\Routing\Shaman.Router.Tests\Shaman.Router.Tests.csproj", "{B2FE75DF-527B-453A-8D83-17009A412545}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Router.Tests", "Shaman.Server\Servers\Shaman.Router.Tests\Shaman.Router.Tests.csproj", "{B2FE75DF-527B-453A-8D83-17009A412545}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.DAL.MySQL", "Shaman.Server\Database\Shaman.DAL.MySQL\Shaman.DAL.MySQL.csproj", "{245DB37E-A1CA-4D39-88D0-F0CB9EBBE16D}"
 EndProject
@@ -120,13 +120,27 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Client.Tests", "Sham
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Client.TestBundle", "Shaman.Server\Clients\Shaman.Client.TestBundle\Shaman.Client.TestBundle.csproj", "{4911038D-2428-41A0-905B-AB5163C43C9A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Router.Client.MM", "Shaman.Server\Routing\Shaman.Router.Client.MM\Shaman.Router.Client.MM.csproj", "{EC8E5D9D-8BCA-4C71-8F00-89327843E351}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Routing.Balancing.MM", "Shaman.Server\Routing\Shaman.Routing.Balancing.MM\Shaman.Routing.Balancing.MM.csproj", "{EC8E5D9D-8BCA-4C71-8F00-89327843E351}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Common.Server.MM", "Shaman.Server\Common\Shaman.Common.Server.MM\Shaman.Common.Server.MM.csproj", "{BC873F2F-1686-40AC-98B3-65FDCAEEFB4B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Common.Server.Messages", "Shaman.Server\Common\Shaman.Common.Server.Messages\Shaman.Common.Server.Messages.csproj", "{CC9AD8A9-593E-4185-B9AD-61550AA2CF66}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Routing", "Routing", "{5E090CE6-BE63-4662-9C12-0FB2F205CE46}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Routing.Common", "Shaman.Server\Routing\Shaman.Routing.Common\Shaman.Routing.Common.csproj", "{77DB9ACA-F576-4F4E-AE55-3EDB7E471F64}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Bundling", "Bundling", "{C6A1FB2D-9C14-4C37-8849-CC0B8AFD5979}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Bundling.Common", "Shaman.Server\Bundling\Shaman.Bundling.Common\Shaman.Bundling.Common.csproj", "{51E59A3B-8CAC-419F-A22E-6C8734B16B34}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Routing.Common.MM", "Shaman.Server\Routing\Shaman.Routing.Common.MM\Shaman.Routing.Common.MM.csproj", "{FBA3742F-4BE6-4AAC-A510-3842B44B72C8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Meta", "Meta", "{368B262B-48C0-49E2-BCD2-68D7B5D959BD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Meta.Common", "Shaman.Server\Meta\Shaman.Meta.Common\Shaman.Meta.Common.csproj", "{E1316966-B2C4-4F23-9E66-91C4F613B058}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Bundling.Balancing", "Shaman.Server\Bundling\Shaman.Bundling.Balancing\Shaman.Bundling.Balancing.csproj", "{3CF9DAAD-606B-4D69-955B-0489F56B9EC1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -750,6 +764,66 @@ Global
 		{CC9AD8A9-593E-4185-B9AD-61550AA2CF66}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{CC9AD8A9-593E-4185-B9AD-61550AA2CF66}.Release|Win32.ActiveCfg = Release|Any CPU
 		{CC9AD8A9-593E-4185-B9AD-61550AA2CF66}.Release|Win32.Build.0 = Release|Any CPU
+		{77DB9ACA-F576-4F4E-AE55-3EDB7E471F64}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{77DB9ACA-F576-4F4E-AE55-3EDB7E471F64}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{77DB9ACA-F576-4F4E-AE55-3EDB7E471F64}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{77DB9ACA-F576-4F4E-AE55-3EDB7E471F64}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{77DB9ACA-F576-4F4E-AE55-3EDB7E471F64}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{77DB9ACA-F576-4F4E-AE55-3EDB7E471F64}.Debug|Win32.Build.0 = Debug|Any CPU
+		{77DB9ACA-F576-4F4E-AE55-3EDB7E471F64}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{77DB9ACA-F576-4F4E-AE55-3EDB7E471F64}.Release|Any CPU.Build.0 = Release|Any CPU
+		{77DB9ACA-F576-4F4E-AE55-3EDB7E471F64}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{77DB9ACA-F576-4F4E-AE55-3EDB7E471F64}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{77DB9ACA-F576-4F4E-AE55-3EDB7E471F64}.Release|Win32.ActiveCfg = Release|Any CPU
+		{77DB9ACA-F576-4F4E-AE55-3EDB7E471F64}.Release|Win32.Build.0 = Release|Any CPU
+		{51E59A3B-8CAC-419F-A22E-6C8734B16B34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{51E59A3B-8CAC-419F-A22E-6C8734B16B34}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{51E59A3B-8CAC-419F-A22E-6C8734B16B34}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{51E59A3B-8CAC-419F-A22E-6C8734B16B34}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{51E59A3B-8CAC-419F-A22E-6C8734B16B34}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{51E59A3B-8CAC-419F-A22E-6C8734B16B34}.Debug|Win32.Build.0 = Debug|Any CPU
+		{51E59A3B-8CAC-419F-A22E-6C8734B16B34}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{51E59A3B-8CAC-419F-A22E-6C8734B16B34}.Release|Any CPU.Build.0 = Release|Any CPU
+		{51E59A3B-8CAC-419F-A22E-6C8734B16B34}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{51E59A3B-8CAC-419F-A22E-6C8734B16B34}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{51E59A3B-8CAC-419F-A22E-6C8734B16B34}.Release|Win32.ActiveCfg = Release|Any CPU
+		{51E59A3B-8CAC-419F-A22E-6C8734B16B34}.Release|Win32.Build.0 = Release|Any CPU
+		{FBA3742F-4BE6-4AAC-A510-3842B44B72C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FBA3742F-4BE6-4AAC-A510-3842B44B72C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FBA3742F-4BE6-4AAC-A510-3842B44B72C8}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{FBA3742F-4BE6-4AAC-A510-3842B44B72C8}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{FBA3742F-4BE6-4AAC-A510-3842B44B72C8}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{FBA3742F-4BE6-4AAC-A510-3842B44B72C8}.Debug|Win32.Build.0 = Debug|Any CPU
+		{FBA3742F-4BE6-4AAC-A510-3842B44B72C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FBA3742F-4BE6-4AAC-A510-3842B44B72C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FBA3742F-4BE6-4AAC-A510-3842B44B72C8}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{FBA3742F-4BE6-4AAC-A510-3842B44B72C8}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{FBA3742F-4BE6-4AAC-A510-3842B44B72C8}.Release|Win32.ActiveCfg = Release|Any CPU
+		{FBA3742F-4BE6-4AAC-A510-3842B44B72C8}.Release|Win32.Build.0 = Release|Any CPU
+		{E1316966-B2C4-4F23-9E66-91C4F613B058}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E1316966-B2C4-4F23-9E66-91C4F613B058}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E1316966-B2C4-4F23-9E66-91C4F613B058}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{E1316966-B2C4-4F23-9E66-91C4F613B058}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{E1316966-B2C4-4F23-9E66-91C4F613B058}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{E1316966-B2C4-4F23-9E66-91C4F613B058}.Debug|Win32.Build.0 = Debug|Any CPU
+		{E1316966-B2C4-4F23-9E66-91C4F613B058}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E1316966-B2C4-4F23-9E66-91C4F613B058}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E1316966-B2C4-4F23-9E66-91C4F613B058}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{E1316966-B2C4-4F23-9E66-91C4F613B058}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{E1316966-B2C4-4F23-9E66-91C4F613B058}.Release|Win32.ActiveCfg = Release|Any CPU
+		{E1316966-B2C4-4F23-9E66-91C4F613B058}.Release|Win32.Build.0 = Release|Any CPU
+		{3CF9DAAD-606B-4D69-955B-0489F56B9EC1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3CF9DAAD-606B-4D69-955B-0489F56B9EC1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3CF9DAAD-606B-4D69-955B-0489F56B9EC1}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{3CF9DAAD-606B-4D69-955B-0489F56B9EC1}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{3CF9DAAD-606B-4D69-955B-0489F56B9EC1}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{3CF9DAAD-606B-4D69-955B-0489F56B9EC1}.Debug|Win32.Build.0 = Debug|Any CPU
+		{3CF9DAAD-606B-4D69-955B-0489F56B9EC1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3CF9DAAD-606B-4D69-955B-0489F56B9EC1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3CF9DAAD-606B-4D69-955B-0489F56B9EC1}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{3CF9DAAD-606B-4D69-955B-0489F56B9EC1}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{3CF9DAAD-606B-4D69-955B-0489F56B9EC1}.Release|Win32.ActiveCfg = Release|Any CPU
+		{3CF9DAAD-606B-4D69-955B-0489F56B9EC1}.Release|Win32.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -802,7 +876,12 @@ Global
 		{2C4EBBEF-5DB2-4819-ACEE-3CB2CDDFDA44} = {5E090CE6-BE63-4662-9C12-0FB2F205CE46}
 		{EC8E5D9D-8BCA-4C71-8F00-89327843E351} = {5E090CE6-BE63-4662-9C12-0FB2F205CE46}
 		{3E9BDE4B-ECAC-40E9-AED0-50E5226CE604} = {5E090CE6-BE63-4662-9C12-0FB2F205CE46}
-		{B2FE75DF-527B-453A-8D83-17009A412545} = {5E090CE6-BE63-4662-9C12-0FB2F205CE46}
 		{4142B4CF-D166-4E3F-BCDE-F21324797DE6} = {5681CC39-9FAB-4A2F-935B-3BE870EB18B6}
+		{77DB9ACA-F576-4F4E-AE55-3EDB7E471F64} = {5E090CE6-BE63-4662-9C12-0FB2F205CE46}
+		{51E59A3B-8CAC-419F-A22E-6C8734B16B34} = {C6A1FB2D-9C14-4C37-8849-CC0B8AFD5979}
+		{FBA3742F-4BE6-4AAC-A510-3842B44B72C8} = {5E090CE6-BE63-4662-9C12-0FB2F205CE46}
+		{E1316966-B2C4-4F23-9E66-91C4F613B058} = {368B262B-48C0-49E2-BCD2-68D7B5D959BD}
+		{B2FE75DF-527B-453A-8D83-17009A412545} = {5681CC39-9FAB-4A2F-935B-3BE870EB18B6}
+		{3CF9DAAD-606B-4D69-955B-0489F56B9EC1} = {C6A1FB2D-9C14-4C37-8849-CC0B8AFD5979}
 	EndGlobalSection
 EndGlobal

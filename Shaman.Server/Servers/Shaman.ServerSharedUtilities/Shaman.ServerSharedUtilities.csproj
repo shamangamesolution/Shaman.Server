@@ -11,6 +11,7 @@
       <ProjectReference Include="..\..\Common\Shaman.Common.Server\Shaman.Common.Server.csproj" />
       <ProjectReference Include="..\..\Common\Shaman.Common.Utils\Shaman.Common.Utils.csproj" />
       <ProjectReference Include="..\..\Routing\Shaman.Router.Messages\Shaman.Router.Messages.csproj" />
+      <ProjectReference Include="..\..\Routing\Shaman.Routing.Common\Shaman.Routing.Common.csproj" />
     </ItemGroup>
 
     <ItemGroup>

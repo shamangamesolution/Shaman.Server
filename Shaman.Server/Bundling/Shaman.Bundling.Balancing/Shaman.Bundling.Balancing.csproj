@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp2.2</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\Common\Shaman.Common.Http\Shaman.Common.Http.csproj" />
+      <ProjectReference Include="..\..\Common\Shaman.Common.Server.Messages\Shaman.Common.Server.Messages.csproj" />
+      <ProjectReference Include="..\..\Routing\Shaman.Routing.Balancing.Messages\Shaman.Routing.Balancing.Messages.csproj" />
+      <ProjectReference Include="..\..\Routing\Shaman.Routing.Common\Shaman.Routing.Common.csproj" />
+      <ProjectReference Include="..\Shaman.Bundling.Common\Shaman.Bundling.Common.csproj" />
+    </ItemGroup>
+
+</Project>

@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using Shaman.Common.Server.Messages;
 using Shaman.Common.Udp.Senders;
-using Shaman.Router.Messages;
 
 namespace Shaman.Common.Server.Configuration
 {
@@ -20,12 +19,12 @@ namespace Shaman.Common.Server.Configuration
         int GetReceiveTickTimerMs();
         bool IsAuthOn();
         SocketType GetSocketType();
-        int GetBackendListFromRouterIntervalMs();
         string GetAuthSecret();
         string GetServerName();
         string GetRegion();
         ServerRole GetServerRole();
         ushort BindToPortHttp { get; set; }
+        int ActualizationIntervalMs { get; set; }
         ServerIdentity GetIdentity();
         string GetRouterUrl();
     }

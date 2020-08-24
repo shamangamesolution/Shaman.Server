@@ -6,9 +6,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Serialization;
+using Shaman.Bundling.Common;
 using Shaman.Common.Http;
 using Shaman.Common.Metrics;
-using Shaman.Common.Server.Actualization;
 using Shaman.Common.Server.Applications;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Server.Providers;
@@ -24,9 +24,9 @@ using Shaman.Game.Providers;
 using Shaman.Game.Rooms;
 using Shaman.Game.Rooms.RoomProperties;
 using Shaman.LiteNetLibAdapter;
+using Shaman.Routing.Common.Actualization;
 using Shaman.Serialization;
 using Shaman.ServerSharedUtilities;
-using Shaman.ServerSharedUtilities.Bundling;
 using Shaman.ServiceBootstrap.Logging;
 
 namespace Shaman.Game
@@ -74,15 +74,13 @@ namespace Shaman.Game
                         Configuration["PublicDomainNameOrAddress"], 
                         ports, 
                         Configuration["RouterUrl"], 
-                        Configuration["MatchMakerUrl"],
                         Convert.ToUInt16(Configuration["BindToPortHttp"]),
-                        Convert.ToInt32(Configuration["ActualizationTimeoutMs"]),
-                        Convert.ToInt32(Configuration["BackendListFromRouterIntervalMs"]),
                         Convert.ToBoolean(Configuration["AuthOn"]),
                         Configuration["Secret"],
                         Convert.ToInt32(Configuration["SocketTickTimeMs"]),
                         Convert.ToInt32(Configuration["ReceiveTickTimeMs"]),
-                        Convert.ToInt32(Configuration["SendTickTimeMs"])
+                        Convert.ToInt32(Configuration["SendTickTimeMs"]),
+                        actualizationIntervalMs: Convert.ToInt32(Configuration["ActualizationIntervalMs"])
                     )
                     {
                         OverwriteDownloadedBundle = Convert.ToBoolean(Configuration["OverwriteDownloadedBundle"])
@@ -112,7 +110,7 @@ namespace Shaman.Game
             // services.AddSingleton<IGameServerInfoProvider, GameServerInfoProvider>();
             services.AddSingleton<IStatisticsProvider, StatisticsProvider>();
             services.AddSingleton<IShamanComponents, ShamanComponents>();
-            services.AddSingleton<IBundleInfoProvider, BundleInfoProvider>();
+            services.AddSingleton<IBundleInfoProvider, DefaultBundleInfoProvider>();
             // services.AddSingleton<IServerActualizer, ServerActualizer>();
             services.AddSingleton<IGameServerApi, GameServerApi>();
         }

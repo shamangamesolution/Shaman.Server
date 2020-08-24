@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Shaman.Bundling.Common;
 using Shaman.Common.Server.Messages;
 using Shaman.Router.Messages;
 using Shaman.Serialization.Messages;

@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Shaman.Common.Server.Messages;
-using Shaman.Router.Messages;
 
 namespace Shaman.Common.Server.Configuration
 {
@@ -14,7 +13,6 @@ namespace Shaman.Common.Server.Configuration
         private readonly int _sendTickTimeMs;
         private readonly string _publicDomainNameOrAddress;
         private readonly bool _authOn;
-        private readonly int _backendListFromRouterIntervalMs;
         private readonly string _routerUrl;
         private readonly int _maxPacketSize;
         private readonly int _basePacketBufferSize;
@@ -24,8 +22,12 @@ namespace Shaman.Common.Server.Configuration
         private readonly ServerRole _serverRole;
         private ServerIdentity _identity;
         public ushort BindToPortHttp { get; set; }
+        public int ActualizationIntervalMs { get; set; }
 
-        public ApplicationConfig(string name, string region, ServerRole serverRole, string publicDomainNameOrIpAddress, List<ushort> ports, string routerUrl, ushort httpPort, int socketTickTimeMs = 10, int receiveTickTimeMs = 33, int sendTickTimeMs = 50, SocketType socketType = SocketType.BareSocket, bool isAuthOn = true, string authSecret = null, int getBackendListFromRouterIntervalMs = 30000, int maxPacketSize = 300, int basePacketBufferSize = 64)
+        public ApplicationConfig(string name, string region, ServerRole serverRole, string publicDomainNameOrIpAddress,
+            List<ushort> ports, string routerUrl, ushort httpPort, int socketTickTimeMs = 10,
+            int receiveTickTimeMs = 33, int sendTickTimeMs = 50, SocketType socketType = SocketType.BareSocket,
+            bool isAuthOn = true, string authSecret = null, int maxPacketSize = 300, int basePacketBufferSize = 64, int actualizationIntervalMs = 1000)
         {
             _name = name;
             _region = region;
@@ -36,7 +38,6 @@ namespace Shaman.Common.Server.Configuration
             _publicDomainNameOrAddress = publicDomainNameOrIpAddress;
             _authOn = isAuthOn;
             _authSecret = authSecret;
-            _backendListFromRouterIntervalMs = getBackendListFromRouterIntervalMs;
             _routerUrl = routerUrl;
             _sendTickTimeMs = sendTickTimeMs;
             _maxPacketSize = maxPacketSize;
@@ -44,6 +45,7 @@ namespace Shaman.Common.Server.Configuration
             _socketType = socketType;
             _identity = new ServerIdentity(publicDomainNameOrIpAddress, ports, serverRole);
             BindToPortHttp = httpPort;
+            ActualizationIntervalMs = actualizationIntervalMs;
         }
 
         public string GetPublicName()
@@ -74,11 +76,6 @@ namespace Shaman.Common.Server.Configuration
         public SocketType GetSocketType()
         {
             return _socketType;
-        }
-
-        public int GetBackendListFromRouterIntervalMs()
-        {
-            return _backendListFromRouterIntervalMs;
         }
 
         public string GetRouterUrl()

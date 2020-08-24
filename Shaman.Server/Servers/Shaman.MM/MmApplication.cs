@@ -3,18 +3,18 @@ using System.Linq;
 using Shaman.Common.Http;
 using Shaman.Common.Server.Applications;
 using Shaman.Common.Server.Configuration;
-using Shaman.Common.Server.MM.Configuration;
-using Shaman.Common.Server.MM.Providers;
 using Shaman.Common.Udp.Senders;
 using Shaman.Common.Udp.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Bundle.Stats;
 using Shaman.Contract.Common.Logging;
+using Shaman.MM.Configuration;
 using Shaman.MM.MatchMaking;
 using Shaman.MM.Peers;
 using Shaman.MM.Managers;
 using Shaman.MM.Metrics;
 using Shaman.MM.Providers;
+using Shaman.Routing.Common.MM;
 using Shaman.Serialization;
 
 namespace Shaman.MM
