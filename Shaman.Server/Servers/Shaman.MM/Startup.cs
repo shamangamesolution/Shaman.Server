@@ -5,13 +5,11 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Serialization;
+using Shaman.Bundling.Common;
 using Shaman.Common.Http;
 using Shaman.Common.Metrics;
-using Shaman.Common.Server.Actualization;
 using Shaman.Common.Server.Applications;
 using Shaman.Common.Server.Configuration;
-using Shaman.Common.Server.MM.Configuration;
-using Shaman.Common.Server.MM.Providers;
 using Shaman.Common.Server.Providers;
 using Shaman.Common.Udp.Senders;
 using Shaman.Common.Udp.Sockets;
@@ -20,14 +18,16 @@ using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
 using Shaman.Contract.MM;
 using Shaman.LiteNetLibAdapter;
+using Shaman.MM.Configuration;
 using Shaman.MM.MatchMaking;
 // using Shaman.ServerSharedUtilities.Backends;
 using Shaman.MM.Managers;
 using Shaman.MM.Metrics;
 using Shaman.MM.Providers;
+using Shaman.Routing.Common.Actualization;
+using Shaman.Routing.Common.MM;
 using Shaman.Serialization;
 using Shaman.ServerSharedUtilities;
-using Shaman.ServerSharedUtilities.Bundling;
 using Shaman.ServiceBootstrap.Logging;
 using GameProject = Shaman.Messages.General.Entity.GameProject;
 
@@ -71,17 +71,15 @@ namespace Shaman.MM
                     ports, 
                     Configuration["RouterUrl"],
                     Convert.ToInt32(Configuration["ServerUnregisterTimeoutMs"]),
-                    (GameProject)Convert.ToInt32(Configuration["GameProject"]), 
                     Configuration["name"], 
                     Convert.ToUInt16(Configuration["BindToPortHttp"]),
                     Convert.ToInt32(Configuration["SocketTickTimeMs"]),
                     Convert.ToInt32(Configuration["ReceiveTickTimeMs"]),
                     Convert.ToInt32(Configuration["SendTickTimeMs"]),
-                    Convert.ToInt32(Configuration["BackendListFromRouterIntervalMs"]),
-                    Convert.ToInt32(Configuration["ActualizeMatchmakerIntervalMs"]),
                     Convert.ToBoolean(Configuration["AuthOn"]), 
                     Configuration["Secret"],
-                    serverInfoListUpdateIntervalMs: Convert.ToInt32(Configuration["ServerInfoListUpdateIntervalMs"])
+                    serverInfoListUpdateIntervalMs: Convert.ToInt32(Configuration["ServerInfoListUpdateIntervalMs"]),
+                    actualizationIntervalMs: Convert.ToInt32(Configuration["ActualizationIntervalMs"])
                 ));    
             
             services.AddSingleton<IPacketSenderConfig>(c => c.GetRequiredService<IApplicationConfig>()); 
@@ -102,7 +100,7 @@ namespace Shaman.MM
             services.AddSingleton<IPlayersManager, PlayersManager>();
             services.AddSingleton<IRoomManager, RoomManager>();
             // services.AddSingleton<IServerActualizer, ServerActualizer>();
-            services.AddSingleton<IBundleInfoProvider, BundleInfoProvider>();
+            services.AddSingleton<IBundleInfoProvider, DefaultBundleInfoProvider>();
             services.AddSingleton<IRoomPropertiesProvider, RoomPropertiesProvider>();
             services.AddSingleton<IShamanSender, ShamanSender>();
             services.AddSingleton<IShamanMessageSender, ShamanMessageSender>();

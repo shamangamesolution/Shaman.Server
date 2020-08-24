@@ -6,6 +6,7 @@ using Shaman.Common.Server.Messages;
 using Shaman.Contract.Common.Logging;
 using Shaman.Messages.General.Entity;
 using Shaman.Router.Messages;
+using Shaman.Routing.Common;
 using Shaman.Serialization.Messages;
 
 namespace Shaman.Client.Providers

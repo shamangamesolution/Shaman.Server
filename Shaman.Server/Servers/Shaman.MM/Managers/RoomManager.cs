@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Shaman.Common.Server.Messages;
-using Shaman.Common.Server.MM.Providers;
 using Shaman.Common.Utils.Helpers;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Common;
@@ -14,6 +13,7 @@ using Shaman.Messages.General.Entity;
 using Shaman.Messages.MM;
 using Shaman.MM.Providers;
 using Shaman.MM.Rooms;
+using Shaman.Routing.Common.MM;
 
 namespace Shaman.MM.Managers
 {

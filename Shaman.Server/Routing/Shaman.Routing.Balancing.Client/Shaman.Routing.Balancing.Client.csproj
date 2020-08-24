@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp2.2</TargetFramework>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageVersion>1.9.10</PackageVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\Common\Shaman.Common.Http\Shaman.Common.Http.csproj" />
+      <ProjectReference Include="..\..\Common\Shaman.Common.Server\Shaman.Common.Server.csproj" />
+      <ProjectReference Include="..\..\Common\Shaman.Common.Utils\Shaman.Common.Utils.csproj" />
+      <ProjectReference Include="..\Shaman.Router.Messages\Shaman.Router.Messages.csproj" />
+      <ProjectReference Include="..\Shaman.Routing.Balancing.Messages\Shaman.Routing.Balancing.Messages.csproj" />
+      <ProjectReference Include="..\Shaman.Routing.Common\Shaman.Routing.Common.csproj" />
+    </ItemGroup>
+
+</Project>

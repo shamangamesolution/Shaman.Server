@@ -6,9 +6,13 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\Messages\Shaman.Messages\Shaman.Messages.csproj" />
-      <ProjectReference Include="..\..\Servers\Shaman.Router.Messages\Shaman.Router.Messages.csproj" />
+      <ProjectReference Include="..\..\Routing\Shaman.Router.Messages\Shaman.Router.Messages.csproj" />
       <ProjectReference Include="..\Shaman.Common.Server.Messages\Shaman.Common.Server.Messages.csproj" />
       <ProjectReference Include="..\Shaman.Common.Server\Shaman.Common.Server.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Providers" />
     </ItemGroup>
 
 </Project>

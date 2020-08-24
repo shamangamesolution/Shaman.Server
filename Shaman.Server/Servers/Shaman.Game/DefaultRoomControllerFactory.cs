@@ -1,11 +1,11 @@
 using System;
-using Shaman.Common.Server.Actualization;
+using Shaman.Bundling.Common;
 using Shaman.Common.Server.Configuration;
 using Shaman.Contract.Bundle;
 using Shaman.Contract.Common;
 using Shaman.Game.Configuration;
+using Shaman.Routing.Common.Actualization;
 using Shaman.ServerSharedUtilities;
-using Shaman.ServerSharedUtilities.Bundling;
 
 namespace Shaman.Game
 {

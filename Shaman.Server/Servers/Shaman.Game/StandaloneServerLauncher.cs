@@ -41,7 +41,7 @@ namespace Shaman.Game
         {
             StandaloneBundle = bundle;
             Config = new GameApplicationConfig(name, regionName, publicDomainNameOrIpAddress, ports, String.Empty,
-                String.Empty, httpPort, isAuthOn: false);
+                httpPort, isAuthOn: false);
             var config = BuildConfig();
             var serverTask = Task.Factory.StartNew(() => Bootstrap.Launch<Startup>(SourceType.GameServer, config));
 
