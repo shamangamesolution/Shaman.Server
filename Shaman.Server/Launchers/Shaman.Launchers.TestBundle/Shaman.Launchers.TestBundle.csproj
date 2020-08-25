@@ -1,14 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <OutputType>Exe</OutputType>
         <TargetFramework>netcoreapp2.2</TargetFramework>
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\Servers\Shaman.LocalBundleLauncher\Shaman.LocalBundleLauncher.csproj" />
         <PackageReference Include="Microsoft.AspNetCore.App" />
-
     </ItemGroup>
 
     <ItemGroup>
@@ -27,7 +24,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="publish" />
+      <ProjectReference Include="..\..\Contracts\Shaman.Contract.Bundle\Shaman.Contract.Bundle.csproj" />
+      <ProjectReference Include="..\..\Contracts\Shaman.Contract.MM\Shaman.Contract.MM.csproj" />
+      <ProjectReference Include="..\..\Serialization\Shaman.Serialization.Messages.Udp\Shaman.Serialization.Messages.Udp.csproj" />
     </ItemGroup>
 
 </Project>

@@ -27,7 +27,6 @@ using Shaman.MM.Providers;
 using Shaman.Routing.Common.Actualization;
 using Shaman.Routing.Common.MM;
 using Shaman.Serialization;
-using Shaman.ServerSharedUtilities;
 using Shaman.ServiceBootstrap.Logging;
 using GameProject = Shaman.Messages.General.Entity.GameProject;
 

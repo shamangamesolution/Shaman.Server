@@ -5,7 +5,6 @@ using Shaman.Contract.Bundle;
 using Shaman.Contract.Common;
 using Shaman.Game.Configuration;
 using Shaman.Routing.Common.Actualization;
-using Shaman.ServerSharedUtilities;
 
 namespace Shaman.Game
 {

@@ -40,8 +40,6 @@ namespace Shaman.Routing.Balancing.MM.Providers
         
         public void Start()
         {
-            _logger.Info($"Starting MatchMakerServerInfoProvider with period {_config.ServerInfoListUpdateIntervalMs} ms (actualizing once per {_config.ActualizationIntervalMs} ms)");
-
             _getServerInfoTask = _taskScheduler.ScheduleOnInterval(async () =>
             {
                 if (_isRequestingNow)

@@ -1,29 +1,40 @@
 using System.Collections.Generic;
 using Shaman.Contract.MM;
 
-namespace Shaman.MM
+namespace Shaman.Bundling.TestBundle
 {
     public class RoomPropertiesProvider : IRoomPropertiesProvider
     {
-        public static IRoomPropertiesProvider RoomPropertiesProviderImplementation;
         public int GetMatchMakingTick(Dictionary<byte, object> playerMatchMakingProperties)
         {
-            return RoomPropertiesProviderImplementation.GetMatchMakingTick(playerMatchMakingProperties);
+            return 0;
         }
 
         public int GetMaximumPlayers(Dictionary<byte, object> playerMatchMakingProperties)
         {
-            return RoomPropertiesProviderImplementation.GetMaximumPlayers(playerMatchMakingProperties);
+            return 0;
         }
 
         public int GetMaximumMatchMakingTime(Dictionary<byte, object> playerMatchMakingProperties)
         {
-            return RoomPropertiesProviderImplementation.GetMaximumMatchMakingTime(playerMatchMakingProperties);
+            return 0;
         }
 
         public Dictionary<byte, object> GetAdditionalRoomProperties(Dictionary<byte, object> playerMatchMakingProperties)
         {
-            return RoomPropertiesProviderImplementation.GetAdditionalRoomProperties(playerMatchMakingProperties);
+            return new Dictionary<byte, object>();
+        }
+    }
+
+    public class TestMmResolver: IMmResolver
+    {
+        public void Configure(IMatchMakingConfigurator matchMaker)
+        {
+        }
+
+        public IRoomPropertiesProvider GetRoomPropertiesProvider()
+        {
+            return new RoomPropertiesProvider();
         }
     }
 }

@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Server.Messages;
 using Shaman.Common.Server.Providers;
+using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Common;
 using Shaman.Routing.Common.Actualization;
 
@@ -16,12 +17,12 @@ namespace Shaman.Routing.Balancing.Client
         
         private IPendingTask _actualizeTask;
         
-        public RouterServerActualizer(IApplicationConfig config, IRouterClient routerClient, IStatisticsProvider statsProvider, ITaskScheduler taskScheduler)
+        public RouterServerActualizer(IApplicationConfig config, IRouterClient routerClient, IStatisticsProvider statsProvider, ITaskSchedulerFactory taskSchedulerFactory)
         {
             _config = config;
             _routerClient = routerClient;
             _statsProvider = statsProvider;
-            _taskScheduler = taskScheduler;
+            _taskScheduler = taskSchedulerFactory.GetTaskScheduler();
         }
 
         public async Task Actualize(int peersCount)

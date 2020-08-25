@@ -14,14 +14,12 @@ namespace Shaman.Bundling.Balancing
     {
         private const int BundleRetryMsec = 1500;
         private readonly IRequestSender _requestSender;
-        private readonly IServerActualizer _serverActualizer;
         private readonly IShamanLogger _logger;
         private readonly IBundleInfoProviderConfig _config;
 
-        public BundleInfoProvider(IRequestSender requestSender, IServerActualizer serverActualizer, IBundleInfoProviderConfig config, IShamanLogger logger)
+        public BundleInfoProvider(IRequestSender requestSender, IBundleInfoProviderConfig config, IShamanLogger logger)
         {
             _requestSender = requestSender;
-            _serverActualizer = serverActualizer;
             _logger = logger;
             _config = config;
         }
@@ -39,7 +37,6 @@ namespace Shaman.Bundling.Balancing
             {
                 try
                 {
-                    await _serverActualizer.Actualize(0);
                     return await GetBundleUriImpl();
                 }
                 catch (BundleNotFoundException e)

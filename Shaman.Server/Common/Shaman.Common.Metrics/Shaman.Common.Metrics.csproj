@@ -10,4 +10,9 @@
       <PackageReference Include="App.Metrics.Reporting.Graphite" Version="3.1.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\..\Contracts\Shaman.Contract.Common\Shaman.Contract.Common.csproj" />
+      <ProjectReference Include="..\Shaman.Common.Utils\Shaman.Common.Utils.csproj" />
+    </ItemGroup>
+
 </Project>

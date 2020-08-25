@@ -9,7 +9,7 @@ using Shaman.Game.Api;
 using Shaman.Game.Configuration;
 using Shaman.ServiceBootstrap;
 
-namespace Shaman.Game
+namespace Shaman.Launchers.Game.Standalone
 {
     
     public static class StandaloneServerLauncher
@@ -43,7 +43,7 @@ namespace Shaman.Game
             Config = new GameApplicationConfig(name, regionName, publicDomainNameOrIpAddress, ports, String.Empty,
                 httpPort, isAuthOn: false);
             var config = BuildConfig();
-            var serverTask = Task.Factory.StartNew(() => Bootstrap.Launch<Startup>(SourceType.GameServer, config));
+            var serverTask = Task.Factory.StartNew(() => Bootstrap.Launch<Launchers.Game.Standalone.Startup>(SourceType.GameServer, config));
 
             return new LaunchResult
             {
