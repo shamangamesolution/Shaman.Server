@@ -126,4 +126,5 @@ ClientBin/
 *.publishsettings
 node_modules/
 
-**/appsettings.*.Development.json
+appsettings.*.Development.json
+appsettings.Development.json
