@@ -3,7 +3,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
-namespace Shaman.ServerSharedUtilities.Extensions
+namespace Shaman.Common.Http
 {
     public static class HttpRequestExtensions
     {

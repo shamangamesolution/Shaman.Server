@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using Shaman.Common.Http;
 using Shaman.Common.Server.Messages;
 using Shaman.Contract.Common.Logging;
 using Shaman.Router.Config;
@@ -13,7 +14,6 @@ using Shaman.Router.Data.Providers;
 using Shaman.Router.Messages;
 using Shaman.Serialization;
 using Shaman.Serialization.Messages;
-using Shaman.ServerSharedUtilities.Extensions;
 
 namespace Shaman.Router.Controllers
 {

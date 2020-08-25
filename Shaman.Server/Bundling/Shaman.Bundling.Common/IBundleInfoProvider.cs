@@ -9,9 +9,9 @@ namespace Shaman.Bundling.Common
 
     public class DefaultBundleInfoProvider : IBundleInfoProvider
     {
-        public Task<string> GetBundleUri()
+        public async Task<string> GetBundleUri()
         {
-            throw new System.NotImplementedException();
+            return "/Users/***REMOVED***/dev/builds/Shaman.Publish/Test/Game";
         }
     }
 }

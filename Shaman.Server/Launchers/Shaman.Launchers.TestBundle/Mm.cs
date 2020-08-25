@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Shaman.Contract.MM;
 
-namespace Shaman.Client.TestBundle
+namespace Shaman.Launchers.TestBundle
 {
     public class Mm:IMmResolver
     {

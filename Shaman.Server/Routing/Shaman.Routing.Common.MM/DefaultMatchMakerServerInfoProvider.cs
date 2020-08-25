@@ -7,27 +7,25 @@ namespace Shaman.Routing.Common.MM
     {
         public void Start()
         {
-            throw new System.NotImplementedException();
         }
 
         public void Stop()
         {
-            throw new System.NotImplementedException();
         }
 
         public EntityDictionary<ServerInfo> GetGameServers()
         {
-            throw new System.NotImplementedException();
+            return new EntityDictionary<ServerInfo>();
         }
 
         public ServerInfo GetServer(int serverId)
         {
-            throw new System.NotImplementedException();
+            return new ServerInfo();
         }
 
         public ServerInfo GetLessLoadedServer()
         {
-            throw new System.NotImplementedException();
+            return new ServerInfo();
         }
     }
 }

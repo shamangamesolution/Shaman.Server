@@ -1,8 +1,9 @@
 using System;
 using Shaman.Contract.Bundle;
 using Shaman.Contract.Common;
+using Shaman.Game;
 
-namespace Shaman.Game
+namespace Shaman.Launchers.Game.Standalone
 {
     public class StandaloneModeRoomControllerFactory : IRoomControllerFactory
     {

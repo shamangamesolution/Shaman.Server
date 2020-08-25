@@ -7,7 +7,7 @@ using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
 using Shaman.Serialization.Messages.Udp;
 
-namespace Shaman.Client.TestBundle
+namespace Shaman.Launchers.TestBundle
 {
     public class Game : IGameBundle
     {

@@ -1,12 +1,11 @@
 using System;
 using App.Metrics;
 using App.Metrics.Histogram;
-using Shaman.Common.Metrics;
 using Shaman.Common.Server.Applications;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Common;
 
-namespace Shaman.ServerSharedUtilities.Metrics
+namespace Shaman.Common.Metrics
 {
     public class BasicMetrics: IServerMetrics
     {
