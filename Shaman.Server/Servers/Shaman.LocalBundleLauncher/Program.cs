@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            LocalBundleLauncher.Launch();
+            // LocalBundleLauncher.Launch();
         }
     }
 }

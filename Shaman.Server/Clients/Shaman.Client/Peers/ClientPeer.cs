@@ -39,31 +39,18 @@ namespace Shaman.Client.Peers
 
     public class ClientPacketSenderConfig : IPacketSenderConfig
     {
-        private readonly int _maxPacketSize;
-        private readonly int _sendTickTImerMs;
-        private readonly int _baseBufferSize;
+
 
         public ClientPacketSenderConfig(int maxPacketSize, int sendTickTImerMs, int baseBufferSize = 64)
         {
-            _maxPacketSize = maxPacketSize;
-            _sendTickTImerMs = sendTickTImerMs;
-            _baseBufferSize = baseBufferSize;
+            MaxPacketSize = maxPacketSize;
+            SendTickTimeMs = sendTickTImerMs;
+            BasePacketBufferSize = baseBufferSize;
         }
 
-        public int GetBasePacketBufferSize()
-        {
-            return _baseBufferSize;
-        }
-
-        public int GetMaxPacketSize()
-        {
-            return _maxPacketSize;
-        }
-
-        public int GetSendTickTimerMs()
-        {
-            return _sendTickTImerMs;
-        }
+        public int MaxPacketSize { get; set; }
+        public int BasePacketBufferSize { get; set; }
+        public int SendTickTimeMs { get; set; }
     }
 
     class ServerSender : IPeerSender

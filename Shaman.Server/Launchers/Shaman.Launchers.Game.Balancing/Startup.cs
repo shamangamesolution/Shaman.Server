@@ -36,49 +36,19 @@ namespace Shaman.Launchers.Game.Balancing
             services.AddSingleton<IRoomControllerFactory, DefaultRoomControllerFactory>();
             services.AddSingleton<IRoomStateUpdater, RoomStateUpdater>();
 
-            services.Configure<GameApplicationConfig>(Configuration);
-            var ports = Configuration["Ports"].Split(',').Select(s => Convert.ToUInt16(s)).ToList();
-            services.AddSingleton<IApplicationConfig>(c => 
-                new GameApplicationConfig(
-                    Configuration["Name"],
-                    Configuration["Region"],
-                    Configuration["PublicDomainNameOrAddress"], 
-                    ports, 
-                    Configuration["RouterUrl"], 
-                    Convert.ToUInt16(Configuration["BindToPortHttp"]),
-                    Convert.ToBoolean(Configuration["AuthOn"]),
-                    Configuration["Secret"],
-                    Convert.ToInt32(Configuration["SocketTickTimeMs"]),
-                    Convert.ToInt32(Configuration["ReceiveTickTimeMs"]),
-                    Convert.ToInt32(Configuration["SendTickTimeMs"]),
-                    actualizationIntervalMs: Convert.ToInt32(Configuration["ActualizationIntervalMs"])
-                )
-                {
-                    OverwriteDownloadedBundle = Convert.ToBoolean(Configuration["OverwriteDownloadedBundle"])
-                });
-            
+            ConfigureSettings<GameApplicationConfig>(services);
+
             services.AddSingleton<IBundleInfoProviderConfig, BundleInfoProviderConfig>(provider =>
             {
                 var config = provider.GetService<IApplicationConfig>();
-                return new BundleInfoProviderConfig(config.GetRouterUrl(), config.GetPublicName(),config.GetListenPorts(), ServerRole.GameServer);
+                return new BundleInfoProviderConfig(config.RouterUrl, config.PublicDomainNameOrAddress,config.ListenPorts, ServerRole.GameServer);
             });
             services.AddSingleton<IBundleInfoProvider, BundleInfoProvider>();
             services.AddSingleton<IServerActualizer, RouterServerActualizer>();
-            services.AddSingleton(provider => new RouterConfig(provider.GetService<IApplicationConfig>().GetRouterUrl()));
+            services.AddSingleton(provider => new RouterConfig(provider.GetService<IApplicationConfig>().RouterUrl));
             services.AddSingleton<IRouterClient, RouterClient>();
 
-            ConfigureMetrics(services);
+            ConfigureMetrics<IGameMetrics, GameMetrics>(services);
         }
-        
-        private void ConfigureMetrics(IServiceCollection services)
-        {
-            var metricsSettings = new MetricsSettings();
-            Configuration.GetSection("Metrics").Bind(metricsSettings);
-            var metricsAgent = new MetricsAgent(metricsSettings);
-            services.AddSingleton<IMetricsAgent>(metricsAgent);
-            services.AddSingleton<IGameMetrics, GameMetrics>();
-        }
-
-
     }
 }

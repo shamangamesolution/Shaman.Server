@@ -1,3 +1,6 @@
+using System;
+using System.IO;
+using Microsoft.Extensions.Configuration;
 using Shaman.ServiceBootstrap;
 
 namespace Shaman.Launchers.Game
@@ -6,7 +9,15 @@ namespace Shaman.Launchers.Game
     {
         internal static void Main(string[] args)
         {
-            Bootstrap.Launch<Startup>(SourceType.GameServer, (loggerConfiguration, appConfig) =>
+            var config = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.common.json", optional: false)
+                .AddJsonFile("appsettings.common.game.json", optional: false)
+                .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", optional: true)
+                .AddEnvironmentVariables()
+                .Build();
+            
+            Bootstrap.Launch<Startup>(SourceType.GameServer, config, (loggerConfiguration, appConfig) =>
                 loggerConfiguration.Enrich.WithProperty("node",
                     $"{appConfig["PublicDomainNameOrAddress"]}:{appConfig["BindToPortHttp"]}[{appConfig["Ports"]}]"));
         }

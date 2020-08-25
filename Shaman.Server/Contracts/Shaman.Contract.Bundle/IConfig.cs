@@ -6,6 +6,6 @@ namespace Shaman.Contract.Bundle
     {
         string RouterUrl { get; }
         string HostAddress { get; }
-        IEnumerable<ushort> GetListenPorts();
+        IEnumerable<ushort> ListenPorts { get; }
     }
 }

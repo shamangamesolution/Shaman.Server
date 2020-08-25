@@ -37,7 +37,8 @@ namespace Shaman.LocalBundleLauncher
         {
             return new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile($"appsettings.{configSuffix}.json", optional: false)
+                .AddJsonFile($"appsettings.common.json", optional: false)
+                .AddJsonFile($"appsettings.common.{configSuffix}.json", optional: false)
                 .AddJsonFile($"appsettings.{configSuffix}.Development.json", optional: true)
                 .AddEnvironmentVariables()
                 .Build();

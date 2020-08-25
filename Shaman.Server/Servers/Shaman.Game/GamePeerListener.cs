@@ -59,7 +59,7 @@ namespace Shaman.Game
                 case ShamanOperationCode.Authorization:
                     var authMessage = Serializer.DeserializeAs<AuthorizationRequest>(payload.Buffer, payload.Offset, payload.Length);
                     
-                    if (!Config.IsAuthOn())
+                    if (!Config.IsAuthOn)
                     {
                         //if success - send auth success
                         peer.IsAuthorizing = false;
@@ -75,7 +75,7 @@ namespace Shaman.Game
                     }
                     break;
                 default:
-                    if (!peer.IsAuthorized && Config.IsAuthOn())
+                    if (!peer.IsAuthorized && Config.IsAuthOn)
                     {
                         _messageSender.Send(new AuthorizationResponse() {ResultCode = ResultCode.NotAuthorized}, peer);
                         return;

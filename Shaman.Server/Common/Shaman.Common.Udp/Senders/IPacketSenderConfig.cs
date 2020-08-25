@@ -2,8 +2,8 @@ namespace Shaman.Common.Udp.Senders
 {
     public interface IPacketSenderConfig
     {
-        int GetBasePacketBufferSize();
-        int GetMaxPacketSize();
-        int GetSendTickTimerMs();
+        int MaxPacketSize { get; set; }
+        int BasePacketBufferSize { get; set; }
+        int SendTickTimeMs { get; set; }
     }
 }

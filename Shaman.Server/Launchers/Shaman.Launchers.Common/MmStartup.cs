@@ -31,11 +31,9 @@ namespace Shaman.Launchers.Common
     public class MmStartup : StartupBase
     {
         public MmStartup(IConfiguration configuration)
+            :base(configuration)
         {
-            Configuration = configuration;
         }
-        
-        public IConfiguration Configuration { get; }
 
         public virtual void ConfigureServices(IServiceCollection services)
         {
@@ -48,15 +46,6 @@ namespace Shaman.Launchers.Common
             services.AddSingleton<IPlayersManager, PlayersManager>();
             services.AddSingleton<IRoomManager, RoomManager>();
             services.AddSingleton<IRoomPropertiesProvider, RoomPropertiesProvider>();
-        }
-        
-        protected void ConfigureMetrics(IServiceCollection services)
-        {
-            var metricsSettings = new MetricsSettings();
-            Configuration.GetSection("Metrics").Bind(metricsSettings);
-            var metricsAgent = new MetricsAgent(metricsSettings);
-            services.AddSingleton<IMetricsAgent>(metricsAgent);
-            services.AddSingleton<IMmMetrics, MmMetrics>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -82,5 +71,6 @@ namespace Shaman.Launchers.Common
 
             server.Start();
         }
+        
     }
 }

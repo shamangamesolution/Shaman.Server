@@ -74,7 +74,7 @@ namespace Shaman.Common.Server.Applications
 //            Serializer.InitializeDefaultSerializers(8, $"Simple{this.GetType()}Buffer");
             Logger.Debug($"Serializer factory initialized as {Serializer.GetType()}");
             //initialize listener
-            foreach (var port in Config.GetListenPorts())
+            foreach (var port in Config.ListenPorts)
             {
                 var peerListener = new TL();
                 peerListener.Initialize(Logger, PeerCollection, Serializer, Config, TaskSchedulerFactory, port, SocketFactory, RequestSender);

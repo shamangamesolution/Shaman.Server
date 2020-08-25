@@ -40,8 +40,16 @@ namespace Shaman.Launchers.Game.Standalone
             int serverInfoListUpdateIntervalMs = 60000)
         {
             StandaloneBundle = bundle;
-            Config = new GameApplicationConfig(name, regionName, publicDomainNameOrIpAddress, ports, String.Empty,
-                httpPort, isAuthOn: false);
+            Config = new GameApplicationConfig
+            {
+                ServerName = name,
+                Region = regionName,
+                PublicDomainNameOrAddress = publicDomainNameOrIpAddress,
+                ListenPorts = ports,
+                BindToPortHttp = httpPort,
+                IsAuthOn = false
+            };
+
             var config = BuildConfig();
             var serverTask = Task.Factory.StartNew(() => Bootstrap.Launch<Launchers.Game.Standalone.Startup>(SourceType.GameServer, config));
 

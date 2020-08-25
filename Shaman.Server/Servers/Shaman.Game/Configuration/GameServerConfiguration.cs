@@ -8,31 +8,39 @@ namespace Shaman.Game.Configuration
 {
     public class GameApplicationConfig : ApplicationConfig
     {
-        public bool OverwriteDownloadedBundle { get; set; }
-
-        public GameApplicationConfig(string name,
-            string regionName,
-            string publicDomainNameOrIpAddress,
-            List<ushort> ports,
-            string routerUrl,
-            ushort httpPort,
-            bool isAuthOn = true,
-            string authSecret = null,
-            int socketTickTimeMs = 100,
-            int receiveTickTimeMs = 33,
-            int sendTickTimeMs = 50,
-            SocketType socketType = SocketType.BareSocket,
-            int actualizationIntervalMs = 1000)
-            : base(name, regionName, ServerRole.GameServer, publicDomainNameOrIpAddress, ports, routerUrl, httpPort, socketType: socketType,
-                 isAuthOn: isAuthOn,
-                authSecret: authSecret, socketTickTimeMs: socketTickTimeMs, receiveTickTimeMs: receiveTickTimeMs,
-                sendTickTimeMs: sendTickTimeMs, actualizationIntervalMs: actualizationIntervalMs)
-        {
-        }
+        public string MatchMakerUrl { get; set; }
+        
+        // public GameApplicationConfig(
+        //     string region,
+        //     string publicDomainNameOrIpAddress, 
+        //     List<ushort> ports, 
+        //     string routerUrl, 
+        //     string name,
+        //     ushort httpPort,
+        //     int socketTickTimeMs, 
+        //     int receiveTickTimeMs,
+        //     int sendTickTimeMs,
+        //     bool isAuthOn,
+        //     string authSecret,
+        //     SocketType socketType,
+        //     int actualizationIntervalMs,
+        //     bool overwriteDownloadedBundle,
+        //     int maxPacketSize,
+        //     int basePacketBufferSize)
+        //     : base(name, region, ServerRole.MatchMaker, publicDomainNameOrIpAddress, ports, routerUrl, httpPort, socketTickTimeMs, receiveTickTimeMs, sendTickTimeMs,
+        //         socketType, isAuthOn, authSecret, maxPacketSize, basePacketBufferSize, actualizationIntervalMs, overwriteDownloadedBundle)
+        // {
+        //
+        // }
 
         public IConfig GetBundleConfig()
         {
             return new BundleConfig(this);
+        }
+        
+        public void InitializeAdditionalParameters(string matchMakerUrl)
+        {
+            MatchMakerUrl = matchMakerUrl;
         }
     }
 }

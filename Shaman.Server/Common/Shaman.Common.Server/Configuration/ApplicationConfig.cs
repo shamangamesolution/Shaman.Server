@@ -5,122 +5,54 @@ namespace Shaman.Common.Server.Configuration
 {
     public class ApplicationConfig : IApplicationConfig
     {
-        private readonly SocketType _socketType;
+        public string PublicDomainNameOrAddress { get; set; }
+        public List<ushort> ListenPorts { get; set; }
+        public int SocketTickTimeMs { get; set; }
+        public int ReceiveTickTimeMs { get; set; }
+        public int SendTickTimeMs { get; set; }
+        public bool IsAuthOn { get; set; }
+        public SocketType SocketType { get; set; }
+        public string AuthSecret { get; set; }
+        public string ServerName { get; set; }
+        public string Region { get; set; }
+        public ServerRole ServerRole { get; set; }
+        public string RouterUrl { get; set; }
 
-        private readonly List<ushort> _ports;
-        private readonly int _socketTickTimeMs;
-        private readonly int _receiveTickTimeMs;
-        private readonly int _sendTickTimeMs;
-        private readonly string _publicDomainNameOrAddress;
-        private readonly bool _authOn;
-        private readonly string _routerUrl;
-        private readonly int _maxPacketSize;
-        private readonly int _basePacketBufferSize;
-        private readonly string _authSecret;
-        private readonly string _name;
-        private readonly string _region;
-        private readonly ServerRole _serverRole;
+        public int MaxPacketSize { get; set; }
+        public int BasePacketBufferSize { get; set; }
         private ServerIdentity _identity;
         public ushort BindToPortHttp { get; set; }
         public int ActualizationIntervalMs { get; set; }
+        public bool OverwriteDownloadedBundle { get; set; }
 
-        public ApplicationConfig(string name, string region, ServerRole serverRole, string publicDomainNameOrIpAddress,
-            List<ushort> ports, string routerUrl, ushort httpPort, int socketTickTimeMs = 10,
-            int receiveTickTimeMs = 33, int sendTickTimeMs = 50, SocketType socketType = SocketType.BareSocket,
-            bool isAuthOn = true, string authSecret = null, int maxPacketSize = 300, int basePacketBufferSize = 64, int actualizationIntervalMs = 1000)
-        {
-            _name = name;
-            _region = region;
-            _serverRole = serverRole;
-            _ports = ports;
-            _socketTickTimeMs = socketTickTimeMs;
-            _receiveTickTimeMs = receiveTickTimeMs;
-            _publicDomainNameOrAddress = publicDomainNameOrIpAddress;
-            _authOn = isAuthOn;
-            _authSecret = authSecret;
-            _routerUrl = routerUrl;
-            _sendTickTimeMs = sendTickTimeMs;
-            _maxPacketSize = maxPacketSize;
-            _basePacketBufferSize = basePacketBufferSize;
-            _socketType = socketType;
-            _identity = new ServerIdentity(publicDomainNameOrIpAddress, ports, serverRole);
-            BindToPortHttp = httpPort;
-            ActualizationIntervalMs = actualizationIntervalMs;
-        }
-
-        public string GetPublicName()
-        {
-            return _publicDomainNameOrAddress;
-        }
-
-        public List<ushort> GetListenPorts()
-        {
-            return _ports;
-        }
-
-        public int GetSocketTickTimeMs()
-        {
-            return _socketTickTimeMs;
-        }
-
-        public int GetReceiveTickTimerMs()
-        {
-            return _receiveTickTimeMs;
-        }
-
-        public bool IsAuthOn()
-        {
-            return _authOn;
-        }
-
-        public SocketType GetSocketType()
-        {
-            return _socketType;
-        }
-
-        public string GetRouterUrl()
-        {
-            return _routerUrl;
-        }
-
-        public int GetSendTickTimerMs()
-        {
-            return _sendTickTimeMs;
-        }
-
-        public int GetBasePacketBufferSize()
-        {
-            return _basePacketBufferSize;
-        }
-
-        public int GetMaxPacketSize()
-        {
-            return _maxPacketSize;
-        }
-
-        public string GetAuthSecret()
-        {
-            return _authSecret;
-        }
-
-        public string GetServerName()
-        {
-            return _name;
-        }
-
-        public string GetRegion()
-        {
-            return _region;
-        }
-
-        public ServerRole GetServerRole()
-        {
-            return _serverRole;
-        }
+        // public ApplicationConfig(string name, string region, ServerRole serverRole, string publicDomainNameOrIpAddress,
+        //     List<ushort> ports, string routerUrl, ushort httpPort, int socketTickTimeMs,
+        //     int receiveTickTimeMs, int sendTickTimeMs, SocketType socketType,
+        //     bool isAuthOn, string authSecret, int maxPacketSize, int basePacketBufferSize, int actualizationIntervalMs, bool overwriteDownloadedBundle)
+        // {
+        //     ServerName = name;
+        //     Region = region;
+        //     ServerRole = serverRole;
+        //     ListenPorts = ports;
+        //     SocketTickTimeMs = socketTickTimeMs;
+        //     ReceiveTickTimeMs = receiveTickTimeMs;
+        //     PublicDomainNameOrAddress = publicDomainNameOrIpAddress;
+        //     IsAuthOn = isAuthOn;
+        //     AuthSecret = authSecret;
+        //     RouterUrl = routerUrl;
+        //     SendTickTimeMs = sendTickTimeMs;
+        //     MaxPacketSize = maxPacketSize;
+        //     BasePacketBufferSize = basePacketBufferSize;
+        //     SocketType = socketType;
+        //     _identity = new ServerIdentity(publicDomainNameOrIpAddress, ports, serverRole);
+        //     BindToPortHttp = httpPort;
+        //     ActualizationIntervalMs = actualizationIntervalMs;
+        //     OverwriteDownloadedBundle = overwriteDownloadedBundle;
+        // }
 
         public ServerIdentity GetIdentity()
         {
-            return _identity;
+            return new ServerIdentity(PublicDomainNameOrAddress, ListenPorts, ServerRole);;
         }
     }
 }

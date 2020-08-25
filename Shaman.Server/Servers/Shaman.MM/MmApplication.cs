@@ -85,7 +85,7 @@ namespace Shaman.MM
             var shamanMessageSender = _messageSenderFactory.Create(_packetSender);
             foreach (var listener in listeners)
             {
-                listener.Initialize(_matchMaker, shamanMessageSender, _roomManager, _matchMakingGroupManager, Config.GetAuthSecret());
+                listener.Initialize(_matchMaker, shamanMessageSender, _roomManager, _matchMakingGroupManager, Config.AuthSecret);
             }
         }
 

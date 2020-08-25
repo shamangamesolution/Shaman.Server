@@ -81,7 +81,7 @@ namespace Shaman.MM.Managers
                 roomProperties.Add(PropertyCode.RoomProperties.TotalPlayersNeeded,
                     _roomPropertiesProvider.GetMaximumPlayers(measures));
                 roomProperties.Add(PropertyCode.RoomProperties.MatchMakerUrl,
-                    UrlHelper.GetUrl(_config.BindToPortHttp, 0, _config.GetPublicName()));
+                    UrlHelper.GetUrl(_config.BindToPortHttp, 0, _config.PublicDomainNameOrAddress));
 
                 foreach (var add in _roomPropertiesProvider.GetAdditionalRoomProperties(measures))
                     roomProperties.Add(add.Key, add.Value);

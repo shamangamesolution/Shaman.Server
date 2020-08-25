@@ -53,7 +53,7 @@ namespace Shaman.Common.Udp.Senders
         {
             if (!_peerToPackets.TryGetValue(peer, out var packetsQueue))
             {
-                packetsQueue = new PacketQueue(_config.GetMaxPacketSize(), _logger);
+                packetsQueue = new PacketQueue(_config.MaxPacketSize, _logger);
                 _peerToPackets.TryAdd(peer, packetsQueue);
             }
             return packetsQueue;
@@ -115,7 +115,7 @@ namespace Shaman.Common.Udp.Senders
             }
 
             //start send
-            _sendTaskId = _taskScheduler.ScheduleOnInterval(Send, 0, _config.GetSendTickTimerMs(), shortLiving);
+            _sendTaskId = _taskScheduler.ScheduleOnInterval(Send, 0, _config.SendTickTimeMs, shortLiving);
         }
 
         public void Stop()
