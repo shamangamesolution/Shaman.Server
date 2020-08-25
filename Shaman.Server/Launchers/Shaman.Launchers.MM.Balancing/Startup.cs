@@ -10,6 +10,7 @@ using Shaman.Contract.Bundle;
 using Shaman.Contract.Common.Logging;
 using Shaman.Launchers.Common;
 using Shaman.MM.Configuration;
+using Shaman.MM.Metrics;
 using Shaman.MM.Providers;
 using Shaman.Routing.Balancing.Client;
 using Shaman.Routing.Balancing.MM.Configuration;
@@ -34,35 +35,16 @@ namespace Shaman.Launchers.MM.Balancing
             //install common deps
             base.ConfigureServices(services);
             
-            //install deps specific to launcher
-            services.Configure<MmApplicationConfig>(Configuration);
-            var ports = Configuration["Ports"].Split(',').Select(s => Convert.ToUInt16(s)).ToList();
-
-            services.AddSingleton<IShamanLogger, SerilogLogger>();//(l => new SerilogLogger(logLevel:LogLevel.Error | LogLevel.Info));            
-            services.AddSingleton<IApplicationConfig>(c => 
-                new MmApplicationConfig(
-                    Configuration["Region"],
-                    Configuration["PublicDomainNameOrAddress"],
-                    ports, 
-                    Configuration["RouterUrl"],
-                    Convert.ToInt32(Configuration["ServerUnregisterTimeoutMs"]),
-                    Configuration["name"], 
-                    Convert.ToUInt16(Configuration["BindToPortHttp"]),
-                    Convert.ToInt32(Configuration["SocketTickTimeMs"]),
-                    Convert.ToInt32(Configuration["ReceiveTickTimeMs"]),
-                    Convert.ToInt32(Configuration["SendTickTimeMs"]),
-                    Convert.ToBoolean(Configuration["AuthOn"]), 
-                    Configuration["Secret"],
-                    serverInfoListUpdateIntervalMs: Convert.ToInt32(Configuration["ServerInfoListUpdateIntervalMs"]),
-                    actualizationIntervalMs: Convert.ToInt32(Configuration["ActualizationIntervalMs"])
-                ));    
+            //settings
+            ConfigureSettings<MmApplicationConfig>(services);
             
+            //install deps specific to launcher
             services.AddSingleton<IBundleInfoProviderConfig, BundleInfoProviderConfig>(provider =>
             {
                 var config = provider.GetService<IApplicationConfig>();
-                return new BundleInfoProviderConfig(config.GetRouterUrl(), config.GetPublicName(),config.GetListenPorts(), ServerRole.MatchMaker);
+                return new BundleInfoProviderConfig(config.RouterUrl, config.PublicDomainNameOrAddress,config.ListenPorts, ServerRole.MatchMaker);
             });
-            services.AddSingleton(provider => new RouterConfig(provider.GetService<IApplicationConfig>().GetRouterUrl()));
+            services.AddSingleton(provider => new RouterConfig(provider.GetService<IApplicationConfig>().RouterUrl));
             services.AddSingleton<IRouterClient, RouterClient>();
             services.AddSingleton<IRouterServerInfoProviderConfig, RouterServerInfoProviderConfig>(provider =>
             {
@@ -74,7 +56,8 @@ namespace Shaman.Launchers.MM.Balancing
             services.AddSingleton<IServerActualizer, RouterServerActualizer>();
             services.AddSingleton<IBundleInfoProvider, BundleInfoProvider>();
             
-            ConfigureMetrics(services);
+            //metrics
+            ConfigureMetrics<IMmMetrics, MmMetrics>(services);
         }
         
 

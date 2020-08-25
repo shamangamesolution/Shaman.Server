@@ -12,20 +12,21 @@ namespace Shaman.Common.Server.Configuration
     
     public interface IApplicationConfig: IPacketSenderConfig
     {
-//        void Initialize(string publicDomainNameOrIpAddress, ushort[] ports, int socketTickTimeMs, int receiveTickTimeMs, int sendTickTimeMs, string routerUrl, SocketType socketType = SocketType.BareSocket, bool isAuthOn = true, int backEndsListRequestIntervalMs = 30000, int maxPacketSize = 300);
-        string GetPublicName();
-        List<ushort> GetListenPorts();
-        int GetSocketTickTimeMs();
-        int GetReceiveTickTimerMs();
-        bool IsAuthOn();
-        SocketType GetSocketType();
-        string GetAuthSecret();
-        string GetServerName();
-        string GetRegion();
-        ServerRole GetServerRole();
+        string PublicDomainNameOrAddress { get; set; }
+        List<ushort> ListenPorts { get; set; }
+        int SocketTickTimeMs { get; set; }
+        int ReceiveTickTimeMs { get; set; }
+        bool IsAuthOn { get; set; }
+        SocketType SocketType { get; set; }
+        string AuthSecret { get; set; }
+        string ServerName { get; set; }
+        string Region { get; set; }
+        ServerRole ServerRole { get; set; }
         ushort BindToPortHttp { get; set; }
         int ActualizationIntervalMs { get; set; }
+        string RouterUrl { get; set; }
+
         ServerIdentity GetIdentity();
-        string GetRouterUrl();
+
     }
 }

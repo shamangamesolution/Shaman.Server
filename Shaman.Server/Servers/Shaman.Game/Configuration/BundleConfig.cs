@@ -12,12 +12,8 @@ namespace Shaman.Game.Configuration
             _gameApplicationConfig = gameApplicationConfig;
         }
 
-        public string RouterUrl => _gameApplicationConfig.GetRouterUrl();
-        public string HostAddress => _gameApplicationConfig.GetPublicName();
-
-        public IEnumerable<ushort> GetListenPorts()
-        {
-            return _gameApplicationConfig.GetListenPorts();
-        }
+        public string RouterUrl => _gameApplicationConfig.RouterUrl;
+        public string HostAddress => _gameApplicationConfig.PublicDomainNameOrAddress;
+        public IEnumerable<ushort> ListenPorts => _gameApplicationConfig.ListenPorts;
     }
 }

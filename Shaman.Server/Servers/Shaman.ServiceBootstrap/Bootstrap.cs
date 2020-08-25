@@ -50,7 +50,7 @@ namespace Shaman.ServiceBootstrap
             {
                 SubscribeOnUnhandledException();
 
-                var ip = config["BindToIP"];
+                var ip = config["ServerSettings:BindToIP"];
                 if (string.IsNullOrWhiteSpace(ip))
                 {
                     Console.WriteLine("Unable to parse IPAddress from configuration file");
@@ -58,7 +58,7 @@ namespace Shaman.ServiceBootstrap
                 }
 
                 int port = 0, httpsPort = 0;
-                if (!int.TryParse(config["BindToPortHttp"].ToString(), out port))
+                if (!int.TryParse(config["ServerSettings:BindToPortHttp"].ToString(), out port))
                 {
                     Console.WriteLine("Unable to parse port number from configuration file");
                     return;

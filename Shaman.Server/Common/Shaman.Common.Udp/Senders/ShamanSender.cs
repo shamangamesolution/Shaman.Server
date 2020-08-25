@@ -19,7 +19,7 @@ namespace Shaman.Common.Udp.Senders
 
         public ShamanSender(ISerializer serializer, IPacketSender packetSender, IPacketSenderConfig config)
         {
-            _shamanStreamPool = new ShamanStreamPool(config.GetBasePacketBufferSize());
+            _shamanStreamPool = new ShamanStreamPool(config.BasePacketBufferSize);
             _serializer = serializer;
             _packetSender = packetSender;
         }

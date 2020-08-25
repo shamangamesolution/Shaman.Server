@@ -27,7 +27,7 @@ namespace Shaman.Routing.Balancing.Client
 
         public async Task Actualize(int peersCount)
         {
-            await _routerClient.Actualize(GetServerIdentity(), _config.GetServerName(), _config.GetRegion(), peersCount,
+            await _routerClient.Actualize(GetServerIdentity(), _config.ServerName, _config.Region, peersCount,
                 _config.BindToPortHttp);
         }
 
@@ -47,8 +47,8 @@ namespace Shaman.Routing.Balancing.Client
 
         private ServerIdentity GetServerIdentity()
         {
-            return new ServerIdentity(_config.GetPublicName(),
-                _config.GetListenPorts(), _config.GetServerRole());
+            return new ServerIdentity(_config.PublicDomainNameOrAddress,
+                _config.ListenPorts, _config.ServerRole);
         }
     }
 }

@@ -80,7 +80,7 @@ namespace Shaman.Common.Server.Peers
         public void Listen()
         {
             //create reliable socket
-            switch (Config.GetSocketType())
+            switch (Config.SocketType)
             {
                 case SocketType.BareSocket:
                     _reliableSocket = _socketFactory.GetReliableSockWithBareSocket(_logger);
@@ -107,7 +107,7 @@ namespace Shaman.Common.Server.Peers
                     _maxSendDuration = duration;
 
                 _reliableSocket.Tick();
-            }, 0, Config.GetSocketTickTimeMs());
+            }, 0, Config.SocketTickTimeMs);
         }
 
         public ushort GetListenPort()

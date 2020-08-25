@@ -59,27 +59,27 @@ namespace Shaman.MM
             ConfigureMetrics(services);
             
             services.Configure<MmApplicationConfig>(Configuration);
-            var ports = Configuration["Ports"].Split(',').Select(s => Convert.ToUInt16(s)).ToList();
+            // var ports = Configuration["Ports"].Split(',').Select(s => Convert.ToUInt16(s)).ToList();
             //services.AddSingleton<IShamanLogger, ConsoleLogger>();//(l => new SerilogLogger(logLevel:LogLevel.Error | LogLevel.Info));            
 
             services.AddSingleton<IShamanLogger, SerilogLogger>();//(l => new SerilogLogger(logLevel:LogLevel.Error | LogLevel.Info));            
-            services.AddSingleton<IApplicationConfig>(c => 
-                new MmApplicationConfig(
-                    Configuration["Region"],
-                    Configuration["PublicDomainNameOrAddress"],
-                    ports, 
-                    Configuration["RouterUrl"],
-                    Convert.ToInt32(Configuration["ServerUnregisterTimeoutMs"]),
-                    Configuration["name"], 
-                    Convert.ToUInt16(Configuration["BindToPortHttp"]),
-                    Convert.ToInt32(Configuration["SocketTickTimeMs"]),
-                    Convert.ToInt32(Configuration["ReceiveTickTimeMs"]),
-                    Convert.ToInt32(Configuration["SendTickTimeMs"]),
-                    Convert.ToBoolean(Configuration["AuthOn"]), 
-                    Configuration["Secret"],
-                    serverInfoListUpdateIntervalMs: Convert.ToInt32(Configuration["ServerInfoListUpdateIntervalMs"]),
-                    actualizationIntervalMs: Convert.ToInt32(Configuration["ActualizationIntervalMs"])
-                ));    
+            // services.AddSingleton<IApplicationConfig>(c => 
+            //     new MmApplicationConfig(
+            //         Configuration["Region"],
+            //         Configuration["PublicDomainNameOrAddress"],
+            //         ports, 
+            //         Configuration["RouterUrl"],
+            //         Convert.ToInt32(Configuration["ServerUnregisterTimeoutMs"]),
+            //         Configuration["name"], 
+            //         Convert.ToUInt16(Configuration["BindToPortHttp"]),
+            //         Convert.ToInt32(Configuration["SocketTickTimeMs"]),
+            //         Convert.ToInt32(Configuration["ReceiveTickTimeMs"]),
+            //         Convert.ToInt32(Configuration["SendTickTimeMs"]),
+            //         Convert.ToBoolean(Configuration["AuthOn"]), 
+            //         Configuration["Secret"],
+            //         serverInfoListUpdateIntervalMs: Convert.ToInt32(Configuration["ServerInfoListUpdateIntervalMs"]),
+            //         actualizationIntervalMs: Convert.ToInt32(Configuration["ActualizationIntervalMs"])
+            //     ));    
             
             services.AddSingleton<IPacketSenderConfig>(c => c.GetRequiredService<IApplicationConfig>()); 
             // services.AddSingleton<IMatchMakerServerInfoProvider, MatchMakerServerInfoProvider>();

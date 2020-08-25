@@ -83,7 +83,7 @@ namespace Shaman.Game
             var shamanMessageSender = _messageSenderFactory.Create(_packetSender);
             foreach (var listener in listeners)
             {
-                listener.Initialize(_roomManager, shamanMessageSender, Config.GetAuthSecret());
+                listener.Initialize(_roomManager, shamanMessageSender, Config.AuthSecret);
             }
         }
 
