@@ -16,7 +16,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\Common\Shaman.Common.Server\Shaman.Common.Server.csproj" />
-      <ProjectReference Include="..\..\Servers\Shaman.LocalBundleLauncher\Shaman.LocalBundleLauncher.csproj" />
       <ProjectReference Include="..\Shaman.Client\Shaman.Client.csproj" />
     </ItemGroup>
 

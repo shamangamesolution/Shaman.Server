@@ -21,13 +21,5 @@
       <ProjectReference Include="..\..\Bootstrap\Shaman.ServiceBootstrap\Shaman.ServiceBootstrap.csproj" />
       <ProjectReference Include="..\Shaman.Launchers.Common\Shaman.Launchers.Common.csproj" />
     </ItemGroup>
-
-    <ItemGroup>
-      <Content Include="appsettings.Development.json">
-        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      </Content>
-    </ItemGroup>
     
 </Project>
