@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Shaman.Contract.MM;
 
-namespace Shaman.MM
+namespace Shaman.MM.Rooms
 {
     public class RoomPropertiesProvider : IRoomPropertiesProvider
     {

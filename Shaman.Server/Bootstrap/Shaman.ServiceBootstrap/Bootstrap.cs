@@ -7,13 +7,14 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Events;
+using Shaman.Common.Server.Messages;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 namespace Shaman.ServiceBootstrap
 {
     public class Bootstrap
     {
-        public static void Launch<T>(SourceType sourceType, Action<LoggerConfiguration, IConfigurationRoot> configureLogging = null) where T : class
+        public static void Launch<T>(ServerRole serverRole, Action<LoggerConfiguration, IConfigurationRoot> configureLogging = null) where T : class
         {
             //read config
             var config = new ConfigurationBuilder()
@@ -23,10 +24,10 @@ namespace Shaman.ServiceBootstrap
                 .AddEnvironmentVariables()
                 .Build();
 
-            Launch<T>(sourceType, config, configureLogging);
+            Launch<T>(serverRole, config, configureLogging);
         }
 
-        public static void Launch<T>(SourceType sourceType, IConfigurationRoot config, Action<LoggerConfiguration, IConfigurationRoot> configureLogging = null) where T : class
+        public static void Launch<T>(ServerRole serverRole, IConfigurationRoot config, Action<LoggerConfiguration, IConfigurationRoot> configureLogging = null) where T : class
         {
             var logEventLevel = Enum.Parse<LogEventLevel>(config["Serilog:MinimumLevel"], ignoreCase: true);
             var customerToken = config["Serilog:customerToken"];
@@ -39,7 +40,7 @@ namespace Shaman.ServiceBootstrap
             
             loggerConfiguration
                 .Enrich.WithProperty("version", config["ServerVersion"])
-                .Enrich.WithProperty("source", sourceType)
+                .Enrich.WithProperty("source", serverRole)
                 .Enrich.FromLogContext();
             configureLogging?.Invoke(loggerConfiguration, config);
             Log.Logger = loggerConfiguration

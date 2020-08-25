@@ -24,6 +24,7 @@ using Shaman.Game.Metrics;
 using Shaman.Game.Providers;
 using Shaman.Game.Rooms;
 using Shaman.Game.Rooms.RoomProperties;
+using Shaman.Game.Routing;
 using Shaman.Launchers.Common;
 using Shaman.LiteNetLibAdapter;
 using Shaman.Routing.Common.Actualization;
@@ -53,7 +54,7 @@ namespace Shaman.Launchers.Game
             services.AddSingleton<IRoomStateUpdater, RoomStateUpdater>();
             services.Configure<GameApplicationConfig>(Configuration);
             services.AddSingleton<IBundleInfoProvider, DefaultBundleInfoProvider>();
-            services.AddSingleton<IServerActualizer, DefaultServerActualizer>();
+            services.AddSingleton<IServerActualizer, GameToMmServerActualizer>();
             
                 ConfigureMetrics<IGameMetrics, GameMetrics>(services);
         }

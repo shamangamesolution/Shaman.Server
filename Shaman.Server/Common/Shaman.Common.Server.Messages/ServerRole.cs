@@ -4,6 +4,7 @@ namespace Shaman.Common.Server.Messages
     {
         BackEnd = 1,
         MatchMaker = 2,
-        GameServer = 3
+        GameServer = 3,
+        Router = 4
     }
 }

@@ -2,10 +2,13 @@ using System;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Shaman.Common.Server.Messages;
 using Shaman.Contract.Common.Logging;
 using Shaman.MM.Extensions;
 using Shaman.Messages.MM;
 using Shaman.MM.Managers;
+using Shaman.Routing.Common.Messages;
+using Shaman.Routing.Common.MM;
 using Shaman.Serialization;
 using Shaman.Serialization.Messages;
 
@@ -17,12 +20,14 @@ namespace Shaman.MM.Controllers
         private readonly ISerializer _serializer;
         private readonly IShamanLogger _logger;
         private readonly IRoomManager _roomManager;
+        private readonly IMatchMakerServerInfoProvider _serverInfoProvider;
         
-        public MatchmakerController(ISerializer serializer, IShamanLogger logger, IRoomManager roomManager)
+        public MatchmakerController(ISerializer serializer, IShamanLogger logger, IRoomManager roomManager, IMatchMakerServerInfoProvider serverInfoProvider)
         {
             _serializer = serializer;
             _logger = logger;
             _roomManager = roomManager;
+            _serverInfoProvider = serverInfoProvider;
         }
         
         [HttpGet("ping")]
@@ -79,6 +84,28 @@ namespace Shaman.MM.Controllers
             catch (Exception ex)
             {
                 _logger.Error($"Update room state error: {ex}");
+                response.ResultCode = ResultCode.RequestProcessingError;
+            }
+            
+            return new FileContentResult(_serializer.Serialize(response), "text/html");
+        }
+        
+        [HttpPost("actualize")]
+        public async Task<ActionResult> ActualizeGameServer()
+        {
+            //Request.Body.Position = 0;            
+            var input = await Request.GetRawBodyBytesAsync(); 
+
+            var request = _serializer.DeserializeAs<ActualizeServerOnMatchMakerRequest>(input);
+            var response = new ActualizeServerOnMatchMakerResponse();
+
+            try
+            {
+                _serverInfoProvider.AddServer(new ServerInfo(request.ServerIdentity, request.Name, request.Region, request.HttpPort, request.HttpsPort));
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"ActualizeGameServer error: {ex}");
                 response.ResultCode = ResultCode.RequestProcessingError;
             }
             

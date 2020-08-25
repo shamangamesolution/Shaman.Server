@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <TargetFramework>netcoreapp2.2</TargetFramework>
-        <OutputType>Exe</OutputType>
+        <OutputType>Library</OutputType>
     </PropertyGroup>
 
     <ItemGroup>
@@ -25,10 +25,18 @@
       <ProjectReference Include="..\..\Contracts\Shaman.Contract.MM\Shaman.Contract.MM.csproj" />
       <ProjectReference Include="..\..\Messages\Shaman.Messages\Shaman.Messages.csproj" />
       <ProjectReference Include="..\..\Network\Shaman.LiteNetLibAdapter\Shaman.LiteNetLibAdapter.csproj" />
+      <ProjectReference Include="..\..\Routing\Shaman.Routing.Common.Messages\Shaman.Routing.Common.Messages.csproj" />
       <ProjectReference Include="..\..\Routing\Shaman.Routing.Common.MM\Shaman.Routing.Common.MM.csproj" />
       <ProjectReference Include="..\..\Routing\Shaman.Routing.Common\Shaman.Routing.Common.csproj" />
-      <ProjectReference Include="..\Shaman.ServerSharedUtilities\Shaman.ServerSharedUtilities.csproj" />
-      <ProjectReference Include="..\Shaman.ServiceBootstrap\Shaman.ServiceBootstrap.csproj" />
+      <ProjectReference Include="..\..\Bootstrap\Shaman.ServiceBootstrap\Shaman.ServiceBootstrap.csproj" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="publish\web.config" />
+      <_ContentIncludedByDefault Remove="publish\appsettings.development.json" />
+      <_ContentIncludedByDefault Remove="publish\appsettings.json" />
+      <_ContentIncludedByDefault Remove="publish\Shaman.MM.deps.json" />
+      <_ContentIncludedByDefault Remove="publish\Shaman.MM.runtimeconfig.json" />
     </ItemGroup>
 
 

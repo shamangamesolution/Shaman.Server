@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
+using Shaman.Common.Server.Messages;
 using Shaman.Contract.Bundle;
 using Shaman.Game.Api;
 using Shaman.Game.Configuration;
@@ -51,7 +52,7 @@ namespace Shaman.Launchers.Game.Standalone
             };
 
             var config = BuildConfig();
-            var serverTask = Task.Factory.StartNew(() => Bootstrap.Launch<Launchers.Game.Standalone.Startup>(SourceType.GameServer, config));
+            var serverTask = Task.Factory.StartNew(() => Bootstrap.Launch<Launchers.Game.Standalone.Startup>(ServerRole.GameServer, config));
 
             return new LaunchResult
             {

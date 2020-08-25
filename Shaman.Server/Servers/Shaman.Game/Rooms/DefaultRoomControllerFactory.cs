@@ -6,7 +6,7 @@ using Shaman.Contract.Common;
 using Shaman.Game.Configuration;
 using Shaman.Routing.Common.Actualization;
 
-namespace Shaman.Game
+namespace Shaman.Game.Rooms
 {
     public class DefaultRoomControllerFactory : IRoomControllerFactory
     {
