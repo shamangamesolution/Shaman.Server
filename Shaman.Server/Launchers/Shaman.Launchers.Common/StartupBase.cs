@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Reflection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Serialization;
@@ -36,7 +37,14 @@ namespace Shaman.Launchers.Common
         public void ConfigureCommonServices(IServiceCollection services)
         {
             services.AddOptions();
-            services.AddMvc().AddJsonOptions(o =>
+            var assembly1 = Assembly.Load("Shaman.Game");
+            var assembly2 = Assembly.Load("Shaman.MM");
+            
+            services.AddMvc()
+                .AddApplicationPart(assembly1)
+                .AddApplicationPart(assembly2)
+                .AddControllersAsServices()
+                .AddJsonOptions(o =>
             {
                 o.SerializerSettings.ContractResolver = new DefaultContractResolver()
                 {
