@@ -5,9 +5,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\Common\Shaman.Common.Server.MM\Shaman.Common.Server.MM.csproj" />
       <ProjectReference Include="..\..\Common\Shaman.Common.Server\Shaman.Common.Server.csproj" />
-      <ProjectReference Include="..\Shaman.Router.Client\Shaman.Router.Client.csproj" />
       <ProjectReference Include="..\Shaman.Routing.Balancing.Client\Shaman.Routing.Balancing.Client.csproj" />
       <ProjectReference Include="..\Shaman.Routing.Common.MM\Shaman.Routing.Common.MM.csproj" />
     </ItemGroup>

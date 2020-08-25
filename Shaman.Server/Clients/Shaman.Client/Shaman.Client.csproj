@@ -10,7 +10,6 @@
     <ItemGroup>
       <ProjectReference Include="..\..\Messages\Shaman.Messages\Shaman.Messages.csproj" />
       <ProjectReference Include="..\..\Network\Shaman.LiteNetLibAdapter\Shaman.LiteNetLibAdapter.csproj" />
-      <ProjectReference Include="..\..\Routing\Shaman.Router.Messages\Shaman.Router.Messages.csproj" />
       <ProjectReference Include="..\..\Routing\Shaman.Routing.Balancing.Messages\Shaman.Routing.Balancing.Messages.csproj" />
       <ProjectReference Include="..\..\Routing\Shaman.Routing.Common\Shaman.Routing.Common.csproj" />
     </ItemGroup>

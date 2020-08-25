@@ -8,7 +8,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\Routing\Shaman.Router.Messages\Shaman.Router.Messages.csproj" />
       <ProjectReference Include="..\Shaman.Common.Http\Shaman.Common.Http.csproj" />
       <ProjectReference Include="..\Shaman.Common.Metrics\Shaman.Common.Metrics.csproj" />
       <ProjectReference Include="..\Shaman.Common.Server.Messages\Shaman.Common.Server.Messages.csproj" />
