@@ -1,8 +1,10 @@
+using System;
 using System.IO;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using Shaman.Common.Server.Messages;
 using Shaman.ServiceBootstrap;
 
 namespace Shaman.LocalBundleLauncher
@@ -21,7 +23,7 @@ namespace Shaman.LocalBundleLauncher
         private static Task LaunchMM()
         {
             var mmConfig = LoadConfigFor("mm");
-            var mmTask = Task.Factory.StartNew(() => Bootstrap.Launch<Launchers.MM.Startup>(SourceType.MatchMaker, mmConfig));
+            var mmTask = Task.Factory.StartNew(() => Bootstrap.Launch<Launchers.MM.Startup>(ServerRole.MatchMaker, mmConfig));
             return mmTask;
         }
 
@@ -29,14 +31,14 @@ namespace Shaman.LocalBundleLauncher
         {
             var gameConfig = LoadConfigFor("game");
             var gameTask =
-                Task.Factory.StartNew(() => Bootstrap.Launch<Launchers.Game.Startup>(SourceType.GameServer, gameConfig));
+                Task.Factory.StartNew(() => Bootstrap.Launch<Launchers.Game.Startup>(ServerRole.GameServer, gameConfig));
             return gameTask;
         }
 
         private static IConfigurationRoot LoadConfigFor(string configSuffix)
         {
             return new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
+                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
                 .AddJsonFile($"appsettings.common.json", optional: false)
                 .AddJsonFile($"appsettings.common.{configSuffix}.json", optional: false)
                 .AddJsonFile($"appsettings.{configSuffix}.Development.json", optional: true)

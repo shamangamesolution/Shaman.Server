@@ -16,7 +16,6 @@ namespace Shaman.Routing.Balancing.MM.Providers
 {
     public class MatchMakerServerInfoProvider : IMatchMakerServerInfoProvider
     {
-        private readonly IRequestSender _requestSender;
         private readonly IShamanLogger _logger;
         private readonly ITaskScheduler _taskScheduler;
         private IRouterClient _routerClient;
@@ -27,10 +26,9 @@ namespace Shaman.Routing.Balancing.MM.Providers
         private EntityDictionary<ServerInfo> _gameServerList = new EntityDictionary<ServerInfo>();
         private EntityDictionary<ServerInfo> _serverList = new EntityDictionary<ServerInfo>();
 
-        public MatchMakerServerInfoProvider(IRequestSender requestSender, ITaskSchedulerFactory taskSchedulerFactory,
+        public MatchMakerServerInfoProvider(ITaskSchedulerFactory taskSchedulerFactory,
             IRouterServerInfoProviderConfig config, IShamanLogger logger, IRouterClient routerClient)
         {
-            _requestSender = requestSender;
             _logger = logger;
             _routerClient = routerClient;
             _taskScheduler = taskSchedulerFactory.GetTaskScheduler();
@@ -75,6 +73,11 @@ namespace Shaman.Routing.Balancing.MM.Providers
         public ServerInfo GetLessLoadedServer()
         {
             return _gameServerList.OrderBy(s => s.PeerCount).FirstOrDefault();
+        }
+
+        public void AddServer(ServerInfo serverInfo)
+        {
+            throw new Exception($"THis operation is not allowed on this type of launch");
         }
 
         private ServerInfo GetMe()

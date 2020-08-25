@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
         <TargetFramework>netcoreapp2.2</TargetFramework>
@@ -17,16 +17,12 @@
     
     <ItemGroup>
       <ProjectReference Include="..\..\Servers\Shaman.MM\Shaman.MM.csproj" />
-      <ProjectReference Include="..\..\Servers\Shaman.ServiceBootstrap\Shaman.ServiceBootstrap.csproj" />
+      <ProjectReference Include="..\..\Bootstrap\Shaman.ServiceBootstrap\Shaman.ServiceBootstrap.csproj" />
       <ProjectReference Include="..\Shaman.Launchers.Common\Shaman.Launchers.Common.csproj" />
     </ItemGroup>
     
     <ItemGroup>
-      <Content Include="appsettings.Development.json">
-        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      </Content>
+
     </ItemGroup>
 
 </Project>

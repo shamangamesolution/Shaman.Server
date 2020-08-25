@@ -3,7 +3,7 @@
     <PropertyGroup>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageVersion>1.9.11</PackageVersion>
-        <TargetFramework>netcoreapp2.2</TargetFramework>
+        <TargetFrameworks>netstandard2.0;netcoreapp2.2</TargetFrameworks>
     </PropertyGroup>
 
     <ItemGroup>

@@ -22,6 +22,7 @@ using Shaman.MM.Managers;
 using Shaman.MM.MatchMaking;
 using Shaman.MM.Metrics;
 using Shaman.MM.Providers;
+using Shaman.MM.Rooms;
 using Shaman.Routing.Common.Actualization;
 using Shaman.Routing.Common.MM;
 using Shaman.Serialization;
@@ -67,7 +68,7 @@ namespace Shaman.Launchers.Common
             resolver.Configure(matchMaker);
             
             serverInfoProvider.Start();
-            serverActualizer.Start(Convert.ToInt32(Configuration["ActualizationTimeoutMs"]));
+            serverActualizer.Start(Convert.ToInt32(Configuration["ServerSettings:ActualizationIntervalMs"]));
 
             server.Start();
         }

@@ -10,5 +10,6 @@ namespace Shaman.Routing.Common.MM
         EntityDictionary<ServerInfo> GetGameServers();
         ServerInfo GetServer(int serverId);
         ServerInfo GetLessLoadedServer();
+        void AddServer(ServerInfo serverInfo);
     }
 }

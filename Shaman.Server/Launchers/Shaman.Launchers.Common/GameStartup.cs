@@ -70,7 +70,7 @@ namespace Shaman.Launchers.Common
 
             server.Start();
 
-            serverActualizer.Start(Convert.ToInt32(Configuration["ActualizationTimeoutMs"]));
+            serverActualizer.Start(Convert.ToInt32(Configuration["ServerSettings:ActualizationIntervalMs"]));
         }
 
         [Conditional("DEBUG")]

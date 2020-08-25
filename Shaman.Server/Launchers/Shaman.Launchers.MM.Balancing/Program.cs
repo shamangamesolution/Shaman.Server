@@ -1,3 +1,4 @@
+using Shaman.Common.Server.Messages;
 using Shaman.ServiceBootstrap;
 
 namespace Shaman.Launchers.MM.Balancing
@@ -6,7 +7,7 @@ namespace Shaman.Launchers.MM.Balancing
     {
         internal static void Main(string[] args)
         {
-            Bootstrap.Launch<Startup>(SourceType.MatchMaker, (loggerConfiguration, appConfig) =>
+            Bootstrap.Launch<Startup>(ServerRole.MatchMaker, (loggerConfiguration, appConfig) =>
                 loggerConfiguration.Enrich.WithProperty("node",
                     $"{appConfig["PublicDomainNameOrAddress"]}:{appConfig["BindToPortHttp"]}[{appConfig["Ports"]}]"));
         }

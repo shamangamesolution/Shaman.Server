@@ -1,4 +1,5 @@
-﻿using Shaman.ServiceBootstrap;
+﻿using Shaman.Common.Server.Messages;
+using Shaman.ServiceBootstrap;
 
 namespace Shaman.Router
 {
@@ -6,7 +7,7 @@ namespace Shaman.Router
     {
         internal static void Main(string[] args)
         {
-            Bootstrap.Launch<Startup>(SourceType.Router);
+            Bootstrap.Launch<Startup>(ServerRole.Router);
         }
     }
 }

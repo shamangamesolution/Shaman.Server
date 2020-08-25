@@ -19,7 +19,7 @@
     <ItemGroup>
       <ProjectReference Include="..\..\Contracts\Shaman.Contract.Bundle\Shaman.Contract.Bundle.csproj" />
       <ProjectReference Include="..\..\Servers\Shaman.Game\Shaman.Game.csproj" />
-      <ProjectReference Include="..\..\Servers\Shaman.ServiceBootstrap\Shaman.ServiceBootstrap.csproj" />
+      <ProjectReference Include="..\..\Bootstrap\Shaman.ServiceBootstrap\Shaman.ServiceBootstrap.csproj" />
       <ProjectReference Include="..\Shaman.Launchers.Common\Shaman.Launchers.Common.csproj" />
     </ItemGroup>
     

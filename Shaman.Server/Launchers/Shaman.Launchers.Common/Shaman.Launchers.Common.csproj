@@ -21,7 +21,7 @@
       <ProjectReference Include="..\..\Contracts\Shaman.Contract.Common\Shaman.Contract.Common.csproj" />
       <ProjectReference Include="..\..\Servers\Shaman.Game\Shaman.Game.csproj" />
       <ProjectReference Include="..\..\Servers\Shaman.MM\Shaman.MM.csproj" />
-      <ProjectReference Include="..\..\Servers\Shaman.ServiceBootstrap\Shaman.ServiceBootstrap.csproj" />
+      <ProjectReference Include="..\..\Bootstrap\Shaman.ServiceBootstrap\Shaman.ServiceBootstrap.csproj" />
     </ItemGroup>
 
     <ItemGroup>
