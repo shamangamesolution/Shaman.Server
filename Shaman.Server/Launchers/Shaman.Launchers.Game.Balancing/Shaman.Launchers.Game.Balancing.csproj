@@ -7,20 +7,17 @@
     
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.App" />
-        <!--        Raise Newtonsoft.Json to actual version as it may be declared in bundle 
-                    and Microsoft.AspNetCore.App (included previously) depends on 11.x cversion -->
-        <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-
-        <PackageReference Include="Serilog.AspNetCore">
-            <Version>3.2.0</Version>
-        </PackageReference>
+        <ProjectReference Include="..\..\Bundling\Shaman.Bundling.Balancing\Shaman.Bundling.Balancing.csproj" />
+        <ProjectReference Include="..\..\Routing\Shaman.Routing.Balancing.Client\Shaman.Routing.Balancing.Client.csproj" />
+        <ProjectReference Include="..\Shaman.Launchers.Common.Game\Shaman.Launchers.Common.Game.csproj" />
     </ItemGroup>
     
     <ItemGroup>
-      <ProjectReference Include="..\..\Bundling\Shaman.Bundling.Balancing\Shaman.Bundling.Balancing.csproj" />
-      <ProjectReference Include="..\..\Routing\Shaman.Routing.Balancing.Client\Shaman.Routing.Balancing.Client.csproj" />
-      <ProjectReference Include="..\..\Bootstrap\Shaman.ServiceBootstrap\Shaman.ServiceBootstrap.csproj" />
-      <ProjectReference Include="..\Shaman.Launchers.Common\Shaman.Launchers.Common.csproj" />
+      <Content Include="appsettings.Development.json">
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      </Content>
     </ItemGroup>
 
 </Project>

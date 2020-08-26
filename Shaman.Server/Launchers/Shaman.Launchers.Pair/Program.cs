@@ -1,4 +1,4 @@
-﻿namespace Shaman.LocalBundleLauncher
+﻿namespace Shaman.Launchers.Pair
 {
     class Program
     {

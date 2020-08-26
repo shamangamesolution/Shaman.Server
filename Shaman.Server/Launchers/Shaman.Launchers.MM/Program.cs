@@ -10,15 +10,7 @@ namespace Shaman.Launchers.MM
     {
         internal static void Main(string[] args)
         {
-            var config = new ConfigurationBuilder()
-                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-                .AddJsonFile("appsettings.common.json", optional: false)
-                .AddJsonFile("appsettings.common.mm.json", optional: false)
-                .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", optional: true)
-                .AddEnvironmentVariables()
-                .Build();
-            
-            Bootstrap.Launch<Startup>(ServerRole.MatchMaker, config, (loggerConfiguration, appConfig) =>
+            Bootstrap.LaunchWithCommonAndRoleConfig<Startup>(ServerRole.GameServer, (loggerConfiguration, appConfig) =>
                 loggerConfiguration.Enrich.WithProperty("node",
                     $"{appConfig["PublicDomainNameOrAddress"]}:{appConfig["BindToPortHttp"]}[{appConfig["Ports"]}]"));
         }

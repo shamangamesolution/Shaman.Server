@@ -26,6 +26,7 @@ using Shaman.Game.Rooms;
 using Shaman.Game.Rooms.RoomProperties;
 using Shaman.Game.Routing;
 using Shaman.Launchers.Common;
+using Shaman.Launchers.Common.Game;
 using Shaman.LiteNetLibAdapter;
 using Shaman.Routing.Common.Actualization;
 using Shaman.Serialization;

@@ -4,22 +4,14 @@ using System.Reflection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Serialization;
-using Remotion.Linq.Parsing.ExpressionVisitors.Transformation.PredefinedTransformations;
 using Shaman.Common.Http;
 using Shaman.Common.Metrics;
-using Shaman.Common.Server.Applications;
 using Shaman.Common.Server.Configuration;
-using Shaman.Common.Server.Messages;
-using Shaman.Common.Server.Providers;
 using Shaman.Common.Udp.Senders;
 using Shaman.Common.Udp.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Common.Logging;
-using Shaman.Contract.MM;
 using Shaman.LiteNetLibAdapter;
-using Shaman.MM;
-using Shaman.MM.Managers;
-using Shaman.MM.MatchMaking;
 using Shaman.Serialization;
 using Shaman.ServiceBootstrap.Logging;
 
@@ -34,15 +26,13 @@ namespace Shaman.Launchers.Common
             Configuration = configuration;
         }
         
-        public void ConfigureCommonServices(IServiceCollection services)
+        public void ConfigureCommonServices(IServiceCollection services, string assemblyName)
         {
             services.AddOptions();
-            var assembly1 = Assembly.Load("Shaman.Game");
-            var assembly2 = Assembly.Load("Shaman.MM");
+            var assembly = Assembly.Load(assemblyName);
             
             services.AddMvc()
-                .AddApplicationPart(assembly1)
-                .AddApplicationPart(assembly2)
+                .AddApplicationPart(assembly)
                 .AddControllersAsServices()
                 .AddJsonOptions(o =>
             {

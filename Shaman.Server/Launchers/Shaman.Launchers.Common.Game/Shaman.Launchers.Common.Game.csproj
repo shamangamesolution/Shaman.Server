@@ -2,16 +2,16 @@
 
     <PropertyGroup>
         <TargetFramework>netcoreapp2.2</TargetFramework>
-        <OutputType>Exe</OutputType>
     </PropertyGroup>
     
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.App" />
-        <ProjectReference Include="..\Shaman.Launchers.Common.MM\Shaman.Launchers.Common.MM.csproj" />
+        <ProjectReference Include="..\..\Servers\Shaman.Game\Shaman.Game.csproj" />
+        <ProjectReference Include="..\Shaman.Launchers.Common\Shaman.Launchers.Common.csproj" />
     </ItemGroup>
-    
+
     <ItemGroup>
-      <Content Include="appsettings.Development.MatchMaker.json">
+      <Content Include="appsettings.common.GameServer.json">
         <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
