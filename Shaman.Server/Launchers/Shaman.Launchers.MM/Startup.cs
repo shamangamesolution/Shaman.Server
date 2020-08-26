@@ -2,7 +2,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Shaman.Bundling.Common;
 using Shaman.Contract.Common.Logging;
-using Shaman.Launchers.Common;
+using Shaman.Launchers.Common.MM;
 using Shaman.MM.Configuration;
 using Shaman.MM.Metrics;
 using Shaman.MM.Providers;

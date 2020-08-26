@@ -1,14 +1,10 @@
-using System;
-using System.Linq;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Shaman.Bundling.Balancing;
 using Shaman.Bundling.Common;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Server.Messages;
-using Shaman.Contract.Bundle;
-using Shaman.Contract.Common.Logging;
-using Shaman.Launchers.Common;
+using Shaman.Launchers.Common.MM;
 using Shaman.MM.Configuration;
 using Shaman.MM.Metrics;
 using Shaman.MM.Providers;
@@ -17,7 +13,6 @@ using Shaman.Routing.Balancing.MM.Configuration;
 using Shaman.Routing.Balancing.MM.Providers;
 using Shaman.Routing.Common.Actualization;
 using Shaman.Routing.Common.MM;
-using Shaman.ServiceBootstrap.Logging;
 
 namespace Shaman.Launchers.MM.Balancing
 {

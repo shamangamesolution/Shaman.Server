@@ -10,10 +10,21 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\Bootstrap\Shaman.ServiceBootstrap\Shaman.ServiceBootstrap.csproj" />
-      <ProjectReference Include="..\Shaman.Launchers.Common\Shaman.Launchers.Common.csproj" />
       <ProjectReference Include="..\Shaman.Launchers.Game\Shaman.Launchers.Game.csproj" />
       <ProjectReference Include="..\Shaman.Launchers.MM\Shaman.Launchers.MM.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="***REMOVED***">
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      </Content>
+      <Content Include="***REMOVED***">
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      </Content>
     </ItemGroup>
 
 

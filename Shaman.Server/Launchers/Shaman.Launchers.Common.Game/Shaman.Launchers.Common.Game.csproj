@@ -2,24 +2,20 @@
 
     <PropertyGroup>
         <TargetFramework>netcoreapp2.2</TargetFramework>
-        <OutputType>Exe</OutputType>
     </PropertyGroup>
-
-
+    
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.App" />
-        <ProjectReference Include="..\..\Bundling\Shaman.Bundling.Balancing\Shaman.Bundling.Balancing.csproj" />
-      <ProjectReference Include="..\..\Routing\Shaman.Routing.Balancing.MM\Shaman.Routing.Balancing.MM.csproj" />
-      <ProjectReference Include="..\Shaman.Launchers.Common.MM\Shaman.Launchers.Common.MM.csproj" />
+        <ProjectReference Include="..\..\Servers\Shaman.Game\Shaman.Game.csproj" />
+        <ProjectReference Include="..\Shaman.Launchers.Common\Shaman.Launchers.Common.csproj" />
     </ItemGroup>
 
-
     <ItemGroup>
-      <Content Include="***REMOVED***">
+      <Content Include="appsettings.common.GameServer.json">
         <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       </Content>
     </ItemGroup>
-    
+
 </Project>

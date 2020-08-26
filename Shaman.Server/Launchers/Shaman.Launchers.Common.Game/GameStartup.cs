@@ -1,34 +1,23 @@
 using System;
 using System.Diagnostics;
-using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json.Serialization;
-using Shaman.Common.Http;
-using Shaman.Common.Metrics;
 using Shaman.Common.Server.Applications;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Server.Providers;
-using Shaman.Common.Udp.Senders;
-using Shaman.Common.Udp.Sockets;
-using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Bundle;
 using Shaman.Contract.Common.Logging;
 using Shaman.Game;
 using Shaman.Game.Api;
 using Shaman.Game.Configuration;
-using Shaman.Game.Metrics;
 using Shaman.Game.Providers;
 using Shaman.Game.Rooms;
 using Shaman.Game.Rooms.RoomProperties;
-using Shaman.LiteNetLibAdapter;
 using Shaman.Routing.Common.Actualization;
-using Shaman.Serialization;
-using Shaman.ServiceBootstrap.Logging;
 
-namespace Shaman.Launchers.Common
+namespace Shaman.Launchers.Common.Game
 {
     public class GameStartup : StartupBase
     {
@@ -38,7 +27,7 @@ namespace Shaman.Launchers.Common
         
         public virtual void ConfigureServices(IServiceCollection services)
         {
-            ConfigureCommonServices(services);
+            ConfigureCommonServices(services, "Shaman.Game");
 
             services.AddSingleton(c =>
                 ((GameApplicationConfig) c.GetRequiredService<IApplicationConfig>()).GetBundleConfig());

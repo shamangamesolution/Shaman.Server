@@ -14,6 +14,23 @@ namespace Shaman.ServiceBootstrap
 {
     public class Bootstrap
     {
+
+        private static IConfigurationRoot GetConfig(ServerRole serverRole)
+        {
+            return new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.common.json", optional: false)
+                .AddJsonFile($"appsettings.common.{serverRole}.json", optional: false)
+                .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.{serverRole}.json", optional: true)
+                .AddEnvironmentVariables()
+                .Build();
+        }
+        
+        public static void LaunchWithCommonAndRoleConfig<T>(ServerRole serverRole, Action<LoggerConfiguration, IConfigurationRoot> configureLogging = null) where T : class
+        {
+            Launch<T>(serverRole, GetConfig(serverRole), configureLogging);
+        }
+        
         public static void Launch<T>(ServerRole serverRole, Action<LoggerConfiguration, IConfigurationRoot> configureLogging = null) where T : class
         {
             //read config
