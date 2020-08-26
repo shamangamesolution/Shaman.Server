@@ -196,9 +196,9 @@ namespace Shaman.Game.Rooms
             return _sessionsToRooms.Count;
         }
 
-        public void ConfirmedJoin(Guid sessionID, IRoom room)
+        private void LinkSessionToRoom(Guid sessionId, IRoom room)
         {
-            _sessionsToRooms.TryAdd(sessionID, room);
+            _sessionsToRooms.TryAdd(sessionId, room);
         }
         public bool IsInRoom(Guid sessionId)
         {
@@ -251,7 +251,7 @@ namespace Shaman.Game.Rooms
                         }
                         else
                         {
-                            roomToJoin.ConfirmedJoin(sessionId);
+                            LinkSessionToRoom(sessionId, roomToJoin);
                             if (!roomToJoin.AddPeerToRoom(peer, joinMessage.Properties))
                             {
                                 _messageSender.Send(new JoinRoomResponse() { ResultCode = ResultCode.RequestProcessingError }, peer);
