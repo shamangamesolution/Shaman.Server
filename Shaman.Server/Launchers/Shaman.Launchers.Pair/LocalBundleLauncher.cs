@@ -1,6 +1,4 @@
-using System;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
 using Shaman.Common.Server.Messages;
 using Shaman.ServiceBootstrap;
 
@@ -11,13 +9,13 @@ namespace Shaman.Launchers.Pair
         public static void Launch()
         {
             var gameTask = LaunchGame();
-            var mmTask = LaunchMM();
+            var mmTask = LaunchMm();
 
             gameTask.Wait();
             mmTask.Wait();
         }
 
-        private static Task LaunchMM()
+        private static Task LaunchMm()
         {
             var mmTask = Task.Factory.StartNew(() => Bootstrap.LaunchWithCommonAndRoleConfig<Launchers.MM.Startup>(ServerRole.MatchMaker));
             return mmTask;
