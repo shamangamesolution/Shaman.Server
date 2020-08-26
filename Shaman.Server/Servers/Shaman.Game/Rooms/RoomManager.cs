@@ -253,7 +253,10 @@ namespace Shaman.Game.Rooms
                         {
                             roomToJoin.ConfirmedJoin(sessionId);
                             if (!roomToJoin.AddPeerToRoom(peer, joinMessage.Properties))
+                            {
                                 _messageSender.Send(new JoinRoomResponse() { ResultCode = ResultCode.RequestProcessingError }, peer);
+                                return;
+                            }
                             
                             _gameMetrics.TrackPeerJoin();
                             _taskScheduler.ScheduleOnceOnNow(async () =>
