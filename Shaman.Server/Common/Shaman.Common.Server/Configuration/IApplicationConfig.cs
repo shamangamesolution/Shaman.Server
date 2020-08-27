@@ -23,9 +23,6 @@ namespace Shaman.Common.Server.Configuration
         string Region { get; set; }
         ServerRole ServerRole { get; set; }
         ushort BindToPortHttp { get; set; }
-        int ActualizationIntervalMs { get; set; }
-        string RouterUrl { get; set; }
-
         ServerIdentity GetIdentity();
 
     }

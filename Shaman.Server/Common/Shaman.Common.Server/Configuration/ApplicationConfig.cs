@@ -16,13 +16,11 @@ namespace Shaman.Common.Server.Configuration
         public string ServerName { get; set; }
         public string Region { get; set; }
         public ServerRole ServerRole { get; set; }
-        public string RouterUrl { get; set; }
 
         public int MaxPacketSize { get; set; }
         public int BasePacketBufferSize { get; set; }
         private ServerIdentity _identity;
         public ushort BindToPortHttp { get; set; }
-        public int ActualizationIntervalMs { get; set; }
 
         public ServerIdentity GetIdentity()
         {

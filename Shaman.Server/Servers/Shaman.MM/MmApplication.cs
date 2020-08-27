@@ -8,7 +8,6 @@ using Shaman.Common.Udp.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Bundle.Stats;
 using Shaman.Contract.Common.Logging;
-using Shaman.MM.Configuration;
 using Shaman.MM.MatchMaking;
 using Shaman.MM.Peers;
 using Shaman.MM.Managers;
@@ -76,8 +75,6 @@ namespace Shaman.MM
         
         public override void OnStart()
         {
-            var config = GetConfigAs<MmApplicationConfig>();
-            
             _packetSender.Start(false);
             
             _matchMaker.Start();

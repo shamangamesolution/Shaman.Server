@@ -8,7 +8,6 @@ using Shaman.Common.Udp.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Bundle.Stats;
 using Shaman.Contract.Common.Logging;
-using Shaman.Game.Configuration;
 using Shaman.Game.Metrics;
 using Shaman.Game.Peers;
 using Shaman.Game.Rooms;
@@ -76,7 +75,6 @@ namespace Shaman.Game
         {
             _packetSender.Start();
             
-            var config = GetConfigAs<GameApplicationConfig>();
             Logger.Info($"Game server started...");
             
             var listeners = GetListeners();

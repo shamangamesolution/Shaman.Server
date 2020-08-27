@@ -9,7 +9,6 @@ using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Common.Logging;
 using Shaman.Contract.MM;
 using Shaman.Messages;
-using Shaman.MM.Configuration;
 using Shaman.MM.MatchMaking;
 using Shaman.MM.Metrics;
 using Shaman.MM.Players;
@@ -27,7 +26,7 @@ namespace Shaman.MM.Managers
         private readonly IMmMetrics _mmMetrics;
         private readonly IRoomManager _roomManager;
         private readonly IRoomPropertiesProvider _roomPropertiesProvider;
-        private readonly MmApplicationConfig _config;
+        private readonly IApplicationConfig _config;
 
         private readonly Dictionary<Guid, MatchMakingGroup> _groups = new Dictionary<Guid, MatchMakingGroup>();
         private readonly Dictionary<Guid, Dictionary<byte, object>> _groupsToProperties = new Dictionary<Guid, Dictionary<byte, object>>();
@@ -45,7 +44,7 @@ namespace Shaman.MM.Managers
             _mmMetrics = mmMetrics;
             _roomManager = roomManager;
             _roomPropertiesProvider = roomPropertiesProvider;
-            _config = (MmApplicationConfig) config;
+            _config = config;
         }
 
         private bool AreDictionariesEqual(Dictionary<byte, object> dict1, Dictionary<byte, object> dict2)
