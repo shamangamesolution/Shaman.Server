@@ -51,4 +51,8 @@
       <_ContentIncludedByDefault Remove="publish\Shaman.Game.deps.json" />
       <_ContentIncludedByDefault Remove="publish\Shaman.Game.runtimeconfig.json" />
     </ItemGroup>
+    
+    <ItemGroup>
+      <Folder Include="Configuration" />
+    </ItemGroup>
 </Project>

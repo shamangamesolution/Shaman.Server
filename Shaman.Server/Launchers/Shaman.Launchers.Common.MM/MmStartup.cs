@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Shaman.Bundling.Common;
 using Shaman.Common.Server.Applications;
+using Shaman.Common.Server.Messages;
 using Shaman.Common.Server.Providers;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Common.Logging;
@@ -28,7 +29,7 @@ namespace Shaman.Launchers.Common.MM
 
         public virtual void ConfigureServices(IServiceCollection services)
         {
-            ConfigureCommonServices(services, "Shaman.MM");
+            ConfigureCommonServices(services, LauncherHelpers.GetAssemblyName(ServerRole.MatchMaker));
             
             services.AddSingleton<IMatchMaker, MatchMaker>();    
             services.AddSingleton<IApplication, MmApplication>();
@@ -40,31 +41,21 @@ namespace Shaman.Launchers.Common.MM
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplication server,
-            IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory,
-            IMatchMaker matchMaker,
-            IBundleInfoProvider bundleInfoProvider, IServerActualizer serverActualizer, IMatchMakerServerInfoProvider serverInfoProvider, IBundleLoader bundleLoader)
+        public void ConfigureMm(IApplicationBuilder app, IHostingEnvironment env, IApplication server,
+            IShamanLogger logger, IMatchMaker matchMaker, IMatchMakerServerInfoProvider serverInfoProvider, IBundleLoader bundleLoader)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-
-            app.UseMvc();
-            
+            //load bundle
             bundleLoader.LoadBundle();
             
-            
-            var bundleUri = bundleInfoProvider.GetBundleUri().Result;
+            //resolve main bundle type and configure 
             var resolver = bundleLoader.LoadTypeFromBundle<IMmResolver>();
-            // var resolver = BundleHelper.LoadTypeFromBundle<IMmResolver>(bundleUri, Convert.ToBoolean(Configuration["OverwriteDownloadedBundle"]));
             RoomPropertiesProvider.RoomPropertiesProviderImplementation = resolver.GetRoomPropertiesProvider();
             resolver.Configure(matchMaker);
             
+            //start game server info provider
             serverInfoProvider.Start();
-            serverActualizer.Start(Convert.ToInt32(Configuration["ServerSettings:ActualizationIntervalMs"]));
-
-            server.Start();
+            
+            base.ConfigureCommon(app, env, server, logger);
         }
         
     }

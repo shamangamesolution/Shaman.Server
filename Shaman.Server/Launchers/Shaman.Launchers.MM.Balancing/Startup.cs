@@ -1,11 +1,16 @@
+using System;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Shaman.Bundling.Balancing;
 using Shaman.Bundling.Common;
+using Shaman.Common.Server.Applications;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Server.Messages;
+using Shaman.Contract.Common.Logging;
 using Shaman.Launchers.Common.MM;
-using Shaman.MM.Configuration;
+using Shaman.MM.MatchMaking;
 using Shaman.MM.Metrics;
 using Shaman.MM.Providers;
 using Shaman.Routing.Balancing.Client;
@@ -31,20 +36,23 @@ namespace Shaman.Launchers.MM.Balancing
             base.ConfigureServices(services);
             
             //settings
-            ConfigureSettings<MmApplicationConfig>(services);
+            ConfigureSettings<ApplicationConfig>(services);
             
             //install deps specific to launcher
             services.AddSingleton<IBalancingBundleInfoProviderConfig, BalancingBundleInfoProviderConfig>(provider =>
             {
                 var config = provider.GetService<IApplicationConfig>();
-                return new BalancingBundleInfoProviderConfig(config.RouterUrl, config.PublicDomainNameOrAddress,config.ListenPorts, ServerRole.MatchMaker);
+                return new BalancingBundleInfoProviderConfig(Configuration["LauncherSettings:RouterUrl"], config.PublicDomainNameOrAddress,config.ListenPorts, config.ServerRole);
             });
-            services.AddSingleton(provider => new RouterConfig(provider.GetService<IApplicationConfig>().RouterUrl));
+            services.AddSingleton(provider => new RouterConfig(Configuration["LauncherSettings:RouterUrl"]));
             services.AddSingleton<IRouterClient, RouterClient>();
             services.AddSingleton<IRouterServerInfoProviderConfig, RouterServerInfoProviderConfig>(provider =>
             {
-                var config = (MmApplicationConfig)provider.GetService<IApplicationConfig>();
-                return new RouterServerInfoProviderConfig(config.ServerInfoListUpdateIntervalMs, config.ServerUnregisterTimeoutMs, config.GetIdentity());
+                var config = provider.GetService<IApplicationConfig>();
+                return new RouterServerInfoProviderConfig(
+                    Convert.ToInt32(Configuration["LauncherSettings:ServerInfoListUpdateIntervalMs"]),
+                    Convert.ToInt32(Configuration["LauncherSettings:ServerUnregisterTimeoutMs"]),
+                    config.GetIdentity());
             });
             services.AddSingleton<IMatchMakerServerInfoProvider, MatchMakerServerInfoProvider>();
             services.AddSingleton<IRoomApiProvider, DefaultRoomApiProvider>();
@@ -56,7 +64,13 @@ namespace Shaman.Launchers.MM.Balancing
             ConfigureMetrics<IMmMetrics, MmMetrics>(services);
         }
         
-
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplication server,
+            IShamanLogger logger, IMatchMaker matchMaker, IServerActualizer serverActualizer, IMatchMakerServerInfoProvider serverInfoProvider, IBundleLoader bundleLoader)
+        {
+            serverActualizer.Start(Convert.ToInt32(Configuration["LauncherSettings:ActualizationIntervalMs"]));
+            
+            base.ConfigureMm(app, env, server, logger, matchMaker, serverInfoProvider, bundleLoader);
+        }
         
     }
 }

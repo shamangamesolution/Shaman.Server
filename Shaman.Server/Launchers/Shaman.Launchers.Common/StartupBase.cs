@@ -1,12 +1,16 @@
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Serialization;
 using Shaman.Bundling.Common;
 using Shaman.Common.Http;
 using Shaman.Common.Metrics;
+using Shaman.Common.Server.Applications;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Udp.Senders;
 using Shaman.Common.Udp.Sockets;
@@ -63,8 +67,8 @@ namespace Shaman.Launchers.Common
         {
             services.Configure<T>(Configuration);
             var settings = new T();
-            Configuration.GetSection("ServerSettings").Bind(settings);
-            var ports = Configuration["ServerSettings:ListenPorts"].Split(',').Select(s => Convert.ToUInt16(s)).ToList();
+            Configuration.GetSection("CommonSettings").Bind(settings);
+            var ports = Configuration["CommonSettings:ListenPorts"].Split(',').Select(s => Convert.ToUInt16(s)).ToList();
             settings.ListenPorts = ports;
             services.AddSingleton<IApplicationConfig>(c => settings);
         }
@@ -78,6 +82,28 @@ namespace Shaman.Launchers.Common
             var metricsAgent = new MetricsAgent(metricsSettings);
             services.AddSingleton<IMetricsAgent>(metricsAgent);
             services.AddSingleton<TService, TImplementation>();
+        }
+        
+        protected void ConfigureCommon(IApplicationBuilder app, IHostingEnvironment env, IApplication server, IShamanLogger logger)
+        {
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+            else
+            {
+                CheckProductionCompiledInRelease(logger);
+            }
+
+            app.UseMvc();
+
+            server.Start();
+        }
+        
+        [Conditional("DEBUG")]
+        public void CheckProductionCompiledInRelease(IShamanLogger logger)
+        {
+            logger.Error("ATTENTION!!! Release Environment compiled in DEBUG mode!");
         }
     }
 }

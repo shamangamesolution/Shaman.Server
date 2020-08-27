@@ -19,7 +19,6 @@ using Shaman.Contract.Bundle;
 using Shaman.Contract.Common.Logging;
 using Shaman.Game;
 using Shaman.Game.Api;
-using Shaman.Game.Configuration;
 using Shaman.Game.Metrics;
 using Shaman.Game.Providers;
 using Shaman.Game.Rooms;
@@ -48,19 +47,25 @@ namespace Shaman.Launchers.Game
             //install common deps
             base.ConfigureServices(services);
 
-            ConfigureSettings<GameApplicationConfig>(services);
+            ConfigureSettings<ApplicationConfig>(services);
             
             //deps specific to this launcher
             services.AddSingleton<IRoomControllerFactory, DefaultRoomControllerFactory>();
             services.AddSingleton<IRoomStateUpdater, RoomStateUpdater>();
             services.AddSingleton<IDefaultBundleInfoConfig, DefaultBundleInfoConfig>(c =>
-                new DefaultBundleInfoConfig(Configuration["BundleSettings:BundleUri"],
-                    Convert.ToBoolean(Configuration["BundleSettings:OverwriteDownloadedBundle"])));
+                new DefaultBundleInfoConfig(Configuration["LauncherSettings:BundleUri"],
+                    Convert.ToBoolean(Configuration["LauncherSettings:OverwriteDownloadedBundle"])));
             services.AddSingleton<IBundleInfoProvider, DefaultBundleInfoProvider>();
             services.AddSingleton<IBundleLoader, BundleLoader>();
             services.AddSingleton<IServerActualizer, GameToMmServerActualizer>();
+            services.AddSingleton<IMatchMakerInfoProvider, MatchMakerInfoProvider>(c => new MatchMakerInfoProvider(Configuration["LauncherSettings:MatchMakerUrl"]));
             
             ConfigureMetrics<IGameMetrics, GameMetrics>(services);
+        }
+        
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplication server, IServerActualizer serverActualizer, IShamanLogger logger)
+        {
+            base.ConfigureGame(app, env, server, serverActualizer, logger);
         }
 
     }

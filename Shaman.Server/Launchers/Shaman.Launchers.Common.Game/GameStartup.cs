@@ -6,12 +6,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Shaman.Common.Server.Applications;
 using Shaman.Common.Server.Configuration;
+using Shaman.Common.Server.Messages;
 using Shaman.Common.Server.Providers;
 using Shaman.Contract.Bundle;
 using Shaman.Contract.Common.Logging;
 using Shaman.Game;
 using Shaman.Game.Api;
-using Shaman.Game.Configuration;
 using Shaman.Game.Providers;
 using Shaman.Game.Rooms;
 using Shaman.Game.Rooms.RoomProperties;
@@ -27,7 +27,7 @@ namespace Shaman.Launchers.Common.Game
         
         public virtual void ConfigureServices(IServiceCollection services)
         {
-            ConfigureCommonServices(services, "Shaman.Game");
+            ConfigureCommonServices(services, LauncherHelpers.GetAssemblyName(ServerRole.GameServer));
 
             services.AddScoped<IRoomPropertiesContainer, RoomPropertiesContainer>();
             services.AddSingleton<IRoomManager, RoomManager>();
@@ -40,31 +40,11 @@ namespace Shaman.Launchers.Common.Game
 
         
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplication server,
-            IServerActualizer serverActualizer, IRoomControllerFactory controllerFactory /* init bundle */,
-            IGameServerApi gameServerApi, IShamanLogger logger)
+        public void ConfigureGame(IApplicationBuilder app, IHostingEnvironment env, IApplication server, IServerActualizer serverActualizer, IShamanLogger logger)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-            else
-            {
-                CheckProductionCompiledInRelease(logger);
-            }
-
-            app.UseMvc();
-
-            server.Start();
-
             serverActualizer.Start(Convert.ToInt32(Configuration["ServerSettings:ActualizationIntervalMs"]));
+            
+            base.ConfigureCommon(app, env, server, logger);
         }
-
-        [Conditional("DEBUG")]
-        public void CheckProductionCompiledInRelease(IShamanLogger logger)
-        {
-            logger.Error("ATTENTION!!! Release Environment compiled in DEBUG mode!");
-        }
-
     }
 }

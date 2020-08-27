@@ -4,10 +4,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
+using Shaman.Common.Server.Configuration;
 using Shaman.Common.Server.Messages;
 using Shaman.Contract.Bundle;
 using Shaman.Game.Api;
-using Shaman.Game.Configuration;
 using Shaman.ServiceBootstrap;
 
 namespace Shaman.Launchers.Game.Standalone
@@ -24,7 +24,7 @@ namespace Shaman.Launchers.Game.Standalone
         internal static bool IsStandaloneMode => StandaloneBundle != null;
         internal static IGameBundle StandaloneBundle { get; set; }
         internal static IGameServerApi Api { get; set; }
-        internal static GameApplicationConfig Config { get; set; }
+        internal static ApplicationConfig Config { get; set; }
 
         public static LaunchResult Launch(IGameBundle bundle,
             string[] args,
@@ -41,7 +41,7 @@ namespace Shaman.Launchers.Game.Standalone
             int serverInfoListUpdateIntervalMs = 60000)
         {
             StandaloneBundle = bundle;
-            Config = new GameApplicationConfig
+            Config = new ApplicationConfig
             {
                 ServerName = name,
                 Region = regionName,
