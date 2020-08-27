@@ -34,12 +34,14 @@ namespace Shaman.Launchers.Game.Balancing
 
             ConfigureSettings<GameApplicationConfig>(services);
 
-            services.AddSingleton<IBundleInfoProviderConfig, BundleInfoProviderConfig>(provider =>
+            services.AddSingleton<IBalancingBundleInfoProviderConfig, BalancingBundleInfoProviderConfig>(provider =>
             {
                 var config = provider.GetService<IApplicationConfig>();
-                return new BundleInfoProviderConfig(config.RouterUrl, config.PublicDomainNameOrAddress,config.ListenPorts, ServerRole.GameServer);
+                return new BalancingBundleInfoProviderConfig(config.RouterUrl, config.PublicDomainNameOrAddress, config.ListenPorts, ServerRole.GameServer);
             });
             services.AddSingleton<IBundleInfoProvider, BundleInfoProvider>();
+            services.AddSingleton<IBundleLoader, BundleLoader>();
+
             services.AddSingleton<IServerActualizer, RouterServerActualizer>();
             services.AddSingleton(provider => new RouterConfig(provider.GetService<IApplicationConfig>().RouterUrl));
             services.AddSingleton<IRouterClient, RouterClient>();

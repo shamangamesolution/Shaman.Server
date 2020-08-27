@@ -5,25 +5,15 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.App" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Content Include="appsettings.game.json">
-        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <Content Include="appsettings.bundle.json">
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
-      <Content Include="appsettings.mm.json">
         <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
-      <Content Include="appsettings.router.json">
-        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\Contracts\Shaman.Contract.Bundle.DI\Shaman.Contract.Bundle.DI.csproj" />
       <ProjectReference Include="..\..\Contracts\Shaman.Contract.Bundle\Shaman.Contract.Bundle.csproj" />
       <ProjectReference Include="..\..\Contracts\Shaman.Contract.MM\Shaman.Contract.MM.csproj" />
       <ProjectReference Include="..\..\Serialization\Shaman.Serialization.Messages.Udp\Shaman.Serialization.Messages.Udp.csproj" />

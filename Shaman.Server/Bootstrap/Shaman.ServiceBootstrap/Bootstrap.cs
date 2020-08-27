@@ -21,6 +21,7 @@ namespace Shaman.ServiceBootstrap
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.common.json", optional: false)
                 .AddJsonFile($"appsettings.common.{serverRole}.json", optional: false)
+                .AddJsonFile($"appsettings.launcher.{serverRole}.json", optional: true)
                 .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.{serverRole}.json", optional: true)
                 .AddEnvironmentVariables()
                 .Build();

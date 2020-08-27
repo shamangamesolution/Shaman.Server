@@ -53,17 +53,15 @@ namespace Shaman.Launchers.Game
             //deps specific to this launcher
             services.AddSingleton<IRoomControllerFactory, DefaultRoomControllerFactory>();
             services.AddSingleton<IRoomStateUpdater, RoomStateUpdater>();
-            services.Configure<GameApplicationConfig>(Configuration);
+            services.AddSingleton<IDefaultBundleInfoConfig, DefaultBundleInfoConfig>(c =>
+                new DefaultBundleInfoConfig(Configuration["BundleSettings:BundleUri"],
+                    Convert.ToBoolean(Configuration["BundleSettings:OverwriteDownloadedBundle"])));
             services.AddSingleton<IBundleInfoProvider, DefaultBundleInfoProvider>();
+            services.AddSingleton<IBundleLoader, BundleLoader>();
             services.AddSingleton<IServerActualizer, GameToMmServerActualizer>();
             
-                ConfigureMetrics<IGameMetrics, GameMetrics>(services);
+            ConfigureMetrics<IGameMetrics, GameMetrics>(services);
         }
-
-
-        
-
-
 
     }
 }

@@ -16,6 +16,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\Bundling\Shaman.Bundling.Common\Shaman.Bundling.Common.csproj" />
       <ProjectReference Include="..\..\Common\Shaman.Common.Server\Shaman.Common.Server.csproj" />
       <ProjectReference Include="..\..\Common\Shaman.Common.Udp\Shaman.Common.Udp.csproj" />
       <ProjectReference Include="..\..\Contracts\Shaman.Contract.Bundle\Shaman.Contract.Bundle.csproj" />

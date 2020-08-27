@@ -29,8 +29,6 @@ namespace Shaman.Launchers.Common.Game
         {
             ConfigureCommonServices(services, "Shaman.Game");
 
-            services.AddSingleton(c =>
-                ((GameApplicationConfig) c.GetRequiredService<IApplicationConfig>()).GetBundleConfig());
             services.AddScoped<IRoomPropertiesContainer, RoomPropertiesContainer>();
             services.AddSingleton<IRoomManager, RoomManager>();
             services.AddSingleton<IApplication, GameApplication>();

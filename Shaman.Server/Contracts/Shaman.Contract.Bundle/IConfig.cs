@@ -2,10 +2,8 @@ using System.Collections.Generic;
 
 namespace Shaman.Contract.Bundle
 {
-    public interface IConfig
+    public interface IBundleConfig
     {
-        string RouterUrl { get; }
-        string HostAddress { get; }
-        IEnumerable<ushort> ListenPorts { get; }
+        string GetValueOrNull(string key);
     }
 }

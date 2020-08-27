@@ -14,13 +14,15 @@ namespace Shaman.Game.Rooms
         private readonly IGameBundle _gameBundle;
         private readonly IRoomControllerFactory _bundledRoomControllerFactory;
 
-        public DefaultRoomControllerFactory(IBundleInfoProvider bundleInfoProvider,
-            IServerActualizer serverActualizer, IShamanComponents shamanComponents, IApplicationConfig config)
+        public DefaultRoomControllerFactory(IBundleLoader bundleLoader,
+            IServerActualizer serverActualizer, IShamanComponents shamanComponents)
         {
             // in case of first time actualization
             serverActualizer.Actualize(0);
-            var bundleUri = bundleInfoProvider.GetBundleUri().Result;
-            _gameBundle = BundleHelper.LoadTypeFromBundle<IGameBundle>(bundleUri, ((GameApplicationConfig)config).OverwriteDownloadedBundle);
+            // var bundleUri = bundleInfoProvider.GetBundleUri().Result;
+            // _gameBundle = BundleHelper.LoadTypeFromBundle<IGameBundle>(bundleUri, ((GameApplicationConfig)config).OverwriteDownloadedBundle);
+            bundleLoader.LoadBundle();
+            _gameBundle = bundleLoader.LoadTypeFromBundle<IGameBundle>();
             _gameBundle.OnInitialize(shamanComponents);
             _bundledRoomControllerFactory = _gameBundle.GetRoomControllerFactory();
             if (_bundledRoomControllerFactory == null)
