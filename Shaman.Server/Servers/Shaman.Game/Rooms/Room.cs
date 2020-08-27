@@ -106,12 +106,6 @@ namespace Shaman.Game.Rooms
             return _roomPlayers.Values;
         }
 
-        public void ConfirmedJoin(Guid sessionId)
-        {
-            _roomManager.ConfirmedJoin(sessionId, this);
-            UpdateRoomStateOnMm();
-        }
-
         public RoomStats GetStats()
         {
             return _roomStats;

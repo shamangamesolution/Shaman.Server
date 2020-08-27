@@ -18,7 +18,6 @@ namespace Shaman.Game.Rooms
         void ProcessMessage(ushort operationCode, Payload message, DeliveryOptions deliveryOptions, IPeer peer);
         Dictionary<Guid, int> GetRoomPeerCount();
         IRoom GetOldestRoom();
-        void ConfirmedJoin(Guid sessionId, IRoom room);
         void PeerDisconnected(IPeer peer, IDisconnectInfo info);
         IRoom GetRoomById(Guid id);
     }
