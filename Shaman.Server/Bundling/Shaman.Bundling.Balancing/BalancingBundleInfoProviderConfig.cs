@@ -3,7 +3,7 @@ using Shaman.Common.Server.Messages;
 
 namespace Shaman.Bundling.Balancing
 {
-    public interface IBundleInfoProviderConfig
+    public interface IBalancingBundleInfoProviderConfig
     {
         string RouterUrl { get; set; }
         string PublicName { get; set; }
@@ -11,14 +11,14 @@ namespace Shaman.Bundling.Balancing
         ServerRole Role { get; set; }
     }
     
-    public class BundleInfoProviderConfig : IBundleInfoProviderConfig
+    public class BalancingBundleInfoProviderConfig : IBalancingBundleInfoProviderConfig
     {
         public string RouterUrl { get; set; }
         public string PublicName { get; set; }
         public IEnumerable<ushort> Ports { get; set; }
         public ServerRole Role { get; set; }
 
-        public BundleInfoProviderConfig(string routerUrl, string publicName, IEnumerable<ushort> ports, ServerRole role)
+        public BalancingBundleInfoProviderConfig(string routerUrl, string publicName, IEnumerable<ushort> ports, ServerRole role)
         {
             RouterUrl = routerUrl;
             PublicName = publicName;

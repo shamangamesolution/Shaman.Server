@@ -5,7 +5,12 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\Contracts\Shaman.Contract.Bundle\Shaman.Contract.Bundle.csproj" />
       <ProjectReference Include="..\..\Serialization\Shaman.Serialization.Messages\Shaman.Serialization.Messages.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Newtonsoft.Json" Version="10.0.1" />
     </ItemGroup>
 
 </Project>

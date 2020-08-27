@@ -34,10 +34,10 @@ namespace Shaman.Launchers.MM.Balancing
             ConfigureSettings<MmApplicationConfig>(services);
             
             //install deps specific to launcher
-            services.AddSingleton<IBundleInfoProviderConfig, BundleInfoProviderConfig>(provider =>
+            services.AddSingleton<IBalancingBundleInfoProviderConfig, BalancingBundleInfoProviderConfig>(provider =>
             {
                 var config = provider.GetService<IApplicationConfig>();
-                return new BundleInfoProviderConfig(config.RouterUrl, config.PublicDomainNameOrAddress,config.ListenPorts, ServerRole.MatchMaker);
+                return new BalancingBundleInfoProviderConfig(config.RouterUrl, config.PublicDomainNameOrAddress,config.ListenPorts, ServerRole.MatchMaker);
             });
             services.AddSingleton(provider => new RouterConfig(provider.GetService<IApplicationConfig>().RouterUrl));
             services.AddSingleton<IRouterClient, RouterClient>();
@@ -50,7 +50,8 @@ namespace Shaman.Launchers.MM.Balancing
             services.AddSingleton<IRoomApiProvider, DefaultRoomApiProvider>();
             services.AddSingleton<IServerActualizer, RouterServerActualizer>();
             services.AddSingleton<IBundleInfoProvider, BundleInfoProvider>();
-            
+            services.AddSingleton<IBundleLoader, BundleLoader>();
+
             //metrics
             ConfigureMetrics<IMmMetrics, MmMetrics>(services);
         }

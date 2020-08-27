@@ -4,12 +4,14 @@ using System.Reflection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Serialization;
+using Shaman.Bundling.Common;
 using Shaman.Common.Http;
 using Shaman.Common.Metrics;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Udp.Senders;
 using Shaman.Common.Udp.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
+using Shaman.Contract.Bundle;
 using Shaman.Contract.Common.Logging;
 using Shaman.LiteNetLibAdapter;
 using Shaman.Serialization;
@@ -53,6 +55,8 @@ namespace Shaman.Launchers.Common
             services.AddSingleton<IShamanSender, ShamanSender>();
             services.AddSingleton<IShamanMessageSender, ShamanMessageSender>();
             services.AddSingleton<IShamanMessageSenderFactory, ShamanMessageSenderFactory>();
+            services.AddSingleton<IBundleSettingsProvider, BundleSettingsFromFileProvider>();
+            services.AddSingleton<IBundleConfig, BundleConfig>();
         }
 
         protected void ConfigureSettings<T>(IServiceCollection services) where T:ApplicationConfig, new()

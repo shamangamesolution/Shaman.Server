@@ -23,32 +23,6 @@ namespace Shaman.Common.Server.Configuration
         private ServerIdentity _identity;
         public ushort BindToPortHttp { get; set; }
         public int ActualizationIntervalMs { get; set; }
-        public bool OverwriteDownloadedBundle { get; set; }
-
-        // public ApplicationConfig(string name, string region, ServerRole serverRole, string publicDomainNameOrIpAddress,
-        //     List<ushort> ports, string routerUrl, ushort httpPort, int socketTickTimeMs,
-        //     int receiveTickTimeMs, int sendTickTimeMs, SocketType socketType,
-        //     bool isAuthOn, string authSecret, int maxPacketSize, int basePacketBufferSize, int actualizationIntervalMs, bool overwriteDownloadedBundle)
-        // {
-        //     ServerName = name;
-        //     Region = region;
-        //     ServerRole = serverRole;
-        //     ListenPorts = ports;
-        //     SocketTickTimeMs = socketTickTimeMs;
-        //     ReceiveTickTimeMs = receiveTickTimeMs;
-        //     PublicDomainNameOrAddress = publicDomainNameOrIpAddress;
-        //     IsAuthOn = isAuthOn;
-        //     AuthSecret = authSecret;
-        //     RouterUrl = routerUrl;
-        //     SendTickTimeMs = sendTickTimeMs;
-        //     MaxPacketSize = maxPacketSize;
-        //     BasePacketBufferSize = basePacketBufferSize;
-        //     SocketType = socketType;
-        //     _identity = new ServerIdentity(publicDomainNameOrIpAddress, ports, serverRole);
-        //     BindToPortHttp = httpPort;
-        //     ActualizationIntervalMs = actualizationIntervalMs;
-        //     OverwriteDownloadedBundle = overwriteDownloadedBundle;
-        // }
 
         public ServerIdentity GetIdentity()
         {

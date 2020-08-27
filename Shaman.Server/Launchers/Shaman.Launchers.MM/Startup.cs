@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Shaman.Bundling.Common;
@@ -30,12 +31,13 @@ namespace Shaman.Launchers.MM
             ConfigureSettings<MmApplicationConfig>(services);
 
             //install deps specific to launcher
-            services.AddSingleton<IShamanLogger, SerilogLogger>();//(l => new SerilogLogger(logLevel:LogLevel.Error | LogLevel.Info));            
             services.AddSingleton<IMatchMakerServerInfoProvider, DefaultMatchMakerServerInfoProvider>();
             services.AddSingleton<IRoomApiProvider, DefaultRoomApiProvider>();
             services.AddSingleton<IServerActualizer, DefaultServerActualizer>();
+            services.AddSingleton<IDefaultBundleInfoConfig, DefaultBundleInfoConfig>(c => new DefaultBundleInfoConfig(Configuration["BundleSettings:BundleUri"], Convert.ToBoolean(Configuration["BundleSettings:OverwriteDownloadedBundle"])));
             services.AddSingleton<IBundleInfoProvider, DefaultBundleInfoProvider>();
-            
+            services.AddSingleton<IBundleLoader, BundleLoader>();
+
             //metrics
             ConfigureMetrics<IMmMetrics, MmMetrics>(services);
         }

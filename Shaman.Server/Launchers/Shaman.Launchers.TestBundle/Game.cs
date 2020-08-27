@@ -2,43 +2,55 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Shaman.Contract.Bundle;
+using Shaman.Contract.Bundle.DI;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
+using Shaman.Serialization;
 using Shaman.Serialization.Messages.Udp;
 
 namespace Shaman.Launchers.TestBundle
 {
-    public class Game : IGameBundle
+    public class Game : GameBundleBase
     {
-        private IShamanComponents _shamanComponents;
-
-        public IRoomControllerFactory GetRoomControllerFactory()
+        protected override void OnConfigureServices(IServiceCollection serviceCollection)
         {
-            return new TestRoomControllerFactory(_shamanComponents);
+            try
+            {
+                //singletons
+                serviceCollection.AddSingleton<IRoomControllerFactory, TestRoomControllerFactory>();
+                var provider = serviceCollection.BuildServiceProvider();
+                var value = provider.GetService<IBundleConfig>().GetValueOrNull("CustomSetting");
+                provider.GetService<IShamanLogger>().Error($"Received config value: {value}");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
 
-        public void OnInitialize(IShamanComponents shamanComponents)
+        protected override void OnStart(IServiceProvider serviceProvider)
         {
-            _shamanComponents = shamanComponents;
-            _shamanComponents.Logger.Error("Bundle initialization...");
+            //start
         }
     }
 
     class TestRoomControllerFactory : IRoomControllerFactory
     {
-        private readonly IShamanComponents _shamanComponents;
+        private readonly IShamanLogger _logger;
 
-        public TestRoomControllerFactory(IShamanComponents shamanComponents)
+        public TestRoomControllerFactory(IShamanLogger logger)
         {
-            _shamanComponents = shamanComponents;
-            _shamanComponents.Logger.Error("Room factory created");
+            _logger = logger;
+            _logger.Error("Room factory created");
         }
 
         public IRoomController GetGameModeController(IRoomContext room, ITaskScheduler taskScheduler,
             IRoomPropertiesContainer roomPropertiesContainer)
         {
-            return new TestGameController(_shamanComponents.Logger, room);
+            return new TestGameController(_logger, room);
         }
     }
 

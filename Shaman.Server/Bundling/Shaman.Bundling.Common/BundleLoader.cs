@@ -8,18 +8,28 @@ using System.Reflection;
 
 namespace Shaman.Bundling.Common
 {
-    public class BundleHelper
+    public interface IBundleLoader
     {
-        private static readonly string _bundleTempSubFolder = "shaman.bundles";
-        
-        public static T LoadTypeFromBundle<T>(string uri, bool overwriteExisting = false)
-        {
-            Console.Out.WriteLine($"OverwriteExisting: {overwriteExisting}");
+        void LoadBundle();
+        T LoadTypeFromBundle<T>();
+        HashSet<string> GetConfigs();
+    }
+    
+    public class BundleLoader : IBundleLoader
+    {
+        private readonly string _bundleTempSubFolder = "shaman.bundles";
+        private readonly IBundleInfoProvider _bundleInfoProvider;
+        private HashSet<string> _dll = new HashSet<string>();
+        private HashSet<string> _configs = new HashSet<string>();
 
-            return uri.StartsWith("http") ? LoadTypeFromHttpBundle<T>(uri, overwriteExisting) : LoadTypeFromLocalBundle<T>(uri);
+        private string _publishDir;
+        
+        public BundleLoader(IBundleInfoProvider bundleInfoProvider)
+        {
+            _bundleInfoProvider = bundleInfoProvider;
         }
 
-        private static T LoadTypeFromHttpBundle<T>(string url, bool overwriteExisting = false)
+        private string LoadFromHttp(string url, bool overwriteExisting = false)
         {
             var uri = new Uri(url);
 
@@ -44,35 +54,37 @@ namespace Shaman.Bundling.Common
                 File.Delete(bundleDest);
             }
 
-            Console.Out.WriteLine($"Using bundle from {newBundleFolder}");
-            
-            return GetTypeInstance<T>(newBundleFolder);
+            return newBundleFolder;
         }
-
-        private static T GetTypeInstance<T>(string newBundleFolder)
+        
+        private void LoadAll(string publishDir, bool overwriteExisting = false)
         {
-            var type = LoadAndGet<T>(newBundleFolder);
-            Console.Out.WriteLine($"Bundle mapped as {typeof(T).FullName}: {type.FullName}");
-            try
-            {
-                return (T) Activator.CreateInstance(type);
-            }
-            catch (Exception e)
-            {
-                throw new BundleLoadException($"Error activating {typeof(T).FullName} as {type.FullName}", e);
-            }
-        }
-
-        private static T LoadTypeFromLocalBundle<T>(string publishDir)
-        {
-            return GetTypeInstance<T>(publishDir);
-        }
-
-        private static Type LoadAndGet<T>(string publishDir)
-        {
-            var files = Directory.GetFiles(publishDir).Where(f => f.EndsWith(".dll"));
+            var files = Directory.GetFiles(publishDir).Where(f => f.EndsWith(".dll") || f.EndsWith(".json"));
             Type targetType = null;
             foreach (var s in files)
+            {
+                if (s.EndsWith(".dll"))
+                    _dll.Add(s);
+                if (s.EndsWith(".json"))
+                    _configs.Add(s);
+            }
+        }
+        
+        public void LoadBundle()
+        {
+            var uri = _bundleInfoProvider.GetBundleUri().Result;
+            if (uri.StartsWith("http"))
+                _publishDir = LoadFromHttp(uri);
+            else
+                _publishDir = uri;
+            
+            LoadAll(_publishDir, _bundleInfoProvider.GetToOverwriteExisting().Result);
+        }
+
+        public T LoadTypeFromBundle<T>()
+        {
+            Type targetType = null;
+            foreach (var s in _dll)
             {
                 try
                 {
@@ -103,20 +115,22 @@ namespace Shaman.Bundling.Common
             if (targetType == null)
             {
                 throw new BundleLoadException(
-                    $"No implementation of {typeof(T)} found in assemblies from  {publishDir}");
+                    $"No implementation of {typeof(T)} found in assemblies from  {_publishDir}");
             }
 
-            return targetType;
+            try
+            {
+                return (T) Activator.CreateInstance(targetType);
+            }
+            catch (Exception e)
+            {
+                throw new BundleLoadException($"Error activating {typeof(T).FullName} as {targetType.FullName}", e);
+            }
         }
-    }
 
-    public class BundleLoadException : Exception
-    {
-        public BundleLoadException(string msg) : base(msg)
+        public HashSet<string> GetConfigs()
         {
-        }
-        public BundleLoadException(string msg, Exception e) : base(msg, e)
-        {
+            return _configs;
         }
     }
 }

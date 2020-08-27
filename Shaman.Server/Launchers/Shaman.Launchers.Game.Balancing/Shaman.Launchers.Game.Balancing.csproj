@@ -11,13 +11,5 @@
         <ProjectReference Include="..\..\Routing\Shaman.Routing.Balancing.Client\Shaman.Routing.Balancing.Client.csproj" />
         <ProjectReference Include="..\Shaman.Launchers.Common.Game\Shaman.Launchers.Common.Game.csproj" />
     </ItemGroup>
-    
-    <ItemGroup>
-      <Content Include="appsettings.Development.json">
-        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      </Content>
-    </ItemGroup>
 
 </Project>

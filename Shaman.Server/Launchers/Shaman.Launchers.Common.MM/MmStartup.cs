@@ -43,7 +43,7 @@ namespace Shaman.Launchers.Common.MM
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplication server,
             IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory,
             IMatchMaker matchMaker,
-            IBundleInfoProvider bundleInfoProvider, IServerActualizer serverActualizer, IMatchMakerServerInfoProvider serverInfoProvider)
+            IBundleInfoProvider bundleInfoProvider, IServerActualizer serverActualizer, IMatchMakerServerInfoProvider serverInfoProvider, IBundleLoader bundleLoader)
         {
             if (env.IsDevelopment())
             {
@@ -52,8 +52,12 @@ namespace Shaman.Launchers.Common.MM
 
             app.UseMvc();
             
+            bundleLoader.LoadBundle();
+            
+            
             var bundleUri = bundleInfoProvider.GetBundleUri().Result;
-            var resolver = BundleHelper.LoadTypeFromBundle<IMmResolver>(bundleUri, Convert.ToBoolean(Configuration["OverwriteDownloadedBundle"]));
+            var resolver = bundleLoader.LoadTypeFromBundle<IMmResolver>();
+            // var resolver = BundleHelper.LoadTypeFromBundle<IMmResolver>(bundleUri, Convert.ToBoolean(Configuration["OverwriteDownloadedBundle"]));
             RoomPropertiesProvider.RoomPropertiesProviderImplementation = resolver.GetRoomPropertiesProvider();
             resolver.Configure(matchMaker);
             

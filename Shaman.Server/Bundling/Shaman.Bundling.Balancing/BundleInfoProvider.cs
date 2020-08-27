@@ -15,9 +15,9 @@ namespace Shaman.Bundling.Balancing
         private const int BundleRetryMsec = 1500;
         private readonly IRequestSender _requestSender;
         private readonly IShamanLogger _logger;
-        private readonly IBundleInfoProviderConfig _config;
+        private readonly IBalancingBundleInfoProviderConfig _config;
 
-        public BundleInfoProvider(IRequestSender requestSender, IBundleInfoProviderConfig config, IShamanLogger logger)
+        public BundleInfoProvider(IRequestSender requestSender, IBalancingBundleInfoProviderConfig config, IShamanLogger logger)
         {
             _requestSender = requestSender;
             _logger = logger;
@@ -50,6 +50,11 @@ namespace Shaman.Bundling.Balancing
                     Thread.Sleep(BundleRetryMsec);
                 }
             }
+        }
+
+        public async Task<bool> GetToOverwriteExisting()
+        {
+            return false;
         }
 
 
