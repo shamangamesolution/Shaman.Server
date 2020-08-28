@@ -8,19 +8,6 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.App" />
     </ItemGroup>
-    
-    <ItemGroup>
-      <Content Include="***REMOVED***">
-        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      </Content>
-      <Content Include="***REMOVED***">
-        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      </Content>
-    </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\..\Bootstrap\Shaman.ServiceBootstrap\Shaman.ServiceBootstrap.csproj" />
