@@ -15,8 +15,4 @@
       <PackageReference Include="LiteNetLib" Version="0.8.3.1" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="build" />
-    </ItemGroup>
-
 </Project>
