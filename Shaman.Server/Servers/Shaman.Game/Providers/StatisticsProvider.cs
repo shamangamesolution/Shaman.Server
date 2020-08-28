@@ -6,16 +6,16 @@ namespace Shaman.Game.Providers
 {
     public class StatisticsProvider : IStatisticsProvider
     {
-        // private readonly IRoomManager _roomManager;
-        public StatisticsProvider()
+        private readonly IRoomManager _roomManager;
+        public StatisticsProvider(IRoomManager roomManager)
         {
-            // _roomManager = roomManager;
+            _roomManager = roomManager;
         }
 
         public int GetPeerCount()
         {
-            //return _roomManager.GetRoomPeerCount().Sum(r => r.Value);
-            return -1;
+            return _roomManager.GetRoomPeerCount().Sum(r => r.Value);
+            // return -1;
         }
     }
 }

@@ -13,11 +13,9 @@ namespace Shaman.Game.Rooms
         private readonly IGameBundle _gameBundle;
         private readonly IRoomControllerFactory _bundledRoomControllerFactory;
 
-        public DefaultRoomControllerFactory(IBundleLoader bundleLoader,
-            IServerActualizer serverActualizer, IShamanComponents shamanComponents)
+        public DefaultRoomControllerFactory(IBundleLoader bundleLoader, IShamanComponents shamanComponents)
         {
-            // in case of first time actualization
-            serverActualizer.Actualize(0);
+
             // var bundleUri = bundleInfoProvider.GetBundleUri().Result;
             // _gameBundle = BundleHelper.LoadTypeFromBundle<IGameBundle>(bundleUri, ((GameApplicationConfig)config).OverwriteDownloadedBundle);
             bundleLoader.LoadBundle();
