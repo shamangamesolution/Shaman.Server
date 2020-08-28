@@ -10,6 +10,7 @@ using Shaman.Common.Server.Providers;
 using Shaman.Contract.Bundle;
 using Shaman.Contract.Common.Logging;
 using Shaman.Contract.Routing;
+using Shaman.Contract.Routing.Actualization;
 using Shaman.Game;
 using Shaman.Game.Api;
 using Shaman.Game.Providers;

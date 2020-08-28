@@ -8,12 +8,12 @@ using Shaman.Common.Server.Applications;
 using Shaman.Common.Server.Configuration;
 using Shaman.Contract.Common.Logging;
 using Shaman.Contract.MM;
+using Shaman.Contract.Routing.MM;
 using Shaman.Launchers.Common.MM;
 using Shaman.MM.MatchMaking;
 using Shaman.MM.Metrics;
 using Shaman.MM.Providers;
 using Shaman.MM.Rooms;
-using Shaman.Routing.Common.MM;
 using Shaman.ServiceBootstrap.Logging;
 
 namespace Shaman.Launchers.MM

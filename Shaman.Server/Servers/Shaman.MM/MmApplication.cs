@@ -8,12 +8,12 @@ using Shaman.Common.Udp.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Bundle.Stats;
 using Shaman.Contract.Common.Logging;
+using Shaman.Contract.Routing.MM;
 using Shaman.MM.MatchMaking;
 using Shaman.MM.Peers;
 using Shaman.MM.Managers;
 using Shaman.MM.Metrics;
 using Shaman.MM.Providers;
-using Shaman.Routing.Common.MM;
 using Shaman.Serialization;
 
 namespace Shaman.MM

@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Shaman.Bundling.Common;
 using Shaman.Common.Server.Configuration;
 using Shaman.Contract.Bundle;
+using Shaman.Contract.Routing.Actualization;
 using Shaman.Game.Metrics;
 using Shaman.Game.Rooms;
 using Shaman.Launchers.Common.Game;

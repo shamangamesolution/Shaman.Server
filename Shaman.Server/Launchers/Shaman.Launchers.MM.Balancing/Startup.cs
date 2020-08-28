@@ -8,7 +8,9 @@ using Shaman.Bundling.Common;
 using Shaman.Common.Server.Applications;
 using Shaman.Common.Server.Configuration;
 using Shaman.Contract.Common.Logging;
+using Shaman.Contract.Routing.Actualization;
 using Shaman.Contract.Routing.Balancing;
+using Shaman.Contract.Routing.MM;
 using Shaman.Launchers.Common.MM;
 using Shaman.MM.MatchMaking;
 using Shaman.MM.Metrics;
@@ -17,7 +19,6 @@ using Shaman.Routing.Balancing.Client;
 using Shaman.Routing.Balancing.MM.Configuration;
 using Shaman.Routing.Balancing.MM.Providers;
 using Shaman.Routing.Common;
-using Shaman.Routing.Common.MM;
 
 namespace Shaman.Launchers.MM.Balancing
 {

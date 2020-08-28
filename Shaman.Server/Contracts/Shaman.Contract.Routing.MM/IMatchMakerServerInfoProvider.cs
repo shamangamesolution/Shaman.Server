@@ -1,7 +1,6 @@
-using Shaman.Contract.Routing;
 using Shaman.Serialization.Messages;
 
-namespace Shaman.Routing.Common.MM
+namespace Shaman.Contract.Routing.MM
 {
     public interface IMatchMakerServerInfoProvider
     {

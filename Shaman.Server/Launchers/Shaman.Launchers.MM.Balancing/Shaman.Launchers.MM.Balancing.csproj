@@ -12,14 +12,15 @@
           <Version>1.9.11-remove-router</Version>
         </PackageReference>
         <PackageReference Include="Shaman.Routing.Balancing.Client">
-          <Version>1.9.13-remove-router</Version>
+          <Version>1.9.14-remove-router</Version>
         </PackageReference>
         <PackageReference Include="Shaman.Routing.Balancing.Messages">
           <Version>1.9.12-remove-router</Version>
         </PackageReference>
         <PackageReference Include="Shaman.Routing.Balancing.MM">
-          <Version>1.9.11-remove-router</Version>
+          <Version>1.9.12-remove-router</Version>
         </PackageReference>
+        <ProjectReference Include="..\..\Contracts\Shaman.Contract.Routing.Actualization\Shaman.Contract.Routing.Actualization.csproj" />
       <ProjectReference Include="..\Shaman.Launchers.Common.MM\Shaman.Launchers.Common.MM.csproj" />
     </ItemGroup>
 

@@ -1,7 +1,7 @@
 using System.Linq;
 using Shaman.Contract.Common.Logging;
 using Shaman.Contract.Routing;
-using Shaman.Routing.Common.MM;
+using Shaman.Contract.Routing.MM;
 using Shaman.Serialization.Messages;
 
 namespace Shaman.Launchers.MM
