@@ -4,7 +4,7 @@ using Shaman.Serialization;
 using Shaman.Serialization.Extensions;
 using Shaman.Serialization.Messages;
 
-namespace Shaman.Common.Server.Messages
+namespace Shaman.Contract.Routing
 {
     
     public class ServerInfo : EntityBase

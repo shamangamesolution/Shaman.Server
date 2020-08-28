@@ -1,6 +1,6 @@
 using System;
 using Microsoft.Extensions.Configuration;
-using Shaman.Common.Server.Messages;
+using Shaman.Contract.Routing;
 using Shaman.ServiceBootstrap;
 
 namespace Shaman.Launchers.Game.Balancing

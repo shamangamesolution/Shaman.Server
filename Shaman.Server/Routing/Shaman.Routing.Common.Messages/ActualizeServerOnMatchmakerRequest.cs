@@ -1,4 +1,4 @@
-using Shaman.Common.Server.Messages;
+using Shaman.Contract.Routing;
 using Shaman.Serialization;
 using Shaman.Serialization.Extensions;
 using Shaman.Serialization.Messages.Http;

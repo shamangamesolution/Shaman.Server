@@ -9,6 +9,8 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\Common\Shaman.Common.Server.Messages\Shaman.Common.Server.Messages.csproj" />
+      <ProjectReference Include="..\..\Contracts\Shaman.Contract.Routing.Balancing\Shaman.Contract.Routing.Balancing.csproj" />
+      <ProjectReference Include="..\..\Contracts\Shaman.Contract.Routing\Shaman.Contract.Routing.csproj" />
       <ProjectReference Include="..\..\Messages\Shaman.Messages\Shaman.Messages.csproj" />
       <ProjectReference Include="..\..\Network\Shaman.LiteNetLibAdapter\Shaman.LiteNetLibAdapter.csproj" />
       <ProjectReference Include="..\..\Routing\Shaman.Routing.Balancing.Contracts\Shaman.Routing.Balancing.Contracts.csproj" />

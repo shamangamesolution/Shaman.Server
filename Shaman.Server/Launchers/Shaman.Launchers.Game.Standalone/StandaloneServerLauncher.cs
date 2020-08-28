@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
 using Shaman.Common.Server.Configuration;
-using Shaman.Common.Server.Messages;
 using Shaman.Contract.Bundle;
+using Shaman.Contract.Routing;
 using Shaman.Game.Api;
 using Shaman.ServiceBootstrap;
 

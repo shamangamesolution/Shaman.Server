@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Shaman.Common.Server.Messages;
+using Shaman.Contract.Routing;
 
 namespace Shaman.Common.Server.Configuration
 {

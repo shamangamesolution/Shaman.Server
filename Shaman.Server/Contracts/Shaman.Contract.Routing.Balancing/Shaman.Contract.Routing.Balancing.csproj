@@ -2,12 +2,13 @@
 
     <PropertyGroup>
         <TargetFrameworks>netstandard2.0;netcoreapp2.2</TargetFrameworks>
-        <PackageVersion>1.9.10-remove-router</PackageVersion>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageVersion>1.9.13-remove-router</PackageVersion>
     </PropertyGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\..\Serialization\Shaman.Serialization.Messages\Shaman.Serialization.Messages.csproj" />
-      <ProjectReference Include="..\..\Serialization\Shaman.Serialization\Shaman.Serialization.csproj" />
+      <ProjectReference Include="..\Shaman.Contract.Routing\Shaman.Contract.Routing.csproj" />
     </ItemGroup>
 
 </Project>

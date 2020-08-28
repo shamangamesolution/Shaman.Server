@@ -2,7 +2,7 @@ using NUnit.Framework;
 using Shaman.Bundling.Common;
 using Shaman.Contract.MM;
 
-namespace Shaman.ServerSharedUtilities.Tests
+namespace Shaman.Bundling.Tests
 {
     public class BundleHelperTests
     {

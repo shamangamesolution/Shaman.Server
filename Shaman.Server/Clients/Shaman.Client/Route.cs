@@ -1,4 +1,4 @@
-namespace Shaman.Routing.Common
+namespace Shaman.Client
 {
     public class Route
     {

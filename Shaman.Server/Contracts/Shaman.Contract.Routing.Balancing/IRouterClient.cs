@@ -1,8 +1,7 @@
 using System.Threading.Tasks;
-using Shaman.Common.Server.Messages;
 using Shaman.Serialization.Messages;
 
-namespace Shaman.Routing.Balancing.Contracts
+namespace Shaman.Contract.Routing.Balancing
 {
     public interface IRouterClient
     {
