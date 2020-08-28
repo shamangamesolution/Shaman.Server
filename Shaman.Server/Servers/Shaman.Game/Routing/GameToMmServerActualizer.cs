@@ -6,6 +6,7 @@ using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
 using Shaman.Contract.Routing;
+using Shaman.Contract.Routing.Actualization;
 using Shaman.Routing.Common;
 using Shaman.Routing.Common.Messages;
 

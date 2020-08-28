@@ -4,11 +4,11 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Shaman.Contract.Common.Logging;
 using Shaman.Contract.Routing;
+using Shaman.Contract.Routing.MM;
 using Shaman.MM.Extensions;
 using Shaman.Messages.MM;
 using Shaman.MM.Managers;
 using Shaman.Routing.Common.Messages;
-using Shaman.Routing.Common.MM;
 using Shaman.Serialization;
 using Shaman.Serialization.Messages;
 

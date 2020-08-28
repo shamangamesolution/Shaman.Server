@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace Shaman.Routing.Common
+namespace Shaman.Contract.Routing.Actualization
 {
     public interface IServerActualizer
     {

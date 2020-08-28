@@ -17,6 +17,7 @@ using Shaman.Common.Udp.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Bundle;
 using Shaman.Contract.Common.Logging;
+using Shaman.Contract.Routing.Actualization;
 using Shaman.Game;
 using Shaman.Game.Api;
 using Shaman.Game.Metrics;
