@@ -8,19 +8,6 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.App" />
     </ItemGroup>
-    
-    <ItemGroup>
-      <Content Include="appsettings.Development.GameServer.json">
-        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      </Content>
-      <Content Include="appsettings.Development.MatchMaker.json">
-        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      </Content>
-    </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\..\Bootstrap\Shaman.ServiceBootstrap\Shaman.ServiceBootstrap.csproj" />
