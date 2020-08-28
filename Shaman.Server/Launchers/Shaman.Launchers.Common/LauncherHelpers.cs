@@ -1,5 +1,5 @@
 using System;
-using Shaman.Common.Server.Messages;
+using Shaman.Contract.Routing;
 
 namespace Shaman.Launchers.Common
 {

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
-using Shaman.Common.Server.Messages;
 using Shaman.Common.Udp.Senders;
+using Shaman.Contract.Routing;
 
 namespace Shaman.Common.Server.Configuration
 {

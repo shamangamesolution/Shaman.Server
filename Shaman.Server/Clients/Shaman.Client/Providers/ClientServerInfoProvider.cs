@@ -2,11 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Shaman.Common.Server.Messages;
 using Shaman.Contract.Common.Logging;
+using Shaman.Contract.Routing;
+using Shaman.Contract.Routing.Balancing;
 using Shaman.Messages.General.Entity;
-using Shaman.Routing.Balancing.Contracts;
-using Shaman.Routing.Common;
 using Shaman.Serialization.Messages;
 
 namespace Shaman.Client.Providers

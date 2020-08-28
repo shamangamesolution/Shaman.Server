@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-using Shaman.Common.Server.Messages;
+using Shaman.Contract.Routing;
 using Shaman.ServiceBootstrap;
 
 namespace Shaman.Launchers.Pair

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Shaman.Messages.RoomFlow;
-using Shaman.Routing.Common;
 using Shaman.Serialization.Messages.Http;
 using Shaman.Serialization.Messages.Udp;
 

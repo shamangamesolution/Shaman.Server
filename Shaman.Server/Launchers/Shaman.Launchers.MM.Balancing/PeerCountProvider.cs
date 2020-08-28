@@ -1,6 +1,6 @@
 using Shaman.Routing.Balancing.Client;
 
-namespace Shaman.Launchers.Game.Balancing
+namespace Shaman.Launchers.MM.Balancing
 {
     public class PeerCountProvider : IPeerCountProvider
     {

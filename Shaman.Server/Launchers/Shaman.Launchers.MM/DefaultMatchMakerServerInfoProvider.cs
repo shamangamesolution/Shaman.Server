@@ -1,6 +1,6 @@
 using System.Linq;
-using Shaman.Common.Server.Messages;
 using Shaman.Contract.Common.Logging;
+using Shaman.Contract.Routing;
 using Shaman.Routing.Common.MM;
 using Shaman.Serialization.Messages;
 

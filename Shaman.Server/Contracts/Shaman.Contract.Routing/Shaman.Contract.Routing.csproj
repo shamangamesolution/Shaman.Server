@@ -7,8 +7,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\Common\Shaman.Common.Server.Messages\Shaman.Common.Server.Messages.csproj" />
       <ProjectReference Include="..\..\Serialization\Shaman.Serialization.Messages\Shaman.Serialization.Messages.csproj" />
+      <ProjectReference Include="..\..\Serialization\Shaman.Serialization\Shaman.Serialization.csproj" />
     </ItemGroup>
 
 </Project>

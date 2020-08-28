@@ -37,10 +37,6 @@
       <_ContentIncludedByDefault Remove="publish\Shaman.MM.deps.json" />
       <_ContentIncludedByDefault Remove="publish\Shaman.MM.runtimeconfig.json" />
     </ItemGroup>
-    
-    <ItemGroup>
-      <Folder Include="Configuration" />
-    </ItemGroup>
 
 
 

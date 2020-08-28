@@ -1,4 +1,4 @@
-namespace Shaman.Common.Server.Messages
+namespace Shaman.Contract.Routing
 {
     public enum ServerRole : byte
     {

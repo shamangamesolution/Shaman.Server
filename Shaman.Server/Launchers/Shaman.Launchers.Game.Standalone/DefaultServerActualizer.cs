@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-using Shaman.Routing.Common.Actualization;
+using Shaman.Routing.Common;
 
 namespace Shaman.Launchers.Game.Standalone
 {

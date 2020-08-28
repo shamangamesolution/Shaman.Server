@@ -1,4 +1,4 @@
-namespace Shaman.Common.Server.Applications
+namespace Shaman.Common.Metrics
 {
     public interface IServerMetrics
     {

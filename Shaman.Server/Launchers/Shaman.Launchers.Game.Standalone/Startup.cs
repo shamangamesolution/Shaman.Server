@@ -6,7 +6,7 @@ using Shaman.Contract.Bundle;
 using Shaman.Game.Metrics;
 using Shaman.Game.Rooms;
 using Shaman.Launchers.Common.Game;
-using Shaman.Routing.Common.Actualization;
+using Shaman.Routing.Common;
 
 namespace Shaman.Launchers.Game.Standalone
 {

@@ -5,17 +5,16 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Shaman.Bundling.Common;
 using Shaman.Common.Server.Applications;
-using Shaman.Common.Server.Messages;
 using Shaman.Common.Server.Providers;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Common.Logging;
 using Shaman.Contract.MM;
+using Shaman.Contract.Routing;
 using Shaman.MM;
 using Shaman.MM.Managers;
 using Shaman.MM.MatchMaking;
 using Shaman.MM.Providers;
 using Shaman.MM.Rooms;
-using Shaman.Routing.Common.Actualization;
 using Shaman.Routing.Common.MM;
 
 namespace Shaman.Launchers.Common.MM

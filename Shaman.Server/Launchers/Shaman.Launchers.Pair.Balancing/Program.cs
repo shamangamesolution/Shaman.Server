@@ -1,4 +1,4 @@
-﻿namespace Shaman.Launchers.Pair
+﻿namespace Shaman.Launchers.Pair.Balancing
 {
     class Program
     {

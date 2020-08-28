@@ -7,7 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Events;
-using Shaman.Common.Server.Messages;
+using Shaman.Contract.Routing;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 namespace Shaman.ServiceBootstrap
