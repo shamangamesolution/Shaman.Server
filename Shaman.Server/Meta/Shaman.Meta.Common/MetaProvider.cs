@@ -6,7 +6,6 @@ using Shaman.Common.Server.Messages;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
-using Shaman.Routing.Balancing.Client;
 
 namespace Shaman.Meta.Common
 {

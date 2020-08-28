@@ -39,7 +39,6 @@ namespace Shaman.Launchers.MM
             //install deps specific to launcher
             services.AddSingleton<IMatchMakerServerInfoProvider, DefaultMatchMakerServerInfoProvider>();
             services.AddSingleton<IRoomApiProvider, DefaultRoomApiProvider>();
-            services.AddSingleton<IServerActualizer, DefaultServerActualizer>();
             services.AddSingleton<IDefaultBundleInfoConfig, DefaultBundleInfoConfig>(c =>
                 new DefaultBundleInfoConfig(Configuration["LauncherSettings:BundleUri"],
                     Convert.ToBoolean(Configuration["LauncherSettings:OverwriteDownloadedBundle"])));

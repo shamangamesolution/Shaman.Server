@@ -4,19 +4,9 @@
         <TargetFramework>netcoreapp2.2</TargetFramework>
         <OutputType>Exe</OutputType>
     </PropertyGroup>
-    
+
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.App" />
-        <PackageReference Include="Shaman.Bundling.Balancing">
-          <Version>1.9.10-remove-router</Version>
-        </PackageReference>
-        <PackageReference Include="Shaman.Routing.Balancing.Client">
-          <Version>1.9.11-remove-router</Version>
-        </PackageReference>
-        <PackageReference Include="Shaman.Routing.Balancing.Messages">
-          <Version>1.9.11-remove-router</Version>
-        </PackageReference>
-        <ProjectReference Include="..\Shaman.Launchers.Common.Game\Shaman.Launchers.Common.Game.csproj" />
     </ItemGroup>
     
     <ItemGroup>
@@ -25,11 +15,17 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       </Content>
-      <Content Include="appsettings.launcher.GameServer.json">
+      <Content Include="***REMOVED***">
         <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\Bootstrap\Shaman.ServiceBootstrap\Shaman.ServiceBootstrap.csproj" />
+      <ProjectReference Include="..\Shaman.Launchers.Game.Balancing\Shaman.Launchers.Game.Balancing.csproj" />
+      <ProjectReference Include="..\Shaman.Launchers.MM.Balancing\Shaman.Launchers.MM.Balancing.csproj" />
     </ItemGroup>
 
 </Project>

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Shaman.Common.Server.Messages;
 using Shaman.Contract.Common.Logging;
 using Shaman.Messages.General.Entity;
-using Shaman.Router.Messages;
+using Shaman.Routing.Balancing.Contracts;
 using Shaman.Routing.Common;
 using Shaman.Serialization.Messages;
 
@@ -13,69 +13,64 @@ namespace Shaman.Client.Providers
 {
     public class ClientServerInfoProvider : IClientServerInfoProvider
     {
-        private readonly IRequestSender _requestSender;
         private readonly IShamanLogger _logger;
+        private IRouterClient _routerClient;
         
-        public ClientServerInfoProvider(IRequestSender requestSender, IShamanLogger logger)
+        public ClientServerInfoProvider(IShamanLogger logger, IRouterClient routerClient)
         {
-            _requestSender = requestSender;
             _logger = logger;
+            _routerClient = routerClient;
         }
 
-        public Task GetRoutes(string routerUrl, string clientVersion, Action<List<Route>> callback)
+        public async Task GetRoutes(string routerUrl, string clientVersion, Action<List<Route>> callback)
         {
-            return _requestSender.SendRequest<GetServerInfoListResponse>(routerUrl, new GetServerInfoListRequest(actualOnly: false),
-                (response) =>
-                {
-                    callback(BuildRoutes(clientVersion, response));
-                });
+            var response = await _routerClient.GetServerInfoList(false);
+            callback(BuildRoutes(clientVersion, response));
         }
 
         public virtual async Task<List<Route>> GetRoutes(string routerUrl, string clientVersion)
         {
-            var response = await _requestSender.SendRequest<GetServerInfoListResponse>(routerUrl, new GetServerInfoListRequest(actualOnly: false));
-            if (!response.Success && response.ResultCode == ResultCode.SendRequestError)
+            var list = await _routerClient.GetServerInfoList(false);
+
+            // var response = await _requestSender.SendRequest<GetServerInfoListResponse>(routerUrl, new GetServerInfoListRequest(actualOnly: false));
+            if (list == null)
                 throw new Exception($"Error requesting routes");
-            return BuildRoutes(clientVersion, response);
+            return BuildRoutes(clientVersion, list);
         }
 
-        protected List<Route> BuildRoutes(string clientVersion, GetServerInfoListResponse response)
+        protected List<Route> BuildRoutes(string clientVersion, EntityDictionary<ServerInfo> serverInfoList)
         {
             var result = new List<Route>();
+            if (serverInfoList == null || !serverInfoList.Any())
+                return result;
+            
+            var servers = serverInfoList.Where(s => s.ClientVersion == clientVersion && s.IsApproved).ToList();
 
-            if (!response.Success)
+            var regions = servers.Select(s => s.Region).Distinct();
+            foreach (var region in regions)
             {
-                _logger.Error($"ClientServerInfoProvider.GetRoutes response error: {response.Message}");
-            }
-            else
-            {
-                var servers = response.ServerInfoList.Where(s => s.ClientVersion == clientVersion && s.IsApproved).ToList();
+                //ping host is game server in this region
+                var pingHost = servers.FirstOrDefault(s =>
+                    s.ServerRole == ServerRole.GameServer && s.Region == region);
 
-                var regions = servers.Select(s => s.Region).Distinct();
-                foreach (var region in regions)
+                //get matchmaker
+                var matchMaker = servers.FirstOrDefault(s =>
+                    s.ServerRole == ServerRole.MatchMaker && s.Region == region);
+
+                //get backend
+                var backEnd = servers.FirstOrDefault(s =>
+                    s.ServerRole == ServerRole.BackEnd && s.Region == region);
+
+                if (pingHost != null && matchMaker != null && backEnd != null)
                 {
-                    //ping host is game server in this region
-                    var pingHost = servers.FirstOrDefault(s =>
-                        s.ServerRole == ServerRole.GameServer && s.Region == region);
+                    var protocol = backEnd.HttpsPort > 0 ? "https" : "http";
+                    var port = backEnd.HttpsPort > 0 ? backEnd.HttpsPort : backEnd.HttpPort;
 
-                    //get matchmaker
-                    var matchMaker = servers.FirstOrDefault(s =>
-                        s.ServerRole == ServerRole.MatchMaker && s.Region == region);
-
-                    //get backend
-                    var backEnd = servers.FirstOrDefault(s =>
-                        s.ServerRole == ServerRole.BackEnd && s.Region == region);
-
-                    if (pingHost != null && matchMaker != null && backEnd != null)
-                    {
-                        var protocol = backEnd.HttpsPort > 0 ? "https" : "http";
-                        var port = backEnd.HttpsPort > 0 ? backEnd.HttpsPort : backEnd.HttpPort;
-
-                        result.Add(new Route(region, matchMaker.Name, pingHost.Address, protocol, backEnd.Address, port,
-                            backEnd.Id, matchMaker.Address, matchMaker.GetLessLoadedPort()));
-                    }
+                    result.Add(new Route(region, matchMaker.Name, pingHost.Address, protocol, backEnd.Address, port,
+                        backEnd.Id, matchMaker.Address, matchMaker.GetLessLoadedPort()));
                 }
             }
+            
 
             return result;
         }

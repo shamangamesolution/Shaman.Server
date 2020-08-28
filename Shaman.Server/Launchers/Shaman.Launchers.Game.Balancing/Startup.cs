@@ -13,6 +13,7 @@ using Shaman.Game.Metrics;
 using Shaman.Game.Rooms;
 using Shaman.Launchers.Common.Game;
 using Shaman.Routing.Balancing.Client;
+using Shaman.Routing.Balancing.Contracts;
 using Shaman.Routing.Common.Actualization;
 
 namespace Shaman.Launchers.Game.Balancing
@@ -42,11 +43,16 @@ namespace Shaman.Launchers.Game.Balancing
                 var config = provider.GetService<IApplicationConfig>();
                 return new BalancingBundleInfoProviderConfig(Configuration["LauncherSettings:RouterUrl"], config.PublicDomainNameOrAddress, config.ListenPorts, config.ServerRole);
             });
-            services.AddSingleton<IBundleInfoProvider, BundleInfoProvider>();
+            services.AddSingleton<IBundleInfoProvider, RouterBundleInfoProvider>();
             services.AddSingleton<IBundleLoader, BundleLoader>();
 
             services.AddSingleton<IServerActualizer, RouterServerActualizer>();
-            services.AddSingleton(provider => new RouterConfig(Configuration["LauncherSettings:RouterUrl"]));
+            services.AddSingleton<IPeerCountProvider, PeerCountProvider>();
+            services.AddSingleton<IRoutingConfig, RoutingConfig>(provider =>
+            {
+                var config = provider.GetService<IApplicationConfig>();
+                return new RoutingConfig(Configuration["LauncherSettings:RouterUrl"],config.GetIdentity(), config.ServerName, config.Region, config.BindToPortHttp, 0);
+            });
             services.AddSingleton<IRouterClient, RouterClient>();
 
             ConfigureMetrics<IGameMetrics, GameMetrics>(services);

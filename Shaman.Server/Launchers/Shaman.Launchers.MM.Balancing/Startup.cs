@@ -10,10 +10,12 @@ using Shaman.Common.Server.Configuration;
 using Shaman.Common.Server.Messages;
 using Shaman.Contract.Common.Logging;
 using Shaman.Launchers.Common.MM;
+using Shaman.Launchers.Game.Balancing;
 using Shaman.MM.MatchMaking;
 using Shaman.MM.Metrics;
 using Shaman.MM.Providers;
 using Shaman.Routing.Balancing.Client;
+using Shaman.Routing.Balancing.Contracts;
 using Shaman.Routing.Balancing.MM.Configuration;
 using Shaman.Routing.Balancing.MM.Providers;
 using Shaman.Routing.Common.Actualization;
@@ -44,7 +46,11 @@ namespace Shaman.Launchers.MM.Balancing
                 var config = provider.GetService<IApplicationConfig>();
                 return new BalancingBundleInfoProviderConfig(Configuration["LauncherSettings:RouterUrl"], config.PublicDomainNameOrAddress,config.ListenPorts, config.ServerRole);
             });
-            services.AddSingleton(provider => new RouterConfig(Configuration["LauncherSettings:RouterUrl"]));
+            services.AddSingleton<IRoutingConfig, RoutingConfig>(provider =>
+            {
+                var config = provider.GetService<IApplicationConfig>();
+                return new RoutingConfig(Configuration["LauncherSettings:RouterUrl"],config.GetIdentity(), config.ServerName, config.Region, config.BindToPortHttp, 0);
+            });
             services.AddSingleton<IRouterClient, RouterClient>();
             services.AddSingleton<IRouterServerInfoProviderConfig, RouterServerInfoProviderConfig>(provider =>
             {
@@ -54,10 +60,11 @@ namespace Shaman.Launchers.MM.Balancing
                     Convert.ToInt32(Configuration["LauncherSettings:ServerUnregisterTimeoutMs"]),
                     config.GetIdentity());
             });
+            services.AddSingleton<IPeerCountProvider, PeerCountProvider>();
             services.AddSingleton<IMatchMakerServerInfoProvider, MatchMakerServerInfoProvider>();
             services.AddSingleton<IRoomApiProvider, DefaultRoomApiProvider>();
             services.AddSingleton<IServerActualizer, RouterServerActualizer>();
-            services.AddSingleton<IBundleInfoProvider, BundleInfoProvider>();
+            services.AddSingleton<IBundleInfoProvider, RouterBundleInfoProvider>();
             services.AddSingleton<IBundleLoader, BundleLoader>();
 
             //metrics
