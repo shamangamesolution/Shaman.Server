@@ -6,4 +6,8 @@
         <PackageVersion>1.9.10-remove-router</PackageVersion>
     </PropertyGroup>
 
+    <ItemGroup>
+      <Folder Include="ServerInfo" />
+    </ItemGroup>
+
 </Project>

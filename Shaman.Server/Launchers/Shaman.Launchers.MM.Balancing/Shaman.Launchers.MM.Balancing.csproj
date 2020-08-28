@@ -8,8 +8,18 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.App" />
-        <ProjectReference Include="..\..\Bundling\Shaman.Bundling.Balancing\Shaman.Bundling.Balancing.csproj" />
-      <ProjectReference Include="..\..\Routing\Shaman.Routing.Balancing.MM\Shaman.Routing.Balancing.MM.csproj" />
+        <PackageReference Include="Shaman.Bundling.Balancing">
+          <Version>1.9.10-remove-router</Version>
+        </PackageReference>
+        <PackageReference Include="Shaman.Routing.Balancing.Client">
+          <Version>1.9.11-remove-router</Version>
+        </PackageReference>
+        <PackageReference Include="Shaman.Routing.Balancing.Messages">
+          <Version>1.9.11-remove-router</Version>
+        </PackageReference>
+        <PackageReference Include="Shaman.Routing.Balancing.MM">
+          <Version>1.9.10-remove-router</Version>
+        </PackageReference>
       <ProjectReference Include="..\Shaman.Launchers.Common.MM\Shaman.Launchers.Common.MM.csproj" />
     </ItemGroup>
 
