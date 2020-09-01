@@ -25,7 +25,6 @@ namespace Shaman.Game.Rooms
         bool TryGetPlayer(Guid sessionId, out RoomPlayer player);
         DateTime GetCreatedOnDateTime();
         IEnumerable<RoomPlayer> GetAllPlayers();
-        void ConfirmedJoin(Guid sessionId);
         RoomStats GetStats();
         bool IsGameFinished();
         void UpdateRoom(Dictionary<Guid, Dictionary<byte, object>> players);
