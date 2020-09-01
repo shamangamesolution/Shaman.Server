@@ -1,3 +1,5 @@
+using System.Linq;
+using MongoDB.Bson.Serialization;
 using Shaman.Serialization.Messages;
 
 namespace Shaman.DAL.MongoDb
@@ -9,18 +11,6 @@ namespace Shaman.DAL.MongoDb
 
     public class DefaultMapper<T> : IMongoDbMapper where T:EntityBase    
     {
-        public DefaultMapper()
-        {
-            //TODO insert here different mapping stuff kinda following
-            
-            // BsonClassMap.RegisterClassMap<T>(map =>
-            // {
-            //     map.AutoMap();
-            //     map.SetIgnoreExtraElements(true);
-            //     map.MapIdMember(x => x.Id);
-            // });
-        }
-        
         public string GetCollectionName()
         {
             return typeof(T).Name;

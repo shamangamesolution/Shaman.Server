@@ -9,56 +9,7 @@ using Shaman.Serialization.Messages;
 
 namespace Shaman.DAL.MongoDb.Tests
 {
-    public class TestChildEntity : EntityBase
-    {
-        public TestChildEntity(int id, bool boolField, float floatField)
-        {
-            Id = id;
-            BoolField = boolField;
-            FloatField = floatField;
-        }
 
-        public bool BoolField { get; set; }
-        public float FloatField { get; set; }
-
-        protected override void SerializeBody(Serialization.ITypeWriter typeWriter)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override void DeserializeBody(Serialization.ITypeReader typeReader)
-        {
-            throw new NotImplementedException();
-        }
-    }
-    
-    public class TestEntity : EntityBase
-    {
-        public TestEntity(int id, int intField, string stringField)
-        {
-            Id = id;
-            IntField = intField;
-            StringField = stringField;
-            ChildList = new List<TestChildEntity>();
-            ChildDictionary = new EntityDictionary<TestChildEntity>();
-        }
-
-        public int IntField { get; set; }
-        public string StringField { get; set; }
-        
-        public List<TestChildEntity> ChildList { get; set; }
-        public EntityDictionary<TestChildEntity> ChildDictionary { get; set; }
-
-        protected override void SerializeBody(ITypeWriter typeWriter)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override void DeserializeBody(ITypeReader typeReader)
-        {
-            throw new NotImplementedException();
-        }
-    }
     
     [TestFixture]
     public class MongoDbDefaultTests
@@ -79,12 +30,13 @@ namespace Shaman.DAL.MongoDb.Tests
             }
         };
         private TestEntity _third = new TestEntity(3, int.MaxValue, null);
-
+        private TestChildEntity _standAloneChild = new TestChildEntity(10, false, Single.MaxValue);
+        
         [SetUp]
         public async Task SetUp()
         {
             var settings = new CustomMongoClientSettings("mongodb://localhost", "testdb");
-            var mapperFactory = new DefaultMongoDbMapperFactory();
+            var mapperFactory = new TestMongoDbMapperFactory();
             _connector = new MongoDbConnector(settings, mapperFactory);
             _connector.Connect();
             await TearDown();
@@ -93,20 +45,29 @@ namespace Shaman.DAL.MongoDb.Tests
         [TearDown]
         public async Task TearDown()
         {
-            await RemoveAll();
+            await Clean();
         }
         
         
-        private async Task<TestEntity> Get(int id)
+        private async Task<TestEntity> Get(string id)
         {
             return await _connector.Get<TestEntity>(id);
         }
 
+        public async Task Clean()
+        {
+            await  _connector.Remove<TestChildEntity>(c => true);
+            await _connector.Remove<TestEntity>(c => true);            
+        }        
 
         public async Task RemoveAll()
         {
-            await _connector.Remove<TestEntity>(1);
-            await _connector.Remove<TestEntity>(e => e.Id == 2 || e.Id == 3);
+            await _connector.Remove<TestChildEntity>(c => c.Id == 10);
+            
+            if (!string.IsNullOrWhiteSpace(_first.StringId))
+                await _connector.Remove<TestEntity>(_first.StringId);            
+            if (!string.IsNullOrWhiteSpace(_second.StringId) && !string.IsNullOrWhiteSpace(_third.StringId))
+                await _connector.Remove<TestEntity>(e => e.StringId == _second.StringId || e.StringId == _third.StringId);
         }
         
         [Test]
@@ -115,15 +76,16 @@ namespace Shaman.DAL.MongoDb.Tests
             await _connector.Create(_first);
             await _connector.Create(_second);
             await _connector.Create(_third);
+            await _connector.Create(_standAloneChild);
         }
 
         [Test]
         public async Task CreateGetRemoveTests()
         {
             await CreateTests();
-            var receivedFirst = await Get(_first.Id);
-            var receivedSecond = await Get(_second.Id);
-            var receivedThird = await Get(_third.Id);
+            var receivedFirst = await Get(_first.StringId);
+            var receivedSecond = await Get(_second.StringId);
+            var receivedThird = await Get(_third.StringId);
             
             //asserts
             var jsonedFirst = JsonConvert.SerializeObject(_first);
@@ -142,9 +104,9 @@ namespace Shaman.DAL.MongoDb.Tests
 
             await RemoveAll();
             
-            receivedFirst = await Get(_first.Id);
-            receivedSecond = await Get(_second.Id);
-            receivedThird = await Get(_third.Id);
+            receivedFirst = await Get(_first.StringId);
+            receivedSecond = await Get(_second.StringId);
+            receivedThird = await Get(_third.StringId);
             
             Assert.IsNull(receivedFirst);
             Assert.IsNull(receivedSecond);
@@ -163,14 +125,14 @@ namespace Shaman.DAL.MongoDb.Tests
         {
             await CreateTests();
 
-            var result = await _connector.GetFields<TestEntity>(1)
+            var result = await _connector.GetFields<TestEntity>(_first.StringId)
                 .Include(x => x.StringField)
                 .GetOne();
             
             Assert.AreEqual("test1", result.StringField);
             Assert.AreEqual(0, result.IntField);
             
-            result = await _connector.GetFields<TestEntity>(1)
+            result = await _connector.GetFields<TestEntity>(_first.StringId)
                 .Include(x => x.IntField)
                 .GetOne();
             
@@ -188,7 +150,7 @@ namespace Shaman.DAL.MongoDb.Tests
                 .Push<TestChildEntity>(e => e.ChildDictionary, new TestChildEntity(6, false, 2.1f))
                 .Update();
             
-            var receivedFirst = await Get(_first.Id);
+            var receivedFirst = await Get(_first.StringId);
             Assert.AreEqual(1, receivedFirst.ChildList.Count);
             Assert.AreEqual(1, receivedFirst.ChildDictionary.Count);
             
@@ -197,7 +159,7 @@ namespace Shaman.DAL.MongoDb.Tests
                 .Push<TestChildEntity>(e => e.ChildDictionary, new TestChildEntity(8, true, 2.7f))
                 .Update();
             
-            receivedFirst = await Get(_first.Id);
+            receivedFirst = await Get(_first.StringId);
             Assert.AreEqual(2, receivedFirst.ChildList.Count);
             Assert.AreEqual(2, receivedFirst.ChildDictionary.Count);
             
@@ -206,7 +168,7 @@ namespace Shaman.DAL.MongoDb.Tests
                 .Pull<TestChildEntity>(e => e.ChildDictionary, e => e.Id == 6)
                 .Update();
             
-            receivedFirst = await Get(_first.Id);
+            receivedFirst = await Get(_first.StringId);
             Assert.AreEqual(1, receivedFirst.ChildList.Count);
             Assert.AreEqual(1, receivedFirst.ChildDictionary.Count);
             Assert.AreEqual(7, receivedFirst.ChildList.First().Id);
@@ -227,7 +189,7 @@ namespace Shaman.DAL.MongoDb.Tests
 
             await _connector.Update(i => i.Id == _second.Id && i.ChildDictionary.Any(d => d.Id == 4), fieldsProvider);
             
-            var receivedFirst = await Get(_second.Id);
+            var receivedFirst = await Get(_second.StringId);
             Assert.AreEqual(10, receivedFirst.IntField);
             Assert.AreEqual("update123", receivedFirst.StringField);
             Assert.AreEqual(123.76f, receivedFirst.ChildList[0].FloatField);
@@ -247,7 +209,7 @@ namespace Shaman.DAL.MongoDb.Tests
                 .Set(x => x.ChildList[1].FloatField, 76.123f)
                 .Set(x => x.ChildDictionary[-1].FloatField, 1.01f)
                 .Update();
-            var receivedFirst = await Get(_second.Id);
+            var receivedFirst = await Get(_second.StringId);
             Assert.AreEqual(10, receivedFirst.IntField);
             Assert.AreEqual("update123", receivedFirst.StringField);
             Assert.AreEqual(123.76f, receivedFirst.ChildList[0].FloatField);
