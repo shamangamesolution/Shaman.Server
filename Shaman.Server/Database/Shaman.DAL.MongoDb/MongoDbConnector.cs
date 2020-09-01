@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using Shaman.DAL.MongoDb.FluentOperators;
 using Shaman.Serialization.Messages;
@@ -12,15 +13,15 @@ namespace Shaman.DAL.MongoDb
     {
         void Connect();
         Task<List<T>> GetAll<T>() where T : EntityBase;
-        Task<T> Get<T>(int id) where T : EntityBase;
-        IGetFluent<T> GetFields<T>(int id) where T : EntityBase;
+        Task<T> Get<T>(string id) where T : EntityBase;
+        IGetFluent<T> GetFields<T>(string id) where T : EntityBase;
         IGetFluent<T> GetFields<T>(Expression<Func<T, bool>> filter) where T : EntityBase;
         Task<List<T>> Get<T>(Expression<Func<T, bool>> filter) where T : EntityBase;
-        Task Remove<T>(int id) where T : EntityBase;
+        Task Remove<T>(string id) where T : EntityBase;
         Task Remove<T>(Expression<Func<T, bool>> filter) where T : EntityBase;
         Task RemoveAll<T>() where T : EntityBase;
         Task Create<T>(T record) where T : EntityBase;
-        Task Update<T>(int id, IMongoDbFieldProvider<T> fieldProvider) where T : EntityBase; 
+        Task Update<T>(string id, IMongoDbFieldProvider<T> fieldProvider) where T : EntityBase; 
         Task Update<T>(Expression<Func<T, bool>> filter, IMongoDbFieldProvider<T> fieldProvider) where T : EntityBase;
         IUpdateFluent<T> UpdateWhere<T>(Expression<Func<T, bool>> filter) where T : EntityBase;
     }
@@ -65,11 +66,27 @@ namespace Shaman.DAL.MongoDb
             return await result.ToListAsync();
         }
 
-        public async Task<T> Get<T>(int id) where T : EntityBase
+        private FilterDefinition<T> GetIdFilter<T>(string id)
         {
+            return Builders<T>.Filter.Eq("_id", new ObjectId(id));
+        }
+        
+        public async Task<T> Get<T>(string id) where T : EntityBase
+        {
+            if (string.IsNullOrWhiteSpace(id))
+                throw new Exception($"Get<T> error: id is null");
             var collection = GetCollection<T>();
-            var cursor = await collection.FindAsync(record => record.Id == id);
-            return await cursor.SingleOrDefaultAsync();
+            var filter = GetIdFilter<T>(id);
+            var entity = await (await collection.FindAsync(filter)).SingleOrDefaultAsync();
+            return entity;
+        }
+
+        public IGetFluent<T> GetFields<T>(string id) where T : EntityBase
+        {
+            if (string.IsNullOrWhiteSpace(id))
+                throw new Exception($"GetFields<T> error: id is null");
+            var collection = GetCollection<T>();
+            return new GetFluent<T>(GetIdFilter<T>(id), collection);
         }
 
         public IGetFluent<T> GetFields<T>(Expression<Func<T, bool>> filter) where T : EntityBase
@@ -77,16 +94,13 @@ namespace Shaman.DAL.MongoDb
             var collection = GetCollection<T>();
             return new GetFluent<T>(filter, collection);
         }
-        
-        public IGetFluent<T> GetFields<T>(int id) where T : EntityBase
-        {
-            return GetFields<T>(x => x.Id == id);
-        }
 
-        public async Task Remove<T>(int id) where T : EntityBase
+        public async Task Remove<T>(string id) where T : EntityBase
         {
+            if (string.IsNullOrWhiteSpace(id))
+                throw new Exception($"Remove<T> error: id is null");
             var collection = GetCollection<T>();
-            await collection.DeleteOneAsync(record => record.Id == id);
+            await collection.DeleteOneAsync(GetIdFilter<T>(id));
         }
 
         public async Task Remove<T>(Expression<Func<T, bool>> filter) where T : EntityBase
@@ -116,21 +130,28 @@ namespace Shaman.DAL.MongoDb
             await collection.InsertOneAsync(record);
         }
 
-        public async Task Update<T>(int id, IMongoDbFieldProvider<T> fieldProvider) where T : EntityBase 
+        private UpdateDefinition<T> GetUpdateDefinition<T>(IMongoDbFieldProvider<T> fieldProvider)
         {
-            await Update(record => record.Id == id, fieldProvider);
-        }
-
-        public async Task Update<T>(Expression<Func<T, bool>> filter, IMongoDbFieldProvider<T> fieldProvider) where T : EntityBase
-        {
-            var collection = GetCollection<T>();
             var updateDefinition = new List<UpdateDefinition<T>>();
             foreach (var dataField in fieldProvider.Get())
             {
                 updateDefinition.Add(Builders<T>.Update.Set(dataField.Expression, dataField.Value));
             }
-            var combinedUpdate = Builders<T>.Update.Combine(updateDefinition);
-            await collection.UpdateOneAsync(filter, combinedUpdate);
+            return Builders<T>.Update.Combine(updateDefinition);
+        }
+        
+        public async Task Update<T>(string id, IMongoDbFieldProvider<T> fieldProvider) where T : EntityBase
+        {
+            if (string.IsNullOrWhiteSpace(id))
+                throw new Exception($"Update<T> error: id is null");
+            var collection = GetCollection<T>();
+            await collection.UpdateOneAsync(GetIdFilter<T>(id), GetUpdateDefinition<T>(fieldProvider));
+        }
+
+        public async Task Update<T>(Expression<Func<T, bool>> filter, IMongoDbFieldProvider<T> fieldProvider) where T : EntityBase
+        {
+            var collection = GetCollection<T>();
+            await collection.UpdateOneAsync(filter, GetUpdateDefinition<T>(fieldProvider));
         }
         
         
@@ -139,7 +160,5 @@ namespace Shaman.DAL.MongoDb
             var collection = GetCollection<T>();
             return new UpdateFluent<T>(filter, collection);
         }
-
-
     }
 }
