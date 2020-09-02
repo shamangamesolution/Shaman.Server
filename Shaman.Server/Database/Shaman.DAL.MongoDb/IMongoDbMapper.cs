@@ -9,7 +9,7 @@ namespace Shaman.DAL.MongoDb
         string GetCollectionName();
     }
 
-    public class DefaultMapper<T> : IMongoDbMapper where T:EntityBase    
+    public class DefaultMapper<T> : IMongoDbMapper    
     {
         public string GetCollectionName()
         {
