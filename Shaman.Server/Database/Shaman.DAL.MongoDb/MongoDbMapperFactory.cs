@@ -8,7 +8,7 @@ namespace Shaman.DAL.MongoDb
 {
     public interface IMongoDbMapperFactory
     {
-        IMongoDbMapper GetMapper<T>() where T : EntityBase;
+        IMongoDbMapper GetMapper<T>();
     }
 
     public class DefaultMongoDbMapperFactory : IMongoDbMapperFactory
@@ -33,7 +33,7 @@ namespace Shaman.DAL.MongoDb
             }
         }
         
-        public virtual IMongoDbMapper GetMapper<T>() where T : EntityBase
+        public virtual IMongoDbMapper GetMapper<T>()
         {
             lock (_mutex)
             {
