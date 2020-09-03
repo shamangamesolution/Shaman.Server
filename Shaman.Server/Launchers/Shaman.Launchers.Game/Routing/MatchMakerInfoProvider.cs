@@ -1,4 +1,4 @@
-namespace Shaman.Game.Routing
+namespace Shaman.Launchers.Game.Routing
 {
     public interface IMatchMakerInfoProvider
     {

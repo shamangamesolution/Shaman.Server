@@ -24,9 +24,9 @@ using Shaman.Game.Metrics;
 using Shaman.Game.Providers;
 using Shaman.Game.Rooms;
 using Shaman.Game.Rooms.RoomProperties;
-using Shaman.Game.Routing;
 using Shaman.Launchers.Common;
 using Shaman.Launchers.Common.Game;
+using Shaman.Launchers.Game.Routing;
 using Shaman.LiteNetLibAdapter;
 using Shaman.Routing.Common;
 using Shaman.Serialization;
@@ -57,10 +57,11 @@ namespace Shaman.Launchers.Game
                 new DefaultBundleInfoConfig(Configuration["LauncherSettings:BundleUri"],
                     Convert.ToBoolean(Configuration["LauncherSettings:OverwriteDownloadedBundle"])));
             services.AddSingleton<IBundleInfoProvider, DefaultBundleInfoProvider>();
-            services.AddSingleton<IBundleLoader, BundleLoader>();
             services.AddSingleton<IServerActualizer, GameToMmServerActualizer>();
             services.AddSingleton<IMatchMakerInfoProvider, MatchMakerInfoProvider>(c => new MatchMakerInfoProvider(Configuration["LauncherSettings:MatchMakerUrl"]));
-            
+            services.AddSingleton<IBundleLoader, BundleLoader>();
+            services.AddSingleton<IBundleSettingsProvider, BundleSettingsFromBundleLoaderProvider>();
+            services.AddSingleton<IBundleConfig, BundleConfig>();
             ConfigureMetrics<IGameMetrics, GameMetrics>(services);
         }
         

@@ -3,7 +3,7 @@
     <PropertyGroup>
         <TargetFrameworks>netstandard2.0;netcoreapp2.2</TargetFrameworks>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <PackageVersion>1.9.13-remove-router</PackageVersion>
+        <PackageVersion>1.9.26-remove-router</PackageVersion>
     </PropertyGroup>
 
     <ItemGroup>

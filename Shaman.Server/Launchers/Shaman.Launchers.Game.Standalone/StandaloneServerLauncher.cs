@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
@@ -76,16 +77,21 @@ namespace Shaman.Launchers.Game.Standalone
 
         private static IConfigurationRoot BuildConfig()
         {
+            if (!Config.ListenPorts.Any())
+                throw new Exception($"No UDP port to listen");
+            
             return new ConfigurationBuilder()
                 .Add(new MemoryConfigurationSource
                 {
                     InitialData = new[]
                     {
+                        new KeyValuePair<string, string>("CommonSettings:ListenPorts", Config.ListenPorts.First().ToString()),
                         new KeyValuePair<string, string>("Serilog:MinimumLevel", "Error"),
-                        new KeyValuePair<string, string>("ConsoleLogLevel", "Error"),
+                        new KeyValuePair<string, string>("CommonSettings:ConsoleLogLevel", "Error"),
                         new KeyValuePair<string, string>("Serilog:customerToken", null),
-                        new KeyValuePair<string, string>("BindToIP", "0.0.0.0"),
-                        new KeyValuePair<string, string>("BindToPortHttp", Config.BindToPortHttp.ToString()),
+                        new KeyValuePair<string, string>("CommonSettings:BindToIP", "0.0.0.0"),
+                        new KeyValuePair<string, string>("CommonSettings:BindToPortHttp", Config.BindToPortHttp.ToString()),
+                        new KeyValuePair<string, string>("CommonSettings:SocketType", "BareSocket"),
                     }
                 })
                 .Build();

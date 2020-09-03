@@ -4,11 +4,10 @@
         <LangVersion>default</LangVersion>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <PackageVersion>1.9.10-remove-router</PackageVersion>
+        <PackageVersion>1.9.26-remove-router</PackageVersion>
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\Common\Shaman.Common.Server.Messages\Shaman.Common.Server.Messages.csproj" />
       <ProjectReference Include="..\..\Contracts\Shaman.Contract.Routing.Balancing\Shaman.Contract.Routing.Balancing.csproj" />
       <ProjectReference Include="..\..\Contracts\Shaman.Contract.Routing\Shaman.Contract.Routing.csproj" />
       <ProjectReference Include="..\..\Messages\Shaman.Messages\Shaman.Messages.csproj" />

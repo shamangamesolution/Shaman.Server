@@ -51,7 +51,6 @@ namespace Shaman.Launchers.Common
             services.AddSingleton<IShamanLogger, SerilogLogger>();
             services.AddSingleton<IPacketSenderConfig>(c => c.GetRequiredService<IApplicationConfig>()); 
             services.AddSingleton<IPacketSender, PacketBatchSender>();
-            services.AddTransient<IShamanMessageSenderFactory, ShamanMessageSenderFactory>();
             services.AddSingleton<ISerializer, BinarySerializer>();            
             services.AddSingleton<ISocketFactory, LiteNetSockFactory>();            
             services.AddSingleton<ITaskSchedulerFactory, TaskSchedulerFactory>();            
@@ -59,8 +58,7 @@ namespace Shaman.Launchers.Common
             services.AddSingleton<IShamanSender, ShamanSender>();
             services.AddSingleton<IShamanMessageSender, ShamanMessageSender>();
             services.AddSingleton<IShamanMessageSenderFactory, ShamanMessageSenderFactory>();
-            services.AddSingleton<IBundleSettingsProvider, BundleSettingsFromFileProvider>();
-            services.AddSingleton<IBundleConfig, BundleConfig>();
+
         }
 
         protected void ConfigureSettings<T>(IServiceCollection services) where T:ApplicationConfig, new()
