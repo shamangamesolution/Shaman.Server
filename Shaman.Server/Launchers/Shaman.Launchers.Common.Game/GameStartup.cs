@@ -16,7 +16,6 @@ using Shaman.Game.Api;
 using Shaman.Game.Providers;
 using Shaman.Game.Rooms;
 using Shaman.Game.Rooms.RoomProperties;
-using Shaman.Routing.Common;
 
 namespace Shaman.Launchers.Common.Game
 {
@@ -43,7 +42,7 @@ namespace Shaman.Launchers.Common.Game
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void ConfigureGame(IApplicationBuilder app, IHostingEnvironment env, IApplication server, IServerActualizer serverActualizer, IShamanLogger logger)
         {
-            serverActualizer.Start(Convert.ToInt32(Configuration["ServerSettings:ActualizationIntervalMs"]));
+            serverActualizer?.Start(Convert.ToInt32(Configuration["ServerSettings:ActualizationIntervalMs"]));
             
             base.ConfigureCommon(app, env, server, logger);
         }

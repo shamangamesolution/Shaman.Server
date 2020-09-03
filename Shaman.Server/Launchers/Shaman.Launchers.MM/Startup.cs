@@ -6,9 +6,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Shaman.Bundling.Common;
 using Shaman.Common.Server.Applications;
 using Shaman.Common.Server.Configuration;
+using Shaman.Contract.Bundle;
 using Shaman.Contract.Common.Logging;
 using Shaman.Contract.MM;
 using Shaman.Contract.Routing.MM;
+using Shaman.Launchers.Common;
 using Shaman.Launchers.Common.MM;
 using Shaman.MM.MatchMaking;
 using Shaman.MM.Metrics;
@@ -43,7 +45,8 @@ namespace Shaman.Launchers.MM
                     Convert.ToBoolean(Configuration["LauncherSettings:OverwriteDownloadedBundle"])));
             services.AddSingleton<IBundleInfoProvider, DefaultBundleInfoProvider>();
             services.AddSingleton<IBundleLoader, BundleLoader>();
-
+            services.AddSingleton<IBundleSettingsProvider, BundleSettingsFromBundleLoaderProvider>();
+            services.AddSingleton<IBundleConfig, BundleConfig>();
             //metrics
             ConfigureMetrics<IMmMetrics, MmMetrics>(services);
         }

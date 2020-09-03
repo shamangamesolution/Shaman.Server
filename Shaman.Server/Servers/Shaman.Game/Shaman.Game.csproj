@@ -5,7 +5,7 @@
         <TargetFramework>netcoreapp2.2</TargetFramework>
         <IsPackable>true</IsPackable>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <PackageVersion>1.9.10</PackageVersion>
+        <PackageVersion>1.9.26-remove-router</PackageVersion>
     </PropertyGroup>
 
     <ItemGroup>
@@ -21,17 +21,12 @@
     
     <ItemGroup>
       <ProjectReference Include="..\..\Bundling\Shaman.Bundling.Common\Shaman.Bundling.Common.csproj" />
-      <ProjectReference Include="..\..\Common\Shaman.Common.Server.Messages\Shaman.Common.Server.Messages.csproj" />
       <ProjectReference Include="..\..\Common\Shaman.Common.Server\Shaman.Common.Server.csproj" />
       <ProjectReference Include="..\..\Common\Shaman.Common.Utils\Shaman.Common.Utils.csproj" />
       <ProjectReference Include="..\..\Contracts\Shaman.Contract.Bundle\Shaman.Contract.Bundle.csproj" />
       <ProjectReference Include="..\..\Contracts\Shaman.Contract.Common\Shaman.Contract.Common.csproj" />
-      <ProjectReference Include="..\..\Contracts\Shaman.Contract.Routing.Actualization\Shaman.Contract.Routing.Actualization.csproj" />
       <ProjectReference Include="..\..\Messages\Shaman.Messages\Shaman.Messages.csproj" />
       <ProjectReference Include="..\..\Network\Shaman.LiteNetLibAdapter\Shaman.LiteNetLibAdapter.csproj" />
-      <ProjectReference Include="..\..\Routing\Shaman.Routing.Common.Messages\Shaman.Routing.Common.Messages.csproj" />
-      <ProjectReference Include="..\..\Routing\Shaman.Routing.Common\Shaman.Routing.Common.csproj" />
-      <ProjectReference Include="..\..\Bootstrap\Shaman.ServiceBootstrap\Shaman.ServiceBootstrap.csproj" />
     </ItemGroup>
     
     <ItemGroup>

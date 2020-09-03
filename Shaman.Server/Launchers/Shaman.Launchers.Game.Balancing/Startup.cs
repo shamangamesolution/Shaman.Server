@@ -14,7 +14,6 @@ using Shaman.Game.Metrics;
 using Shaman.Game.Rooms;
 using Shaman.Launchers.Common.Game;
 using Shaman.Routing.Balancing.Client;
-using Shaman.Routing.Common;
 
 namespace Shaman.Launchers.Game.Balancing
 {
