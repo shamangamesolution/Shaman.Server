@@ -24,6 +24,7 @@ namespace Shaman.DAL.MongoDb
         Task Update<T>(string id, IMongoDbFieldProvider<T> fieldProvider); 
         Task Update<T>(Expression<Func<T, bool>> filter, IMongoDbFieldProvider<T> fieldProvider);
         IUpdateFluent<T> UpdateWhere<T>(Expression<Func<T, bool>> filter);
+        IMongoDbBulkWriter<T> GetBulkWriter<T>();
     }
     
     public class MongoDbConnector : IMongoDbConnector
@@ -160,5 +161,12 @@ namespace Shaman.DAL.MongoDb
             var collection = GetCollection<T>();
             return new UpdateFluent<T>(filter, collection);
         }
+        
+        public IMongoDbBulkWriter<T> GetBulkWriter<T>()
+        {
+            var collection = GetCollection<T>();
+            return new MongoDbBulkWriter<T>(collection);
+        }
+
     }
 }

@@ -215,10 +215,41 @@ namespace Shaman.DAL.MongoDb.Tests
             Assert.AreEqual(123.76f, receivedFirst.ChildList[0].FloatField);
             Assert.AreEqual(76.123f, receivedFirst.ChildList[1].FloatField);
             Assert.AreEqual(1.01f, receivedFirst.ChildDictionary[4].FloatField);
-
         }
-        
 
-        
+        [Test]
+        public async Task BulkWriteTests()
+        {
+            
+            await _connector.Create(_first);
+            var writer = _connector.GetBulkWriter<TestEntity>();
+            
+            var writeModel1 = _connector.UpdateWhere<TestEntity>(i => i.Id == _first.Id)
+                .Push<TestChildEntity>(e => e.ChildList, new TestChildEntity(7, false, 1.3f))
+                .Push<TestChildEntity>(e => e.ChildDictionary, new TestChildEntity(8, true, 2.7f))
+                .GetWriteModel();
+            
+            var writeModel2 = _connector.UpdateWhere<TestEntity>(i => i.Id == _first.Id)
+                .Set(x => x.IntField, 10)
+                .Set(x => x.StringField, "update123")
+                .Set(x => x.ChildList[0].FloatField, 123.76f)
+                .Set(x => x.ChildDictionary[0].FloatField, 1.01f)
+                .GetWriteModel();
+            
+            writer.Add(writeModel1);
+            writer.Add(writeModel2);
+
+            await writer.Write();
+            
+            var receivedFirst = await Get(_first.StringId);
+            var jsonedFirst = JsonConvert.SerializeObject(_first);
+            var jsonedReceivedFirst = JsonConvert.SerializeObject(receivedFirst);
+            
+            Assert.AreEqual(10, receivedFirst.IntField);
+            Assert.AreEqual("update123", receivedFirst.StringField);
+            Assert.AreEqual(123.76f, receivedFirst.ChildList[0].FloatField);
+            Assert.AreEqual(1.01f, receivedFirst.ChildDictionary[8].FloatField);
+        }
+
     }
 }

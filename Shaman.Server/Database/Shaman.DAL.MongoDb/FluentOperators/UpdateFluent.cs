@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using MongoDB.Driver;
@@ -14,6 +15,7 @@ namespace Shaman.DAL.MongoDb.FluentOperators
         IUpdateFluent<T> Pull<T1>(Expression<Func<T, IEnumerable<T1>>> expression, Expression<Func<T1, bool>> filter)
             where T1 : EntityBase;
         Task Update();
+        WriteModel<T> GetWriteModel();
     }
     
     public class UpdateFluent<T> : IUpdateFluent<T>
@@ -39,6 +41,12 @@ namespace Shaman.DAL.MongoDb.FluentOperators
         {
             var combinedUpdate = Builders<T>.Update.Combine(_updateDefinition);
             await _collection.UpdateOneAsync(_filter, combinedUpdate);
+        }
+
+        public WriteModel<T> GetWriteModel()
+        {
+            var combinedUpdate = Builders<T>.Update.Combine(_updateDefinition);
+            return new UpdateOneModel<T>(_filter, combinedUpdate);
         }
         
         public IUpdateFluent<T> Push<T1>(Expression<Func<T, IEnumerable<T1>>> expression, T1 value) where T1 : EntityBase
