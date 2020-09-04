@@ -15,7 +15,6 @@ namespace Shaman.Game.Providers
         public int GetPeerCount()
         {
             return _roomManager.GetRoomPeerCount().Sum(r => r.Value);
-            // return -1;
         }
     }
 }

@@ -6,7 +6,9 @@ using Shaman.Bundling.Common;
 
 namespace Shaman.Launchers.Game.Standalone
 {
-
+    /// <summary>
+    /// Loads bundle settings from exe directory
+    /// </summary>
     public class BundleSettingsFromFileProvider : IBundleSettingsProvider
     {
         

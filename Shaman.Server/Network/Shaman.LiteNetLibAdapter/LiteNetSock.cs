@@ -57,7 +57,10 @@ namespace Shaman.LiteNetLibAdapter
 
         public void AddEventCallbacks(Action<IPEndPoint, DataPacket, Action> onReceivePacket, Action<IPEndPoint> onConnect, Action<IPEndPoint, IDisconnectInfo> onDisconnect)
         {
-            _listener.ConnectionRequestEvent += request => { request.AcceptIfKey("SomeConnectionKey333"); };
+            _listener.ConnectionRequestEvent += request =>
+            {
+                request.AcceptIfKey("SomeConnectionKey333");
+            };
 
             _listener.PeerDisconnectedEvent += (peer, info) =>
             {

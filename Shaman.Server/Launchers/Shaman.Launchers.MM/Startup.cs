@@ -31,21 +31,27 @@ namespace Shaman.Launchers.MM
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public override void ConfigureServices(IServiceCollection services)
         {
-            //install common deps
+            //configure all services related to common Game server launchers 
             base.ConfigureServices(services);
             
             //settings
             ConfigureSettings<ApplicationConfig>(services);
 
-            //install deps specific to launcher
+            //object responsible for providing info about game servers which are ready to accepting players
             services.AddSingleton<IMatchMakerServerInfoProvider, DefaultMatchMakerServerInfoProvider>();
+            //api for creating and updating rooms 
             services.AddSingleton<IRoomApiProvider, DefaultRoomApiProvider>();
+            //used for configuration of bundle related services
             services.AddSingleton<IDefaultBundleInfoConfig, DefaultBundleInfoConfig>(c =>
                 new DefaultBundleInfoConfig(Configuration["LauncherSettings:BundleUri"],
                     Convert.ToBoolean(Configuration["LauncherSettings:OverwriteDownloadedBundle"])));
+            //gets information about bundle - its location
             services.AddSingleton<IBundleInfoProvider, DefaultBundleInfoProvider>();
+            //load bundle based on info from IBundleInfoProvider
             services.AddSingleton<IBundleLoader, BundleLoader>();
+            //gets bundle settings from directory where bundle files are located
             services.AddSingleton<IBundleSettingsProvider, BundleSettingsFromBundleLoaderProvider>();
+            //get particular bundle settings
             services.AddSingleton<IBundleConfig, BundleConfig>();
             //metrics
             ConfigureMetrics<IMmMetrics, MmMetrics>(services);

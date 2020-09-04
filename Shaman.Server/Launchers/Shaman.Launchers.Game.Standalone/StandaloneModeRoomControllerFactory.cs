@@ -5,6 +5,9 @@ using Shaman.Game;
 
 namespace Shaman.Launchers.Game.Standalone
 {
+    /// <summary>
+    /// This implementation creates room controller factory using bundle which was got from standalone launcher
+    /// </summary>
     public class StandaloneModeRoomControllerFactory : IRoomControllerFactory
     {
         // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable

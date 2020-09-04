@@ -26,32 +26,53 @@ namespace Shaman.Launchers.Common.MM
         {
         }
 
+        /// <summary>
+        /// DI for services used in MatchMaker types of launchers
+        /// </summary>
+        /// <param name="services"></param>
         public virtual void ConfigureServices(IServiceCollection services)
         {
             ConfigureCommonServices(services, LauncherHelpers.GetAssemblyName(ServerRole.MatchMaker));
             
-            services.AddSingleton<IMatchMaker, MatchMaker>();    
+            //matchmaker - choose correct MM group for player
+            services.AddSingleton<IMatchMaker, MatchMaker>();
+            //MM server itself
             services.AddSingleton<IApplication, MmApplication>();
+            //stats provider - used for determine peer count on server
             services.AddSingleton<IStatisticsProvider, StatisticsProvider>();
+            //manager responsible for a number of matchmaking groups, running on MM
             services.AddSingleton<IMatchMakingGroupsManager, MatchMakingGroupManager>();
+            //manages players collection on MM
             services.AddSingleton<IPlayersManager, PlayersManager>();
+            //manages room collection for all game servers connected to MM
             services.AddSingleton<IRoomManager, RoomManager>();
+            //provides some properties for creating rooms
             services.AddSingleton<IRoomPropertiesProvider, RoomPropertiesProvider>();
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        /// <summary>
+        /// MM related middleware configuration
+        /// </summary>
+        /// <param name="app"></param>
+        /// <param name="env"></param>
+        /// <param name="server"></param>
+        /// <param name="logger"></param>
+        /// <param name="matchMaker"></param>
+        /// <param name="serverInfoProvider"></param>
+        /// <param name="bundleLoader"></param>
         public void ConfigureMm(IApplicationBuilder app, IHostingEnvironment env, IApplication server,
             IShamanLogger logger, IMatchMaker matchMaker, IMatchMakerServerInfoProvider serverInfoProvider, IBundleLoader bundleLoader)
         {
             //load bundle
             bundleLoader.LoadBundle();
             
-            //resolve main bundle type and configure 
+            //resolve main bundle type and configure it
+            //in case of matchmaker we can load bundle during this stage
             var resolver = bundleLoader.LoadTypeFromBundle<IMmResolver>();
             RoomPropertiesProvider.RoomPropertiesProviderImplementation = resolver.GetRoomPropertiesProvider();
             resolver.Configure(matchMaker);
             
-            //start game server info provider
+            //start game server info provider - gathers info about game servers connected to this matchmaker
             serverInfoProvider.Start();
             
             base.ConfigureCommon(app, env, server, logger);

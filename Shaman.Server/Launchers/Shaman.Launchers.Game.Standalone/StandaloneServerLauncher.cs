@@ -13,7 +13,9 @@ using Shaman.ServiceBootstrap;
 
 namespace Shaman.Launchers.Game.Standalone
 {
-    
+    /// <summary>
+    /// Used for launching standalone configuration - early bound game bundle passed directly to launcher
+    /// </summary>
     public static class StandaloneServerLauncher
     {
         public class LaunchResult
@@ -25,33 +27,18 @@ namespace Shaman.Launchers.Game.Standalone
         internal static bool IsStandaloneMode => StandaloneBundle != null;
         internal static IGameBundle StandaloneBundle { get; set; }
         internal static IGameServerApi Api { get; set; }
-        internal static ApplicationConfig Config { get; set; }
-
+        internal static IApplicationConfig Config { get; set; }
+        private static string _levelLog;
+        private static string _bindToIp;
+        
         public static LaunchResult Launch(IGameBundle bundle,
-            string[] args,
-            string name,
-            string regionName,
-            string publicDomainNameOrIpAddress,
-            List<ushort> ports,
-            ushort httpPort,
-            int destroyEmptyRoomOnMs = 60000,
-            string authSecret = null,
-            int socketTickTimeMs = 100,
-            int receiveTickTimeMs = 33,
-            int sendTickTimeMs = 50,
-            int serverInfoListUpdateIntervalMs = 60000)
+            string[] args, IApplicationConfig applicationConfig, string bindToIp, string levelLog)
         {
             StandaloneBundle = bundle;
-            Config = new ApplicationConfig
-            {
-                ServerName = name,
-                Region = regionName,
-                PublicDomainNameOrAddress = publicDomainNameOrIpAddress,
-                ListenPorts = ports,
-                BindToPortHttp = httpPort,
-                IsAuthOn = false
-            };
-
+            Config = applicationConfig;
+            _levelLog = levelLog;
+            _bindToIp = bindToIp;
+            
             var config = BuildConfig();
             var serverTask = Task.Factory.StartNew(() => Bootstrap.Launch<Launchers.Game.Standalone.Startup>(ServerRole.GameServer, config));
 
@@ -85,13 +72,19 @@ namespace Shaman.Launchers.Game.Standalone
                 {
                     InitialData = new[]
                     {
+                        new KeyValuePair<string, string>("CommonSettings:SocketTickTimeMs", Config.SocketTickTimeMs.ToString()),
+                        new KeyValuePair<string, string>("CommonSettings:ReceiveTickTimeMs", Config.ReceiveTickTimeMs.ToString()),
+                        new KeyValuePair<string, string>("CommonSettings:SendTickTimeMs", Config.SendTickTimeMs.ToString()),
+                        new KeyValuePair<string, string>("CommonSettings:MaxPacketSize", Config.MaxPacketSize.ToString()),
+                        new KeyValuePair<string, string>("CommonSettings:BasePacketBufferSize", Config.BasePacketBufferSize.ToString()),
                         new KeyValuePair<string, string>("CommonSettings:ListenPorts", Config.ListenPorts.First().ToString()),
-                        new KeyValuePair<string, string>("Serilog:MinimumLevel", "Error"),
-                        new KeyValuePair<string, string>("CommonSettings:ConsoleLogLevel", "Error"),
-                        new KeyValuePair<string, string>("Serilog:customerToken", null),
-                        new KeyValuePair<string, string>("CommonSettings:BindToIP", "0.0.0.0"),
+                        new KeyValuePair<string, string>("CommonSettings:IsAuthOn", Config.IsAuthOn.ToString()),
+                        new KeyValuePair<string, string>("CommonSettings:ConsoleLogLevel", _levelLog),
+                        new KeyValuePair<string, string>("Serilog:MinimumLevel", _levelLog),
+                        new KeyValuePair<string, string>("Serilog:customerToken", ""),
+                        new KeyValuePair<string, string>("CommonSettings:BindToIP", _bindToIp),
                         new KeyValuePair<string, string>("CommonSettings:BindToPortHttp", Config.BindToPortHttp.ToString()),
-                        new KeyValuePair<string, string>("CommonSettings:SocketType", "BareSocket"),
+                        new KeyValuePair<string, string>("CommonSettings:SocketType", Config.SocketType.ToString()),
                     }
                 })
                 .Build();
