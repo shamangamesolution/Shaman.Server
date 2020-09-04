@@ -4,7 +4,7 @@
         <LangVersion>default</LangVersion>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <PackageVersion>1.9.26-remove-router</PackageVersion>
+        <PackageVersion>1.9.33-remove-router</PackageVersion>
     </PropertyGroup>
 
     <ItemGroup>

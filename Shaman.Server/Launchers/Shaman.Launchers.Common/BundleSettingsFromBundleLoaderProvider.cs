@@ -6,6 +6,9 @@ using Shaman.Bundling.Common;
 
 namespace Shaman.Launchers.Common
 {
+    /// <summary>
+    /// Loads bundle settings from separated bundle
+    /// </summary>
     public class BundleSettingsFromBundleLoaderProvider : IBundleSettingsProvider
     {
         private readonly IBundleLoader _bundleLoader;

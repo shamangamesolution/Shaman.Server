@@ -6,6 +6,9 @@ using Shaman.Serialization.Messages;
 
 namespace Shaman.Launchers.MM
 {
+    /// <summary>
+    /// This implementation collects information about game servers which comes from outside using AddServer method
+    /// </summary>
     public class DefaultMatchMakerServerInfoProvider : IMatchMakerServerInfoProvider
     {
         private readonly IShamanLogger _logger; 

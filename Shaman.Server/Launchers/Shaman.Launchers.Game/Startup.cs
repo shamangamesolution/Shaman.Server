@@ -45,23 +45,34 @@ namespace Shaman.Launchers.Game
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public override void ConfigureServices(IServiceCollection services)
         {
-            //install common deps
+            //configure all services related to common Game server launchers 
             base.ConfigureServices(services);
 
+            //settings
             ConfigureSettings<ApplicationConfig>(services);
             
-            //deps specific to this launcher
+            //default room controller factory - it gets bundle from bundle loader
             services.AddSingleton<IRoomControllerFactory, DefaultRoomControllerFactory>();
+            //update room state on MM
             services.AddSingleton<IRoomStateUpdater, RoomStateUpdater>();
+            //used for configuration of bundle related services
             services.AddSingleton<IDefaultBundleInfoConfig, DefaultBundleInfoConfig>(c =>
                 new DefaultBundleInfoConfig(Configuration["LauncherSettings:BundleUri"],
                     Convert.ToBoolean(Configuration["LauncherSettings:OverwriteDownloadedBundle"])));
+            //gets information about bundle - its location
             services.AddSingleton<IBundleInfoProvider, DefaultBundleInfoProvider>();
+            //actualize game server on mm
             services.AddSingleton<IServerActualizer, GameToMmServerActualizer>();
+            //gets information about mm - where to send stats
+            //in this type of launcher this info is in launcher config file
             services.AddSingleton<IMatchMakerInfoProvider, MatchMakerInfoProvider>(c => new MatchMakerInfoProvider(Configuration["LauncherSettings:MatchMakerUrl"]));
+            //load bundle based on info from IBundleInfoProvider
             services.AddSingleton<IBundleLoader, BundleLoader>();
+            //gets bundle settings from directory where bundle files are located
             services.AddSingleton<IBundleSettingsProvider, BundleSettingsFromBundleLoaderProvider>();
+            //get particular bundle settings
             services.AddSingleton<IBundleConfig, BundleConfig>();
+            //metrics
             ConfigureMetrics<IGameMetrics, GameMetrics>(services);
         }
         

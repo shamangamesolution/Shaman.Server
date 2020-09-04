@@ -10,6 +10,7 @@ namespace Shaman.Launchers.MM
     {
         internal static void Main(string[] args)
         {
+            //start MM
             Bootstrap.LaunchWithCommonAndRoleConfig<Startup>(ServerRole.MatchMaker, (loggerConfiguration, appConfig) =>
                 loggerConfiguration.Enrich.WithProperty("node",
                     $"{appConfig["PublicDomainNameOrAddress"]}:{appConfig["BindToPortHttp"]}[{appConfig["Ports"]}]"));

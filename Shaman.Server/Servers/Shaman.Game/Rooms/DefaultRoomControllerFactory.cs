@@ -6,6 +6,9 @@ using Shaman.Contract.Common;
 
 namespace Shaman.Game.Rooms
 {
+    /// <summary>
+    /// This implementation creates room controller factory using bundle passed through ctor
+    /// </summary>
     public class DefaultRoomControllerFactory : IRoomControllerFactory
     {
         // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
