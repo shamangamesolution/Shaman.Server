@@ -1,2 +1,0 @@
-#!/bin/bash
-docker build -t shaman.mm -f ../../Shaman.Server/Servers/Shaman.MM/Dockerfile ../../Shaman.Server/

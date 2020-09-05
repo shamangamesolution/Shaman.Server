@@ -1,0 +1,6 @@
+- hosts: all
+  user: ubuntu
+  vars_files:
+    - vars/pair.json
+  roles:
+    - pair
