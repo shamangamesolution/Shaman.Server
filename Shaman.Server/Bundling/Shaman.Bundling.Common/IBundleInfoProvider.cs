@@ -6,6 +6,7 @@ namespace Shaman.Bundling.Common
     {
         Task<string> GetBundleUri();
         Task<bool> GetToOverwriteExisting();
+        Task<string> GetServerRole();
     }
 
     public class DefaultBundleInfoProvider : IBundleInfoProvider
@@ -27,5 +28,9 @@ namespace Shaman.Bundling.Common
             return _config.ToOverwriteExisting;
         }
 
+        public async Task<string> GetServerRole()
+        {
+            return _config.ServerRole;
+        }
     }
 }

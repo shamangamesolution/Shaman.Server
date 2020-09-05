@@ -7,7 +7,6 @@
   - template:
       src: env.j2
       dest: shaman.env.{{container_name}}.list
-  - debug: msg="{{res.stdout}}"
   - name: Pulling image
     shell: "docker pull {{docker_repository}}:{{docker_image}}"
     register: res
