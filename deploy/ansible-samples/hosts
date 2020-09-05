@@ -1,0 +1,2 @@
+[test]
+<server-address> ansible_ssh_user=<ssh-user-on-server>

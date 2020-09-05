@@ -58,7 +58,7 @@ namespace Shaman.Launchers.Game
             //used for configuration of bundle related services
             services.AddSingleton<IDefaultBundleInfoConfig, DefaultBundleInfoConfig>(c =>
                 new DefaultBundleInfoConfig(Configuration["LauncherSettings:BundleUri"],
-                    Convert.ToBoolean(Configuration["LauncherSettings:OverwriteDownloadedBundle"])));
+                    Convert.ToBoolean(Configuration["LauncherSettings:OverwriteDownloadedBundle"]),Configuration["CommonSettings:ServerRole"]));
             //gets information about bundle - its location
             services.AddSingleton<IBundleInfoProvider, DefaultBundleInfoProvider>();
             //actualize game server on mm

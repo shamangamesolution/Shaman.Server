@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -21,7 +22,8 @@ namespace Shaman.Launchers.Common
         public Dictionary<string, string> GetSettings()
         {
             var dictionary = new Dictionary<string, string>();
-            foreach (var config in _bundleLoader.GetConfigs().Where(c => c.EndsWith("bundle.json")))
+            //TODO file order - we don't know whick config comes first
+            foreach (var config in _bundleLoader.GetConfigs().Where(c=> c.EndsWith("appsettings.bundle.json") || c.EndsWith($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.bundle.json")))
             {
                 var text = File.ReadAllText(config);
                 var deserialized = JsonConvert.DeserializeObject<Dictionary<string, string>>(text);

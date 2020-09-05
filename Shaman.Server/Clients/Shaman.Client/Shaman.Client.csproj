@@ -4,7 +4,7 @@
         <LangVersion>default</LangVersion>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <PackageVersion>1.9.33-remove-router</PackageVersion>
+        <PackageVersion>1.10.1</PackageVersion>
     </PropertyGroup>
 
     <ItemGroup>
@@ -12,7 +12,6 @@
       <ProjectReference Include="..\..\Contracts\Shaman.Contract.Routing\Shaman.Contract.Routing.csproj" />
       <ProjectReference Include="..\..\Messages\Shaman.Messages\Shaman.Messages.csproj" />
       <ProjectReference Include="..\..\Network\Shaman.LiteNetLibAdapter\Shaman.LiteNetLibAdapter.csproj" />
-      <ProjectReference Include="..\..\Routing\Shaman.Routing.Balancing.Contracts\Shaman.Routing.Balancing.Contracts.csproj" />
       <ProjectReference Include="..\..\Routing\Shaman.Routing.Common\Shaman.Routing.Common.csproj" />
     </ItemGroup>
 

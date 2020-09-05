@@ -24,7 +24,7 @@ namespace Shaman.Bundling.Common
 
         private string _publishDir;
         
-        public BundleLoader(IBundleInfoProvider bundleInfoProvider)
+        public BundleLoader(IBundleInfoProvider bundleInfoProvider) 
         {
             _bundleInfoProvider = bundleInfoProvider;
         }
@@ -33,7 +33,7 @@ namespace Shaman.Bundling.Common
         {
             var uri = new Uri(url);
 
-            var bundlesFolder = Path.Combine(Path.GetTempPath(), _bundleTempSubFolder);
+            var bundlesFolder = Path.Combine(Path.GetTempPath(), $"{_bundleTempSubFolder}/{_bundleInfoProvider.GetServerRole().Result}");
             var bundleDest = Path.Combine(bundlesFolder, uri.Segments.Last());
 
             if (!Directory.Exists(bundlesFolder))
