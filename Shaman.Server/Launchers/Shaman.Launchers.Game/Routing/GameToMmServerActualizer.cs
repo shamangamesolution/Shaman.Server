@@ -46,7 +46,7 @@ namespace Shaman.Launchers.Game.Routing
             {
                 //actualize
                 await Actualize(_statsProvider.GetPeerCount());
-            }, 0, actualizationPeriodMs);
+            }, 2000, actualizationPeriodMs);
         }
 
         public void Stop()
