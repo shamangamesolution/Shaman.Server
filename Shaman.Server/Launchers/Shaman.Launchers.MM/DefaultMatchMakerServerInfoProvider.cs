@@ -68,7 +68,7 @@ namespace Shaman.Launchers.MM
             {
                 serverInfo.Id = GetIndex();
                 _gameServerList.Add(serverInfo);
-                _logger.Error($"Registered game server: {serverInfo.Identity}");
+                _logger.Info($"Registered game server: {serverInfo.Identity}");
             }
         }
     }
