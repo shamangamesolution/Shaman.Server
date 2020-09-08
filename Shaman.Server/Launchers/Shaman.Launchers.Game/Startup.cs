@@ -18,6 +18,7 @@ using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Bundle;
 using Shaman.Contract.Common.Logging;
 using Shaman.Contract.Routing.Actualization;
+using Shaman.Contract.Routing.Meta;
 using Shaman.Game;
 using Shaman.Game.Api;
 using Shaman.Game.Metrics;
@@ -74,6 +75,8 @@ namespace Shaman.Launchers.Game
             services.AddSingleton<IBundleConfig, BundleConfig>();
             //metrics
             ConfigureMetrics<IGameMetrics, GameMetrics>(services);
+            //meta
+            services.AddSingleton<IMetaProvider, BundleSettingsMetaProvider>();
         }
         
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplication server, IServerActualizer serverActualizer, IShamanLogger logger)

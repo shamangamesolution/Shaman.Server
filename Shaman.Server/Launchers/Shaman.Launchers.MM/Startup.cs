@@ -9,6 +9,7 @@ using Shaman.Common.Server.Configuration;
 using Shaman.Contract.Bundle;
 using Shaman.Contract.Common.Logging;
 using Shaman.Contract.MM;
+using Shaman.Contract.Routing.Meta;
 using Shaman.Contract.Routing.MM;
 using Shaman.Launchers.Common;
 using Shaman.Launchers.Common.MM;

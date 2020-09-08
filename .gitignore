@@ -128,3 +128,4 @@ node_modules/
 
 appsettings.*.Development.json
 appsettings.Development.json
+NuGet.Config

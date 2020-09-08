@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Shaman.Bundling.Balancing;
 using Shaman.Bundling.Common;
 using Shaman.Common.Server.Applications;
 using Shaman.Common.Server.Configuration;
@@ -10,10 +9,16 @@ using Shaman.Contract.Bundle;
 using Shaman.Contract.Common.Logging;
 using Shaman.Contract.Routing.Actualization;
 using Shaman.Contract.Routing.Balancing;
+using Shaman.Contract.Routing.Meta;
 using Shaman.Game.Metrics;
 using Shaman.Game.Rooms;
+using Shaman.Launchers.Common;
+using Shaman.Launchers.Common.Balancing;
 using Shaman.Launchers.Common.Game;
-using Shaman.Routing.Balancing.Client;
+using Shaman.Meta;
+using BalancingBundleInfoProviderConfig = Shaman.Bundling.Balancing.BalancingBundleInfoProviderConfig;
+using IBalancingBundleInfoProviderConfig = Shaman.Bundling.Balancing.IBalancingBundleInfoProviderConfig;
+using RouterBundleInfoProvider = Shaman.Bundling.Balancing.RouterBundleInfoProvider;
 
 namespace Shaman.Launchers.Game.Balancing
 {
@@ -37,6 +42,7 @@ namespace Shaman.Launchers.Game.Balancing
 
             ConfigureSettings<ApplicationConfig>(services);
 
+            
             services.AddSingleton<IBalancingBundleInfoProviderConfig, BalancingBundleInfoProviderConfig>(provider =>
             {
                 var config = provider.GetService<IApplicationConfig>();
@@ -53,8 +59,19 @@ namespace Shaman.Launchers.Game.Balancing
                 return new RoutingConfig(Configuration["LauncherSettings:RouterUrl"],config.GetIdentity(), config.ServerName, config.Region, config.BindToPortHttp, 0);
             });
             services.AddSingleton<IRouterClient, RouterClient>();
-
+            //gets bundle settings from directory where bundle files are located
+            services.AddSingleton<IBundleSettingsProvider, BundleSettingsFromBundleLoaderProvider>();
+            //get particular bundle settings
+            services.AddSingleton<IBundleConfig, BundleConfig>();
             ConfigureMetrics<IGameMetrics, GameMetrics>(services);
+            //meta provider
+            services.AddSingleton<IServerIdentityProvider, DefaultServerIdentityProvider>(provider =>
+            {
+                var config = provider.GetService<IApplicationConfig>();
+                return new DefaultServerIdentityProvider(config.GetIdentity());
+            });
+            services.AddSingleton<IMetaProvider, RouterMetaProvider>();
+
         }
         
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplication server, IServerActualizer serverActualizer, IShamanLogger logger)

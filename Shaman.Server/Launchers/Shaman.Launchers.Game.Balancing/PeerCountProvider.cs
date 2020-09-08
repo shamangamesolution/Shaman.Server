@@ -1,4 +1,4 @@
-using Shaman.Routing.Balancing.Client;
+using Shaman.Launchers.Common.Balancing;
 
 namespace Shaman.Launchers.Game.Balancing
 {

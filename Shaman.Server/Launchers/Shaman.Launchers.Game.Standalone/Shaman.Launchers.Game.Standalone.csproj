@@ -2,12 +2,13 @@
 
     <PropertyGroup>
         <TargetFramework>netcoreapp2.2</TargetFramework>
-        <PackageVersion>1.10.0</PackageVersion>
+        <PackageVersion>1.11.0</PackageVersion>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
     
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.App" />
+        <ProjectReference Include="..\..\Contracts\Shaman.Contract.Routing.Meta\Shaman.Contract.Routing.Meta.csproj" />
       <ProjectReference Include="..\Shaman.Launchers.Common.Game\Shaman.Launchers.Common.Game.csproj" />
     </ItemGroup>
 
