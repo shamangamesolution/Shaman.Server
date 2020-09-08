@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using Shaman.Common.Http;
+using Shaman.Common.Server.Providers;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
@@ -11,14 +12,14 @@ namespace Shaman.Launchers.Common.Balancing
     public class RouterServerActualizer : IServerActualizer
     {
         private readonly IRequestSender _requestSender;
-        private readonly IPeerCountProvider _statsProvider;
+        private readonly IStatisticsProvider _statsProvider;
         private readonly ITaskScheduler _taskScheduler;
         private readonly IRoutingConfig _routingConfig;
         private readonly IShamanLogger _logger;
 
         private IPendingTask _actualizeTask;
         
-        public RouterServerActualizer(IPeerCountProvider statsProvider, ITaskSchedulerFactory taskSchedulerFactory, IRequestSender requestSender,
+        public RouterServerActualizer(IStatisticsProvider statsProvider, ITaskSchedulerFactory taskSchedulerFactory, IRequestSender requestSender,
             IRoutingConfig routingConfig, IShamanLogger logger)
         {
             _statsProvider = statsProvider;
