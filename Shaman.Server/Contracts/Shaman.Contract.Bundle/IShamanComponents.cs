@@ -1,4 +1,6 @@
+using System.Dynamic;
 using Shaman.Contract.Common.Logging;
+using Shaman.Contract.Routing.Meta;
 
 namespace Shaman.Contract.Bundle
 {
@@ -6,5 +8,6 @@ namespace Shaman.Contract.Bundle
     {
         IShamanLogger Logger { get; }
         IBundleConfig Config { get; }
+        IMetaProvider MetaProvider { get; }
     }
 }

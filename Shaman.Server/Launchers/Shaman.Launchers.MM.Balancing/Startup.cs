@@ -3,22 +3,23 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Shaman.Bundling.Balancing;
 using Shaman.Bundling.Common;
 using Shaman.Common.Server.Applications;
 using Shaman.Common.Server.Configuration;
+using Shaman.Contract.Bundle;
 using Shaman.Contract.Common.Logging;
 using Shaman.Contract.Routing.Actualization;
 using Shaman.Contract.Routing.Balancing;
 using Shaman.Contract.Routing.MM;
+using Shaman.Launchers.Common;
+using Shaman.Launchers.Common.Balancing;
 using Shaman.Launchers.Common.MM;
 using Shaman.MM.MatchMaking;
 using Shaman.MM.Metrics;
 using Shaman.MM.Providers;
-using Shaman.Routing.Balancing.Client;
-using Shaman.Routing.Balancing.MM.Configuration;
-using Shaman.Routing.Balancing.MM.Providers;
-using Shaman.Routing.Common;
+using BalancingBundleInfoProviderConfig = Shaman.Bundling.Balancing.BalancingBundleInfoProviderConfig;
+using IBalancingBundleInfoProviderConfig = Shaman.Bundling.Balancing.IBalancingBundleInfoProviderConfig;
+using RouterBundleInfoProvider = Shaman.Bundling.Balancing.RouterBundleInfoProvider;
 
 namespace Shaman.Launchers.MM.Balancing
 {
@@ -65,7 +66,10 @@ namespace Shaman.Launchers.MM.Balancing
             services.AddSingleton<IServerActualizer, RouterServerActualizer>();
             services.AddSingleton<IBundleInfoProvider, RouterBundleInfoProvider>();
             services.AddSingleton<IBundleLoader, BundleLoader>();
-
+            //gets bundle settings from directory where bundle files are located
+            services.AddSingleton<IBundleSettingsProvider, BundleSettingsFromBundleLoaderProvider>();
+            //get particular bundle settings
+            services.AddSingleton<IBundleConfig, BundleConfig>();
             //metrics
             ConfigureMetrics<IMmMetrics, MmMetrics>(services);
         }

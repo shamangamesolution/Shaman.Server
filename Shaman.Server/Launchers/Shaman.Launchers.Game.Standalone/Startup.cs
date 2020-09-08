@@ -8,6 +8,7 @@ using Shaman.Common.Server.Configuration;
 using Shaman.Contract.Bundle;
 using Shaman.Contract.Common.Logging;
 using Shaman.Contract.Routing.Actualization;
+using Shaman.Contract.Routing.Meta;
 using Shaman.Game.Metrics;
 using Shaman.Game.Rooms;
 using Shaman.Launchers.Common.Game;
@@ -46,6 +47,8 @@ namespace Shaman.Launchers.Game.Standalone
             services.AddSingleton<IBundleSettingsProvider, BundleSettingsFromFileProvider>();
             //bundle configuration - get setting value from config
             services.AddSingleton<IBundleConfig, BundleConfig>();
+            //meta
+            services.AddSingleton<IMetaProvider, StandAloneMetaProvider>();
         }
         
         

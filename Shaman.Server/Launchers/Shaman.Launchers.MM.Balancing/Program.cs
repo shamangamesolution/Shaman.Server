@@ -1,5 +1,3 @@
-using System;
-using Microsoft.Extensions.Configuration;
 using Shaman.Contract.Routing;
 using Shaman.ServiceBootstrap;
 
