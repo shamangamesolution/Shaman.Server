@@ -60,7 +60,6 @@ namespace Shaman.Launchers.MM.Balancing
                     Convert.ToInt32(Configuration["LauncherSettings:ServerUnregisterTimeoutMs"]),
                     config.GetIdentity());
             });
-            services.AddSingleton<IPeerCountProvider, PeerCountProvider>();
             services.AddSingleton<IMatchMakerServerInfoProvider, MatchMakerServerInfoProvider>();
             services.AddSingleton<IRoomApiProvider, DefaultRoomApiProvider>();
             services.AddSingleton<IServerActualizer, RouterServerActualizer>();

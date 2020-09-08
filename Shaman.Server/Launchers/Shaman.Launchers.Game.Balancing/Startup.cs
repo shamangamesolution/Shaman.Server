@@ -52,7 +52,6 @@ namespace Shaman.Launchers.Game.Balancing
             services.AddSingleton<IBundleLoader, BundleLoader>();
 
             services.AddSingleton<IServerActualizer, RouterServerActualizer>();
-            services.AddSingleton<IPeerCountProvider, PeerCountProvider>();
             services.AddSingleton<IRoutingConfig, RoutingConfig>(provider =>
             {
                 var config = provider.GetService<IApplicationConfig>();
