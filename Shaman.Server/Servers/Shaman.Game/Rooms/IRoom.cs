@@ -33,5 +33,6 @@ namespace Shaman.Game.Rooms
         void Close();
         TimeSpan ForceDestroyRoomAfter { get; }
         bool AddPeerToRoom(IPeer peer, Dictionary<byte, object> peerProperties);
+        Task InvalidateRoom();
     }
 }

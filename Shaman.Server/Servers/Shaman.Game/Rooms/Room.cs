@@ -93,6 +93,12 @@ namespace Shaman.Game.Rooms
             //update state on matchmaker
             _taskScheduler.ScheduleOnceOnNow(async () => await SendRoomStateUpdate());
         }
+        
+        public async Task InvalidateRoom()
+        {
+            _roomState = RoomState.Disposed;
+            await SendRoomStateUpdate();
+        }
 
         private async Task SendRoomStateUpdate()
         {

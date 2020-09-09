@@ -78,7 +78,7 @@ namespace Shaman.MM.Controllers
                 else
                 {
                     response.CreatedDate = room.CreatedOn;
-                    response.IsOpen = room.IsOpen();
+                    response.State = room.State;
                 }
             }
             catch (Exception ex)
