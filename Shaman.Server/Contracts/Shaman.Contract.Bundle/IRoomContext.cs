@@ -9,5 +9,6 @@ namespace Shaman.Contract.Bundle
         IRoomSender GetSender();
         void Open();
         void Close();
+        void Dispose();
     }
 }
