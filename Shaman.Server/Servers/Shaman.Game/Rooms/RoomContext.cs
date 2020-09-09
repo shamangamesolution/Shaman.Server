@@ -40,5 +40,9 @@ namespace Shaman.Game.Rooms
         {
             _room.Close();
         }
+        public void Dispose()
+        {
+            _room.InvalidateRoom();
+        }
     }
 }
