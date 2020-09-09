@@ -149,6 +149,7 @@ namespace Shaman.Game.Rooms
                 
                 var roomStats = room.GetStats();
                 _gameMetrics.TrackPeerDisconnected(room.CleanUp());
+                _taskScheduler.ScheduleOnceOnNow(async () => await room.InvalidateRoom());
                 _rooms.TryRemove(roomId, out _);
                 TrackRoomMetricsOnDelete(roomStats);
             }

@@ -9,7 +9,8 @@ namespace Shaman.Messages.MM
     public enum RoomState : byte
     {
         Open,
-        Closed
+        Closed,
+        Disposed
     }
     
     public class RoomInfo : EntityBase
