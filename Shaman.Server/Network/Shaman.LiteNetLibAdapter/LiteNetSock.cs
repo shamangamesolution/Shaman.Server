@@ -197,6 +197,17 @@ namespace Shaman.LiteNetLibAdapter
 
             return false;
         }
+        
+        public bool DisconnectPeer(IPEndPoint ipEndPoint, byte[] data, int offset, int length)
+        {
+            if (_endPointReceivers.TryGetValue(ipEndPoint, out var connection))
+            {
+                connection.Disconnect(data, offset, length);
+                return true;
+            }
+
+            return false;
+        }
 
         public event Action<IPEndPoint, DataPacket, Action> OnPacketReceived;
         public event Action<IPEndPoint> OnConnected;

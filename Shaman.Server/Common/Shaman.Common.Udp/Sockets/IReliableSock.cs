@@ -37,5 +37,6 @@ namespace Shaman.Common.Udp.Sockets
         event Action<IPEndPoint, IDisconnectInfo> OnDisconnected;
         int Mtu { get; }
         bool DisconnectPeer(IPEndPoint ipEndPoint);
+        bool DisconnectPeer(IPEndPoint ipEndPoint, byte[] data, int offset, int length);
     }
 }
