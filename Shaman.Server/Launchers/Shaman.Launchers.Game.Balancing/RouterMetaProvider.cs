@@ -8,7 +8,6 @@ using Shaman.Contract.Common.Logging;
 using Shaman.Contract.Routing;
 using Shaman.Contract.Routing.Balancing;
 using Shaman.Contract.Routing.Meta;
-using Shaman.Meta;
 
 namespace Shaman.Launchers.Game.Balancing
 {

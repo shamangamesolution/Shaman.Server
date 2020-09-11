@@ -17,9 +17,6 @@ using Shaman.Launchers.Common.MM;
 using Shaman.MM.MatchMaking;
 using Shaman.MM.Metrics;
 using Shaman.MM.Providers;
-using BalancingBundleInfoProviderConfig = Shaman.Bundling.Balancing.BalancingBundleInfoProviderConfig;
-using IBalancingBundleInfoProviderConfig = Shaman.Bundling.Balancing.IBalancingBundleInfoProviderConfig;
-using RouterBundleInfoProvider = Shaman.Bundling.Balancing.RouterBundleInfoProvider;
 
 namespace Shaman.Launchers.MM.Balancing
 {
