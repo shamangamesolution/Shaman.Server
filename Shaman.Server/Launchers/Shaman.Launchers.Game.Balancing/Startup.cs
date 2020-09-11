@@ -15,10 +15,6 @@ using Shaman.Game.Rooms;
 using Shaman.Launchers.Common;
 using Shaman.Launchers.Common.Balancing;
 using Shaman.Launchers.Common.Game;
-using Shaman.Meta;
-using BalancingBundleInfoProviderConfig = Shaman.Bundling.Balancing.BalancingBundleInfoProviderConfig;
-using IBalancingBundleInfoProviderConfig = Shaman.Bundling.Balancing.IBalancingBundleInfoProviderConfig;
-using RouterBundleInfoProvider = Shaman.Bundling.Balancing.RouterBundleInfoProvider;
 
 namespace Shaman.Launchers.Game.Balancing
 {
