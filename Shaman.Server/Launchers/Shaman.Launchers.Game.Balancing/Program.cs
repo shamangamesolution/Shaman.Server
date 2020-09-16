@@ -9,7 +9,7 @@ namespace Shaman.Launchers.Game.Balancing
     {
         internal static void Main(string[] args)
         {
-            Bootstrap.LaunchWithCommonAndRoleConfig<Startup>(ServerRole.GameServer, (loggerConfiguration, appConfig) =>
+            Bootstrap.LaunchWithCommonAndRoleConfig<Startup>(ServerRole.GameServer.ToString(), (loggerConfiguration, appConfig) =>
                 loggerConfiguration.Enrich.WithProperty("node",
                     $"{appConfig["PublicDomainNameOrAddress"]}:{appConfig["BindToPortHttp"]}[{appConfig["Ports"]}]"));
         }

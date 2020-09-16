@@ -7,7 +7,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Events;
-using Shaman.Contract.Routing;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 namespace Shaman.ServiceBootstrap
@@ -15,24 +14,24 @@ namespace Shaman.ServiceBootstrap
     public class Bootstrap
     {
 
-        private static IConfigurationRoot GetConfig(ServerRole serverRole)
+        private static IConfigurationRoot GetConfig(string configRole)
         {
             return new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.common.json", optional: false)
-                .AddJsonFile($"appsettings.common.{serverRole}.json", optional: false)
-                .AddJsonFile($"appsettings.launcher.{serverRole}.json", optional: true)
-                .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.{serverRole}.json", optional: true)
+                .AddJsonFile($"appsettings.common.{configRole}.json", optional: false)
+                .AddJsonFile($"appsettings.launcher.{configRole}.json", optional: true)
+                .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.{configRole}.json", optional: true)
                 .AddEnvironmentVariables()
                 .Build();
         }
         
-        public static void LaunchWithCommonAndRoleConfig<T>(ServerRole serverRole, Action<LoggerConfiguration, IConfigurationRoot> configureLogging = null) where T : class
+        public static void LaunchWithCommonAndRoleConfig<T>(string configRole, Action<LoggerConfiguration, IConfigurationRoot> configureLogging = null) where T : class
         {
-            Launch<T>(serverRole, GetConfig(serverRole), configureLogging);
+            Launch<T>(GetConfig(configRole), configureLogging);
         }
         
-        public static void Launch<T>(ServerRole serverRole, Action<LoggerConfiguration, IConfigurationRoot> configureLogging = null) where T : class
+        public static void Launch<T>(Action<LoggerConfiguration, IConfigurationRoot> configureLogging = null) where T : class
         {
             //read config
             var config = new ConfigurationBuilder()
@@ -42,10 +41,10 @@ namespace Shaman.ServiceBootstrap
                 .AddEnvironmentVariables()
                 .Build();
 
-            Launch<T>(serverRole, config, configureLogging);
+            Launch<T>(config, configureLogging);
         }
 
-        public static void Launch<T>(ServerRole serverRole, IConfigurationRoot config, Action<LoggerConfiguration, IConfigurationRoot> configureLogging = null) where T : class
+        public static void Launch<T>(IConfigurationRoot config, Action<LoggerConfiguration, IConfigurationRoot> configureLogging = null) where T : class
         {
             var logEventLevel = Enum.Parse<LogEventLevel>(config["Serilog:MinimumLevel"], ignoreCase: true);
             var customerToken = config["Serilog:customerToken"];
@@ -58,7 +57,6 @@ namespace Shaman.ServiceBootstrap
             
             loggerConfiguration
                 .Enrich.WithProperty("version", config["ServerVersion"])
-                .Enrich.WithProperty("source", serverRole)
                 .Enrich.FromLogContext();
             configureLogging?.Invoke(loggerConfiguration, config);
             Log.Logger = loggerConfiguration

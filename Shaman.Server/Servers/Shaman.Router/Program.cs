@@ -7,7 +7,7 @@ namespace Shaman.Router
     {
         internal static void Main(string[] args)
         {
-            Bootstrap.Launch<Startup>(ServerRole.Router);
+            Bootstrap.Launch<Startup>();
         }
     }
 }
