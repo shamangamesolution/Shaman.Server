@@ -40,7 +40,7 @@ namespace Shaman.Launchers.Game.Standalone
             _bindToIp = bindToIp;
             
             var config = BuildConfig();
-            var serverTask = Task.Factory.StartNew(() => Bootstrap.Launch<Launchers.Game.Standalone.Startup>(ServerRole.GameServer, config));
+            var serverTask = Task.Factory.StartNew(() => Bootstrap.Launch<Launchers.Game.Standalone.Startup>(config));
 
             return new LaunchResult
             {

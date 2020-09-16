@@ -17,14 +17,14 @@ namespace Shaman.Launchers.Pair.Balancing
 
         private static Task LaunchMm()
         {
-            var mmTask = Task.Factory.StartNew(() => Bootstrap.LaunchWithCommonAndRoleConfig<Launchers.MM.Balancing.Startup>(ServerRole.MatchMaker));
+            var mmTask = Task.Factory.StartNew(() => Bootstrap.LaunchWithCommonAndRoleConfig<Launchers.MM.Balancing.Startup>(ServerRole.MatchMaker.ToString()));
             return mmTask;
         }
 
         private static Task LaunchGame()
         {
             var gameTask =
-                Task.Factory.StartNew(() => Bootstrap.LaunchWithCommonAndRoleConfig<Launchers.Game.Balancing.Startup>(ServerRole.GameServer));
+                Task.Factory.StartNew(() => Bootstrap.LaunchWithCommonAndRoleConfig<Launchers.Game.Balancing.Startup>(ServerRole.GameServer.ToString()));
             return gameTask;
         }
     }
