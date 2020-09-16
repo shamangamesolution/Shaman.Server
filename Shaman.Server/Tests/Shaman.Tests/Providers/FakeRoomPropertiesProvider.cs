@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Shaman.Contract.MM;
 using Shaman.Messages;
+using Shaman.TestTools.Events;
 
 namespace Shaman.Tests.Providers
 {
@@ -9,9 +10,9 @@ namespace Shaman.Tests.Providers
     {
         public int GetMatchMakingTick(Dictionary<byte, object> playerMatchMakingProperties)
         {
-            if (playerMatchMakingProperties.ContainsKey(PropertyCode.PlayerProperties.Level))
+            if (playerMatchMakingProperties.ContainsKey(FakePropertyCodes.PlayerProperties.Level))
             {
-                switch (playerMatchMakingProperties[PropertyCode.PlayerProperties.Level])
+                switch (playerMatchMakingProperties[FakePropertyCodes.PlayerProperties.Level])
                 {
                     case 1:
                         return 1000;
@@ -29,9 +30,9 @@ namespace Shaman.Tests.Providers
 
         public int GetMaximumPlayers(Dictionary<byte, object> playerMatchMakingProperties)
         {
-            if (playerMatchMakingProperties.ContainsKey(PropertyCode.PlayerProperties.Level))
+            if (playerMatchMakingProperties.ContainsKey(FakePropertyCodes.PlayerProperties.Level))
             {
-                switch (playerMatchMakingProperties[PropertyCode.PlayerProperties.Level])
+                switch (playerMatchMakingProperties[FakePropertyCodes.PlayerProperties.Level])
                 {
                     case 1:
                         return 1;
@@ -48,9 +49,9 @@ namespace Shaman.Tests.Providers
 
         public int GetMaximumMatchMakingTime(Dictionary<byte, object> playerMatchMakingProperties)
         {
-            if (playerMatchMakingProperties.ContainsKey(PropertyCode.PlayerProperties.Level))
+            if (playerMatchMakingProperties.ContainsKey(FakePropertyCodes.PlayerProperties.Level))
             {
-                switch (playerMatchMakingProperties[PropertyCode.PlayerProperties.Level])
+                switch (playerMatchMakingProperties[FakePropertyCodes.PlayerProperties.Level])
                 {
                     case 1:
                         return 5000;
@@ -76,9 +77,9 @@ namespace Shaman.Tests.Providers
     {
         public int GetMatchMakingTick(Dictionary<byte, object> playerMatchMakingProperties)
         {
-            if (playerMatchMakingProperties.ContainsKey(PropertyCode.PlayerProperties.Level))
+            if (playerMatchMakingProperties.ContainsKey(FakePropertyCodes.PlayerProperties.Level))
             {
-                switch (playerMatchMakingProperties[PropertyCode.PlayerProperties.Level])
+                switch (playerMatchMakingProperties[FakePropertyCodes.PlayerProperties.Level])
                 {
                     case 1:
                         return 1000;
@@ -94,9 +95,9 @@ namespace Shaman.Tests.Providers
 
         public int GetMaximumPlayers(Dictionary<byte, object> playerMatchMakingProperties)
         {
-            if (playerMatchMakingProperties.ContainsKey(PropertyCode.PlayerProperties.Level))
+            if (playerMatchMakingProperties.ContainsKey(FakePropertyCodes.PlayerProperties.Level))
             {
-                switch (playerMatchMakingProperties[PropertyCode.PlayerProperties.Level])
+                switch (playerMatchMakingProperties[FakePropertyCodes.PlayerProperties.Level])
                 {
                     case 1:
                         return 6;
@@ -111,9 +112,9 @@ namespace Shaman.Tests.Providers
 
         public int GetMaximumMatchMakingTime(Dictionary<byte, object> playerMatchMakingProperties)
         {
-            if (playerMatchMakingProperties.ContainsKey(PropertyCode.PlayerProperties.Level))
+            if (playerMatchMakingProperties.ContainsKey(FakePropertyCodes.PlayerProperties.Level))
             {
-                switch (playerMatchMakingProperties[PropertyCode.PlayerProperties.Level])
+                switch (playerMatchMakingProperties[FakePropertyCodes.PlayerProperties.Level])
                 {
                     case 1:
                         return 5000;

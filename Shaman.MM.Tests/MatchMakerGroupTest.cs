@@ -4,17 +4,26 @@ using System.Linq;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
+using Shaman.Common.Http;
+using Shaman.Common.Udp.Senders;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Common.Logging;
+using Shaman.Contract.Routing;
+using Shaman.Contract.Routing.MM;
 using Shaman.Messages;
+using Shaman.Messages.General.DTO.Responses.Auth;
 using Shaman.Messages.MM;
+using Shaman.Messages.RoomFlow;
 using Shaman.MM.Managers;
 using Shaman.MM.MatchMaking;
 using Shaman.MM.Metrics;
 using Shaman.MM.Players;
 using Shaman.MM.Providers;
 using Shaman.MM.Tests.Fakes;
+using Shaman.Serialization.Messages;
+using Shaman.Serialization.Messages.Http;
+using Shaman.TestTools.Events;
 
 namespace Shaman.MM.Tests
 {
@@ -24,9 +33,11 @@ namespace Shaman.MM.Tests
         private IShamanLogger _logger;
         private ITaskSchedulerFactory _taskSchedulerFactory;
         private IPlayersManager _playersManager;
-        private IPacketSender _packetSender;
+        private IShamanMessageSender _packetSender;
         private IRoomManager _roomManager;
         private IMatchMakerServerInfoProvider _serverProvider;
+        private IRoomApiProvider _roomApiProvider;
+        private IRequestSender _requestSender;
         
         private Task emptyTask = new Task(() => {});
         private Dictionary<byte, object> _roomProperties = new Dictionary<byte, object>();
@@ -40,14 +51,16 @@ namespace Shaman.MM.Tests
             _logger = new ConsoleLogger();
             _taskSchedulerFactory = new TaskSchedulerFactory(_logger);
             _playersManager = new PlayersManager(Mock.Of<IMmMetrics>(), _logger);
-            _packetSender =Mock.Of<IPacketSender>();
+            _packetSender = Mock.Of<IShamanMessageSender>();
             _serverProvider = new FakeServerProvider();
-            _roomManager = new RoomManager(_serverProvider, _logger, _taskSchedulerFactory);
+            _requestSender = new FakeSender();
+            _roomApiProvider = new DefaultRoomApiProvider(_requestSender,_logger);
+            _roomManager = new RoomManager(_serverProvider, _logger, _taskSchedulerFactory, _roomApiProvider);
             
-            _measures.Add(PropertyCode.PlayerProperties.GameMode, 1);
-            _roomProperties.Add(PropertyCode.RoomProperties.MatchMakingTick, 250);
-            _roomProperties.Add(PropertyCode.RoomProperties.TotalPlayersNeeded, 3);
-            _roomProperties.Add(PropertyCode.RoomProperties.MaximumMmTime, 500);
+            _measures.Add(FakePropertyCodes.PlayerProperties.GameMode, 1);
+            _roomProperties.Add(FakePropertyCodes.RoomProperties.MatchMakingTick, 250);
+            _roomProperties.Add(FakePropertyCodes.RoomProperties.TotalPlayersNeeded, 3);
+            _roomProperties.Add(FakePropertyCodes.RoomProperties.MaximumMmTime, 500);
 
             
             _group = new MatchMakingGroup(_roomProperties, _logger, _taskSchedulerFactory, _playersManager,
@@ -69,7 +82,7 @@ namespace Shaman.MM.Tests
         public void OnePlayerMatchMakingTest()
         {
             //one player two bots
-            var player = new MatchMakingPlayer(new FakePeer(), new Dictionary<byte, object> {{PropertyCode.PlayerProperties.GameMode, 1}});
+            var player = new MatchMakingPlayer(new FakePeer(), new Dictionary<byte, object> {{FakePropertyCodes.PlayerProperties.GameMode, 1}});
             _playersManager.Add(player, new List<Guid> {_group.Id});
             emptyTask.Wait(1500);
             var rooms = _roomManager.GetRooms(_group.Id);
@@ -89,8 +102,8 @@ namespace Shaman.MM.Tests
         public void TwoPlayers1MatchMakingTest()
         {
             //one player two bots
-            var player1 = new MatchMakingPlayer(new FakePeer(), new Dictionary<byte, object> {{PropertyCode.PlayerProperties.GameMode, 1}});
-            var player2 = new MatchMakingPlayer(new FakePeer(), new Dictionary<byte, object> {{PropertyCode.PlayerProperties.GameMode, 1}});
+            var player1 = new MatchMakingPlayer(new FakePeer(), new Dictionary<byte, object> {{FakePropertyCodes.PlayerProperties.GameMode, 1}});
+            var player2 = new MatchMakingPlayer(new FakePeer(), new Dictionary<byte, object> {{FakePropertyCodes.PlayerProperties.GameMode, 1}});
             _playersManager.Add(player1, new List<Guid> {_group.Id});
             _playersManager.Add(player2, new List<Guid> {_group.Id});
             emptyTask.Wait(1500);
@@ -111,8 +124,8 @@ namespace Shaman.MM.Tests
         public void TwoPlayers2MatchMakingTest()
         {
             //one player two bots
-            var player1 = new MatchMakingPlayer(new FakePeer(), new Dictionary<byte, object> {{PropertyCode.PlayerProperties.GameMode, 1}});
-            var player2 = new MatchMakingPlayer(new FakePeer(), new Dictionary<byte, object> {{PropertyCode.PlayerProperties.GameMode, 1}});
+            var player1 = new MatchMakingPlayer(new FakePeer(), new Dictionary<byte, object> {{FakePropertyCodes.PlayerProperties.GameMode, 1}});
+            var player2 = new MatchMakingPlayer(new FakePeer(), new Dictionary<byte, object> {{FakePropertyCodes.PlayerProperties.GameMode, 1}});
             _playersManager.Add(player1, new List<Guid> {_group.Id});
             emptyTask.Wait(1500);
             var rooms = _roomManager.GetRooms(_group.Id);

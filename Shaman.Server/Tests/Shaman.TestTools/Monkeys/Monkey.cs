@@ -1,7 +1,7 @@
 using System;
+using Shaman.Client;
 using Shaman.Client.Peers;
-using Shaman.Router.Messages;
-using Shaman.Routing.Common;
+
 
 namespace Shaman.TestTools.Monkeys
 {

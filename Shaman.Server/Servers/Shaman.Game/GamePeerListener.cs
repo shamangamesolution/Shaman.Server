@@ -80,6 +80,9 @@ namespace Shaman.Game
                         _messageSender.Send(new AuthorizationResponse() {ResultCode = ResultCode.NotAuthorized}, peer);
                         return;
                     }
+                    else
+                        _messageSender.Send(new AuthorizationResponse(), peer);
+
 
                     switch (operationCode)
                     {

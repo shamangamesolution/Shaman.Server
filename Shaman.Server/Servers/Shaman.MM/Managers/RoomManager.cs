@@ -32,7 +32,8 @@ namespace Shaman.MM.Managers
         
         private readonly object _roomQueueSync = new object();
 
-        public RoomManager(IMatchMakerServerInfoProvider serverProvider, IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory, IRoomApiProvider roomApiProvider)
+        public RoomManager(IMatchMakerServerInfoProvider serverProvider, IShamanLogger logger,
+            ITaskSchedulerFactory taskSchedulerFactory, IRoomApiProvider roomApiProvider)
         {
             _serverProvider = serverProvider;
             _logger = logger;

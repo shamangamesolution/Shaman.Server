@@ -2,6 +2,7 @@ using System;
 using System.Net;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Server.Peers;
+using Shaman.Common.Udp.Sockets;
 using Shaman.Contract.Common.Logging;
 using Shaman.Serialization;
 

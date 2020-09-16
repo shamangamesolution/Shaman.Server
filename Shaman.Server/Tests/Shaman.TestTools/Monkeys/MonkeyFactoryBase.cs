@@ -1,11 +1,15 @@
 using System;
 using System.Linq;
 using Newtonsoft.Json;
+using Shaman.Client;
 using Shaman.Client.Peers;
 using Shaman.Client.Providers;
+using Shaman.Common.Http;
 using Shaman.Contract.Common.Logging;
-using Shaman.Router.Messages;
+using Shaman.Contract.Routing.Balancing;
 using Shaman.Serialization;
+using Shaman.TestTools.ClientPeers;
+using IRequestSender = Shaman.Client.IRequestSender;
 
 namespace Shaman.TestTools.Monkeys
 {
@@ -13,14 +17,15 @@ namespace Shaman.TestTools.Monkeys
     {
         protected readonly IShamanLogger Logger;
         private readonly Route _route;
-        private readonly HttpSender _requestSender;
-
+        private readonly TestClientHttpSender _requestSender;
+        
         protected MonkeyFactoryBase(string routerUrl, string clientVersion, IShamanLogger logger)
         {
             Logger = logger;
-            _requestSender = new HttpSender(logger, new BinarySerializer());
+            _requestSender = new TestClientHttpSender(logger, new BinarySerializer());
+            var routerClient = new TestRouterClient(_requestSender, logger, routerUrl);
             var clientServerInfoProvider =
-                new ClientServerInfoProvider(_requestSender, logger);
+                new ClientServerInfoProvider(logger, routerClient);
 
             _route = clientServerInfoProvider.GetRoutes(routerUrl, clientVersion).Result.First();
             logger.Debug($"Using route: {JsonConvert.SerializeObject(_route, Formatting.Indented)}");

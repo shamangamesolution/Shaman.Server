@@ -1,7 +1,13 @@
-namespace Shaman.Messages
+namespace Shaman.TestTools.Events
 {
-    public struct PropertyCode
+    public struct FakePropertyCodes
     {
+        public struct PlayerProperties
+        {
+            public static byte GameMode = 1;
+            public static byte Level = 2;
+            public static byte BackendId = 3;
+        } 
         public struct RoomProperties
         {
             public const byte GameMode = 1;

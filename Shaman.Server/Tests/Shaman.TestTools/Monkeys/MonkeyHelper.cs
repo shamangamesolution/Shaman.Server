@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Shaman.Messages.General.DTO.Requests;
 using Shaman.Messages.General.DTO.Responses;
+using Shaman.TestTools.Events;
 
 namespace Shaman.TestTools.Monkeys
 {
