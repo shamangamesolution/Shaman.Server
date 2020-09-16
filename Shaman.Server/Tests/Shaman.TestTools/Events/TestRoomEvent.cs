@@ -3,7 +3,7 @@ using Shaman.Serialization;
 using Shaman.Serialization.Extensions;
 using Shaman.Serialization.Messages.Udp;
 
-namespace Shaman.Tests.GameModeControllers
+namespace Shaman.TestTools.Events
 {
     public class TestRoomEvent : EventBase
     {
@@ -24,7 +24,7 @@ namespace Shaman.Tests.GameModeControllers
             TestList = testList;
         }
 
-        public TestRoomEvent() : base(0)
+        public TestRoomEvent() : base(TestEventCodes.TestEventCode)
         {
         }
 

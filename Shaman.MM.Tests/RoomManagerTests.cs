@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using Shaman.Common.Http;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Common.Logging;
+using Shaman.Contract.Routing.MM;
 using Shaman.Messages;
 using Shaman.Messages.MM;
 using Shaman.MM.Managers;
@@ -23,6 +25,8 @@ namespace Shaman.MM.Tests
         private ITaskSchedulerFactory _taskSchedulerFactory;
         private Task emptyTask = new Task(() => {});
         private Guid _group1Id = Guid.NewGuid();
+        private IRequestSender _requestSender;
+        private IRoomApiProvider _roomApiProvider;
         
         [SetUp]
         public void Setup()
@@ -30,7 +34,9 @@ namespace Shaman.MM.Tests
             _logger = new ConsoleLogger();
             _serverProvider = new FakeServerProvider();
             _taskSchedulerFactory = new TaskSchedulerFactory(_logger);
-            _roomManager = new RoomManager(_serverProvider, _logger, _taskSchedulerFactory);
+            _requestSender = new FakeSender();
+            _roomApiProvider = new DefaultRoomApiProvider(_requestSender,_logger);
+            _roomManager = new RoomManager(_serverProvider, _logger, _taskSchedulerFactory, _roomApiProvider);
             _roomManager.Start(5);
         }
 
@@ -93,7 +99,8 @@ namespace Shaman.MM.Tests
         public async Task CreateRoomNoServersTest()
         {
             _serverProvider = new FakeServerProvider(false, true);
-            _roomManager = new RoomManager(_serverProvider, _logger, _taskSchedulerFactory);
+            
+            _roomManager = new RoomManager(_serverProvider, _logger, _taskSchedulerFactory, _roomApiProvider);
 
             var players = new Dictionary<Guid, Dictionary<byte, object>>();
             var properties = new Dictionary<byte, object>();
@@ -123,7 +130,7 @@ namespace Shaman.MM.Tests
         public async Task CreateRoomRoomEmptyTest()
         {
             _serverProvider = new FakeServerProvider(returnEmptyGuid: true);
-            _roomManager = new RoomManager(_serverProvider, _logger, _taskSchedulerFactory);
+            _roomManager = new RoomManager(_serverProvider, _logger, _taskSchedulerFactory, _roomApiProvider);
 
             var players = new Dictionary<Guid, Dictionary<byte, object>>();
             var properties = new Dictionary<byte, object>();
@@ -143,10 +150,10 @@ namespace Shaman.MM.Tests
             }
             
             Assert.IsNotNull(result);
-            Assert.AreEqual(result.Result, RoomOperationResult.CreateRoomError);
+            Assert.AreEqual(RoomOperationResult.OK, result.Result);
             Assert.AreEqual(true, success);
             Assert.AreEqual(null, ex);
-            Assert.AreEqual(0, _roomManager.GetRoomsCount());
+            Assert.AreEqual(1, _roomManager.GetRoomsCount());
         }
 
         [Test]
@@ -206,10 +213,6 @@ namespace Shaman.MM.Tests
             Assert.AreEqual(1, rooms.Count());
             rooms = _roomManager.GetRooms(Guid.NewGuid(), false);
             Assert.AreEqual(0, rooms.Count());
-            emptyTask.Wait(3000);
-            //room should be deleted
-            rooms = _roomManager.GetRooms(_group1Id, false);
-            Assert.AreEqual(0, rooms.Count()); 
         }
 
         [Test]

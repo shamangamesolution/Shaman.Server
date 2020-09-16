@@ -6,16 +6,16 @@ using NUnit.Framework;
 using Shaman.Client;
 using Shaman.Client.Peers;
 using Shaman.Common.Server.Providers;
+using Shaman.Common.Udp.Senders;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Bundle;
 using Shaman.Contract.Common.Logging;
 using Shaman.Contract.MM;
+using Shaman.Contract.Routing.MM;
 using Shaman.Game;
-using Shaman.Game.Configuration;
 using Shaman.Game.Metrics;
 using Shaman.Game.Rooms.RoomProperties;
 using Shaman.MM;
-using Shaman.MM.Configuration;
 using Shaman.MM.MatchMaking;
 using Shaman.Tests.GameModeControllers;
 using Shaman.Messages;
@@ -23,11 +23,12 @@ using Shaman.Messages.MM;
 using Shaman.Messages.RoomFlow;
 using Shaman.MM.Managers;
 using Shaman.MM.Metrics;
-using Shaman.MM.Providers;
 using Shaman.Serialization;
 using Shaman.Serialization.Messages.Udp;
+using Shaman.Tests.Helpers;
 using Shaman.Tests.Providers;
 using Shaman.TestTools.ClientPeers;
+using Shaman.TestTools.Events;
 using GameProject = Shaman.Messages.General.Entity.GameProject;
 using IRoomManager = Shaman.Game.Rooms.IRoomManager;
 using RoomManager = Shaman.Game.Rooms.RoomManager;
@@ -54,7 +55,6 @@ namespace Shaman.Tests
         private List<MatchMakingGroup> matchMakingGroups = new List<MatchMakingGroup>();
         private IRequestSender requestSender = null;
         private List<ShamanClientPeerLegacy> _clients = new List<ShamanClientPeerLegacy>();
-        private IBackendProvider _backendProvider;
         private IRoomPropertiesContainer _roomPropertiesContainer;
         private IRoomManager _roomManager;
         private IRoomControllerFactory _roomControllerFactory;
@@ -82,52 +82,10 @@ namespace Shaman.Tests
         public void Setup()
         {             
             _clients.Clear();
-            var config = new MmApplicationConfig("", "127.0.0.1", new List<ushort> {SERVER_PORT_MM}, "", 120000, GameProject.DefaultGame,"", 7002, isAuthOn:false);
-            _roomPropertiesProvider = new FakeRoomPropertiesProvider2();
-            taskSchedulerFactory = new TaskSchedulerFactory(_serverLogger);
-            //fake sender to direct calls of application functions
-            requestSender = new FakeSenderWithGameApplication(new Dictionary<byte, object>() {{PropertyCode.RoomProperties.GameMode, (byte)GameMode.SinglePlayer}}, CreateRoomDelegate, UpdateRoomDelegate);
-            _backendProvider = new BackendProvider(taskSchedulerFactory, config, requestSender, _serverLogger);
-            var gameConfig = new GameApplicationConfig("", "", "127.0.0.1", new List<ushort> {SERVER_PORT_GAME}, "", "", 7000,
-                isAuthOn: false);
-            _mmPacketSender = new PacketBatchSender(taskSchedulerFactory, config, _serverLogger);
-            _gamePacketSender = new PacketBatchSender(taskSchedulerFactory, gameConfig, _serverLogger);
-            
-            _playerManager = new PlayersManager( Mock.Of<IMmMetrics>(), _serverLogger);
-            _statsProvider = new MM.Providers.StatisticsProvider(_playerManager);
-            _serverProvider = new FakeMatchMakerServerInfoProvider(requestSender, "127.0.0.1", $"{SERVER_PORT_GAME}");
+            _gameApplication = InstanceHelper.GetGame(SERVER_PORT_GAME);
+            _mmApplication = InstanceHelper.GetMm(SERVER_PORT_MM, SERVER_PORT_GAME, _gameApplication);
 
-            _mmRoomManager =
-                new MM.Managers.RoomManager(_serverProvider, _serverLogger, taskSchedulerFactory);
-            _mmGroupManager = new MatchMakingGroupManager(_serverLogger, taskSchedulerFactory, _playerManager, _mmPacketSender,  Mock.Of<IMmMetrics>(), _mmRoomManager, _roomPropertiesProvider, config);
-            matchMaker = new MatchMaker(_serverLogger,  _mmPacketSender, Mock.Of<IMmMetrics>(),  _playerManager, _mmGroupManager);
-
-            _measures = new Dictionary<byte, object>();
-            _measures.Add(PropertyCode.PlayerProperties.Level, 1);
-            matchMaker.AddMatchMakingGroup(_measures);
-
-            _measures = new Dictionary<byte, object>();
-            _measures.Add(PropertyCode.PlayerProperties.Level, 2);
-            matchMaker.AddMatchMakingGroup(_measures);
-            
-            //setup mm server
-            _mmApplication = new MmApplication(_serverLogger, config, serializer, socketFactory, matchMaker,
-                requestSender, taskSchedulerFactory, _backendProvider, _mmPacketSender, _serverProvider, _mmRoomManager,
-                _mmGroupManager, _playerManager, Mock.Of<IMmMetrics>());
-            matchMaker.AddRequiredProperty(PropertyCode.PlayerProperties.Level);
-            
             _mmApplication.Start();
-            
-            //setup game server
-            _roomPropertiesContainer = new RoomPropertiesContainer(_serverLogger);
-            _roomControllerFactory = new FakeRoomControllerFactory();
-
-            _roomManager = new RoomManager(_serverLogger, serializer, gameConfig, taskSchedulerFactory,
-                _roomControllerFactory, _mmPacketSender, Mock.Of<IGameMetrics>(), requestSender);
-
-            _gameApplication = new GameApplication(_serverLogger, gameConfig, serializer, socketFactory,
-                taskSchedulerFactory, requestSender, _backendProvider, _roomManager, _gamePacketSender,
-                Mock.Of<IGameMetrics>());
             _gameApplication.Start();
         }
         
@@ -160,7 +118,7 @@ namespace Shaman.Tests
             {
                 var client = new ShamanClientPeerLegacy(new TestMessageDeserializer(), _clientLogger, taskSchedulerFactory, 20, serializer, requestSender);
                 var sessionId = Guid.NewGuid();
-                client.JoinGame(CLIENT_CONNECTS_TO_IP, SERVER_PORT_MM,1, sessionId, new Dictionary<byte, object> { {PropertyCode.PlayerProperties.Level, 1} },
+                client.JoinGame(CLIENT_CONNECTS_TO_IP, SERVER_PORT_MM,1, sessionId, new Dictionary<byte, object> { {FakePropertyCodes.PlayerProperties.Level, 1} },
                     new Dictionary<byte, object>(), 
                     (status, joinInfo) =>
                     {
@@ -171,7 +129,7 @@ namespace Shaman.Tests
                             _clientLogger.Info($"Client status changed {status.Status}, isSuccess = {status.IsSuccess}, error = {status.Error}, joinInfo.JoinStatus = {joinInfo.Status}, joinInfo.CurrentPlayers = {joinInfo.CurrentPlayers}, joinInfo.MaxPlayers = {joinInfo.MaxPlayers}");
                         }
                     });
-                client.RegisterOperationHandler(ShamanOperationCode.Test, message =>
+                client.RegisterOperationHandler(TestEventCodes.TestEventCode, message =>
                 {
                     if (!_eventsCount.ContainsKey(sessionId))
                         _eventsCount.TryAdd(sessionId, 0);
@@ -217,7 +175,7 @@ namespace Shaman.Tests
         {
             var client = new ShamanClientPeerLegacy(new TestMessageDeserializer(), _clientLogger, taskSchedulerFactory, 20, serializer, requestSender);
             var sessionId = Guid.NewGuid();
-            client.JoinGame(CLIENT_CONNECTS_TO_IP, SERVER_PORT_MM,1, sessionId, new Dictionary<byte, object> { {PropertyCode.PlayerProperties.Level, 2} },
+            client.JoinGame(CLIENT_CONNECTS_TO_IP, SERVER_PORT_MM,1, sessionId, new Dictionary<byte, object> { {FakePropertyCodes.PlayerProperties.Level, 2} },
                 new Dictionary<byte, object>(), 
                 (status, joinInfo) =>
                 {
@@ -237,7 +195,7 @@ namespace Shaman.Tests
             var client1 = new ShamanClientPeerLegacy(new TestMessageDeserializer(), _clientLogger, taskSchedulerFactory, 20, serializer, requestSender);
             var sessionId1 = Guid.NewGuid();
             var success = false;
-            client1.GetGames(CLIENT_CONNECTS_TO_IP, SERVER_PORT_MM,1, sessionId1, new Dictionary<byte, object> { {PropertyCode.PlayerProperties.Level, 2} },
+            client1.GetGames(CLIENT_CONNECTS_TO_IP, SERVER_PORT_MM,1, sessionId1, new Dictionary<byte, object> { {FakePropertyCodes.PlayerProperties.Level, 2} },
                 new Dictionary<byte, object>(), 
                 (rooms) =>
                 {
@@ -273,7 +231,7 @@ namespace Shaman.Tests
         {
             var client = new ShamanClientPeerLegacy(new TestMessageDeserializer(), _clientLogger, taskSchedulerFactory, 20, serializer, requestSender);
             var sessionId = Guid.NewGuid();
-            client.CreateGame(CLIENT_CONNECTS_TO_IP, SERVER_PORT_MM,1, sessionId, new Dictionary<byte, object> { {PropertyCode.PlayerProperties.Level, 2} },
+            client.CreateGame(CLIENT_CONNECTS_TO_IP, SERVER_PORT_MM,1, sessionId, new Dictionary<byte, object> { {FakePropertyCodes.PlayerProperties.Level, 2} },
                 new Dictionary<byte, object>(), 
                 (status, joinInfo) =>
                 {

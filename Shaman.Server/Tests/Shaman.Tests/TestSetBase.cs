@@ -2,13 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using Shaman.Common.Http;
+using Shaman.Common.Udp.Sockets;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Common.Logging;
+using Shaman.Contract.Routing;
+using Shaman.Game;
 using Shaman.LiteNetLibAdapter;
 using Shaman.Messages.General.DTO.Responses.Auth;
 using Shaman.Messages.RoomFlow;
-using Shaman.Router.Messages;
+using Shaman.Routing.Balancing.Messages;
 using Shaman.Serialization;
 using Shaman.Serialization.Messages;
 using Shaman.Serialization.Messages.Http;
@@ -63,13 +67,15 @@ namespace Shaman.Tests
     
     public class FakeSenderWithGameApplication : IRequestSender
     {
-        private Func<Dictionary<byte, object>, Guid> _createRoomDelegate;
-        private Action<Guid> _updateRoomDelegate;
-        
+        private Func<Dictionary<byte, object>, GameApplication, Guid> _createRoomDelegate;
+        private Action<Guid, GameApplication> _updateRoomDelegate;
+
+        private readonly GameApplication _gameApplication;
         private Dictionary<byte, object> _roomProperties;
         
-        public FakeSenderWithGameApplication( Dictionary<byte, object> roomProperties, Func<Dictionary<byte, object>, Guid> createRoomDelegate, Action<Guid> updateRoomDelegate)
+        public FakeSenderWithGameApplication(GameApplication gameApplication,  Dictionary<byte, object> roomProperties, Func<Dictionary<byte, object>, GameApplication, Guid> createRoomDelegate, Action<Guid, GameApplication> updateRoomDelegate)
         {
+            _gameApplication = gameApplication;
             _roomProperties = roomProperties;
             _createRoomDelegate = createRoomDelegate;
             _updateRoomDelegate = updateRoomDelegate;
@@ -79,13 +85,13 @@ namespace Shaman.Tests
         {
             if (typeof(T) == typeof(CreateRoomResponse))
             {
-                var roomId = _createRoomDelegate(_roomProperties);
+                var roomId = _createRoomDelegate(_roomProperties, _gameApplication);
                 return new CreateRoomResponse(roomId) as T;
             }
             if (typeof(T) == typeof(UpdateRoomResponse))
             {
                 var req = request as UpdateRoomRequest;
-                _updateRoomDelegate(req.RoomId);
+                _updateRoomDelegate(req.RoomId, _gameApplication);
                 return new UpdateRoomResponse() as T;
             }
             
@@ -105,7 +111,7 @@ namespace Shaman.Tests
         {
             if (typeof(T) == typeof(CreateRoomResponse))
             {
-                var roomId = _createRoomDelegate(_roomProperties);
+                var roomId = _createRoomDelegate(_roomProperties, _gameApplication);
                 callback(new CreateRoomResponse(roomId) as T);
             }
             else

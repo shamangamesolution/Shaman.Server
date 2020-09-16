@@ -4,8 +4,11 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Shaman.Client;
 using Shaman.Client.Peers;
 using Shaman.Client.Providers;
+using Shaman.Common.Http;
+using Shaman.Common.Udp.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
@@ -14,7 +17,6 @@ using Shaman.Messages.General.DTO.Requests;
 using Shaman.Messages.General.DTO.Responses;
 using Shaman.Messages.MM;
 using Shaman.Messages.RoomFlow;
-using Shaman.Router.Messages;
 using Shaman.Serialization;
 using Shaman.Serialization.Messages;
 using Shaman.Serialization.Messages.Udp;
@@ -78,9 +80,10 @@ namespace Shaman.TestTools.ClientPeers
 
         public async Task LoadRoutes(string routerUrl, string clientVersion)
         {
-            var httpSender = new HttpSender(_logger, new BinarySerializer());
-            var clientServerInfoProvider = new ClientServerInfoProvider(httpSender, _logger);
-
+            var httpSender = new TestClientHttpSender(_logger, new BinarySerializer());
+            var routerClient = new TestRouterClient(httpSender, _logger, routerUrl);
+            var clientServerInfoProvider =
+                new ClientServerInfoProvider(_logger, routerClient);
             _routeTable.AddRange(await clientServerInfoProvider.GetRoutes(routerUrl, clientVersion));
             _routeTable.Should().NotBeEmpty();
         }
@@ -125,7 +128,7 @@ namespace Shaman.TestTools.ClientPeers
         private void ProcessMessage(byte[] buffer, int offset, int length)
         {
             var operationCode = MessageBase.GetOperationCode(buffer, offset);
-            _logger.Info($"Message received. Operation code: {operationCode}");
+            _logger.LogInfo($"Message received. Operation code: {operationCode}");
 
             _receivedMessages.Add(new RawMessage
             {

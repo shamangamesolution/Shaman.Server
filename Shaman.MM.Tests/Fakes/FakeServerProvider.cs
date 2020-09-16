@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Shaman.MM.Providers;
-using Shaman.Router.Messages;
+using Shaman.Contract.Routing;
+using Shaman.Contract.Routing.MM;
 using Shaman.Serialization.Messages;
 
 namespace Shaman.MM.Tests.Fakes
@@ -53,6 +53,11 @@ namespace Shaman.MM.Tests.Fakes
         public ServerInfo GetLessLoadedServer()
         {
             return _gameServers.FirstOrDefault();
+        }
+
+        public void AddServer(ServerInfo serverInfo)
+        {
+            throw new NotImplementedException();
         }
 
         public Task<Guid> CreateRoom(int serverId, Guid roomId, Dictionary<byte, object> properties,

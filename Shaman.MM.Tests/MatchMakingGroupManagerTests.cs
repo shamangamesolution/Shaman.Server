@@ -3,19 +3,23 @@ using System.Linq;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
+using Shaman.Common.Http;
+using Shaman.Common.Server.Configuration;
+using Shaman.Common.Udp.Senders;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Common.Logging;
 using Shaman.Contract.MM;
+using Shaman.Contract.Routing.MM;
 using Shaman.Messages;
 using Shaman.Messages.General.Entity;
 using Shaman.Messages.MM;
-using Shaman.MM.Configuration;
 using Shaman.MM.Managers;
 using Shaman.MM.Metrics;
 using Shaman.MM.Players;
 using Shaman.MM.Providers;
 using Shaman.MM.Tests.Fakes;
+using Shaman.TestTools.Events;
 
 namespace Shaman.MM.Tests
 {
@@ -25,12 +29,14 @@ namespace Shaman.MM.Tests
         private IShamanLogger _logger;
         private ITaskSchedulerFactory _taskSchedulerFactory;
         private IPlayersManager _playersManager;
-        private IPacketSender _packetSender;
+        private IShamanMessageSender _packetSender;
         private IRoomManager _roomManager;
         private IMatchMakerServerInfoProvider _serverProvider;
         private IMatchMakingGroupsManager _matchMakingGroupManager;
         private IRoomPropertiesProvider _roomPropertiesProvider;
-        
+        private IRequestSender _requestSender;
+        private IRoomApiProvider _roomApiProvider;
+
         private Task emptyTask = new Task(() => {});
         private Dictionary<byte, object> _measures = new Dictionary<byte, object>();
         private Dictionary<byte, object> _playerProperties;
@@ -38,20 +44,29 @@ namespace Shaman.MM.Tests
         [SetUp]
         public void Setup()
         {
-            var config = new MmApplicationConfig("", "127.0.0.1", new List<ushort> {0}, "", 120000, GameProject.DefaultGame,"", 7002, isAuthOn:false);
+            // var config = new MmApplicationConfig("", "127.0.0.1", new List<ushort> {0}, "", 120000, GameProject.DefaultGame,"", 7002, isAuthOn:false);
+            var config = new ApplicationConfig
+            {
+                PublicDomainNameOrAddress = "127.0.0.1",
+                ListenPorts = new List<ushort> {0},
+                IsAuthOn = false,
+                BindToPortHttp = 7002
+            };
             _logger = new ConsoleLogger();
             _roomPropertiesProvider = new FakeRoomPropertiesProvider(3, 500, 250);
             
             _taskSchedulerFactory = new TaskSchedulerFactory(_logger);
             _playersManager = new PlayersManager(Mock.Of<IMmMetrics>(), _logger);
-            _packetSender = Mock.Of<IPacketSender>();
+            _packetSender = Mock.Of<IShamanMessageSender>();
             _serverProvider = new FakeServerProvider();
-            _roomManager = new RoomManager(_serverProvider, _logger, _taskSchedulerFactory);
+            _requestSender = new FakeSender();
+            _roomApiProvider = new DefaultRoomApiProvider(_requestSender,_logger);
+            _roomManager = new RoomManager(_serverProvider, _logger, _taskSchedulerFactory, _roomApiProvider);
 
-            _measures.Add(PropertyCode.PlayerProperties.GameMode, 1);
+            _measures.Add(FakePropertyCodes.PlayerProperties.GameMode, 1);
             
             _playerProperties = new Dictionary<byte, object>
-                {{PropertyCode.PlayerProperties.GameMode, 1}};
+                {{FakePropertyCodes.PlayerProperties.GameMode, 1}};
             
             _matchMakingGroupManager = new MatchMakingGroupManager(_logger, _taskSchedulerFactory, _playersManager,
                 _packetSender, Mock.Of<IMmMetrics>(), _roomManager, _roomPropertiesProvider, config);
