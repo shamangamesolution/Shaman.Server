@@ -271,7 +271,7 @@ namespace Shaman.Game.Rooms
             foreach (var roomPlayer in GetAllPlayers())
             {
                 if (Equals(exceptionSessionId, roomPlayer.Peer.GetSessionId()))
-                    return;
+                    continue;
                 _packetSender.AddPacket(roomPlayer.Peer, deliveryOptions, BundleMessagePrefix, payload);
             }
         }

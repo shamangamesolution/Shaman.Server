@@ -136,19 +136,30 @@ namespace Shaman.Tests.Providers
     
     public class FakeRoomPropertiesProvider3 : IRoomPropertiesProvider
     {
+        private readonly int _mmTick;
+        private readonly int _maximumPlayers;
+        private readonly int _mmTime;
+
+        public FakeRoomPropertiesProvider3(int mmTick, int maximumPlayers, int mmTime)
+        {
+            _mmTick = mmTick;
+            _maximumPlayers = maximumPlayers;
+            _mmTime = mmTime;
+        }
+        
         public int GetMatchMakingTick(Dictionary<byte, object> playerMatchMakingProperties)
         {
-            return 250;
+            return _mmTick;
         }
 
         public int GetMaximumPlayers(Dictionary<byte, object> playerMatchMakingProperties)
         {
-            return 12;
+            return _maximumPlayers;
         }
 
         public int GetMaximumMatchMakingTime(Dictionary<byte, object> playerMatchMakingProperties)
         {
-            return 5000;
+            return _mmTime;
         }
 
         public Dictionary<byte, object> GetAdditionalRoomProperties(Dictionary<byte, object> playerMatchMakingProperties)

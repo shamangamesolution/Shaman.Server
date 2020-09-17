@@ -16,7 +16,7 @@ namespace Shaman.TestTools.Events
         public List<int> TestList { get; set; }
         
         public TestRoomEvent(bool testBool, int testInt, float testFloat, List<int> testList) 
-            : base(0)
+            : this()
         {
             this.TestBool = testBool;
             this.TestInt = testInt;

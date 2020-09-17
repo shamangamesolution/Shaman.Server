@@ -56,7 +56,7 @@ namespace Shaman.TestTools.ClientPeers
             _logger = logger;
             _serializer = serializer;
             _taskScheduler = taskSchedulerFactory.GetTaskScheduler();
-            _clientPeer = new ClientPeer(logger,taskSchedulerFactory, 300, 20);
+            _clientPeer = new ClientPeer(logger,taskSchedulerFactory, 300, 10);
             //_clientPeer.OnPackageReceived += ClientOnPackageReceived;
 
             _clientPeer.OnDisconnectedFromServer = OnDisconnected;
@@ -68,7 +68,7 @@ namespace Shaman.TestTools.ClientPeers
                 {
                     ClientOnPackageReceived(pack);
                 }
-            }, 0, 20);
+            }, 0, 10);
         }
 
         private void OnDisconnected(string reason)
@@ -117,6 +117,10 @@ namespace Shaman.TestTools.ClientPeers
         {
             _clientPeer.Send(message, message.IsReliable, message.IsOrdered);
         }
+        public void SendEvent<TMessage>(TMessage eve) where TMessage : MessageBase
+        {
+            _clientPeer.Send(new BundleMessageWrapper<TMessage>(eve), eve.IsReliable, eve.IsOrdered);
+        }
         public async Task<TResponse> Send<TResponse>(RequestBase message) where TResponse:ResponseBase, new()
         {
             _clientPeer.Send(message, message.IsReliable, message.IsOrdered);
@@ -129,14 +133,29 @@ namespace Shaman.TestTools.ClientPeers
         {
             var operationCode = MessageBase.GetOperationCode(buffer, offset);
             _logger.LogInfo($"Message received. Operation code: {operationCode}");
-
-            _receivedMessages.Add(new RawMessage
+            if (operationCode != ShamanOperationCode.Bundle)
             {
-                Data = buffer.ToArray(),
-                Offset = offset,
-                Length = length,
-                OperationCode = operationCode
-            });
+                _receivedMessages.Add(new RawMessage
+                {
+                    Data = buffer.ToArray(),
+                    Offset = offset,
+                    Length = length,
+                    OperationCode = operationCode
+                });
+            }
+            else
+            {
+                var bundleOperationCode = MessageBase.GetOperationCode(buffer, offset + 1);
+                _logger.LogInfo($"It is bundle message ! {bundleOperationCode}");
+                _receivedMessages.Add(new RawMessage
+                {
+                    Data = buffer.ToArray(),
+                    Offset = offset + 1,
+                    Length = length - 1,
+                    OperationCode = bundleOperationCode
+                });
+            }
+
 
             //save join info
             if (operationCode == ShamanOperationCode.JoinInfo)
@@ -185,7 +204,7 @@ namespace Shaman.TestTools.ClientPeers
                     var deserialized = _serializer.DeserializeAs<T>(msg.Data, msg.Offset, msg.Length);
                     if (condition(deserialized))
                     {
-                        _logger.Info($"Condition for event {typeof(T)} was matched for {stopwatch.ElapsedMilliseconds}ms");
+                        _logger.LogInfo($"Condition for event {typeof(T)} was matched for {stopwatch.ElapsedMilliseconds}ms");
                         return deserialized;    
                     }
                 }
