@@ -111,8 +111,10 @@ namespace Shaman.MM
                         return;
                     }
                     else
-                        _messageSender.Send(new AuthorizationResponse(), peer);
-
+                    {
+                        if (!peer.IsAuthorized)
+                            _messageSender.Send(new AuthorizationResponse(), peer);
+                    }
 
                     switch (operationCode)
                     {

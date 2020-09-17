@@ -8,6 +8,7 @@ using Shaman.Common.Udp.Senders;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.MM;
 using Shaman.Contract.Routing.MM;
+using Shaman.Game;
 using Shaman.MM;
 using Shaman.MM.MatchMaking;
 using Shaman.Messages;
@@ -39,6 +40,7 @@ namespace Shaman.Tests
         private const int MM_TICK = 1000;
         
         private MmApplication _mmApplication;
+        private GameApplication _gameApplication;
 
         private TestClientPeer _client1, _client2, _client3;
 
@@ -87,8 +89,10 @@ namespace Shaman.Tests
             //     requestSender, taskSchedulerFactory, _backendProvider, _packetSender, _serverProvider, _mmRoomManager,
             //     _mmGroupManager, _playerManager, Mock.Of<IMmMetrics>());
 
-            _mmApplication = InstanceHelper.GetMm(MM_SERVER_PORT, 0, null);
+            _gameApplication = InstanceHelper.GetGame(SERVER_PORT);
+            _mmApplication = InstanceHelper.GetMm(MM_SERVER_PORT, 0, _gameApplication);
             _mmApplication.Start();
+            _gameApplication.Start();
             
             //setup client
             _client1 = new TestClientPeer(_clientLogger, taskSchedulerFactory, serializer);
@@ -107,7 +111,7 @@ namespace Shaman.Tests
             if (_client3.IsConnected())
                 _client3.Disconnect();
             _mmApplication.ShutDown();
-
+            _gameApplication.ShutDown();
         }
 
         private void RegisterServer()
@@ -121,7 +125,6 @@ namespace Shaman.Tests
             //player join
             _client1.Connect(CLIENT_CONNECTS_TO_IP, MM_SERVER_PORT);
             await _client1.WaitFor<ConnectedEvent>(e => true);
-            await _client1.Send<AuthorizationResponse>(new AuthorizationRequest());            
             
             //incorrect mm request
             var mmResponse = await _client1.Send<EnterMatchMakingResponse>(new EnterMatchMakingRequest(new Dictionary<byte, object>()));
@@ -197,10 +200,7 @@ namespace Shaman.Tests
             _client2.Connect(CLIENT_CONNECTS_TO_IP, MM_SERVER_PORT);
             await _client1.WaitFor<ConnectedEvent>(@event => true);
             await _client2.WaitFor<ConnectedEvent>(@event => true);
-
-            //auth
-            await _client1.Send<AuthorizationResponse>(new AuthorizationRequest());         
-            await _client2.Send<AuthorizationResponse>(new AuthorizationRequest());            
+         
             //entering mm
             await _client1.Send<EnterMatchMakingResponse>(new EnterMatchMakingRequest(new Dictionary<byte, object> { {FakePropertyCodes.PlayerProperties.Level, 2} }));
             await _client2.Send<EnterMatchMakingResponse>(new EnterMatchMakingRequest(new Dictionary<byte, object> { {FakePropertyCodes.PlayerProperties.Level, 2} }));
@@ -222,10 +222,7 @@ namespace Shaman.Tests
             _client3.Connect(CLIENT_CONNECTS_TO_IP, MM_SERVER_PORT);
 
             EmptyTask.Wait(WAIT_TIMEOUT);
-            //auth
-            await _client1.Send<AuthorizationResponse>(new AuthorizationRequest());         
-            await _client2.Send<AuthorizationResponse>(new AuthorizationRequest());
-            await _client3.Send<AuthorizationResponse>(new AuthorizationRequest());            
+          
 
             EmptyTask.Wait(WAIT_TIMEOUT);
             //first creates room

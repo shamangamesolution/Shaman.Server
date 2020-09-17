@@ -81,8 +81,9 @@ namespace Shaman.Tests
             stats = _gameApplication.GetStats();
             Assert.AreEqual(2, stats.PeerCount);
             Assert.AreEqual(1, stats.RoomCount);
-            await _client1.Send<AuthorizationResponse>(new AuthorizationRequest());            
-            await _client2.Send<AuthorizationResponse>(new AuthorizationRequest());            
+            await _client1.Send<AuthorizationResponse>(new AuthorizationRequest() {SessionId = Guid.NewGuid()});            
+            await _client2.Send<AuthorizationResponse>(new AuthorizationRequest() {SessionId = Guid.NewGuid()});         
+            
             await _client1.Send<JoinRoomResponse>(new JoinRoomRequest(roomId, new Dictionary<byte, object>()));
             await _client2.Send<JoinRoomResponse>(new JoinRoomRequest(roomId, new Dictionary<byte, object>()));
 

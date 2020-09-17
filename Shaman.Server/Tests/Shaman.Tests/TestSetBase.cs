@@ -67,13 +67,13 @@ namespace Shaman.Tests
     
     public class FakeSenderWithGameApplication : IRequestSender
     {
-        private Func<Dictionary<byte, object>, GameApplication, Guid> _createRoomDelegate;
+        private Func<Dictionary<byte, object>, GameApplication, Guid, Guid> _createRoomDelegate;
         private Action<Guid, GameApplication> _updateRoomDelegate;
 
         private readonly GameApplication _gameApplication;
         private Dictionary<byte, object> _roomProperties;
         
-        public FakeSenderWithGameApplication(GameApplication gameApplication,  Dictionary<byte, object> roomProperties, Func<Dictionary<byte, object>, GameApplication, Guid> createRoomDelegate, Action<Guid, GameApplication> updateRoomDelegate)
+        public FakeSenderWithGameApplication(GameApplication gameApplication,  Dictionary<byte, object> roomProperties, Func<Dictionary<byte, object>, GameApplication, Guid, Guid> createRoomDelegate, Action<Guid, GameApplication> updateRoomDelegate)
         {
             _gameApplication = gameApplication;
             _roomProperties = roomProperties;
@@ -85,7 +85,8 @@ namespace Shaman.Tests
         {
             if (typeof(T) == typeof(CreateRoomResponse))
             {
-                var roomId = _createRoomDelegate(_roomProperties, _gameApplication);
+                
+                var roomId = _createRoomDelegate(_roomProperties, _gameApplication, ((CreateRoomRequest)request).RoomId);
                 return new CreateRoomResponse(roomId) as T;
             }
             if (typeof(T) == typeof(UpdateRoomResponse))
@@ -111,7 +112,7 @@ namespace Shaman.Tests
         {
             if (typeof(T) == typeof(CreateRoomResponse))
             {
-                var roomId = _createRoomDelegate(_roomProperties, _gameApplication);
+                var roomId = _createRoomDelegate(_roomProperties, _gameApplication, ((CreateRoomRequest)request).RoomId);
                 callback(new CreateRoomResponse(roomId) as T);
             }
             else
@@ -131,7 +132,7 @@ namespace Shaman.Tests
     public class TestSetBase
     {
         //protected List<MessageBase> _receivedMessages = new List<MessageBase>();
-        protected IShamanLogger _clientLogger = new ConsoleLogger("C ", LogLevel.Error | LogLevel.Info | LogLevel.Debug);
+        protected IShamanLogger _clientLogger = new ConsoleLogger("C ", LogLevel.Error | LogLevel.Info);
         protected IShamanLogger _serverLogger = new ConsoleLogger("S ", LogLevel.Error | LogLevel.Info);
         protected ISerializer serializer;
         

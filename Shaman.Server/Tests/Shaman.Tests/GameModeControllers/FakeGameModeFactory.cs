@@ -38,11 +38,6 @@ namespace Shaman.Tests.GameModeControllers
             Interlocked.Decrement(ref _playerCount);
         }
 
-        public void CleanupPlayer(Guid sessionId, PeerDisconnectedReason reason, byte[] reasonPayload)
-        {
-            Interlocked.Decrement(ref _playerCount);
-        }
-
         public bool IsGameFinished()
         {
             return _playerCount == 0;
@@ -71,6 +66,10 @@ namespace Shaman.Tests.GameModeControllers
 
     public class FakeRoomControllerFactory : IRoomControllerFactory
     {
+        public FakeRoomControllerFactory()
+        {
+            
+        }
         public IRoomController GetGameModeController(IRoomContext room, ITaskScheduler taskScheduler,
             IRoomPropertiesContainer roomPropertiesContainer)
         {

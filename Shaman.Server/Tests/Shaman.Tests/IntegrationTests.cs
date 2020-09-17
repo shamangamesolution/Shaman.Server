@@ -47,7 +47,7 @@ namespace Shaman.Tests
         private const int CLIENTS_NUMBER_2 = 100;
         
         private const int TOTAL_PLAYERS_NEEDED_1 = 12;
-        private const int EVENTS_SENT = 100;
+        private const int EVENTS_SENT = 10;
         
         private GameApplication _gameApplication;
         private MmApplication _mmApplication;
@@ -60,7 +60,7 @@ namespace Shaman.Tests
             _clients.Clear();
 
             _gameApplication = InstanceHelper.GetGame(SERVER_PORT_GAME);
-            _mmApplication = InstanceHelper.GetMm(SERVER_PORT_MM, SERVER_PORT_GAME, _gameApplication);
+            _mmApplication = InstanceHelper.GetMm(SERVER_PORT_MM, SERVER_PORT_GAME, _gameApplication, 12);
 
             _mmApplication.Start();
             _gameApplication.Start();
@@ -117,11 +117,16 @@ namespace Shaman.Tests
             Assert.AreEqual(0, roomsPeerCount.Value);
             
             //authing
-            _clients.ForEach(c => c.Send(new AuthorizationRequest()));
+            _clients.ForEach(c =>
+            {
+                var sessionId = Guid.NewGuid();
+                c.SessionId = sessionId;
+                c.Send<AuthorizationResponse>(new AuthorizationRequest() {SessionId = sessionId});
+            });
             EmptyTask.Wait(WAIT_TIMEOUT);
             
             //joining room
-            _clients.ForEach(c => c.Send(new JoinRoomRequest(roomId, new Dictionary<byte, object>())));
+            _clients.ForEach(c => c.Send<JoinRoomResponse>(new JoinRoomRequest(roomId, new Dictionary<byte, object>())));
             EmptyTask.Wait(WAIT_TIMEOUT);
             stats = _gameApplication.GetStats();
             roomsPeerCount = stats.RoomsPeerCount.First();
@@ -136,7 +141,7 @@ namespace Shaman.Tests
             {
                 for (int i = 0; i < EVENTS_SENT; i++)
                 {
-                    c.Send(new TestRoomEvent(true, 122, 4.668f, new List<int>()));
+                    c.SendEvent(new TestRoomEvent(true, 122, 4.668f, new List<int>()));
                 }
             });
             
@@ -152,20 +157,14 @@ namespace Shaman.Tests
                 }
             });
             Assert.IsTrue(isSuccess);
-
-            //leave room
-            _clients.ForEach(c => c.Send(new LeaveRoomEvent()));
-            EmptyTask.Wait(WAIT_TIMEOUT);
-            stats = _gameApplication.GetStats();
-            Assert.AreEqual(0, stats.RoomsPeerCount.Count);
-            Assert.AreEqual(CLIENTS_NUMBER_1, stats.PeerCount);
             
             //disconnect from server
             _clients.ForEach(c => c.Disconnect());
             EmptyTask.Wait(WAIT_TIMEOUT);
             stats = _gameApplication.GetStats();
             Assert.AreEqual(0, stats.PeerCount);
-            
+            Assert.AreEqual(0, stats.RoomsPeerCount.Count);
+
         }
 
         [Test]
@@ -185,7 +184,7 @@ namespace Shaman.Tests
             _clients.ForEach(c => c.Send<AuthorizationResponse>(new AuthorizationRequest()).Wait());
             
             //send join matchmaking (with level = 1)
-            _clients.ForEach(c => c.Send(new EnterMatchMakingRequest(new Dictionary<byte, object> { {FakePropertyCodes.PlayerProperties.Level, 1} })));
+            _clients.ForEach(c => c.Send<EnterMatchMakingResponse>(new EnterMatchMakingRequest(new Dictionary<byte, object> { {FakePropertyCodes.PlayerProperties.Level, 1} })));
             
             EmptyTask.Wait(MM_TICK* (CLIENTS_NUMBER_2 / 8));
             //wait maximum mm time
@@ -219,7 +218,7 @@ namespace Shaman.Tests
             Assert.AreEqual(1, mmStats.RegisteredServers.Count);
             
             //sending leave mathmaking request
-            _clients.ForEach(c => c.Send(new LeaveMatchMakingRequest()));
+            _clients.ForEach(c => c.Send<LeaveMatchMakingResponse>(new LeaveMatchMakingRequest()));
             EmptyTask.Wait(WAIT_TIMEOUT * 10);
             _clients.ForEach(c => c.Disconnect());
 
@@ -235,11 +234,11 @@ namespace Shaman.Tests
             Assert.AreEqual(roomsCount, stats.RoomCount);
             
             //authing
-            _clients.ForEach(c => c.Send(new AuthorizationRequest()));
+            _clients.ForEach(c => c.Send<AuthorizationResponse>(new AuthorizationRequest()));
             EmptyTask.Wait(WAIT_TIMEOUT);
             
             //joining room
-            _clients.Where(c => c.GetJoinInfo() != null).ToList().ForEach(c => c.Send(new JoinRoomRequest(c.GetJoinInfo().RoomId, new Dictionary<byte, object>())));
+            _clients.Where(c => c.GetJoinInfo() != null).ToList().ForEach(c => c.Send<JoinRoomResponse>(new JoinRoomRequest(c.GetJoinInfo().RoomId, new Dictionary<byte, object>())));
             EmptyTask.Wait(WAIT_TIMEOUT * 100);
             stats = _gameApplication.GetStats();
             Assert.AreEqual(roomsCount, stats.RoomCount);

@@ -59,7 +59,7 @@ namespace Shaman.Tests
             // _roomManager = new RoomManager(_serverLogger, serializer, config, taskSchedulerFactory,  _roomControllerFactory, _packetSender, Mock.Of<IGameMetrics>(), _requestSender);
             // _gameApplication = new GameApplication(_serverLogger, config, serializer, socketFactory, taskSchedulerFactory, _requestSender, _backendProvider, _roomManager, _packetSender);
 
-            _gameApplication = InstanceHelper.GetGame(SERVER_PORT, true);
+            _gameApplication = InstanceHelper.GetGame(SERVER_PORT);
             _gameApplication.Start();
             
             //setup client
@@ -86,17 +86,6 @@ namespace Shaman.Tests
         }
         
         [Test]
-        public void TestAuth()
-        {
-            _gameApplication.GetListeners()[0].OnNewClientConnect(_ep);
-            var peer = _gameApplication.GetListeners()[0].GetPeerCollection().Get(_ep);
-            Assert.False(peer.IsAuthorized);
-            var packetInfo = PackageHelper.GetPacketInfo(new AuthorizationRequest());
-            _gameApplication.GetListeners()[0].OnReceivePacketFromClient(_testEndPoint, packetInfo);
-            Assert.True(peer.IsAuthorized);
-        }
-        
-        [Test]
         public void TestDirectJoinLeftRoom()
         {
             //stats
@@ -120,22 +109,10 @@ namespace Shaman.Tests
             Assert.AreEqual(1, stats.RoomCount); 
             
             var peer = _gameApplication.GetListeners()[0].GetPeerCollection().Get(_ep);
-            //check peer is not authorized
-            Assert.False(peer.IsAuthorized);
-            //sen JoinRoom Message
+            //join 
             _gameApplication.GetListeners()[0].OnReceivePacketFromClient(_testEndPoint, PackageHelper.GetPacketInfo(new JoinRoomRequest(roomId, new Dictionary<byte, object>())));
             //get room by peerId
             var room = _gameApplication.GetRoomManager().GetRoomBySessionId(peer.GetSessionId());
-            //check it is null
-            Assert.Null(room);
-            //now authorize
-            _gameApplication.GetListeners()[0].OnReceivePacketFromClient(_testEndPoint, PackageHelper.GetPacketInfo(new AuthorizationRequest()));
-            //check if we authorized
-            Assert.True(peer.IsAuthorized);
-            //join one more time
-            _gameApplication.GetListeners()[0].OnReceivePacketFromClient(_testEndPoint, PackageHelper.GetPacketInfo(new JoinRoomRequest(roomId, new Dictionary<byte, object>())));
-            //get room by peerId
-            room = _gameApplication.GetRoomManager().GetRoomBySessionId(peer.GetSessionId());
             //room exists
             Assert.NotNull(room);
             //test stats
@@ -164,49 +141,6 @@ namespace Shaman.Tests
             Assert.AreEqual(0, stats.PeerCount);
             Assert.AreEqual(0, stats.RoomCount);           
 
-        }
-
-        [Test]
-        public async Task NotAuthentificatedReceivedTest()
-        {
-            //check stats
-            var stats = _gameApplication.GetStats();
-            Assert.AreEqual(0, stats.PeerCount);
-            Assert.AreEqual(0, stats.RoomCount);
-            
-            _client.Connect(CLIENT_CONNECTS_TO_IP, SERVER_PORT);
- 
-            EmptyTask.Wait(WAIT_TIMEOUT);
-            //create room
-            var roomId = _gameApplication.CreateRoom(
-                new Dictionary<byte, object>() {{PropertyCode.RoomProperties.GameMode, (byte) GameMode.SinglePlayer}},
-                new Dictionary<Guid, Dictionary<byte, object>>());
-            
-            //try to send something without auth
-            _client.Send(new JoinRoomRequest(roomId, new Dictionary<byte, object>()));
-            await _client.WaitFor<AuthorizationResponse>(resp => !resp.Success);
-            
-            _client.Send(new JoinRoomRequest(roomId, new Dictionary<byte, object> {{FakePropertyCodes.PlayerProperties.BackendId, 1}}));
-            await _client.WaitFor<AuthorizationResponse>(resp => !resp.Success);
-
-            //authing
-            await _client.Send<AuthorizationResponse>(new AuthorizationRequest());            
-
-            //send again
-            await _client.Send<JoinRoomResponse>(new JoinRoomRequest(roomId, new Dictionary<byte, object>()));
-            
-            //check stats
-            stats = _gameApplication.GetStats();
-            Assert.AreEqual(1, stats.PeerCount);
-            Assert.AreEqual(1, stats.RoomCount);
-            
-            //disconnect
-            _client.Disconnect();
-            EmptyTask.Wait(2000);
-            
-            stats = _gameApplication.GetStats();
-            Assert.AreEqual(0, stats.PeerCount);
-            Assert.AreEqual(0, stats.RoomCount);
         }
         
         [Test]
@@ -242,7 +176,6 @@ namespace Shaman.Tests
             EmptyTask.Wait(WAIT_TIMEOUT);
             
             //authing
-            _client.Send(new AuthorizationRequest());            
             EmptyTask.Wait(WAIT_TIMEOUT);
             
             //send join
@@ -259,7 +192,8 @@ namespace Shaman.Tests
                 {9, (ulong) 110},
                 {10, new byte[] {111, 112, 113}}
             };
-            _client.Send(new JoinRoomRequest(roomId, props));
+            _client.Send<JoinRoomResponse>(new JoinRoomRequest(roomId, props));
+
             EmptyTask.Wait(WAIT_TIMEOUT);
 
 

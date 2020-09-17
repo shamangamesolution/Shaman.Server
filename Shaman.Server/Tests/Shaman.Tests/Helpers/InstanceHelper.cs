@@ -26,9 +26,9 @@ namespace Shaman.Tests.Helpers
 {
     public class InstanceHelper
     {
-        private static Guid CreateRoomDelegate(Dictionary<byte, object> properties, GameApplication gameApplication)
+        private static Guid CreateRoomDelegate(Dictionary<byte, object> properties, GameApplication gameApplication, Guid roomId)
         {
-            return gameApplication.CreateRoom(properties, new Dictionary<Guid, Dictionary<byte, object>>());
+            return gameApplication.CreateRoom(properties, new Dictionary<Guid, Dictionary<byte, object>>(), roomId);
         }
 
         private static void UpdateRoomDelegate(Guid roomId, GameApplication gameApplication)
@@ -36,12 +36,12 @@ namespace Shaman.Tests.Helpers
             gameApplication?.UpdateRoom(roomId, new Dictionary<Guid, Dictionary<byte, object>>());
         }
 
-        private static IShamanMessageSender GetSHamanMessageSender(ISerializer serializer, IPacketSender packetSender, IPacketSenderConfig config)
+        private static IShamanMessageSender GetSHamanMessageSender(ISerializer serializer, IPacketSender packetSender, IPacketSenderConfig config, IShamanLogger logger)
         {
             return new ShamanMessageSender(new ShamanSender(serializer, packetSender, config));
         }
         
-        public static MmApplication GetMm(ushort mmPort, ushort gamePort, GameApplication gameApplication)
+        public static MmApplication GetMm(ushort mmPort, ushort gamePort, GameApplication gameApplication, int maximumPlayers = 2)
         {
             var socketFactory = new LiteNetSockFactory();
             var serializer = new BinarySerializer();
@@ -57,9 +57,9 @@ namespace Shaman.Tests.Helpers
                 SendTickTimeMs = 20,
                 SocketTickTimeMs = 10,
                 SocketType = SocketType.BareSocket,
-                ReceiveTickTimeMs = 10
+                ReceiveTickTimeMs = 20
             };
-            var roomPropertiesProvider = new FakeRoomPropertiesProvider3();
+            var roomPropertiesProvider = new FakeRoomPropertiesProvider3(250, maximumPlayers, 5000);
             var taskSchedulerFactory = new TaskSchedulerFactory(serverLogger);
             var requestSender = new FakeSenderWithGameApplication(gameApplication,  new Dictionary<byte, object> {{PropertyCode.RoomProperties.GameMode, (byte) GameMode.SinglePlayer}}, CreateRoomDelegate,  UpdateRoomDelegate);
 
@@ -73,7 +73,7 @@ namespace Shaman.Tests.Helpers
             var _mmRoomManager =
                 new MM.Managers.RoomManager(_serverProvider, serverLogger, taskSchedulerFactory, roomApiProvider);
 
-            var sender = GetSHamanMessageSender(serializer, _mmPacketSender, config);
+            var sender = GetSHamanMessageSender(serializer, _mmPacketSender, config, serverLogger);
             var _mmGroupManager = new MatchMakingGroupManager(serverLogger, taskSchedulerFactory, _playerManager,
                 sender, Mock.Of<IMmMetrics>(), _mmRoomManager, roomPropertiesProvider, config);
             
@@ -99,7 +99,7 @@ namespace Shaman.Tests.Helpers
         public static GameApplication GetGame(List<ushort> gamePorts, bool isAuthOn = false)
         {
             var _roomControllerFactory = new FakeRoomControllerFactory();
-            var serverLogger = new ConsoleLogger("M ", LogLevel.Error | LogLevel.Info);
+            var serverLogger = new ConsoleLogger("G ", LogLevel.Error | LogLevel.Info | LogLevel.Debug);
             var socketFactory = new LiteNetSockFactory();
             var serializer = new BinarySerializer();
             var taskSchedulerFactory = new TaskSchedulerFactory(serverLogger);
@@ -114,18 +114,17 @@ namespace Shaman.Tests.Helpers
                 SendTickTimeMs = 20,
                 SocketTickTimeMs = 10,
                 SocketType = SocketType.BareSocket,
-                ReceiveTickTimeMs = 10,
+                ReceiveTickTimeMs = 20,
                 IsAuthOn = isAuthOn
             };
             var requestSender = new FakeSenderWithGameApplication(null, new Dictionary<byte, object> {{PropertyCode.RoomProperties.GameMode, (byte) GameMode.SinglePlayer}}, CreateRoomDelegate,  UpdateRoomDelegate);
 
-            var _mmPacketSender = new PacketBatchSender(taskSchedulerFactory, config, serverLogger);
+            var gamePacketSender = new PacketBatchSender(taskSchedulerFactory, config, serverLogger);
 
             var gameSenderFactory = new ShamanMessageSenderFactory(serializer, config);
             var _roomManager = new Game.Rooms.RoomManager(serverLogger, serializer, config, taskSchedulerFactory,
-                _roomControllerFactory, _mmPacketSender, gameSenderFactory, Mock.Of<IGameMetrics>(), new RoomStateUpdaterStub());
+                _roomControllerFactory, gamePacketSender, gameSenderFactory, Mock.Of<IGameMetrics>(), new RoomStateUpdaterStub());
 
-            var gamePacketSender = new PacketBatchSender(taskSchedulerFactory, config, serverLogger);
 
             //setup game server
             return new GameApplication(
