@@ -19,7 +19,7 @@ namespace Shaman.Tests.GameModeControllers
         private readonly ISendManager _sendManager;
         
         private int _playerCount = 0;
-
+        
         public FakeRoomController(IRoomContext room)
         {
             _room = room;
@@ -40,7 +40,8 @@ namespace Shaman.Tests.GameModeControllers
 
         public bool IsGameFinished()
         {
-            return _playerCount == 0;
+            //returning false to not allow room close
+            return false;
         }
 
         public TimeSpan ForceDestroyRoomAfter => TimeSpan.MaxValue;

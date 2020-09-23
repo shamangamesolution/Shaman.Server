@@ -163,7 +163,6 @@ namespace Shaman.Tests
             EmptyTask.Wait(WAIT_TIMEOUT);
             stats = _gameApplication.GetStats();
             Assert.AreEqual(0, stats.PeerCount);
-            Assert.AreEqual(0, stats.RoomsPeerCount.Count);
 
         }
 
@@ -219,7 +218,6 @@ namespace Shaman.Tests
             
             //sending leave mathmaking request
             _clients.ForEach(c => c.Send<LeaveMatchMakingResponse>(new LeaveMatchMakingRequest()));
-            EmptyTask.Wait(WAIT_TIMEOUT * 10);
             _clients.ForEach(c => c.Disconnect());
 
             mmStats = _mmApplication.GetStats();
@@ -228,7 +226,7 @@ namespace Shaman.Tests
             
             //connect to server
             _clients.Where(c => c.GetJoinInfo() != null && c.GetJoinInfo().Status == JoinStatus.RoomIsReady).ToList().ForEach(c => c.Connect(c.GetJoinInfo().ServerIpAddress.ToString(), c.GetJoinInfo().ServerPort));
-            EmptyTask.Wait(MM_TICK*20);
+            EmptyTask.Wait(MM_TICK*10);
             var stats = _gameApplication.GetStats();
             Assert.AreEqual(joinedCount, stats.PeerCount);
             Assert.AreEqual(roomsCount, stats.RoomCount);
@@ -239,7 +237,7 @@ namespace Shaman.Tests
             
             //joining room
             _clients.Where(c => c.GetJoinInfo() != null).ToList().ForEach(c => c.Send<JoinRoomResponse>(new JoinRoomRequest(c.GetJoinInfo().RoomId, new Dictionary<byte, object>())));
-            EmptyTask.Wait(WAIT_TIMEOUT * 100);
+            EmptyTask.Wait(WAIT_TIMEOUT * 2);
             stats = _gameApplication.GetStats();
             Assert.AreEqual(roomsCount, stats.RoomCount);
             Assert.AreEqual(stats.RoomsPeerCount.Count, stats.RoomCount);
