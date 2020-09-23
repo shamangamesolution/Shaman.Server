@@ -133,13 +133,11 @@ namespace Shaman.Tests
             //test stats once again
             stats = _gameApplication.GetStats();
             Assert.AreEqual(1, stats.PeerCount);
-            Assert.AreEqual(0, stats.RoomCount);
             
             //disconnect
             _gameApplication.GetListeners()[0].OnClientDisconnect(_ep, Mock.Of<IDisconnectInfo>());
             stats = _gameApplication.GetStats();
             Assert.AreEqual(0, stats.PeerCount);
-            Assert.AreEqual(0, stats.RoomCount);           
 
         }
         
