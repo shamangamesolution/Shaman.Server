@@ -53,7 +53,7 @@ namespace Shaman.MM.Tests
                 BindToPortHttp = 7002
             };
             _logger = new ConsoleLogger();
-            _roomPropertiesProvider = new FakeRoomPropertiesProvider(3, 500, 250);
+            _roomPropertiesProvider = new FakeRoomPropertiesProvider(3, 500, 250, 3);
             
             _taskSchedulerFactory = new TaskSchedulerFactory(_logger);
             _playersManager = new PlayersManager(Mock.Of<IMmMetrics>(), _logger);
@@ -92,13 +92,13 @@ namespace Shaman.MM.Tests
             var rooms = _matchMakingGroupManager.GetRooms(_playerProperties);
             Assert.AreEqual(0, rooms.Count());
             rooms = _roomManager.GetAllRooms();
-            _roomManager.UpdateRoomState(rooms.First().Id, 1, RoomState.Open);
+            _roomManager.UpdateRoomState(rooms.First().Id, 1, RoomState.Open, 1);
             rooms = _matchMakingGroupManager.GetRooms(_playerProperties);
             Assert.AreEqual(1, rooms.Count());
             var room = rooms.FirstOrDefault();
             Assert.AreEqual(1, room.CurrentPlayersCount);
             Assert.AreEqual(true, room.IsOpen());
-            Assert.AreEqual(true, room.CanJoin(2));
+            Assert.AreEqual(true, room.CanJoin(2, 1));
         }
         
         [Test]
@@ -113,13 +113,13 @@ namespace Shaman.MM.Tests
             var rooms = _matchMakingGroupManager.GetRooms(_playerProperties);
             Assert.AreEqual(0, rooms.Count());
             rooms = _roomManager.GetAllRooms();
-            _roomManager.UpdateRoomState(rooms.First().Id, 2, RoomState.Open);
+            _roomManager.UpdateRoomState(rooms.First().Id, 2, RoomState.Open, 1);
             rooms = _matchMakingGroupManager.GetRooms(_playerProperties);
             Assert.AreEqual(1, rooms.Count());
             var room = rooms.FirstOrDefault();
             Assert.AreEqual(2, room.CurrentPlayersCount);
             Assert.AreEqual(true, room.IsOpen());
-            Assert.AreEqual(true, room.CanJoin(1));
+            Assert.AreEqual(true, room.CanJoin(1, 1));
         }
         
         [Test]
@@ -133,13 +133,13 @@ namespace Shaman.MM.Tests
             var rooms = _matchMakingGroupManager.GetRooms(_playerProperties);
             Assert.AreEqual(0, rooms.Count());
             rooms = _roomManager.GetAllRooms();
-            _roomManager.UpdateRoomState(rooms.First().Id, 1, RoomState.Open);
+            _roomManager.UpdateRoomState(rooms.First().Id, 1, RoomState.Open, 1);
             rooms = _matchMakingGroupManager.GetRooms(_playerProperties);
             Assert.AreEqual(1, rooms.Count());
             var room = rooms.FirstOrDefault();
             Assert.AreEqual(1, room.CurrentPlayersCount);
             Assert.AreEqual(true, room.IsOpen());
-            Assert.AreEqual(true, room.CanJoin(1));
+            Assert.AreEqual(true, room.CanJoin(1,1));
             
             //join second 
             _matchMakingGroupManager.AddPlayerToMatchMaking(player2);
@@ -149,7 +149,7 @@ namespace Shaman.MM.Tests
             room = rooms.FirstOrDefault();
             Assert.AreEqual(2, room.CurrentPlayersCount);
             Assert.AreEqual(true, room.IsOpen());
-            Assert.AreEqual(true, room.CanJoin(1));
+            Assert.AreEqual(true, room.CanJoin(1,1));
         }
     }
 }

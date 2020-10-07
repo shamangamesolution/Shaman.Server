@@ -27,6 +27,11 @@ namespace Shaman.Launchers.TestBundle
             return 1;
         }
 
+        public int GetMaximumMatchMakingWeight(Dictionary<byte, object> playerMatchMakingProperties)
+        {
+            return 1;
+        }
+
         public int GetMaximumMatchMakingTime(Dictionary<byte, object> playerMatchMakingProperties)
         {
             return 1000;

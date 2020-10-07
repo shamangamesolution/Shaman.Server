@@ -81,11 +81,11 @@ namespace Shaman.MM.Tests
             _playersManager.Add(player2, groupList1);
             _playersManager.Add(player1, groupList1);
             _playersManager.Add(player3, groupList2);
-            Assert.AreEqual(0, _playersManager.GetPlayers(groupList1[0], 0).Count());
-            Assert.AreEqual(0, _playersManager.GetPlayers(Guid.NewGuid(), 1).Count());
-            Assert.AreEqual(1, _playersManager.GetPlayers(groupList1[0], 1).Count());
-            Assert.AreEqual(2, _playersManager.GetPlayers(groupList1[0], 2).Count());
-            Assert.AreEqual(1, _playersManager.GetPlayers(groupList2[0], 1).Count());
+            Assert.AreEqual(0, _playersManager.GetPlayers(groupList1[0], 0, 1).Count());
+            Assert.AreEqual(0, _playersManager.GetPlayers(Guid.NewGuid(), 1, 1).Count());
+            Assert.AreEqual(1, _playersManager.GetPlayers(groupList1[0], 1, 1).Count());
+            Assert.AreEqual(2, _playersManager.GetPlayers(groupList1[0], 2, 1).Count());
+            Assert.AreEqual(1, _playersManager.GetPlayers(groupList2[0], 1, 1).Count());
             Assert.AreEqual(3, _playersManager.Count());
             _playersManager.Clear();
             Assert.AreEqual(0, _playersManager.Count());
@@ -98,11 +98,11 @@ namespace Shaman.MM.Tests
             var player2 = new MatchMakingPlayer(new FakePeer(), new Dictionary<byte, object>());
             _playersManager.Add(player2, groupList1);
             _playersManager.Add(player1, groupList1);
-            Assert.AreEqual(2, _playersManager.GetPlayers(groupList1[0], 2).Count());
+            Assert.AreEqual(2, _playersManager.GetPlayers(groupList1[0], 2, 1).Count());
             _playersManager.SetOnMatchmaking(player2.Id, true);
-            Assert.AreEqual(1, _playersManager.GetPlayers(groupList1[0], 2).Count());
+            Assert.AreEqual(1, _playersManager.GetPlayers(groupList1[0], 2, 1).Count());
             _playersManager.SetOnMatchmaking(player2.Id, false);
-            Assert.AreEqual(2, _playersManager.GetPlayers(groupList1[0], 2).Count());
+            Assert.AreEqual(2, _playersManager.GetPlayers(groupList1[0], 2, 1).Count());
 
             
         }

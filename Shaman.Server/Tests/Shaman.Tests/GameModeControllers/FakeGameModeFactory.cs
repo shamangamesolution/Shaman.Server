@@ -60,6 +60,8 @@ namespace Shaman.Tests.GameModeControllers
             }
         }
 
+        public int MaxMatchmakingWeight => 1;
+
         public void Dispose()
         {
         }

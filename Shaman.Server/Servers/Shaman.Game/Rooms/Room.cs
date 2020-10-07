@@ -104,7 +104,7 @@ namespace Shaman.Game.Rooms
         {
             var matchMakerUrl =
                 _roomPropertiesContainer.GetRoomPropertyAsString(PropertyCode.RoomProperties.MatchMakerUrl);
-            await _roomStateUpdater.UpdateRoomState(GetRoomId(), _roomPlayers.Count(), _roomState, matchMakerUrl);
+            await _roomStateUpdater.UpdateRoomState(GetRoomId(), _roomPlayers.Count(), _roomState, matchMakerUrl, _roomController.MaxMatchmakingWeight);
         }
 
         public IEnumerable<RoomPlayer> GetAllPlayers()

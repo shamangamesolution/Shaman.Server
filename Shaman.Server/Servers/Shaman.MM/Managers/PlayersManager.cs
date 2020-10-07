@@ -136,17 +136,37 @@ namespace Shaman.MM.Managers
             }
         }
 
-        public IEnumerable<MatchMakingPlayer> GetPlayers(Guid groupId, int maxCount)
+        private IEnumerable<MatchMakingPlayer> GetWeightedPlayers(IEnumerable<MatchMakingPlayer> playerList, int maxWeight)
+        {
+            var currentWeight = 0;
+            var result = new List<MatchMakingPlayer>();
+            foreach (var player in playerList)
+            {
+                if (currentWeight + player.MmWeight > maxWeight)
+                    continue;
+                currentWeight += player.MmWeight;
+                result.Add(player);
+                
+                if (currentWeight == maxWeight)
+                    break;
+            }
+
+            return result;
+        }
+        
+        public IEnumerable<MatchMakingPlayer> GetPlayers(Guid groupId, int weightNeeded, int maxWeight)
         {
             lock (_syncCollection)
             {
-                if (maxCount <= 0)
+                if (weightNeeded <= 0)
                     return new List<MatchMakingPlayer>();
                 
                 if (!_mmGroupToPlayer.ContainsKey(groupId))
                     return new List<MatchMakingPlayer>();
 
-                return _mmGroupToPlayer[groupId].Where(p => p.OnMatchmaking == false).OrderBy(p => p.StartedOn).Take(maxCount).ToList();
+                return GetWeightedPlayers(_mmGroupToPlayer[groupId]
+                        .Where(p => p.OnMatchmaking == false && p.MmWeight <= maxWeight)
+                        .OrderBy(p => p.StartedOn), weightNeeded);
             }
         }
     }
