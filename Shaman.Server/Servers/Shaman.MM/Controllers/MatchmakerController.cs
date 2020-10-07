@@ -50,7 +50,7 @@ namespace Shaman.MM.Controllers
 
             try
             {
-                _roomManager.UpdateRoomState(request.RoomId, request.CurrentPlayerCount, request.State);
+                _roomManager.UpdateRoomState(request.RoomId, request.CurrentPlayerCount, request.State, request.MaxMatchMakingWeight);
             }
             catch (Exception ex)
             {

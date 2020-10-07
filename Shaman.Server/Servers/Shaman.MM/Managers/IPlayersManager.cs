@@ -13,6 +13,6 @@ namespace Shaman.MM.Managers
         void SetOnMatchmaking(Guid playerId, bool isOnMatchmaking);
         void Clear();
         int Count();
-        IEnumerable<MatchMakingPlayer> GetPlayers(Guid groupId, int maxCount);
+        IEnumerable<MatchMakingPlayer> GetPlayers(Guid groupId, int weightNeeded, int maxWeight);
     }
 }

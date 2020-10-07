@@ -91,6 +91,8 @@ namespace Shaman.Launchers.TestBundle
             Trace($"Message {operationCode} received");
         }
 
+        public int MaxMatchmakingWeight => 1;
+
         public void Dispose()
         {
             Trace("Room disposing...");

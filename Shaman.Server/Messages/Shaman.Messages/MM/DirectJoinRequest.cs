@@ -10,12 +10,14 @@ namespace Shaman.Messages.MM
     {
         public Guid RoomId { get; set; }
         public Dictionary<byte, object> MatchMakingProperties { get; set; }
-
-        public DirectJoinRequest(Guid roomId, Dictionary<byte, object> matchMakingProperties)
+        public int MatchMakingWeight { get; set; }
+        
+        public DirectJoinRequest(Guid roomId, Dictionary<byte, object> matchMakingProperties, int matchMakingWeight = 1)
             :this()
         {
             RoomId = roomId;
             MatchMakingProperties = matchMakingProperties;
+            MatchMakingWeight = matchMakingWeight;
         }
         
         public DirectJoinRequest(): base(ShamanOperationCode.DirectJoin)
@@ -28,12 +30,14 @@ namespace Shaman.Messages.MM
         {
             typeWriter.Write(RoomId);
             typeWriter.WriteDictionary(MatchMakingProperties, typeWriter.Write);
+            typeWriter.Write(MatchMakingWeight);
         }
 
         protected override void DeserializeRequestBody(ITypeReader typeReader)
         {
             RoomId = typeReader.ReadGuid();
             MatchMakingProperties = typeReader.ReadDictionary<byte>(typeReader.ReadByte);
+            MatchMakingWeight = typeReader.ReadInt();
         }
     }
 }

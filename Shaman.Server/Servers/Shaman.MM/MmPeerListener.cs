@@ -142,7 +142,7 @@ namespace Shaman.MM
                                 //join existing room
                                 var joinResult = await _roomManager.JoinRoom(joinRequest.RoomId,
                                     new Dictionary<Guid, Dictionary<byte, object>>
-                                        {{ peer.GetSessionId(), joinRequest.MatchMakingProperties}});
+                                        {{ peer.GetSessionId(), joinRequest.MatchMakingProperties}}, joinRequest.MatchMakingWeight);
                                 //parse join result and create response
                                 var joinResponse = new DirectJoinResponse(GetJoinInfo(joinResult));
                                 if (joinResult.Result == RoomOperationResult.OK)
@@ -180,7 +180,7 @@ namespace Shaman.MM
                             }
                             
                             //add player
-                            _matchMaker.AddPlayer(peer, enterMessage.MatchMakingProperties);
+                            _matchMaker.AddPlayer(peer, enterMessage.MatchMakingProperties, enterMessage.MatchMakingWeight);
                             
                             _messageSender.Send(new EnterMatchMakingResponse(), peer);
 

@@ -9,6 +9,7 @@ namespace Shaman.Messages.MM
         public Guid RoomId { get; set; }
         public int CurrentPlayerCount { get; set; }
         public RoomState State { get; set; }
+        public int MaxMatchMakingWeight { get; set; }
 
         public UpdateRoomStateRequest()
             : base("updateroomstate")
@@ -16,12 +17,13 @@ namespace Shaman.Messages.MM
             
         }
         
-        public UpdateRoomStateRequest(Guid roomId, int currentPlayerCount, RoomState state) 
+        public UpdateRoomStateRequest(Guid roomId, int currentPlayerCount, RoomState state, int maxMatchMakingWeight) 
             : this()
         {
             RoomId = roomId;
             CurrentPlayerCount = currentPlayerCount;
             State = state;
+            MaxMatchMakingWeight = maxMatchMakingWeight;
         }
 
         protected override void SerializeRequestBody(ITypeWriter typeWriter)
@@ -29,6 +31,7 @@ namespace Shaman.Messages.MM
             typeWriter.Write(RoomId);
             typeWriter.Write(CurrentPlayerCount);
             typeWriter.Write((byte)State);
+            typeWriter.Write(MaxMatchMakingWeight);
         }
 
         protected override void DeserializeRequestBody(ITypeReader typeReader)
@@ -36,6 +39,7 @@ namespace Shaman.Messages.MM
             RoomId = typeReader.ReadGuid();
             CurrentPlayerCount = typeReader.ReadInt();
             State = (RoomState) typeReader.ReadByte();
+            MaxMatchMakingWeight = typeReader.ReadInt();
         }
     }
 }

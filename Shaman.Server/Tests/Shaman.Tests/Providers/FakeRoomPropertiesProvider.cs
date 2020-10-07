@@ -47,6 +47,11 @@ namespace Shaman.Tests.Providers
             throw new ArgumentException();
         }
 
+        public int GetMaximumMatchMakingWeight(Dictionary<byte, object> playerMatchMakingProperties)
+        {
+            return 1;
+        }
+
         public int GetMaximumMatchMakingTime(Dictionary<byte, object> playerMatchMakingProperties)
         {
             if (playerMatchMakingProperties.ContainsKey(FakePropertyCodes.PlayerProperties.Level))
@@ -110,6 +115,11 @@ namespace Shaman.Tests.Providers
             throw new ArgumentException();
         }
 
+        public int GetMaximumMatchMakingWeight(Dictionary<byte, object> playerMatchMakingProperties)
+        {
+            return 1;
+        }
+
         public int GetMaximumMatchMakingTime(Dictionary<byte, object> playerMatchMakingProperties)
         {
             if (playerMatchMakingProperties.ContainsKey(FakePropertyCodes.PlayerProperties.Level))
@@ -155,6 +165,11 @@ namespace Shaman.Tests.Providers
         public int GetMaximumPlayers(Dictionary<byte, object> playerMatchMakingProperties)
         {
             return _maximumPlayers;
+        }
+
+        public int GetMaximumMatchMakingWeight(Dictionary<byte, object> playerMatchMakingProperties)
+        {
+            return 1;
         }
 
         public int GetMaximumMatchMakingTime(Dictionary<byte, object> playerMatchMakingProperties)
