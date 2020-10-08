@@ -13,8 +13,8 @@ namespace Shaman.MM.Rooms
             StateUpdatedOn = DateTime.UtcNow;
             ServerId = gameServerId;
             Properties = properties;
-            TotalPlayersNeeded = totalPlayersNeeded;
-            CurrentPlayersCount = currentPlayers;
+            TotalWeightNeeded = totalPlayersNeeded;
+            CurrentWeight = currentPlayers;
             State = state;
             //set this to zero to wait update from game server
             MaxWeightToJoin = 0;
@@ -24,8 +24,8 @@ namespace Shaman.MM.Rooms
         public Guid Id { get; set; }
         public DateTime CreatedOn { get; set; }
         public DateTime StateUpdatedOn { get; set; }
-        public int TotalPlayersNeeded { get; set; }
-        public int CurrentPlayersCount { get; set; }
+        public int TotalWeightNeeded { get; set; }
+        public int CurrentWeight { get; set; }
         public int MaxWeightToJoin { get; set; }
         public int ServerId { get; set; }
         public Dictionary<byte, object> Properties { get; set; }
@@ -41,9 +41,9 @@ namespace Shaman.MM.Rooms
             return State == RoomState.Open; 
         }
 
-        public bool CanJoin(int playersCount, int maxWeightInList)
+        public bool CanJoin(int sumWeightInList, int maxWeightInList)
         {
-            return IsOpen() && (((TotalPlayersNeeded - CurrentPlayersCount) >= playersCount)) && MaxWeightToJoin <= maxWeightInList;
+            return IsOpen() && (((TotalWeightNeeded - CurrentWeight) >= sumWeightInList)) && MaxWeightToJoin <= maxWeightInList;
         }
 
         public void UpdateState(RoomState newState)
@@ -56,7 +56,7 @@ namespace Shaman.MM.Rooms
         {
             State = newState;
             StateUpdatedOn = DateTime.UtcNow;
-            CurrentPlayersCount = currentPlayersCount;
+            CurrentWeight = currentPlayersCount;
             //set this to zero to wait update from game server
             MaxWeightToJoin = 0;
         }

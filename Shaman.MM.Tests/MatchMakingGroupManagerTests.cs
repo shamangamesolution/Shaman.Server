@@ -96,7 +96,7 @@ namespace Shaman.MM.Tests
             rooms = _matchMakingGroupManager.GetRooms(_playerProperties);
             Assert.AreEqual(1, rooms.Count());
             var room = rooms.FirstOrDefault();
-            Assert.AreEqual(1, room.CurrentPlayersCount);
+            Assert.AreEqual(1, room.CurrentWeight);
             Assert.AreEqual(true, room.IsOpen());
             Assert.AreEqual(true, room.CanJoin(2, 1));
         }
@@ -117,7 +117,7 @@ namespace Shaman.MM.Tests
             rooms = _matchMakingGroupManager.GetRooms(_playerProperties);
             Assert.AreEqual(1, rooms.Count());
             var room = rooms.FirstOrDefault();
-            Assert.AreEqual(2, room.CurrentPlayersCount);
+            Assert.AreEqual(2, room.CurrentWeight);
             Assert.AreEqual(true, room.IsOpen());
             Assert.AreEqual(true, room.CanJoin(1, 1));
         }
@@ -137,17 +137,20 @@ namespace Shaman.MM.Tests
             rooms = _matchMakingGroupManager.GetRooms(_playerProperties);
             Assert.AreEqual(1, rooms.Count());
             var room = rooms.FirstOrDefault();
-            Assert.AreEqual(1, room.CurrentPlayersCount);
+            Assert.AreEqual(1, room.CurrentWeight);
             Assert.AreEqual(true, room.IsOpen());
             Assert.AreEqual(true, room.CanJoin(1,1));
             
             //join second 
+            _roomManager.UpdateRoomState(room.Id, 1, RoomState.Open, 1);
             _matchMakingGroupManager.AddPlayerToMatchMaking(player2);
             emptyTask.Wait(500);
+            //open again - it was closed after adding a player
+            _roomManager.UpdateRoomState(room.Id, 2, RoomState.Open, 1);
             rooms = _matchMakingGroupManager.GetRooms(_playerProperties);
             Assert.AreEqual(1, rooms.Count());
             room = rooms.FirstOrDefault();
-            Assert.AreEqual(2, room.CurrentPlayersCount);
+            Assert.AreEqual(2, room.CurrentWeight);
             Assert.AreEqual(true, room.IsOpen());
             Assert.AreEqual(true, room.CanJoin(1,1));
         }

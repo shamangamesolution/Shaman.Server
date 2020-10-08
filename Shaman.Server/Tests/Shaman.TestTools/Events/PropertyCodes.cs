@@ -15,6 +15,7 @@ namespace Shaman.TestTools.Events
             public const byte MatchMakingTick = 5;
             public const byte MaximumMmTime = 8;
             public const byte MatchMakerUrl = 9;
+            public const byte MaximumMatchMakingWeight = 10;
         }
     }
 }
