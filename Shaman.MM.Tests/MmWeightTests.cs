@@ -9,26 +9,20 @@ using Shaman.Common.Udp.Senders;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Common.Logging;
-using Shaman.Contract.Routing;
 using Shaman.Contract.Routing.MM;
-using Shaman.Messages;
-using Shaman.Messages.General.DTO.Responses.Auth;
 using Shaman.Messages.MM;
-using Shaman.Messages.RoomFlow;
 using Shaman.MM.Managers;
 using Shaman.MM.MatchMaking;
 using Shaman.MM.Metrics;
 using Shaman.MM.Players;
 using Shaman.MM.Providers;
 using Shaman.MM.Tests.Fakes;
-using Shaman.Serialization.Messages;
-using Shaman.Serialization.Messages.Http;
 using Shaman.TestTools.Events;
 
 namespace Shaman.MM.Tests
 {
     [TestFixture]
-    public class MatchMakerGroupTest
+    public class MmWeightTests
     {
         private IShamanLogger _logger;
         private ITaskSchedulerFactory _taskSchedulerFactory;
@@ -59,9 +53,9 @@ namespace Shaman.MM.Tests
             
             _measures.Add(FakePropertyCodes.PlayerProperties.GameMode, 1);
             _roomProperties.Add(FakePropertyCodes.RoomProperties.MatchMakingTick, 250);
-            _roomProperties.Add(FakePropertyCodes.RoomProperties.TotalPlayersNeeded, 3);
+            _roomProperties.Add(FakePropertyCodes.RoomProperties.TotalPlayersNeeded, 12);
             _roomProperties.Add(FakePropertyCodes.RoomProperties.MaximumMmTime, 500);
-            _roomProperties.Add(FakePropertyCodes.RoomProperties.MaximumMatchMakingWeight, 1);
+            _roomProperties.Add(FakePropertyCodes.RoomProperties.MaximumMatchMakingWeight, 6);
 
             
             _group = new MatchMakingGroup(_roomProperties, _logger, _taskSchedulerFactory, _playersManager,
@@ -80,31 +74,12 @@ namespace Shaman.MM.Tests
         }
 
         [Test]
-        public void OnePlayerMatchMakingTest()
+        public void WeightJoinTest()
         {
-            //one player two bots
-            var player = new MatchMakingPlayer(new FakePeer(), new Dictionary<byte, object> {{FakePropertyCodes.PlayerProperties.GameMode, 1}});
-            _playersManager.Add(player, new List<Guid> {_group.Id});
-            emptyTask.Wait(1500);
-            var rooms = _roomManager.GetRooms(_group.Id);
-            Assert.AreEqual(0, rooms.Count());
-            rooms = _roomManager.GetRooms(_group.Id, false);
-            Assert.AreEqual(1, rooms.Count());
-            _roomManager.UpdateRoomState(rooms.First().Id, 1, RoomState.Open, 1);
-            rooms = _roomManager.GetRooms(_group.Id);
-            Assert.AreEqual(1, rooms.Count());
-            var room = rooms.FirstOrDefault();
-            Assert.AreEqual(1, room.CurrentWeight);
-            Assert.AreEqual(true, room.IsOpen());
-            Assert.AreEqual(true, room.CanJoin(2, 1));
-        }
-        
-        [Test]
-        public void TwoPlayers1MatchMakingTest()
-        {
-            //one player two bots
-            var player1 = new MatchMakingPlayer(new FakePeer(), new Dictionary<byte, object> {{FakePropertyCodes.PlayerProperties.GameMode, 1}});
-            var player2 = new MatchMakingPlayer(new FakePeer(), new Dictionary<byte, object> {{FakePropertyCodes.PlayerProperties.GameMode, 1}});
+            //first player
+            var player1 = new MatchMakingPlayer(new FakePeer(), new Dictionary<byte, object> {{FakePropertyCodes.PlayerProperties.GameMode, 1}}, 1);
+            //second player with weight > 1 (team probably)
+            var player2 = new MatchMakingPlayer(new FakePeer(), new Dictionary<byte, object> {{FakePropertyCodes.PlayerProperties.GameMode, 1}}, 6);
             _playersManager.Add(player1, new List<Guid> {_group.Id});
             _playersManager.Add(player2, new List<Guid> {_group.Id});
             emptyTask.Wait(1500);
@@ -112,48 +87,53 @@ namespace Shaman.MM.Tests
             Assert.AreEqual(0, rooms.Count());
             rooms = _roomManager.GetRooms(_group.Id, false);
             Assert.AreEqual(1, rooms.Count());
-            _roomManager.UpdateRoomState(rooms.First().Id, 2, RoomState.Open, 1);
-            rooms = _roomManager.GetRooms(_group.Id);
-            Assert.AreEqual(1, rooms.Count());
-            var room = rooms.FirstOrDefault();
+            var room = rooms.First();
+            Assert.AreEqual(RoomState.Closed, room.State);
+            Assert.AreEqual(0, room.MaxWeightToJoin);
             Assert.AreEqual(2, room.CurrentWeight);
-            Assert.AreEqual(true, room.IsOpen());
-            Assert.AreEqual(true, room.CanJoin(1,1));
-        }
-        
-        [Test]
-        public void TwoPlayers2MatchMakingTest()
-        {
-            //one player two bots
-            var player1 = new MatchMakingPlayer(new FakePeer(), new Dictionary<byte, object> {{FakePropertyCodes.PlayerProperties.GameMode, 1}});
-            var player2 = new MatchMakingPlayer(new FakePeer(), new Dictionary<byte, object> {{FakePropertyCodes.PlayerProperties.GameMode, 1}});
-            _playersManager.Add(player1, new List<Guid> {_group.Id});
-            emptyTask.Wait(1500);
-            var rooms = _roomManager.GetRooms(_group.Id);
-            Assert.AreEqual(0, rooms.Count());
-            rooms = _roomManager.GetRooms(_group.Id, false);
-            Assert.AreEqual(1, rooms.Count());
-            _roomManager.UpdateRoomState(rooms.First().Id, 1, RoomState.Open, 1);
+            Assert.AreEqual(12, room.TotalWeightNeeded);
+            //update state
+            _roomManager.UpdateRoomState(rooms.First().Id, 2, RoomState.Open, 5);
             rooms = _roomManager.GetRooms(_group.Id);
             Assert.AreEqual(1, rooms.Count());
-            var room = rooms.FirstOrDefault();
-            Assert.AreEqual(1, room.CurrentWeight);
-            Assert.AreEqual(true, room.IsOpen());
-            Assert.AreEqual(true, room.CanJoin(1,1));
-            
-            //join second 
-            _playersManager.Add(player2, new List<Guid> {_group.Id});
-            emptyTask.Wait(500);
-            rooms = _roomManager.GetRooms(_group.Id);
-            Assert.AreEqual(0, rooms.Count());
-            rooms = _roomManager.GetRooms(_group.Id, false);
             room = rooms.FirstOrDefault();
             Assert.AreEqual(2, room.CurrentWeight);
+            Assert.AreEqual(true, room.IsOpen());
+            Assert.AreEqual(true, room.CanJoin(5,5));
+            //third player
+            var player3 = new MatchMakingPlayer(new FakePeer(), new Dictionary<byte, object> {{FakePropertyCodes.PlayerProperties.GameMode, 1}}, 5);
+            _playersManager.Add(player3, new List<Guid> {_group.Id});
+            emptyTask.Wait(1500);
+            rooms = _roomManager.GetRooms(_group.Id, false);
+            Assert.AreEqual(1, rooms.Count());
+            room = rooms.FirstOrDefault();
+            Assert.AreEqual(3, room.CurrentWeight);
             Assert.AreEqual(false, room.IsOpen());
-            _roomManager.UpdateRoomState(room.Id, 1, RoomState.Open, 1);
-            Assert.AreEqual(true, room.CanJoin(1,1));
+            Assert.AreEqual(false, room.CanJoin(1,1));
+            Assert.AreEqual(0, room.MaxWeightToJoin);
+            Assert.AreEqual(3, room.CurrentWeight);
+            Assert.AreEqual(12, room.TotalWeightNeeded);
         }
-        
-        
+
+        [Test]
+        public void TwoTeamsMmJoin()
+        {
+            //first player
+            var player1 = new MatchMakingPlayer(new FakePeer(), new Dictionary<byte, object> {{FakePropertyCodes.PlayerProperties.GameMode, 1}}, 6);
+            //second player 
+            var player2 = new MatchMakingPlayer(new FakePeer(), new Dictionary<byte, object> {{FakePropertyCodes.PlayerProperties.GameMode, 1}}, 6);
+            _playersManager.Add(player1, new List<Guid> {_group.Id});
+            _playersManager.Add(player2, new List<Guid> {_group.Id});
+            emptyTask.Wait(1500);
+            var rooms = _roomManager.GetRooms(_group.Id);
+            Assert.AreEqual(0, rooms.Count());
+            rooms = _roomManager.GetRooms(_group.Id, false);
+            Assert.AreEqual(1, rooms.Count());
+            var room = rooms.First();
+            Assert.AreEqual(RoomState.Closed, room.State);
+            Assert.AreEqual(0, room.MaxWeightToJoin);
+            Assert.AreEqual(2, room.CurrentWeight);
+            Assert.AreEqual(12, room.TotalWeightNeeded);
+        }
     }
 }

@@ -58,9 +58,9 @@ namespace Shaman.MM.MatchMaking
             if (!roomProperties.TryGetValue(PropertyCode.RoomProperties.TotalPlayersNeeded, out var totalPlayersProperty))
                 throw new Exception($"MatchMakingGroup ctr error: there is no TotalPlayersNeeded property");
             if (!roomProperties.TryGetValue(PropertyCode.RoomProperties.MaximumMmTime, out var timeBeforeBotsProperty))
-                throw new Exception($"MatchMakingGroup ctr error: there is no TimeBeforeBotsAdded property");
+                throw new Exception($"MatchMakingGroup ctr error: there is no MaximumMmTime property");
             if (!roomProperties.TryGetValue(PropertyCode.RoomProperties.MaximumMatchMakingWeight, out var maxMmWeight))
-                throw new Exception($"MatchMakingGroup ctr error: there is no TimeBeforeBotsAdded property");
+                throw new Exception($"MatchMakingGroup ctr error: there is no MaximumMatchMakingWeight property");
             
             _matchMakingTickMs = (int)tickProperty;
             _totalPlayersNeeded = (int)totalPlayersProperty;
@@ -211,7 +211,7 @@ namespace Shaman.MM.MatchMaking
                         var oldestPlayer = GetOldestPlayer();
 
                         //try to add to existing room
-                        var room = _roomManager.GetRoom(Id, matchmakingPlayersCount, _matchmakingPlayers.Max(p => p.MmWeight));
+                        var room = _roomManager.GetRoom(Id, matchmakingPlayersCount, _matchmakingPlayers.Max(p => p.MmWeight),  _matchmakingPlayers.Sum(p => p.MmWeight));
                         JoinRoomResult result = null;
                         
                         if (room != null)
@@ -220,7 +220,7 @@ namespace Shaman.MM.MatchMaking
                             try
                             {
                                 result = _roomManager.JoinRoom(room.Id,
-                                    _matchmakingPlayers.ToDictionary(key => key.SessionId, value => value.Properties), _matchmakingPlayers.Max(p => p.MmWeight)).Result;
+                                    _matchmakingPlayers.ToDictionary(key => key.SessionId, value => value.Properties), _matchmakingPlayers.Max(p => p.MmWeight),  _matchmakingPlayers.Sum(p => p.MmWeight)).Result;
                                 if (result.Result != RoomOperationResult.OK)
                                 {
                                     _logger.Error($"MM join room error (closing this room): {result.Result}");

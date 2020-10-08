@@ -110,11 +110,11 @@ namespace Shaman.MM.Managers
             return createdRoom;
         }
 
-        public async Task<JoinRoomResult> JoinRoom(Guid roomId, Dictionary<Guid, Dictionary<byte, object>> players, int maxWeightInList)
+        public async Task<JoinRoomResult> JoinRoom(Guid roomId, Dictionary<Guid, Dictionary<byte, object>> players, int maxWeightInList, int totalWeightInList)
         {
             var room = _rooms[roomId];
 
-            if (!room.CanJoin(players.Count, maxWeightInList))
+            if (!room.CanJoin(totalWeightInList, maxWeightInList))
                 return new JoinRoomResult() {Result = RoomOperationResult.JoinRoomError};
             
             //update room with new players data
@@ -131,7 +131,7 @@ namespace Shaman.MM.Managers
             
                 //add new players to room
                 // room.AddPlayers(players.Count);
-                room.Update(RoomState.Closed, room.CurrentPlayersCount + players.Count);
+                room.Update(RoomState.Closed, room.CurrentWeight + players.Count);
                 
                 return new JoinRoomResult {Address = server.Address, Port = port, RoomId = roomId, Result = RoomOperationResult.OK};
             }
@@ -151,17 +151,17 @@ namespace Shaman.MM.Managers
             }
 
             room.MaxWeightToJoin = currentMaxWeight;
-            room.CurrentPlayersCount = currentPlayers;
+            room.CurrentWeight = currentPlayers;
             room.UpdateState(roomState);
             _logger.Debug($"Update received: {roomId} State {roomState}");
         }
 
-        public Room GetRoom(Guid groupId, int playersCount, int maxWeightInPlayerList)
+        public Room GetRoom(Guid groupId, int playersCount, int maxWeightInPlayerList, int totalWeightOnPlayerList)
         {
             if (!_groupToRoom.ContainsKey(groupId))
                 return null;
             
-            return _groupToRoom[groupId].FirstOrDefault(r => r.CanJoin(playersCount, maxWeightInPlayerList));
+            return _groupToRoom[groupId].FirstOrDefault(r => r.CanJoin(totalWeightOnPlayerList, maxWeightInPlayerList));
         }
 
         public Room GetRoom(Guid roomId)
