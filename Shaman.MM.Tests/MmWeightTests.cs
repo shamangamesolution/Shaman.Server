@@ -135,5 +135,25 @@ namespace Shaman.MM.Tests
             Assert.AreEqual(2, room.CurrentWeight);
             Assert.AreEqual(12, room.TotalWeightNeeded);
         }
+        
+        [Test]
+        public void ThreeTeamsTwoRoomsJoin()
+        {
+            //first player
+            var player1 = new MatchMakingPlayer(new FakePeer(), new Dictionary<byte, object> {{FakePropertyCodes.PlayerProperties.GameMode, 1}}, 6);
+            //second player 
+            var player2 = new MatchMakingPlayer(new FakePeer(), new Dictionary<byte, object> {{FakePropertyCodes.PlayerProperties.GameMode, 1}}, 6);
+            //third player 
+            var player3 = new MatchMakingPlayer(new FakePeer(), new Dictionary<byte, object> {{FakePropertyCodes.PlayerProperties.GameMode, 1}}, 6);
+            
+            _playersManager.Add(player1, new List<Guid> {_group.Id});
+            _playersManager.Add(player2, new List<Guid> {_group.Id});
+            _playersManager.Add(player3, new List<Guid> {_group.Id});
+            emptyTask.Wait(1500);
+            var rooms = _roomManager.GetRooms(_group.Id);
+            Assert.AreEqual(0, rooms.Count());
+            rooms = _roomManager.GetRooms(_group.Id, false);
+            Assert.AreEqual(2, rooms.Count());
+        }
     }
 }
