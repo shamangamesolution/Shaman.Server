@@ -1,0 +1,7 @@
+- hosts: test
+  user: ubuntu
+  vars_files:
+    - vars/common.json
+    - vars/mm.json
+  roles:
+    - balancing
