@@ -4,7 +4,7 @@ using System.IO;
 using Microsoft.Extensions.Configuration;
 using Shaman.Bundling.Common;
 
-namespace Shaman.Launchers.Game.Standalone
+namespace Shaman.Launchers.Game.DebugServer
 {
     /// <summary>
     /// Loads bundle settings from exe directory

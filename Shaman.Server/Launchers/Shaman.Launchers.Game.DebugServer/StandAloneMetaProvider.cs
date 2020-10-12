@@ -1,7 +1,7 @@
 using Shaman.Contract.Bundle;
 using Shaman.Contract.Routing.Meta;
 
-namespace Shaman.Launchers.Game.Standalone
+namespace Shaman.Launchers.Game.DebugServer
 {
     class StandAloneMetaProvider : IMetaProvider
     {
