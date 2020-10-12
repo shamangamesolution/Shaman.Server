@@ -1,0 +1,8 @@
+{
+	"container_name": "mm",	
+	"docker_image": "mm-1-11-0",
+	"http_port":"7005",
+	"listen_ports":"23451",
+	"server_role":"MatchMaker",
+	"server_name":"MM1",
+}
