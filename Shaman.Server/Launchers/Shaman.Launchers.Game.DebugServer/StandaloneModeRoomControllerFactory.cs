@@ -1,9 +1,8 @@
 using System;
 using Shaman.Contract.Bundle;
 using Shaman.Contract.Common;
-using Shaman.Game;
 
-namespace Shaman.Launchers.Game.Standalone
+namespace Shaman.Launchers.Game.DebugServer
 {
     /// <summary>
     /// This implementation creates room controller factory using bundle which was got from standalone launcher

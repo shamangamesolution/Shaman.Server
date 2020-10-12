@@ -116,7 +116,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Launchers.MM", "Sham
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Launchers.Pair", "Shaman.Server\Launchers\Shaman.Launchers.Pair\Shaman.Launchers.Pair.csproj", "{F84026CD-90D3-40C5-BD80-90078D94F3B0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Launchers.Game.Standalone", "Shaman.Server\Launchers\Shaman.Launchers.Game.Standalone\Shaman.Launchers.Game.Standalone.csproj", "{D9905A41-942C-42B2-B3FB-788723299ACA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Launchers.Game.DebugServer", "Shaman.Server\Launchers\Shaman.Launchers.Game.DebugServer\Shaman.Launchers.Game.DebugServer.csproj", "{D9905A41-942C-42B2-B3FB-788723299ACA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Launchers.Game.Balancing", "Shaman.Server\Launchers\Shaman.Launchers.Game.Balancing\Shaman.Launchers.Game.Balancing.csproj", "{1164D38C-9A4A-48C0-ACA0-39B81A3C9553}"
 EndProject
@@ -146,7 +146,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Launchers.Pair.Balan
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Contract.Routing", "Shaman.Server\Contracts\Shaman.Contract.Routing\Shaman.Contract.Routing.csproj", "{28C7F662-20BF-4A7C-A941-4DAC874A1C85}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Launchers.Standalone.Tests", "Shaman.Server\Tests\Shaman.Launchers.Standalone.Tests\Shaman.Launchers.Standalone.Tests.csproj", "{BA818C23-CC52-4FAD-A675-12A042EF2670}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Launchers.DebugServer.Tests", "Shaman.Server\Tests\Shaman.Launchers.DebugServer.Tests\Shaman.Launchers.DebugServer.Tests.csproj", "{BA818C23-CC52-4FAD-A675-12A042EF2670}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Contract.Routing.Meta", "Shaman.Server\Contracts\Shaman.Contract.Routing.Meta\Shaman.Contract.Routing.Meta.csproj", "{C4473C78-5F0A-4E0A-A94C-2EC0AF28BEF5}"
 EndProject
