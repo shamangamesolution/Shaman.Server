@@ -3,6 +3,10 @@
     <PropertyGroup>
         <OutputType>Library</OutputType>
         <TargetFramework>netcoreapp2.2</TargetFramework>
+        <IsPackable>true</IsPackable>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageVersion>1.11.1</PackageVersion>
+        <RepositoryUrl>https://github.com/shamangamesolution/Shaman.Server</RepositoryUrl>
     </PropertyGroup>
 
     <ItemGroup>
