@@ -3,7 +3,7 @@
 	"loggly_token": "<your-loggly-token>",
 	"graphite_url": "<your-graphite-address>",
 	"metrics_path_prefix": "<prefix-for-graphite-metrics>",
-	"docker_repository": "shamangamesolution/shaman.server",
+	"docker_repository": "docker.pkg.github.com/shamangamesolution/shaman.server",
 	"overwriteDownloadedBundle": true,
 	"server_version": "1.11.0",
 	"socket_tick_time_ms":"10",
