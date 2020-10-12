@@ -4,6 +4,7 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <TargetFramework>netstandard2.0</TargetFramework>
         <PackageVersion>1.11.0</PackageVersion>
+        <RepositoryUrl>https://github.com/shamangamesolution/Shaman.Server</RepositoryUrl>
     </PropertyGroup>
 
     <ItemGroup>
