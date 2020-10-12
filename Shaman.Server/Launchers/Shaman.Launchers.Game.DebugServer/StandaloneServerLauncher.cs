@@ -7,11 +7,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
 using Shaman.Common.Server.Configuration;
 using Shaman.Contract.Bundle;
-using Shaman.Contract.Routing;
 using Shaman.Game.Api;
 using Shaman.ServiceBootstrap;
 
-namespace Shaman.Launchers.Game.Standalone
+namespace Shaman.Launchers.Game.DebugServer
 {
     /// <summary>
     /// Used for launching standalone configuration - early bound game bundle passed directly to launcher
@@ -40,7 +39,7 @@ namespace Shaman.Launchers.Game.Standalone
             _bindToIp = bindToIp;
             
             var config = BuildConfig();
-            var serverTask = Task.Factory.StartNew(() => Bootstrap.Launch<Launchers.Game.Standalone.Startup>(config));
+            var serverTask = Task.Factory.StartNew(() => Bootstrap.Launch<Startup>(config));
 
             return new LaunchResult
             {

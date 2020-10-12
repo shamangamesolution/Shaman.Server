@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Shaman.Common.Server.Configuration;
-using Shaman.Launchers.Game.Standalone;
+using Shaman.Launchers.Game.DebugServer;
 
 namespace Shaman.Launchers.Standalone.Tests
 {
