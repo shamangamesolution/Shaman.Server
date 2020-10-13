@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System;
+using System.Linq;
+using System.Net;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -12,6 +15,7 @@ using Shaman.Router.Config;
 using Shaman.Router.Data.Providers;
 using Shaman.Router.Data.Repositories;
 using Shaman.Router.Data.Repositories.Interfaces;
+using Shaman.Router.Metrics;
 using Shaman.Serialization;
 using Shaman.ServiceBootstrap.Logging;
 
@@ -59,8 +63,39 @@ namespace Shaman.Router
                 services.AddScoped<IRouterSqlDalProvider, RouterSqlDalProvider>();
             }
             
+            ConfigureMetrics(services);
+            
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
+        private static IPAddress GetDnsIpAddress()
+        {
+            var ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
+            return ipHostInfo.AddressList.Any() ? ipHostInfo.AddressList[0] : IPAddress.Loopback;
+        }
+
+        private void ConfigureMetrics(IServiceCollection services)
+        {
+            if (IsMetricsEnabled())
+            {
+                services
+                    .AddCollectingRequestMetricsToGraphite(
+                        Configuration["GraphiteUrl"],
+                        TimeSpan.FromSeconds(10),
+                        "RW",
+                        "AWS",
+                        Configuration["ServerVersion"],
+                        "Backend",
+                        IpV4Helper.Get20BitMaskAsString(GetDnsIpAddress()));
+            }
+        }
+        
+
+        
+        private bool IsMetricsEnabled()
+        {
+            return !string.IsNullOrEmpty(Configuration["GraphiteUrl"]);
+        }
+
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IShamanLogger logger, IRouterServerInfoProvider serverInfoProvider)
@@ -76,7 +111,8 @@ namespace Shaman.Router
 
             app.UseStaticFiles();
             app.UseCookiePolicy();
-
+            if (IsMetricsEnabled())
+                app.UseMiddleware<RequestMetricsMiddleWare>();
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
