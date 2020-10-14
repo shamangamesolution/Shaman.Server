@@ -1,4 +1,3 @@
-using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -44,8 +43,7 @@ namespace Shaman.Launchers.MM
             services.AddSingleton<IRoomApiProvider, DefaultRoomApiProvider>();
             //used for configuration of bundle related services
             services.AddSingleton<IDefaultBundleInfoConfig, DefaultBundleInfoConfig>(c =>
-                new DefaultBundleInfoConfig(Configuration["LauncherSettings:BundleUri"],
-                    Convert.ToBoolean(Configuration["LauncherSettings:OverwriteDownloadedBundle"]), Configuration["CommonSettings:ServerRole"]));
+                new DefaultBundleInfoConfig(Configuration["LauncherSettings:BundleUri"], Configuration["CommonSettings:ServerRole"]));
             //gets information about bundle - its location
             services.AddSingleton<IBundleInfoProvider, DefaultBundleInfoProvider>();
             //load bundle based on info from IBundleInfoProvider

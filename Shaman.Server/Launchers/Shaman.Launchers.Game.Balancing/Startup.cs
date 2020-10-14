@@ -1,3 +1,4 @@
+using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -42,7 +43,12 @@ namespace Shaman.Launchers.Game.Balancing
             services.AddSingleton<IBalancingBundleInfoProviderConfig, BalancingBundleInfoProviderConfig>(provider =>
             {
                 var config = provider.GetService<IApplicationConfig>();
-                return new BalancingBundleInfoProviderConfig(Configuration["LauncherSettings:RouterUrl"], config.PublicDomainNameOrAddress, config.ListenPorts, config.ServerRole);
+                return new BalancingBundleInfoProviderConfig(
+                    Convert.ToBoolean(Configuration["LauncherSettings:OverwriteDownloadedBundle"]),
+                    Configuration["LauncherSettings:RouterUrl"],
+                    config.PublicDomainNameOrAddress, 
+                    config.ListenPorts, 
+                    config.ServerRole);
             });
             services.AddSingleton<IBundleInfoProvider, RouterBundleInfoProvider>();
             services.AddSingleton<IBundleLoader, BundleLoader>();

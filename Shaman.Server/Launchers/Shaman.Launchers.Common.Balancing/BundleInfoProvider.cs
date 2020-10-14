@@ -53,7 +53,7 @@ namespace Shaman.Launchers.Common.Balancing
 
         public async Task<bool> GetToOverwriteExisting()
         {
-            return false;
+            return _config.OverwriteBundle;
         }
 
         public async Task<string> GetServerRole()
@@ -73,7 +73,7 @@ namespace Shaman.Launchers.Common.Balancing
                 throw new BundleNotFoundException($"Bundle not found for: {serverIdentity}, requested from '{_config.RouterUrl}': {response.Message}");
             }
 
-            _logger.Error($"Bundle uri received for '{serverIdentity}': {response.BundleUri}");
+            _logger.Error($"Bundle uri received for '{serverIdentity}' (overwrite = {_config.OverwriteBundle}): {response.BundleUri}");
             return response.BundleUri;
         }
     }
