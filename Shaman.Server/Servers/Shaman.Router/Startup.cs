@@ -77,15 +77,17 @@ namespace Shaman.Router
         {
             if (IsMetricsEnabled())
             {
+                var metrisPAthPrefix = Configuration["MetricsPathPrefix"].Split(".").Concat(new []
+                {
+                    Configuration["ServerVersion"],
+                    "Router",
+                    IpV4Helper.Get20BitMaskAsString(GetDnsIpAddress())
+                }).ToArray();
                 services
                     .AddCollectingRequestMetricsToGraphite(
                         Configuration["GraphiteUrl"],
                         TimeSpan.FromSeconds(10),
-                        "RW",
-                        "AWS",
-                        Configuration["ServerVersion"],
-                        "Backend",
-                        IpV4Helper.Get20BitMaskAsString(GetDnsIpAddress()));
+                        metrisPAthPrefix);
             }
         }
         

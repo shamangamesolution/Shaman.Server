@@ -2,7 +2,7 @@ using System.Net;
 
 namespace Shaman.Router.Metrics
 {
-    public class IpV4Helper
+    public static class IpV4Helper
     {
         public static string Get20BitMaskAsString(IPAddress ip)
         {
