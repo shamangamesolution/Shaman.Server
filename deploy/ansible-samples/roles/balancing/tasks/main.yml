@@ -7,8 +7,11 @@
   - template:
       src: env.j2
       dest: shaman.env.{{container_name}}.list
+  - name: Login
+    shell: "cat ~/.github/shaman-pat | docker login https://docker.pkg.github.com -u shamangamesolution --password-stdin"
+    register: res
   - name: Pulling image
-    shell: "docker pull {{docker_repository}}:{{docker_image}}"
+    shell: "docker pull {{docker_repository}}/{{docker_image}}"
     register: res
   - debug: msg="{{res.stdout}}"
   - name: Stop {{container_name}} container
@@ -19,6 +22,6 @@
     register: res
   - debug: msg="{{res.stdout}}"    
   - name: Run {{container_name}} container
-    shell: "docker run -d --net=host --name={{container_name}} --env-file ~/shaman.env.{{container_name}}.list --log-opt max-size=100m {{docker_repository}}:{{docker_image}}"
+    shell: "docker run -d --net=host --name={{container_name}} --env-file ~/shaman.env.{{container_name}}.list --log-opt max-size=100m {{docker_repository}}/{{docker_image}}"
     register: res
   - debug: msg="{{res.stdout}}"

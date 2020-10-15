@@ -1,6 +1,5 @@
 using System;
 using Shaman.Bundling.Common;
-using Shaman.Common.Server.Configuration;
 using Shaman.Contract.Bundle;
 using Shaman.Contract.Common;
 

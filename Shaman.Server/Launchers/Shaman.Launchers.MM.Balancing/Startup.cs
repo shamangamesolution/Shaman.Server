@@ -41,7 +41,10 @@ namespace Shaman.Launchers.MM.Balancing
             services.AddSingleton<IBalancingBundleInfoProviderConfig, BalancingBundleInfoProviderConfig>(provider =>
             {
                 var config = provider.GetService<IApplicationConfig>();
-                return new BalancingBundleInfoProviderConfig(Configuration["LauncherSettings:RouterUrl"], config.PublicDomainNameOrAddress,config.ListenPorts, config.ServerRole);
+                return new BalancingBundleInfoProviderConfig(
+                    Convert.ToBoolean(Configuration["LauncherSettings:OverwriteDownloadedBundle"]),
+                    Configuration["LauncherSettings:RouterUrl"], config.PublicDomainNameOrAddress, config.ListenPorts,
+                    config.ServerRole);
             });
             services.AddSingleton<IRoutingConfig, RoutingConfig>(provider =>
             {
