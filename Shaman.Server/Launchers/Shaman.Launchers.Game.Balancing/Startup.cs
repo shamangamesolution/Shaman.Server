@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -74,10 +75,26 @@ namespace Shaman.Launchers.Game.Balancing
             services.AddSingleton<IMetaProvider, RouterMetaProvider>();
 
         }
-        
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplication server, IServerActualizer serverActualizer, IShamanLogger logger)
+
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplication server,
+            IServerActualizer serverActualizer, IShamanLogger logger, IBundleLoader bundleLoader,
+            IShamanComponents shamanComponents, IRoomControllerFactory roomControllerFactory)
         {
-            base.ConfigureGame(app, env, server, serverActualizer, logger);
+            //todo extract in one place
+            serverActualizer.Start(Convert.ToInt32(Configuration["ServerSettings:ActualizationIntervalMs"]));
+
+            bundleLoader.LoadBundle().Wait();
+            var gameBundle = bundleLoader.LoadTypeFromBundle<IGameBundle>();
+            gameBundle.OnInitialize(shamanComponents);
+            var bundledRoomControllerFactory = gameBundle.GetRoomControllerFactory();
+            if (bundledRoomControllerFactory == null)
+            {
+                throw new NullReferenceException("Game bundle returned null factory");
+            }
+            
+            ((IBundleRoomControllerRegistry)roomControllerFactory).RegisterBundleRoomController(bundledRoomControllerFactory);            
+            
+            base.ConfigureGame(app, env, server, logger);
         }
     }
 }
