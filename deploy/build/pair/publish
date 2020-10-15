@@ -1,6 +1,6 @@
 docker logout
 cat ~/dev/deploy/github-pat | docker login https://docker.pkg.github.com -u shamangamesolution --password-stdin
 
-docker build -t pair-1-11-0 -f ../../../../GitHub.Shaman.Server/Shaman.Server/Launchers/Shaman.Launchers.Pair/Dockerfile ../../../../GitHub.Shaman.Server/Shaman.Server/
-docker tag pair-1-11-0 docker.pkg.github.com/shamangamesolution/shaman.server/shaman.server.pair:1.11.0
-docker push docker.pkg.github.com/shamangamesolution/shaman.server/shaman.server.pair:1.11.0
+docker build -t pair-1-11-1 -f ../../../../GitHub.Shaman.Server/Shaman.Server/Launchers/Shaman.Launchers.Pair/Dockerfile ../../../../GitHub.Shaman.Server/Shaman.Server/
+docker tag pair-1-11-1 docker.pkg.github.com/shamangamesolution/shaman.server/shaman.server.pair:1.11.1
+docker push docker.pkg.github.com/shamangamesolution/shaman.server/shaman.server.pair:1.11.1
