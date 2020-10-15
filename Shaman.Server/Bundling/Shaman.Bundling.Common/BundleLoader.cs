@@ -57,7 +57,7 @@ namespace Shaman.Bundling.Common
             return newBundleFolder;
         }
         
-        private void LoadAll(string publishDir, bool overwriteExisting = false)
+        private void LoadAll(string publishDir)
         {
             var files = Directory.GetFiles(publishDir).Where(f => f.EndsWith(".dll") || f.EndsWith(".json"));
             Type targetType = null;
@@ -74,11 +74,11 @@ namespace Shaman.Bundling.Common
         {
             var uri = _bundleInfoProvider.GetBundleUri().Result;
             if (uri.StartsWith("http"))
-                _publishDir = LoadFromHttp(uri);
+                _publishDir = LoadFromHttp(uri, _bundleInfoProvider.GetToOverwriteExisting().Result);
             else
                 _publishDir = uri;
             
-            LoadAll(_publishDir, _bundleInfoProvider.GetToOverwriteExisting().Result);
+            LoadAll(_publishDir);
         }
 
         public T LoadTypeFromBundle<T>()
