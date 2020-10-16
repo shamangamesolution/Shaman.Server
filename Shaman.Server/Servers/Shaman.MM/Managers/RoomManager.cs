@@ -158,6 +158,9 @@ namespace Shaman.MM.Managers
 
         public Room GetRoom(Guid groupId, int playersCount, int maxWeightInPlayerList, int totalWeightOnPlayerList)
         {
+            if (maxWeightInPlayerList > 1)
+                return null;
+            
             if (!_groupToRoom.ContainsKey(groupId))
                 return null;
             
