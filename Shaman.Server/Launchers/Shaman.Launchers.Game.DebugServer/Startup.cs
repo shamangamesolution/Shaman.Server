@@ -53,7 +53,7 @@ namespace Shaman.Launchers.Game.DebugServer
         
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplication server, IShamanLogger logger)
         {
-            base.ConfigureGame(app, env, server, null, logger);
+            base.ConfigureGame(app, env, server, logger);
         }
     }
 }

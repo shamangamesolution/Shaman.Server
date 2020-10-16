@@ -1,5 +1,4 @@
 using System;
-using Shaman.Bundling.Common;
 using Shaman.Contract.Bundle;
 using Shaman.Contract.Common;
 
@@ -8,29 +7,20 @@ namespace Shaman.Game.Rooms
     /// <summary>
     /// This implementation creates room controller factory using bundle passed through ctor
     /// </summary>
-    public class DefaultRoomControllerFactory : IRoomControllerFactory
+    public class DefaultRoomControllerFactory : IRoomControllerFactory, IBundleRoomControllerRegistry
     {
-        // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
-        private readonly IGameBundle _gameBundle;
-        private readonly IRoomControllerFactory _bundledRoomControllerFactory;
+        private IRoomControllerFactory _bundledRoomControllerFactory;
 
-        public DefaultRoomControllerFactory(IBundleLoader bundleLoader, IShamanComponents shamanComponents)
+        public void RegisterBundleRoomController(IRoomControllerFactory roomControllerFactory)
         {
-            // var bundleUri = bundleInfoProvider.GetBundleUri().Result;
-            // _gameBundle = BundleHelper.LoadTypeFromBundle<IGameBundle>(bundleUri, ((GameApplicationConfig)config).OverwriteDownloadedBundle);
-            bundleLoader.LoadBundle();
-            _gameBundle = bundleLoader.LoadTypeFromBundle<IGameBundle>();
-            _gameBundle.OnInitialize(shamanComponents);
-            _bundledRoomControllerFactory = _gameBundle.GetRoomControllerFactory();
-            if (_bundledRoomControllerFactory == null)
-            {
-                throw new NullReferenceException("Game bundle returned null factory");
-            }
+            _bundledRoomControllerFactory = roomControllerFactory;
         }
-
+        
         public IRoomController GetGameModeController(IRoomContext room, ITaskScheduler taskScheduler,
             IRoomPropertiesContainer roomPropertiesContainer)
         {
+            if (_bundledRoomControllerFactory == null)
+                throw new NullReferenceException("Bundle's room factory does not registered");
             return _bundledRoomControllerFactory.GetGameModeController(room, taskScheduler,
                 roomPropertiesContainer);
         }
