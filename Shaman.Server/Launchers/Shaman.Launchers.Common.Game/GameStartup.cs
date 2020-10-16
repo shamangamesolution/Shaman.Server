@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Shaman.Bundling.Common;
 using Shaman.Common.Server.Applications;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Server.Providers;
@@ -51,22 +52,15 @@ namespace Shaman.Launchers.Common.Game
         }
 
 
-        
         /// <summary>
         /// GameServer related middleware configuration
         /// </summary>
         /// <param name="app"></param>
         /// <param name="env"></param>
         /// <param name="server"></param>
-        /// <param name="serverActualizer"></param>
         /// <param name="logger"></param>
-        public void ConfigureGame(IApplicationBuilder app, IHostingEnvironment env, IApplication server, IServerActualizer serverActualizer, IShamanLogger logger)
+        public void ConfigureGame(IApplicationBuilder app, IHostingEnvironment env, IApplication server, IShamanLogger logger)
         {
-            //for all types of GameServer launchers we need to actualize server state to some destination
-            //in case Pair launcher - it sends to MM
-            //in case of Balancing launcher - it sends to router
-            serverActualizer?.Start(Convert.ToInt32(Configuration["ServerSettings:ActualizationIntervalMs"]));
-            
             //call common configuration
             base.ConfigureCommon(app, env, server, logger);
         }

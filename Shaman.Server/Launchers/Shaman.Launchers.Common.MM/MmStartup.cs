@@ -64,7 +64,7 @@ namespace Shaman.Launchers.Common.MM
             IShamanLogger logger, IMatchMaker matchMaker, IMatchMakerServerInfoProvider serverInfoProvider, IBundleLoader bundleLoader)
         {
             //load bundle
-            bundleLoader.LoadBundle();
+            bundleLoader.LoadBundle().Wait();
             
             //resolve main bundle type and configure it
             //in case of matchmaker we can load bundle during this stage
