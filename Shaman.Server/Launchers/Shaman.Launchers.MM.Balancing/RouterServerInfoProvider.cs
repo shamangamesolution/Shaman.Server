@@ -41,11 +41,16 @@ namespace Shaman.Launchers.MM.Balancing
                 return;
 
             _isRequestingNow = true;
-            _serverList = await _routerClient.GetServerInfoList(false);
-            _gameServerList = BuildGameServersList();
-                        
-            _logger.Info($"MatchMakerServerInfoProvider.GetServerInfoListResponse: i have {_gameServerList.Count()} game servers");
-            _isRequestingNow = false;
+            try
+            {
+                _serverList = await _routerClient.GetServerInfoList(false);
+                _gameServerList = BuildGameServersList();
+                _logger.Info($"MatchMakerServerInfoProvider.GetServerInfoListResponse: i have {_gameServerList.Count()} game servers");
+            }
+            finally
+            {
+                _isRequestingNow = false;
+            }
         }
         
         public void Start()
