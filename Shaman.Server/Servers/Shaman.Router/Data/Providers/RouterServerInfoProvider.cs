@@ -48,9 +48,15 @@ namespace Shaman.Router.Data.Providers
 
                 _isRequestingNow = true;
 
-                await LoadConfig();
+                try
+                {
+                    await LoadConfig();
+                }
+                finally
+                {
+                    _isRequestingNow = false;
+                }
 
-                _isRequestingNow = false;
                 _logger.Info($"Received {_serverList.Count()} server info records");
                 
             }, _config.Value.ServerInfoListUpdateIntervalMs, _config.Value.ServerInfoListUpdateIntervalMs);
