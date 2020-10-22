@@ -5,12 +5,13 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Shaman.Bundling.Common
 {
     public interface IBundleLoader
     {
-        void LoadBundle();
+        Task LoadBundle();
         T LoadTypeFromBundle<T>();
         HashSet<string> GetConfigs();
     }
@@ -70,11 +71,11 @@ namespace Shaman.Bundling.Common
             }
         }
         
-        public void LoadBundle()
+        public async Task LoadBundle()
         {
-            var uri = _bundleInfoProvider.GetBundleUri().Result;
+            var uri = await _bundleInfoProvider.GetBundleUri();
             if (uri.StartsWith("http"))
-                _publishDir = LoadFromHttp(uri, _bundleInfoProvider.GetToOverwriteExisting().Result);
+                _publishDir = LoadFromHttp(uri, await _bundleInfoProvider.GetToOverwriteExisting());
             else
                 _publishDir = uri;
             
