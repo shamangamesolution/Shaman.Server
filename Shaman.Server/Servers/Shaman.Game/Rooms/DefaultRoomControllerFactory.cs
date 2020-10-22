@@ -21,8 +21,11 @@ namespace Shaman.Game.Rooms
         {
             if (_bundledRoomControllerFactory == null)
                 throw new NullReferenceException("Bundle's room factory does not registered");
-            return _bundledRoomControllerFactory.GetGameModeController(room, taskScheduler,
+            var roomController = _bundledRoomControllerFactory.GetGameModeController(room, taskScheduler,
                 roomPropertiesContainer);
+            if (roomController == null)
+                throw new NullReferenceException("Bundle's room controller is null");
+            return roomController;
         }
     }
 }

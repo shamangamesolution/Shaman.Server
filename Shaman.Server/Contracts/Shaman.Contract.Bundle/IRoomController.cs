@@ -29,5 +29,7 @@ namespace Shaman.Contract.Bundle
         /// Cleanup here all allocated resources
         /// </summary>
         void ProcessMessage(Payload message, DeliveryOptions deliveryOptions, Guid sessionId);
+        
+        int MaxMatchmakingWeight { get; }
     }
 }

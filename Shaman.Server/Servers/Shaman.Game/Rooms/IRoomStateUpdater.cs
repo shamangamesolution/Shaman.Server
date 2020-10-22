@@ -6,6 +6,6 @@ namespace Shaman.Game.Rooms
 {
     public interface IRoomStateUpdater
     {
-        Task UpdateRoomState(Guid roomId, int roomPlayersCount, RoomState roomState, string matchMakerUrl);
+        Task UpdateRoomState(Guid roomId, int roomPlayersCount, RoomState roomState, string matchMakerUrl, int maxMatchMakingWeight);
     }
 }

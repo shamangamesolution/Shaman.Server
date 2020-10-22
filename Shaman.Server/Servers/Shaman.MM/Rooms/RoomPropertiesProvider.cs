@@ -16,6 +16,11 @@ namespace Shaman.MM.Rooms
             return RoomPropertiesProviderImplementation.GetMaximumPlayers(playerMatchMakingProperties);
         }
 
+        public int GetMaximumMatchMakingWeight(Dictionary<byte, object> playerMatchMakingProperties)
+        {
+            return RoomPropertiesProviderImplementation.GetMaximumMatchMakingWeight(playerMatchMakingProperties);
+        }
+
         public int GetMaximumMatchMakingTime(Dictionary<byte, object> playerMatchMakingProperties)
         {
             return RoomPropertiesProviderImplementation.GetMaximumMatchMakingTime(playerMatchMakingProperties);

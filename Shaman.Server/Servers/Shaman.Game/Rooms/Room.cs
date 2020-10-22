@@ -24,7 +24,6 @@ namespace Shaman.Game.Rooms
         private readonly Guid _roomId;
         private readonly DateTime _createdOn;
         private readonly ITaskScheduler _taskScheduler;
-        private readonly IRoomManager _roomManager;
         private readonly IRoomPropertiesContainer _roomPropertiesContainer;
         private readonly IPacketSender _packetSender;
         private readonly IRoomController _roomController;
@@ -44,7 +43,6 @@ namespace Shaman.Game.Rooms
             _roomStateUpdater = roomStateUpdater;
             _createdOn = DateTime.UtcNow;
             _taskScheduler = taskSchedulerFactory.GetTaskScheduler();
-            _roomManager = roomManager;
             _roomPropertiesContainer = roomPropertiesContainer;
             _packetSender = packetSender;
 
@@ -104,7 +102,15 @@ namespace Shaman.Game.Rooms
         {
             var matchMakerUrl =
                 _roomPropertiesContainer.GetRoomPropertyAsString(PropertyCode.RoomProperties.MatchMakerUrl);
-            await _roomStateUpdater.UpdateRoomState(GetRoomId(), _roomPlayers.Count(), _roomState, matchMakerUrl);
+            
+            // todo handle this
+            // this may happen when, for example, bundle's room executes Close/Open method
+            // inside its constructor - at this time _roomController is not assigned yet
+            if (_roomController == null)
+            {
+                return;
+            }
+            await _roomStateUpdater.UpdateRoomState(GetRoomId(), _roomPlayers.Count(), _roomState, matchMakerUrl, _roomController.MaxMatchmakingWeight);
         }
 
         public IEnumerable<RoomPlayer> GetAllPlayers()

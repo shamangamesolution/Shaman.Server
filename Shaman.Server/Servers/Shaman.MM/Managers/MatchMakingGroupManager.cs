@@ -77,6 +77,8 @@ namespace Shaman.MM.Managers
                     _roomPropertiesProvider.GetMatchMakingTick(measures));
                 roomProperties.Add(PropertyCode.RoomProperties.MaximumMmTime,
                     _roomPropertiesProvider.GetMaximumMatchMakingTime(measures));
+                roomProperties.Add(PropertyCode.RoomProperties.MaximumMatchMakingWeight,
+                    _roomPropertiesProvider.GetMaximumMatchMakingWeight(measures));
                 roomProperties.Add(PropertyCode.RoomProperties.TotalPlayersNeeded,
                     _roomPropertiesProvider.GetMaximumPlayers(measures));
                 roomProperties.Add(PropertyCode.RoomProperties.MatchMakerUrl,

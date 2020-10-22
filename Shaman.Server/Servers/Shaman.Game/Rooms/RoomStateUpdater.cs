@@ -17,7 +17,7 @@ namespace Shaman.Game.Rooms
             _logger = logger;
         }
 
-        public async Task UpdateRoomState(Guid roomId, int roomPlayersCount, RoomState roomState, string matchMakerUrl)
+        public async Task UpdateRoomState(Guid roomId, int roomPlayersCount, RoomState roomState, string matchMakerUrl, int maxMatchMakingWeight)
         {
             try
             {
@@ -28,7 +28,7 @@ namespace Shaman.Game.Rooms
                 }
 
                 await _requestSender.SendRequest<UpdateRoomStateResponse>(matchMakerUrl,
-                    new UpdateRoomStateRequest(roomId, roomPlayersCount, roomState), (r) =>
+                    new UpdateRoomStateRequest(roomId, roomPlayersCount, roomState, maxMatchMakingWeight), (r) =>
                     {
                         if (!r.Success)
                         {

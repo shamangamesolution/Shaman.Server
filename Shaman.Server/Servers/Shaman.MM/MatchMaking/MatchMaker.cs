@@ -27,9 +27,9 @@ namespace Shaman.MM.MatchMaking
             _requiredMatchMakingProperties.Add(requiredMatchMakingProperty);
         }
 
-        public void AddPlayer(MmPeer peer, Dictionary<byte, object> properties)
+        public void AddPlayer(MmPeer peer, Dictionary<byte, object> properties, int mmmWeight)
         {
-            var player = new MatchMakingPlayer(peer, properties);
+            var player = new MatchMakingPlayer(peer, properties, mmmWeight);
             _groupManager.AddPlayerToMatchMaking(player);
             // var groups = _groupManager.GetMatchmakingGroupIds(properties);
             // if (groups == null || groups.Count == 0)
