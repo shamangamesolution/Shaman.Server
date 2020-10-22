@@ -29,6 +29,7 @@ namespace Shaman.MM.MatchMaking
         public readonly Dictionary<byte, object> RoomProperties;
         private readonly int _matchMakingTickMs;
         private readonly int _totalPlayersNeeded;
+        private readonly int _maxMmWeight;
         private readonly int _maximumMmTime;
 
         private object _queueSync = new object();
@@ -57,11 +58,14 @@ namespace Shaman.MM.MatchMaking
             if (!roomProperties.TryGetValue(PropertyCode.RoomProperties.TotalPlayersNeeded, out var totalPlayersProperty))
                 throw new Exception($"MatchMakingGroup ctr error: there is no TotalPlayersNeeded property");
             if (!roomProperties.TryGetValue(PropertyCode.RoomProperties.MaximumMmTime, out var timeBeforeBotsProperty))
-                throw new Exception($"MatchMakingGroup ctr error: there is no TimeBeforeBotsAdded property");
+                throw new Exception($"MatchMakingGroup ctr error: there is no MaximumMmTime property");
+            if (!roomProperties.TryGetValue(PropertyCode.RoomProperties.MaximumMatchMakingWeight, out var maxMmWeight))
+                throw new Exception($"MatchMakingGroup ctr error: there is no MaximumMatchMakingWeight property");
             
             _matchMakingTickMs = (int)tickProperty;
             _totalPlayersNeeded = (int)totalPlayersProperty;
             _maximumMmTime = (int)timeBeforeBotsProperty;
+            _maxMmWeight = (int) maxMmWeight;
         }
         
         #region privates
@@ -81,7 +85,7 @@ namespace Shaman.MM.MatchMaking
                 foreach (var player in _matchmakingPlayers)
                 {
                     _logger.Debug($"Sending prejoin info to {player.Id}");
-                    var joinInfo = new JoinInfo("", 0, Guid.Empty, JoinStatus.OnMatchmaking, _matchmakingPlayers.Count(),
+                    var joinInfo = new JoinInfo("", 0, Guid.Empty, JoinStatus.OnMatchmaking, GetCurrentPlayersWeight(),
                             _totalPlayersNeeded);
                     
                     _messageSender.Send(new JoinInfoEvent(joinInfo), player.Peer);
@@ -117,10 +121,15 @@ namespace Shaman.MM.MatchMaking
             
             return (DateTime.UtcNow - oldestPlayer.AddedToMmGroupOn.Value).TotalMilliseconds >= _maximumMmTime;
         }
+
+        private int GetCurrentPlayersWeight()
+        {
+            return _matchmakingPlayers.Sum(p => p.MmWeight);
+        }
         
         private bool IsEnoughPlayers()
         {
-            return _matchmakingPlayers.Count == _totalPlayersNeeded;
+            return GetCurrentPlayersWeight() == _totalPlayersNeeded;
         }
         
         private void ProcessFailed(MatchMakingPlayer player, string message)
@@ -136,7 +145,7 @@ namespace Shaman.MM.MatchMaking
         {
             _logger.Debug($"Sending join info to {player.Id}");
             var joinInfo = new JoinInfo(result.Address, result.Port, result.RoomId, JoinStatus.RoomIsReady,
-                    _matchmakingPlayers.Count, _totalPlayersNeeded, true);
+                GetCurrentPlayersWeight(), _totalPlayersNeeded, true);
             _messageSender.Send(new JoinInfoEvent(joinInfo), player.Peer);
             _playersManager.Remove(player.Id);
         }
@@ -179,10 +188,10 @@ namespace Shaman.MM.MatchMaking
                 {
                     lock (_queueSync)
                     {
-                        var matchmakingPlayersCount = _matchmakingPlayers.Count;
+                        var matchmakingPlayersCount = GetCurrentPlayersWeight();
                         
                         var players =
-                            _playersManager.GetPlayers(Id, _totalPlayersNeeded - matchmakingPlayersCount);
+                            _playersManager.GetPlayers(Id, _totalPlayersNeeded - matchmakingPlayersCount, _maxMmWeight);
 
                         foreach (var player in players)
                         {
@@ -190,7 +199,7 @@ namespace Shaman.MM.MatchMaking
                             AddPlayer(player);
                         }
                         
-                        matchmakingPlayersCount = _matchmakingPlayers.Count;
+                        matchmakingPlayersCount = GetCurrentPlayersWeight();
 
                         //if noone in collection - continue
                         if (matchmakingPlayersCount == 0)
@@ -202,7 +211,7 @@ namespace Shaman.MM.MatchMaking
                         var oldestPlayer = GetOldestPlayer();
 
                         //try to add to existing room
-                        var room = _roomManager.GetRoom(Id, matchmakingPlayersCount);
+                        var room = _roomManager.GetRoom(Id, matchmakingPlayersCount, _matchmakingPlayers.Max(p => p.MmWeight),  _matchmakingPlayers.Sum(p => p.MmWeight));
                         JoinRoomResult result = null;
                         
                         if (room != null)
@@ -211,7 +220,7 @@ namespace Shaman.MM.MatchMaking
                             try
                             {
                                 result = _roomManager.JoinRoom(room.Id,
-                                    _matchmakingPlayers.ToDictionary(key => key.SessionId, value => value.Properties)).Result;
+                                    _matchmakingPlayers.ToDictionary(key => key.SessionId, value => value.Properties), _matchmakingPlayers.Max(p => p.MmWeight),  _matchmakingPlayers.Sum(p => p.MmWeight)).Result;
                                 if (result.Result != RoomOperationResult.OK)
                                 {
                                     _logger.Error($"MM join room error (closing this room): {result.Result}");

@@ -177,16 +177,16 @@ namespace Shaman.MM.Tests
             
             emptyTask.Wait(1000);
             //success
-            var room = _roomManager.GetRoom(_group1Id, 1);
+            var room = _roomManager.GetRoom(_group1Id, 1,1,1);
             Assert.IsNull(room);
-            _roomManager.UpdateRoomState(result.RoomId, 1, RoomState.Open);
-            room = _roomManager.GetRoom(_group1Id, 1);
+            _roomManager.UpdateRoomState(result.RoomId, 1, RoomState.Open, 1);
+            room = _roomManager.GetRoom(_group1Id, 1,1,1);
             Assert.IsNotNull(room);
             //success
-            room = _roomManager.GetRoom(_group1Id, 2);
+            room = _roomManager.GetRoom(_group1Id, 2,1, 2);
             Assert.IsNotNull(room);
             //no such room
-            room = _roomManager.GetRoom(_group1Id, 3);
+            room = _roomManager.GetRoom(_group1Id, 3,1, 3);
             Assert.IsNull(room);
 
             var rooms = _roomManager.GetRooms(_group1Id, true);
@@ -195,17 +195,17 @@ namespace Shaman.MM.Tests
             emptyTask.Wait(3100);
             
             //room is closed by this time
-            _roomManager.UpdateRoomState(result.RoomId, 1, RoomState.Closed);
+            _roomManager.UpdateRoomState(result.RoomId, 1, RoomState.Closed, 1);
             //no such room
-            room = _roomManager.GetRoom(_group1Id, 1);
+            room = _roomManager.GetRoom(_group1Id, 1,1,1);
             Assert.IsNull(room);
             //no such room
-            room = _roomManager.GetRoom(_group1Id, 2);
+            room = _roomManager.GetRoom(_group1Id, 2,1,2);
             Assert.IsNull(room);
             //no such room
-            room = _roomManager.GetRoom(_group1Id, 3);
+            room = _roomManager.GetRoom(_group1Id, 3,1,3);
             Assert.IsNull(room);
-            room = _roomManager.GetRoom(Guid.NewGuid(), 3);
+            room = _roomManager.GetRoom(Guid.NewGuid(), 3,1,3);
             Assert.IsNull(room);
             rooms = _roomManager.GetRooms(_group1Id, true);
             Assert.AreEqual(0, rooms.Count());
@@ -232,24 +232,24 @@ namespace Shaman.MM.Tests
             Assert.AreEqual(result.Address, "0.0.0.0");
             Assert.AreEqual(result.Port, 7777);
             
-            var room = _roomManager.GetRoom(_group1Id, 1);
+            var room = _roomManager.GetRoom(_group1Id, 1,1,1);
             Assert.IsNull(room);
-            _roomManager.UpdateRoomState(result.RoomId, 1, RoomState.Open);
-            room = _roomManager.GetRoom(_group1Id, 1);
+            _roomManager.UpdateRoomState(result.RoomId, 1, RoomState.Open, 1);
+            room = _roomManager.GetRoom(_group1Id, 1,1,1);
             Assert.IsNotNull(room);
 
             players = new Dictionary<Guid, Dictionary<byte, object>>
             {
                 {Guid.NewGuid(), new Dictionary<byte, object>()}
             };
-            result = await _roomManager.JoinRoom(result.RoomId, players);
+            result = await _roomManager.JoinRoom(result.RoomId, players, 1,players.Count);
             Assert.IsNotNull(result);
             Assert.AreEqual(result.Result, RoomOperationResult.OK);
             Assert.AreEqual(result.Address, "0.0.0.0");
             Assert.AreEqual(result.Port, 7777);
             
             //no empty room anymore
-            room = _roomManager.GetRoom(_group1Id, 1);
+            room = _roomManager.GetRoom(_group1Id, 1, 1, 1);
             Assert.IsNull(room);
             
             //join to closed room
@@ -257,7 +257,7 @@ namespace Shaman.MM.Tests
             {
                 {Guid.NewGuid(), new Dictionary<byte, object>()}
             };
-            result = await _roomManager.JoinRoom(result.RoomId, players);
+            result = await _roomManager.JoinRoom(result.RoomId, players, 1, players.Count);
             Assert.IsNotNull(result);
             Assert.AreEqual(RoomOperationResult.JoinRoomError, result.Result);
         }
@@ -280,24 +280,24 @@ namespace Shaman.MM.Tests
             Assert.AreEqual(result.Address, "0.0.0.0");
             Assert.AreEqual(result.Port, 7777);
             
-            var room = _roomManager.GetRoom(_group1Id, 1);
+            var room = _roomManager.GetRoom(_group1Id, 1, 1, 1);
             Assert.IsNull(room);
-            _roomManager.UpdateRoomState(result.RoomId, 1, RoomState.Open);
-            room = _roomManager.GetRoom(_group1Id, 1);
+            _roomManager.UpdateRoomState(result.RoomId, 1, RoomState.Open, 1);
+            room = _roomManager.GetRoom(_group1Id, 1, 1, 1);
             Assert.IsNotNull(room);
 
             players = new Dictionary<Guid, Dictionary<byte, object>>
             {
                 {Guid.NewGuid(), new Dictionary<byte, object>()}
             };
-            result = await _roomManager.JoinRoom(result.RoomId, players);
+            result = await _roomManager.JoinRoom(result.RoomId, players, 1, players.Count);
             Assert.IsNotNull(result);
             Assert.AreEqual(result.Result, RoomOperationResult.OK);
             Assert.AreEqual(result.Address, "0.0.0.0");
             Assert.AreEqual(result.Port, 7777);
             
             //no empty room anymore
-            room = _roomManager.GetRoom(_group1Id, 1);
+            room = _roomManager.GetRoom(_group1Id, 1, 1, 1);
             Assert.IsNull(room);
             
             //join to closed room
@@ -305,7 +305,7 @@ namespace Shaman.MM.Tests
             {
                 {Guid.NewGuid(), new Dictionary<byte, object>()}
             };
-            result = await _roomManager.JoinRoom(result.RoomId, players);
+            result = await _roomManager.JoinRoom(result.RoomId, players, 1, players.Count);
             Assert.IsNotNull(result);
             Assert.AreEqual(RoomOperationResult.JoinRoomError, result.Result);
         }

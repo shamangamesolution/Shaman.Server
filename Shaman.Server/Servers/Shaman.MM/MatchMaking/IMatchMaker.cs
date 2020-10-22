@@ -10,7 +10,7 @@ namespace Shaman.MM.MatchMaking
     {
         //init
         //manage players list
-        void AddPlayer(MmPeer peer, Dictionary<byte, object> properties);
+        void AddPlayer(MmPeer peer, Dictionary<byte, object> properties, int mmmWeight);
         void RemovePlayer(Guid peerId);
         List<byte> GetRequiredProperties();
         

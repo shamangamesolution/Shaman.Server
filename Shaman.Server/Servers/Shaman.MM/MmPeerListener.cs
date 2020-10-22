@@ -48,7 +48,7 @@ namespace Shaman.MM
             {
                 case RoomOperationResult.OK:
                     return new JoinInfo(joinResult.Address, joinResult.Port, joinResult.RoomId, JoinStatus.RoomIsReady,
-                        room.CurrentPlayersCount, room.TotalPlayersNeeded, true);
+                        room.CurrentWeight, room.TotalWeightNeeded, true);
                 case RoomOperationResult.ServerNotFound:
                 case RoomOperationResult.CreateRoomError:
                 case RoomOperationResult.JoinRoomError:
@@ -142,7 +142,7 @@ namespace Shaman.MM
                                 //join existing room
                                 var joinResult = await _roomManager.JoinRoom(joinRequest.RoomId,
                                     new Dictionary<Guid, Dictionary<byte, object>>
-                                        {{ peer.GetSessionId(), joinRequest.MatchMakingProperties}});
+                                        {{ peer.GetSessionId(), joinRequest.MatchMakingProperties}}, joinRequest.MatchMakingWeight, joinRequest.MatchMakingWeight);
                                 //parse join result and create response
                                 var joinResponse = new DirectJoinResponse(GetJoinInfo(joinResult));
                                 if (joinResult.Result == RoomOperationResult.OK)
@@ -153,7 +153,7 @@ namespace Shaman.MM
                         case ShamanOperationCode.GetRoomList:
                             var request = Serializer.DeserializeAs<GetRoomListRequest>(buffer, offset, length);
                             var rooms = _matchMakingGroupsManager.GetRooms(request.MatchMakingProperties)
-                                .Select(r => new RoomInfo(r.Id, r.TotalPlayersNeeded, r.CurrentPlayersCount, r.Properties, r.State))
+                                .Select(r => new RoomInfo(r.Id, r.TotalWeightNeeded, r.CurrentWeight, r.Properties, r.State))
                                 .ToList();
                             var getRoomsResponse = new GetRoomListResponse();
                             getRoomsResponse.Rooms = rooms;
@@ -180,7 +180,7 @@ namespace Shaman.MM
                             }
                             
                             //add player
-                            _matchMaker.AddPlayer(peer, enterMessage.MatchMakingProperties);
+                            _matchMaker.AddPlayer(peer, enterMessage.MatchMakingProperties, enterMessage.MatchMakingWeight);
                             
                             _messageSender.Send(new EnterMatchMakingResponse(), peer);
 

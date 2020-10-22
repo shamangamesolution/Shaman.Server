@@ -61,6 +61,7 @@ namespace Shaman.MM.Tests
             _roomProperties.Add(FakePropertyCodes.RoomProperties.MatchMakingTick, 250);
             _roomProperties.Add(FakePropertyCodes.RoomProperties.TotalPlayersNeeded, 3);
             _roomProperties.Add(FakePropertyCodes.RoomProperties.MaximumMmTime, 500);
+            _roomProperties.Add(FakePropertyCodes.RoomProperties.MaximumMatchMakingWeight, 1);
 
             
             _group = new MatchMakingGroup(_roomProperties, _logger, _taskSchedulerFactory, _playersManager,
@@ -89,13 +90,13 @@ namespace Shaman.MM.Tests
             Assert.AreEqual(0, rooms.Count());
             rooms = _roomManager.GetRooms(_group.Id, false);
             Assert.AreEqual(1, rooms.Count());
-            _roomManager.UpdateRoomState(rooms.First().Id, 1, RoomState.Open);
+            _roomManager.UpdateRoomState(rooms.First().Id, 1, RoomState.Open, 1);
             rooms = _roomManager.GetRooms(_group.Id);
             Assert.AreEqual(1, rooms.Count());
             var room = rooms.FirstOrDefault();
-            Assert.AreEqual(1, room.CurrentPlayersCount);
+            Assert.AreEqual(1, room.CurrentWeight);
             Assert.AreEqual(true, room.IsOpen());
-            Assert.AreEqual(true, room.CanJoin(2));
+            Assert.AreEqual(true, room.CanJoin(2, 1));
         }
         
         [Test]
@@ -111,13 +112,13 @@ namespace Shaman.MM.Tests
             Assert.AreEqual(0, rooms.Count());
             rooms = _roomManager.GetRooms(_group.Id, false);
             Assert.AreEqual(1, rooms.Count());
-            _roomManager.UpdateRoomState(rooms.First().Id, 2, RoomState.Open);
+            _roomManager.UpdateRoomState(rooms.First().Id, 2, RoomState.Open, 1);
             rooms = _roomManager.GetRooms(_group.Id);
             Assert.AreEqual(1, rooms.Count());
             var room = rooms.FirstOrDefault();
-            Assert.AreEqual(2, room.CurrentPlayersCount);
+            Assert.AreEqual(2, room.CurrentWeight);
             Assert.AreEqual(true, room.IsOpen());
-            Assert.AreEqual(true, room.CanJoin(1));
+            Assert.AreEqual(true, room.CanJoin(1,1));
         }
         
         [Test]
@@ -132,23 +133,25 @@ namespace Shaman.MM.Tests
             Assert.AreEqual(0, rooms.Count());
             rooms = _roomManager.GetRooms(_group.Id, false);
             Assert.AreEqual(1, rooms.Count());
-            _roomManager.UpdateRoomState(rooms.First().Id, 1, RoomState.Open);
+            _roomManager.UpdateRoomState(rooms.First().Id, 1, RoomState.Open, 1);
             rooms = _roomManager.GetRooms(_group.Id);
             Assert.AreEqual(1, rooms.Count());
             var room = rooms.FirstOrDefault();
-            Assert.AreEqual(1, room.CurrentPlayersCount);
+            Assert.AreEqual(1, room.CurrentWeight);
             Assert.AreEqual(true, room.IsOpen());
-            Assert.AreEqual(true, room.CanJoin(1));
+            Assert.AreEqual(true, room.CanJoin(1,1));
             
             //join second 
             _playersManager.Add(player2, new List<Guid> {_group.Id});
             emptyTask.Wait(500);
             rooms = _roomManager.GetRooms(_group.Id);
-            Assert.AreEqual(1, rooms.Count());
+            Assert.AreEqual(0, rooms.Count());
+            rooms = _roomManager.GetRooms(_group.Id, false);
             room = rooms.FirstOrDefault();
-            Assert.AreEqual(2, room.CurrentPlayersCount);
-            Assert.AreEqual(true, room.IsOpen());
-            Assert.AreEqual(true, room.CanJoin(1));
+            Assert.AreEqual(2, room.CurrentWeight);
+            Assert.AreEqual(false, room.IsOpen());
+            _roomManager.UpdateRoomState(room.Id, 1, RoomState.Open, 1);
+            Assert.AreEqual(true, room.CanJoin(1,1));
         }
         
         
