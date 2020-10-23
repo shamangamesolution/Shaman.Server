@@ -1,5 +1,6 @@
 using System;
 using Shaman.Contract.Bundle;
+using Shaman.Contract.Common.Logging;
 using Shaman.Contract.Routing.Meta;
 
 namespace Shaman.Launchers.Game
@@ -7,12 +8,14 @@ namespace Shaman.Launchers.Game
     public class BundleSettingsMetaProvider : IMetaProvider
     {
         private string _metaUrl;
-
-        public BundleSettingsMetaProvider(IBundleConfig bundleConfig)
+        private readonly IShamanLogger _logger;
+        
+        public BundleSettingsMetaProvider(IBundleConfig bundleConfig, IShamanLogger logger)
         {
+            _logger = logger;
             _metaUrl = bundleConfig.GetValueOrNull("MetaUrl");
             if (string.IsNullOrWhiteSpace(_metaUrl))
-                throw new Exception($"Meta url is null");
+                _logger.Error($"Meta server url was not set in bundle settings file");
         }
 
         public string GetFirstMetaServerUrl()
