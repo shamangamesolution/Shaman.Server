@@ -98,16 +98,17 @@ namespace Shaman.Launchers.MM.Balancing
                 throw new Exception($"There is no me in server list");
             
             var newGameServerList = new EntityDictionary<ServerInfo>();
-            var idList = GetIdList();
-            var versions = new List<string>();
-            foreach (var id in idList)
-            {
-                versions.Add(_serverList[id].ClientVersion);
-            }
+            var serverList = GetMyMmList().ToList();
+            // var versions = new List<string>();
+            // foreach (var id in idList)
+            // {
+            //     versions.Add(_serverList[id].ClientVersion);
+            // }
 
             foreach (var server in _serverList)
             {
-                if (server.ServerRole == ServerRole.GameServer && versions.Contains(server.ClientVersion) && server.Region == me.Region)
+                // if (server.ServerRole == ServerRole.GameServer && versions.Contains(server.ClientVersion) && server.Region == me.Region)
+                if (server.ServerRole == ServerRole.GameServer && serverList.Any(s => s.AreVersionsIntersect(server)) && server.Region == me.Region)
                 {
                     if (server.IsActual(_config.ServerUnregisterTimeoutMs))
                         newGameServerList.Add(server);
@@ -119,10 +120,10 @@ namespace Shaman.Launchers.MM.Balancing
             return newGameServerList;
         }
 
-        private List<int> GetIdList()
+        private IEnumerable<ServerInfo> GetMyMmList()
         {
 
-            return _serverList.Where(s => s.Identity.Equals(_config.Identity)).Select(s => s.Id).ToList();
+            return _serverList.Where(s => s.Identity.Equals(_config.Identity));
         }
 
 

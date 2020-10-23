@@ -94,7 +94,7 @@ namespace Shaman.Launchers.Game.Balancing
         
             var backends = serverInfos.Where(s =>
                 s.ServerRole == ServerRole.BackEnd && s.Region == _me.Region &&
-                s.IsApproved && s.ClientVersion == _me.ClientVersion).ToList();
+                s.IsApproved && s.AreVersionsIntersect(_me)).ToList();
         
             if (!backends.Any())
                 _logger.Error($"Received 0 backends from Router!");

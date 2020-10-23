@@ -43,7 +43,7 @@ namespace Shaman.Client.Providers
             if (serverInfoList == null || !serverInfoList.Any())
                 return result;
             
-            var servers = serverInfoList.Where(s => s.ClientVersion == clientVersion && s.IsApproved).ToList();
+            var servers = serverInfoList.Where(s => s.ClientVersionList.Contains(clientVersion) && s.IsApproved).ToList();
 
             var regions = servers.Select(s => s.Region).Distinct();
             foreach (var region in regions)

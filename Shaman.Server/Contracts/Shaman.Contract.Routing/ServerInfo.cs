@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Shaman.Serialization;
 using Shaman.Serialization.Extensions;
@@ -22,7 +23,8 @@ namespace Shaman.Contract.Routing
         public int PeerCount { get; set; }
         
         private ServerIdentity _identity;
-
+        private IEnumerable<string> _clientVersionList;
+        
         public ServerIdentity Identity
         {
             get
@@ -30,6 +32,22 @@ namespace Shaman.Contract.Routing
                 if (_identity == null)
                     _identity = new ServerIdentity(Address, Ports, ServerRole);
                 return _identity;
+            }
+        }
+
+        public IEnumerable<string> ClientVersionList
+        {
+            get
+            {
+                if (_clientVersionList == null || !_clientVersionList.Any())
+                {
+                    var arr = ClientVersion.Split(',');
+                    for (var i = 0; i < arr.Length; i++)
+                        arr[i] = arr[i].Trim();
+                    _clientVersionList = arr.Where(i => !string.IsNullOrWhiteSpace(i));
+                }
+
+                return _clientVersionList;
             }
         }
 
