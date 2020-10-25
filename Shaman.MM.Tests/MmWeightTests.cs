@@ -105,14 +105,8 @@ namespace Shaman.MM.Tests
             _playersManager.Add(player3, new List<Guid> {_group.Id});
             emptyTask.Wait(1500);
             rooms = _roomManager.GetRooms(_group.Id, false);
-            Assert.AreEqual(1, rooms.Count());
-            room = rooms.FirstOrDefault();
-            Assert.AreEqual(3, room.CurrentWeight);
-            Assert.AreEqual(false, room.IsOpen());
-            Assert.AreEqual(false, room.CanJoin(1,1));
-            Assert.AreEqual(0, room.MaxWeightToJoin);
-            Assert.AreEqual(3, room.CurrentWeight);
-            Assert.AreEqual(12, room.TotalWeightNeeded);
+            //player 3 has weight > 1 - so he will go to new room
+            Assert.AreEqual(2, rooms.Count());
         }
 
         [Test]

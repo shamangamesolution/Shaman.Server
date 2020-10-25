@@ -98,6 +98,11 @@ namespace Shaman.Game.Rooms
             await SendRoomStateUpdate();
         }
 
+        public IRoomPropertiesContainer GetPropertiesContainer()
+        {
+            return _roomPropertiesContainer;
+        }
+
         private async Task SendRoomStateUpdate()
         {
             var matchMakerUrl =

@@ -17,5 +17,6 @@ namespace Shaman.Contract.Bundle
         string GetRoomPropertyAsString(byte key);
         int GetPlayerCountToStartGame();
         void RemovePlayer(Guid sessionId);
+        Dictionary<byte, object> GetRoomProperties();
     }
 }
