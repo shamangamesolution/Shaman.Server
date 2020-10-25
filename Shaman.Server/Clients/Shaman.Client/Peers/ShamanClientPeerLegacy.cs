@@ -335,12 +335,12 @@ namespace Shaman.Client.Peers
                 case JoinType.RandomJoin:
                     _taskScheduler.ScheduleOnceOnNow(EnterMatchMaking);
                     break;
-                case JoinType.DirectJoin:
-                    _taskScheduler.ScheduleOnceOnNow(GetRooms);
-                    break;
-                case JoinType.CreateGame:
-                    _taskScheduler.ScheduleOnceOnNow(CreateGame);
-                    break;
+                // case JoinType.DirectJoin:
+                //     _taskScheduler.ScheduleOnceOnNow(GetRooms);
+                //     break;
+                // case JoinType.CreateGame:
+                //     _taskScheduler.ScheduleOnceOnNow(CreateGame);
+                //     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -702,23 +702,23 @@ namespace Shaman.Client.Peers
             });
         }
         
-        public void CreateGame(string matchMakerAddress, ushort matchMakerPort, int backendId, Guid sessionId,
-            Dictionary<byte, object> matchMakingProperties, Dictionary<byte, object> joinGameProperties,
-            Action<ConnectionStatusLegacy, JoinInfo> statusCallback)
-        {
-            _joinType = JoinType.CreateGame;
-            StartConnect(matchMakerAddress, matchMakerPort, backendId, sessionId, matchMakingProperties,
-                joinGameProperties, statusCallback);
-        }
-        
-        public void JoinRandomGame(string matchMakerAddress, ushort matchMakerPort, int backendId, Guid sessionId,
-            Dictionary<byte, object> matchMakingProperties, Dictionary<byte, object> joinGameProperties,
-            Action<ConnectionStatusLegacy, JoinInfo> statusCallback)
-        {
-            _joinType = JoinType.RandomJoin;
-            StartConnect(matchMakerAddress, matchMakerPort, backendId, sessionId, matchMakingProperties,
-                joinGameProperties, statusCallback);
-        }
+        // public void CreateGame(string matchMakerAddress, ushort matchMakerPort, int backendId, Guid sessionId,
+        //     Dictionary<byte, object> matchMakingProperties, Dictionary<byte, object> joinGameProperties,
+        //     Action<ConnectionStatusLegacy, JoinInfo> statusCallback)
+        // {
+        //     _joinType = JoinType.CreateGame;
+        //     StartConnect(matchMakerAddress, matchMakerPort, backendId, sessionId, matchMakingProperties,
+        //         joinGameProperties, statusCallback);
+        // }
+        //
+        // public void JoinRandomGame(string matchMakerAddress, ushort matchMakerPort, int backendId, Guid sessionId,
+        //     Dictionary<byte, object> matchMakingProperties, Dictionary<byte, object> joinGameProperties,
+        //     Action<ConnectionStatusLegacy, JoinInfo> statusCallback)
+        // {
+        //     _joinType = JoinType.RandomJoin;
+        //     StartConnect(matchMakerAddress, matchMakerPort, backendId, sessionId, matchMakingProperties,
+        //         joinGameProperties, statusCallback);
+        // }
         
         public void Disconnect()
         {

@@ -104,5 +104,10 @@ namespace Shaman.Game.Rooms.RoomProperties
                 _playersCameFromMatchMaker.Remove(sessionId);
             }
         }
+
+        public Dictionary<byte, object> GetRoomProperties()
+        {
+            return _roomProperties;
+        }
     }
 }

@@ -53,7 +53,6 @@ namespace Shaman.Game.Controllers
             }
             
             return new FileContentResult(_serializer.Serialize(response), "text/html");
-
         }
         
         [HttpPost("canjoinroom")]

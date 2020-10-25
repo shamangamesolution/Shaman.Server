@@ -47,26 +47,7 @@ namespace Shaman.MM.Managers
             _config = config;
         }
 
-        private bool AreDictionariesEqual(Dictionary<byte, object> dict1, Dictionary<byte, object> dict2)
-        {
-            if (dict1 == null && dict2 == null)
-                return true;
-            if (dict1 == null)
-                return false;
-            if (dict2 == null)
-                return false;
 
-            if (dict1.Count != dict2.Count)
-                return false;
-
-            foreach (var item in dict1)
-            {
-                if (!dict2.ContainsKey(item.Key) || !Equals(dict2[item.Key], item.Value))
-                    return false;
-            }
-
-            return true;
-        }
         
         public Guid AddMatchMakingGroup(Dictionary<byte, object> measures)
         {
@@ -111,7 +92,7 @@ namespace Shaman.MM.Managers
             {
                 var result = new List<Guid>();
                 foreach (var group in _groupsToProperties)
-                    if (AreDictionariesEqual(group.Value, playerProperties))
+                    if (DictionaryHelpers.AreDictionariesEqual(group.Value, playerProperties))
                         result.Add(group.Key);
                 return result;
             }

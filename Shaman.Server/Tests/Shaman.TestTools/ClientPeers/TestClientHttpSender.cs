@@ -8,7 +8,7 @@ using IRequestSender = Shaman.Client.IRequestSender;
 
 namespace Shaman.TestTools.ClientPeers
 {
-    class TestClientHttpSender:IRequestSender
+    public class TestClientHttpSender:IRequestSender
     {
         private readonly HttpSender _httpSender;
 
@@ -26,6 +26,5 @@ namespace Shaman.TestTools.ClientPeers
         {
             return _httpSender.SendRequest<T>(serviceUri, request, callback);
         }
-        
     }
 }

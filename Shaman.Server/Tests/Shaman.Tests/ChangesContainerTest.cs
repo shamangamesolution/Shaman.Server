@@ -92,21 +92,5 @@ namespace Shaman.Tests
             splitedUpdateInfo = UpdateInfoHelper.Split(updateInfo, 300);
             Assert.AreEqual(1, splitedUpdateInfo.Count);
         }
-        
-        [Test]
-        public void SplitTest1()
-        {
-            var changeSet = new ChangeSet();
-
-            for (int i = 0; i < 50; i++)
-            {
-                changeSet.TrackChange(i, 1, (float?) i);
-                changeSet.TrackChange(i, 2, (float?) i);
-            }
-
-            var size = changeSet.GetSizeInBytes();
-            
-            Assert.AreEqual(120, size);
-        }
     }
 }

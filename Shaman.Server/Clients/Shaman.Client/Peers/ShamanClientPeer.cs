@@ -75,7 +75,7 @@ namespace Shaman.Client.Peers
         private static readonly TimeSpan ReceiveEventTimeout = TimeSpan.FromSeconds(5);
         private readonly IMessageHandler _shamanMessageHandler;
         private readonly IMessageHandler _bundleMessageHandler;
-
+        private Dictionary<byte, object> _directRandomJoinRoomProperties = new Dictionary<byte, object>();
         #region ctors
 
         public ShamanClientPeer(IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory,
@@ -250,12 +250,12 @@ namespace Shaman.Client.Peers
                 case JoinType.RandomJoin:
                     _taskScheduler.ScheduleOnceOnNow(EnterMatchMaking);
                     break;
-                case JoinType.DirectJoin:
-                    _taskScheduler.ScheduleOnceOnNow(GetRooms);
-                    break;
-                case JoinType.CreateGame:
-                    _taskScheduler.ScheduleOnceOnNow(CreateGame);
-                    break;
+                // case JoinType.DirectJoin:
+                //     _taskScheduler.ScheduleOnceOnNow(GetRooms);
+                //     break;
+                // case JoinType.CreateGame:
+                //     _taskScheduler.ScheduleOnceOnNow(CreateGame);
+                //     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -288,7 +288,7 @@ namespace Shaman.Client.Peers
         }
 
         
-        private void OnJoinRoomResponse(JoinRoomResponse response)
+        private void OnJoinRoomResponse(ResponseBase response)
         {
             _logger.Debug($"JoinRoomResponse received");
 
@@ -374,7 +374,18 @@ namespace Shaman.Client.Peers
             {
                 SetAndReportStatus(ShamanClientStatus.JoiningRoom, _statusCallback);
 
-                SendShamanRequest<JoinRoomResponse>(new JoinRoomRequest(JoinInfo.RoomId, _joinGameProperties), OnJoinRoomResponse);
+                switch (_joinType)
+                {
+                    case JoinType.RandomJoin:
+                    case JoinType.DirectJoin when JoinInfo.RoomId != Guid.Empty:
+                        SendShamanRequest<JoinRoomResponse>(new JoinRoomRequest(JoinInfo.RoomId, _joinGameProperties), OnJoinRoomResponse);
+                        break;
+                    case JoinType.DirectJoin when JoinInfo.RoomId == Guid.Empty:
+                        SendShamanRequest<DirectJoinRandomRoomResponse>(new DirectJoinRandomRoomRequest(_directRandomJoinRoomProperties, _joinGameProperties), OnJoinRoomResponse);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             }
             catch (Exception ex)
             {
@@ -406,8 +417,16 @@ namespace Shaman.Client.Peers
             }
         }
         
+        public Task<JoinInfo> DirectConnectToGameServerToRandomRoom(string gameServerAddress, ushort gameServerPort, Guid sessionId, Dictionary<byte, object> roomProperties, Dictionary<byte, object> joinGameProperties)
+        {
+            _directRandomJoinRoomProperties = roomProperties;
+            return DirectConnectToGameServer(gameServerAddress, gameServerPort, sessionId, Guid.Empty,
+                joinGameProperties);
+        }
+        
         public Task<JoinInfo> DirectConnectToGameServer(string gameServerAddress, ushort gameServerPort, Guid sessionId,  Guid roomId, Dictionary<byte, object> joinGameProperties)
         {
+            _joinType = JoinType.DirectJoin;
             _joinGameProperties = joinGameProperties;
             SessionId = sessionId;
             
@@ -610,22 +629,22 @@ namespace Shaman.Client.Peers
                 });
             return joinTask.Task;
         }
-        public void CreateGame(string matchMakerAddress, ushort matchMakerPort, Guid sessionId,
-            Dictionary<byte, object> matchMakingProperties, Dictionary<byte, object> joinGameProperties,
-            Action<ShamanConnectionStatus, JoinInfo> statusCallback)
-        {
-            _joinType = JoinType.CreateGame;
-            StartConnect(matchMakerAddress, matchMakerPort, sessionId, matchMakingProperties,
-                joinGameProperties, statusCallback);
-        }
-        public void JoinRandomGame(string matchMakerAddress, ushort matchMakerPort, Guid sessionId,
-            Dictionary<byte, object> matchMakingProperties, Dictionary<byte, object> joinGameProperties,
-            Action<ShamanConnectionStatus, JoinInfo> statusCallback)
-        {
-            _joinType = JoinType.RandomJoin;
-            StartConnect(matchMakerAddress, matchMakerPort, sessionId, matchMakingProperties,
-                joinGameProperties, statusCallback);
-        }
+        // public void CreateGame(string matchMakerAddress, ushort matchMakerPort, Guid sessionId,
+        //     Dictionary<byte, object> matchMakingProperties, Dictionary<byte, object> joinGameProperties,
+        //     Action<ShamanConnectionStatus, JoinInfo> statusCallback)
+        // {
+        //     _joinType = JoinType.CreateGame;
+        //     StartConnect(matchMakerAddress, matchMakerPort, sessionId, matchMakingProperties,
+        //         joinGameProperties, statusCallback);
+        // }
+        // public void JoinRandomGame(string matchMakerAddress, ushort matchMakerPort, Guid sessionId,
+        //     Dictionary<byte, object> matchMakingProperties, Dictionary<byte, object> joinGameProperties,
+        //     Action<ShamanConnectionStatus, JoinInfo> statusCallback)
+        // {
+        //     _joinType = JoinType.RandomJoin;
+        //     StartConnect(matchMakerAddress, matchMakerPort, sessionId, matchMakingProperties,
+        //         joinGameProperties, statusCallback);
+        // }
         
         public void Disconnect()
         {

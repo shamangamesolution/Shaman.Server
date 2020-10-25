@@ -33,7 +33,7 @@ namespace Shaman.Launchers.Game.Standalone
             ConfigureSettings<ApplicationConfig>(services);
             
             //update room state on MM
-            services.AddSingleton<IRoomStateUpdater, RoomStateUpdater>();
+            services.AddSingleton<IRoomStateUpdater, FakeRoomStateUpdater>();
             //default room controller factory - it gets bundle from bundle loader
             services.AddSingleton<IRoomControllerFactory, DefaultRoomControllerFactory>();
             //used for configuration of bundle related services

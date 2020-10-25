@@ -34,5 +34,6 @@ namespace Shaman.Game.Rooms
         TimeSpan ForceDestroyRoomAfter { get; }
         bool AddPeerToRoom(IPeer peer, Dictionary<byte, object> peerProperties);
         Task InvalidateRoom();
+        IRoomPropertiesContainer GetPropertiesContainer();
     }
 }

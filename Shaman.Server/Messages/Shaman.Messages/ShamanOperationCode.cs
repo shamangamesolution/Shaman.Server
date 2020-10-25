@@ -25,6 +25,8 @@ namespace Shaman.Messages
         public const byte EnterMatchMakingResponse = 19;
         public const byte GetRoomListResponse = 20;
         public const byte LeaveMatchMakingResponse = 21;
+        public const byte JoinRandomRoom = 22;
+        public const byte JoinRandomRoomResponse = 23;
         //matchmaking.END
         
         /// <summary>
