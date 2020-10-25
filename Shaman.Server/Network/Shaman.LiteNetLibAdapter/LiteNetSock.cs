@@ -88,13 +88,10 @@ namespace Shaman.LiteNetLibAdapter
             {
                 case DeliveryMethod.Unreliable:
                     return new DeliveryOptions(false,false);
-                    break;
                 case DeliveryMethod.ReliableUnordered:
                     return new DeliveryOptions(true,false);
-                    break;
                 case DeliveryMethod.ReliableOrdered:
                     return new DeliveryOptions(true,false);
-                    break;
                 default:
                     throw new NotSupportedException($"Delivery method {method} not supported");
             }
