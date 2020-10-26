@@ -1,5 +1,5 @@
 ---
-  - shell: dig @resolver1.opendns.com ANY myip.opendns.com +short
+  - shell: dig @ns1.google.com ANY o-o.myaddr.l.google.com +short | tr -d '"'
     register: public_ip_res
   - set_fact:
       public_ip={{public_ip_res.stdout}}
