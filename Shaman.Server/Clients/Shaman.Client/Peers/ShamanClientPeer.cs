@@ -659,40 +659,80 @@ namespace Shaman.Client.Peers
         }
         #endregion
 
+        // public async Task<int> Ping(Route route, int timeoutMs = 500)
+        // {
+        //     var timer = Stopwatch.StartNew();
+        //     var ping = 0;
+        //     try
+        //     {
+        //         _logger.Debug($"ConnectTo: connecting with {route.MatchMakerAddress}:{route.MatchMakerPort}. TimeOut {timeoutMs}");
+        //         var task = new TaskCompletionSource<object>();
+        //         var cancellationTokenSource = new CancellationTokenSource(timeoutMs);
+        //         _clientPeer.OnConnectedToServer = () =>
+        //         {
+        //             _logger.Debug($"ConnectTo: ConnectEvent received");
+        //             if (task.Task.IsCompleted)
+        //                 return;
+        //             task.SetResult(task);
+        //             cancellationTokenSource.Dispose();
+        //         };
+        //         cancellationTokenSource.Token.Register(() =>
+        //         {
+        //             _logger.Debug($"ConnectTo: Timeout token fired...");
+        //             task.TrySetCanceled();
+        //         });
+        //         _clientPeer.Connect(route.MatchMakerAddress, route.MatchMakerPort);
+        //         await (Task) task.Task;
+        //         ping = _clientPeer.GetPing();
+        //     }
+        //     finally
+        //     {
+        //         Disconnect();
+        //     }
+        //
+        //     return ping;//(int) timer.ElapsedMilliseconds;
+        // }
+
         public async Task<int> Ping(Route route, int timeoutMs = 500)
         {
+            int result;
             var timer = Stopwatch.StartNew();
-            var ping = 0;
+
             try
             {
-                _logger.Debug($"ConnectTo: connecting with {route.MatchMakerAddress}:{route.MatchMakerPort}. TimeOut {timeoutMs}");
-                var task = new TaskCompletionSource<object>();
-                var cancellationTokenSource = new CancellationTokenSource(timeoutMs);
-                _clientPeer.OnConnectedToServer = () =>
-                {
-                    _logger.Debug($"ConnectTo: ConnectEvent received");
-                    if (task.Task.IsCompleted)
-                        return;
-                    task.SetResult(task);
-                    cancellationTokenSource.Dispose();
-                };
-                cancellationTokenSource.Token.Register(() =>
-                {
-                    _logger.Debug($"ConnectTo: Timeout token fired...");
-                    task.TrySetCanceled();
-                });
-                _clientPeer.Connect(route.MatchMakerAddress, route.MatchMakerPort);
-                await (Task) task.Task;
-                ping = _clientPeer.GetPing();
+                await ConnectTo(route.MatchMakerAddress, route.MatchMakerPort, timeoutMs);
             }
             finally
             {
+                result = (int)timer.ElapsedMilliseconds;
                 Disconnect();
             }
 
-            return ping;//(int) timer.ElapsedMilliseconds;
+            return result;
         }
 
+        private Task ConnectTo(string address, ushort port, int timeoutMs = 500)
+        {
+            _logger.Debug($"ConnectTo: connecting with {address}:{port}. TimeOut {timeoutMs}");
+            var task = new TaskCompletionSource<object>();
+            var cancellationTokenSource = new CancellationTokenSource(timeoutMs);
+            _clientPeer.OnConnectedToServer = () =>
+            {
+                _logger.Debug($"ConnectTo: ConnectEvent received");
+                if (task.Task.IsCompleted)
+                    return;
+                task.SetResult(task);
+                cancellationTokenSource.Dispose();
+            };
+            cancellationTokenSource.Token.Register(() =>
+            {
+                _logger.Debug($"ConnectTo: Timeout token fired...");
+                task.TrySetCanceled();
+            });
+            _clientPeer.Connect(address, port);
+            return task.Task;
+        }
+        
         public int GetMessagesCountInQueue()
         {
             return _clientPeer.GetMessagesCountInQueue();
