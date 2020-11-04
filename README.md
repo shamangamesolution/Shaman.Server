@@ -23,7 +23,7 @@ Let's talk about Launchers, mentioned above. The way to actually launch it is de
 ### Start
 Let's start a StandAlone Game launcher. We will use our Test Bundle which will be downloaded from here. For the testing we will use our Test Unity client.
  - Launch this command in command prompt and your server will be ready to accept players  
-    docker run -p 23452:23452/udp -p 7004:7004/tcp -d --name=game-standalone-10 -e LauncherSettings__BundleUri=https://github.com/shamangamesolution/Samples/releases/download/v1.12-beta1/test-bundle-v1.12-beta1.zip --log-opt max-size=100m docker.pkg.github.com/shamangamesolution/shaman.server/shaman.server.game.standalone:1.12.1
+    docker run -p 23452:23452/udp -p --name=game-standalone -e LauncherSettings__BundleUri=https://github.com/shamangamesolution/Samples/releases/download/v1.12-beta1/test-bundle-v1.12-beta1.zip --log-opt max-size=100m docker.pkg.github.com/shamangamesolution/shaman.server/shaman.server.game.standalone:1.12.1
  - Download the [unity package](https://github.com/shamangamesolution/Samples/releases/download/v1.12-beta1/test-client-v1.12-beta1.unitypackage) and import it to Unity. By default Test Client will connect to the Standalone Game launcher, located on your localhost. So you need just to press Play and read logs. 
 
 ### Frameworks and tools used for creating and deploying this solution:
