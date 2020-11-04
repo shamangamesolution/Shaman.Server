@@ -22,9 +22,8 @@ Let's talk about Launchers, mentioned above. The way to actually launch it is de
 
 ### Start
 Let's start a StandAlone Game launcher. We will use our Test Bundle which will be downloaded from here. For the testing we will use our Test Unity client.
-Simply launch this command and your server will be ready to accept players
-<docker command>
-Download the unity package and import it to Unity. By default Test Client will connect to the Standalone Game launcher, located on your localhost. So you need just to press Play and read logs. 
+ - Simply launch this command and your server will be ready to accept players <docker command>
+ - Download the unity package and import it to Unity. By default Test Client will connect to the Standalone Game launcher, located on your localhost. So you need just to press Play and read logs. 
 
 ### Frameworks and tools used for creating and deploying this solution:
  - .net Core 2.2 as main platform for all applications
@@ -35,6 +34,7 @@ Download the unity package and import it to Unity. By default Test Client will c
 ### Plan of further development:
  - Fixing bugs and memory leaks (constantly)
  - Updating sample deployment scripts
+ - Creating documentation on all types of Launchers
 
 ### Networking
 
