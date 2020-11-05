@@ -1,3 +1,5 @@
+Visit our [**Discord**](https://discord.gg/FjaYVjFe)
+
 # Shaman server
 C# solution for creating a full functional room-based game server system. 
 
@@ -20,11 +22,11 @@ Let's talk about Launchers, mentioned above. The way to actually launch it is de
  - **Pair** - this launcher is similar to **Separated Game and Matchmaker** launcher, but it works in one container - you can use it in cases where you can share your hardware between Matchmaker and Game server. Also it is good to use locally during the development process - you have to manage just one container.
  - **Balanced Game and Matchmaker** - in this case to **Separated Game and Matchmaker** deployment we add Router which can balance players between several matchmakers. It is the next level of scaling when you need for example some geo regions and players come to a matchmaker located in their region. Also this kind of deployment uses such an entity as Meta server - it is the most complex launcher which can fit any scaling requirement. Also while developing your Bundle you may use so-called Debug Server - it is the fastest way to get into the game and to check your last code update.
 
-### Start
+### Quick Start
 Let's start a StandAlone Game launcher. We will use our Test Bundle which will be downloaded from here. For the testing we will use our Test Unity client.
  - Launch this command in command prompt and your server will be ready to accept players  
 ```docker 
-docker run -p 23452:23452/udp -p --name=game-standalone -e LauncherSettings__BundleUri=https://github.com/shamangamesolution/Samples/releases/download/v1.12-beta1/test-bundle-v1.12-beta1.zip --log-opt max-size=100m docker.pkg.github.com/shamangamesolution/shaman.server/shaman.server.game.standalone:1.12.1
+docker run -p 23452:23452/udp --name=game-standalone -e LauncherSettings__BundleUri=https://github.com/shamangamesolution/Samples/releases/download/v1.12-beta1/test-bundle-v1.12-beta1.zip docker.pkg.github.com/shamangamesolution/shaman.server/shaman.server.game.standalone:1.12.1
 ```
  - Download the [unity package](https://github.com/shamangamesolution/Samples/releases/download/v1.12-beta1/test-client-v1.12-beta1.unitypackage) and import it to Unity. By default Test Client will connect to the Standalone Game launcher, located on your localhost. So you need just to press Play and read logs. 
 
@@ -38,7 +40,26 @@ docker run -p 23452:23452/udp -p --name=game-standalone -e LauncherSettings__Bun
 The Shaman solution was designed to use external network libraries on transport level. Current version uses LiteNet and to use another one you need to create an implementation of IReliableSock interface using any network layer you want. If you use Unity as client for your game (you probably do:)) you will have to copy all client-related sources to Unity project including LiteNet sources - this is because of using some #ifdefs specific for building by Unity. Our current sample project uses compiled libraries - it is enough for the sample, but it is not for your production environment. We will prepare the client sample based on sources instead of libraries soon.
 
 ### Deployment
-The simplest way to deploy Shaman is to use docker to pull and run Shaman itself and put your bundle to an available place (this launch scenario is described in the **Start** section). This repository contains all up-to-date Shaman images for all kinds of launchers. But you can build your own ones using sample scripts from the Deploy folder. You can find scripts for docker images building and for deployment using Ansible - it is extremely helpful when you need to update your servers on several hardware hosts.
+The simplest way to deploy Shaman is to use docker to pull and run Shaman itself and put your bundle to an available place (this launch scenario is described in the **Quick Start** section). This repository contains all up-to-date Shaman images for all kinds of launchers. But you can build your own ones using sample scripts from the Deploy folder. You can find scripts for docker images building and for deployment using Ansible - it is extremely helpful when you need to update your servers on several hardware hosts.
+
+### Create your bundle
+Let's create a simple bundle - it actually does nothing, but it really cool visualizes a workflow. You will need installed Docker for this demo.
+1. Download [EmptyBundle](https://github.com/shamangamesolution/Samples/releases/download/v1.12-beta1/test-client-v1.12-beta1.unitypackage) solution    
+2. Create your game logic inside IRoomController implementation (class RoomController) - something simple for the first time. For example, log when player leaves room (log for join is already there for example)
+```csharp
+public void ProcessPlayerDisconnected(Guid sessionId, PeerDisconnectedReason reason, byte[] reasonPayload)
+{
+    _logger.Error($"Player left room");
+}
+```
+3. Build project EmptyBundle.Bundle and publish it to some folder, for example /dev/MyBundle
+4. Launch a server with following command (you will require the Internet connection for the first run - to download docker image). Pay attention to -v parameter - you must set folder name you used on step 3
+```docker
+docker run -p 23452:23452/udp --name=game-standalone -v /dev/MyBundle/:/bundle -e LauncherSettings__BundleUri=/bundle docker.pkg.github.com/shamangamesolution/shaman.server/shaman.server.game.standalone:1.12.1
+```
+5. Create new project in Unity
+6. Import [this](https://github.com/shamangamesolution/Samples/releases/download/v1.12-beta1/test-client-v1.12-beta1.unitypackage) package to Unity - it contains some libraries and a client code to connect to the server
+7. Press Play in Unity - you should see your logs in the console when player enters and leaves the room
 
 ### Plan of further development:
  - Fixing bugs
@@ -46,5 +67,3 @@ The simplest way to deploy Shaman is to use docker to pull and run Shaman itself
  - Updating sample deployment scripts
  - Creating documentation on all types of Launchers
 
-### Special thanks to:
-*  [ivacbka](https://github.com/ivacbka) - for inspiration and involving me in this
