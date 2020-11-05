@@ -128,7 +128,7 @@ namespace Shaman.Common.Utils.TaskScheduling
             else
                 Interlocked.Decrement(ref _activeTimersCount);
             this._cancelled = true;
-            this._action = (Action) null;
+            this._action = null;
             try
             {
                 _timer?.Change(Timeout.Infinite, Timeout.Infinite);
