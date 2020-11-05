@@ -12,6 +12,7 @@ using Shaman.Router.Data.Repositories;
 
 namespace Shaman.Router.Tests
 {
+    [Ignore("Need DB instance")]
     public class ConfigurationRepositoryTests
     {
         private ConfigurationRepository _rep;

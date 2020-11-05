@@ -11,6 +11,7 @@ namespace Shaman.DAL.MongoDb.Tools.Tests
 
     
     [TestFixture]
+    [Ignore("Need DB instance")]
     public class MongoDbDefaultTests
     {
         private MongoDbConnector _connector;
