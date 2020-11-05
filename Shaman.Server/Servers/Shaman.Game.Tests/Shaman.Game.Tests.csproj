@@ -15,6 +15,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\Launchers\Shaman.Launchers.Game.DebugServer\Shaman.Launchers.Game.DebugServer.csproj" />
       <ProjectReference Include="..\..\Messages\Shaman.Messages\Shaman.Messages.csproj" />
       <ProjectReference Include="..\Shaman.Game\Shaman.Game.csproj" />
     </ItemGroup>
