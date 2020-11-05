@@ -22,14 +22,14 @@ namespace Shaman.Common.Utils.Tests
 
             var counter = 0;
 
-            PendingTask.DurationMonitoringTime(TimeSpan.FromMilliseconds(100));
-            var task = taskScheduler.ScheduleOnInterval(() => counter++, 0, 10, true);
+            PendingTask.DurationMonitoringTime(TimeSpan.FromMilliseconds(200));
+            var task = taskScheduler.ScheduleOnInterval(() => counter++, 0, 100, true);
 
-            await Task.Delay(300);
+            await Task.Delay(500);
             
             mock.Verify(c => c.Error(It.Is<string>(v => v.Contains("SHORT-LIVING"))), Times.Once);
 
-            counter.Should().BeInRange(9, 11);
+            counter.Should().Be(2);
         }
     }
 }
