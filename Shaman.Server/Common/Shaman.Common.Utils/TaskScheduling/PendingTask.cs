@@ -118,8 +118,12 @@ namespace Shaman.Common.Utils.TaskScheduling
             }), (object) null, _firstIntervalInMs, _intervalInMs);
         }
 
+        private int _disposed = 0;
+
         public virtual void Dispose()
         {
+            if (Interlocked.Exchange(ref _disposed, 1) == 1)
+                return;
             if (_isPeriodic)
                 if (_shortLiving)
                     Interlocked.Decrement(ref _activePeriodicSlTimersCount);
