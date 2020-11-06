@@ -52,7 +52,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.TestTools", "Shaman.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Bundling.Tests", "Shaman.Server\Bundling\Shaman.Bundling.Tests\Shaman.Bundling.Tests.csproj", "{5126F62C-1387-4F82-BE3B-FD2BD6F180C5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.MM.Tests", "Shaman.MM.Tests\Shaman.MM.Tests.csproj", "{DE548A44-28DA-4AF1-B6BB-2C24F0D77DD8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.MM.Tests", "Shaman.Server\Tests\Shaman.MM.Tests\Shaman.MM.Tests.csproj", "{DE548A44-28DA-4AF1-B6BB-2C24F0D77DD8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Game.Tests", "Shaman.Server\Servers\Shaman.Game.Tests\Shaman.Game.Tests.csproj", "{9299C868-D953-42BF-B296-BA6C89909C57}"
 EndProject
