@@ -21,7 +21,6 @@ namespace Shaman.Common.Utils.Tests
         public void Setup()
         {
             // to exclude test interferring
-            // Thread.Sleep(100);
             _loggerMock = new Mock<IShamanLogger>();
             _taskScheduler = new TaskScheduler(_loggerMock.Object);
         }
@@ -163,6 +162,16 @@ namespace Shaman.Common.Utils.Tests
                 PendingTask.GetActivePeriodicTimersCount().Should().Be(TaskSchedulerInternalPeriodicTimersCount);
                 PendingTask.GetActivePeriodicSlTimersCount().Should().Be(5);
             }
+        }
+
+        [Test]
+        public async Task ActiveTimerEndsTest()
+        {
+            PendingTask.GetActiveTimersCount().Should().Be(0);
+            _taskScheduler.Schedule(() => { Thread.Sleep(100); }, 10);
+            PendingTask.GetActiveTimersCount().Should().Be(1);
+            await Task.Delay(200);
+            PendingTask.GetActiveTimersCount().Should().Be(0);
         }
 
         [Test]

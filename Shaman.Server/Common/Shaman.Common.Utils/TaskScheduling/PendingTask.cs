@@ -114,6 +114,8 @@ namespace Shaman.Common.Utils.TaskScheduling
                 {
                     Interlocked.Decrement(ref _executingActionsCount);
                     _goneToEnd = true;
+                    if (!_isPeriodic)
+                        Dispose();
                 }
             }), (object) null, _firstIntervalInMs, _intervalInMs);
         }
