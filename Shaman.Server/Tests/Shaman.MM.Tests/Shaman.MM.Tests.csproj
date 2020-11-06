@@ -12,8 +12,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Shaman.Server\Servers\Shaman.MM\Shaman.MM.csproj" />
-      <ProjectReference Include="..\Shaman.Server\Tests\Shaman.TestTools\Shaman.TestTools.csproj" />
+      <ProjectReference Include="..\..\Servers\Shaman.MM\Shaman.MM.csproj" />
+      <ProjectReference Include="..\Shaman.TestTools\Shaman.TestTools.csproj" />
     </ItemGroup>
 
 </Project>
