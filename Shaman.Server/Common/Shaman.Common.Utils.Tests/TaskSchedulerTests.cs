@@ -15,13 +15,15 @@ namespace Shaman.Common.Utils.Tests
     {
         private static readonly int TaskSchedulerInternalPeriodicTimersCount = 2;
         private TaskScheduler _taskScheduler;
+        private Mock<IShamanLogger> _loggerMock;
 
         [SetUp]
         public void Setup()
         {
             // to exclude test interferring
             // Thread.Sleep(100);
-            _taskScheduler = new TaskScheduler(Mock.Of<IShamanLogger>());
+            _loggerMock = new Mock<IShamanLogger>();
+            _taskScheduler = new TaskScheduler(_loggerMock.Object);
         }
 
         [TearDown]
@@ -178,5 +180,30 @@ namespace Shaman.Common.Utils.Tests
             }
             Thread.Sleep(100);// wait task ends
         }
+        
+        [Test]
+        public async Task TestPendingTaskStopping()
+        {
+            _loggerMock.Setup(c => c.Error(It.Is<string>(v => v.Contains("SHORT-LIVING"))));
+
+            var counter = 0;
+
+            try
+            {
+                PendingTask.DurationMonitoringTime(TimeSpan.FromMilliseconds(200));
+                var task = _taskScheduler.ScheduleOnInterval(() => counter++, 0, 100, true);
+
+                await Task.Delay(500);
+
+                _loggerMock.Verify(c => c.Error(It.Is<string>(v => v.Contains("SHORT-LIVING"))), Times.Once);
+            }
+            finally
+            {
+                PendingTask.DurationMonitoringTime(TimeSpan.FromMinutes(15));
+            }
+
+            counter.Should().Be(2);
+        }
+
     }
 }
