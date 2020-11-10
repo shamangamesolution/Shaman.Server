@@ -101,11 +101,17 @@ namespace Shaman.MM.Tests
             Assert.AreEqual(true, room.IsOpen());
             Assert.AreEqual(true, room.CanJoin(5,5));
             //third player
-            var player3 = new MatchMakingPlayer(new FakePeer(), new Dictionary<byte, object> {{FakePropertyCodes.PlayerProperties.GameMode, 1}}, 5);
+            var player3 = new MatchMakingPlayer(new FakePeer(), new Dictionary<byte, object> {{FakePropertyCodes.PlayerProperties.GameMode, 1}}, 1);
             _playersManager.Add(player3, new List<Guid> {_group.Id});
             emptyTask.Wait(1500);
             rooms = _roomManager.GetRooms(_group.Id, false);
-            //player 3 has weight > 1 - so he will go to new room
+            _roomManager.UpdateRoomState(rooms.First().Id, 2, RoomState.Open, 5);
+            //forth player
+            var player4 = new MatchMakingPlayer(new FakePeer(), new Dictionary<byte, object> {{FakePropertyCodes.PlayerProperties.GameMode, 1}}, 4);
+            _playersManager.Add(player4, new List<Guid> {_group.Id});
+            emptyTask.Wait(1500);
+            rooms = _roomManager.GetRooms(_group.Id, false);
+            //player 4 has weight > 1 - so he will go to new room
             Assert.AreEqual(2, rooms.Count());
         }
 
