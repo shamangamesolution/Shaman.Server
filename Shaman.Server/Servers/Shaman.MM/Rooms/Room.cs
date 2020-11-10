@@ -43,7 +43,7 @@ namespace Shaman.MM.Rooms
 
         public bool CanJoin(int sumWeightInList, int maxWeightInList)
         {
-            return IsOpen() && (((TotalWeightNeeded - CurrentWeight) >= sumWeightInList)) && MaxWeightToJoin <= maxWeightInList;
+            return IsOpen() && (((TotalWeightNeeded - CurrentWeight) >= sumWeightInList)) && MaxWeightToJoin >= maxWeightInList;
         }
 
         public void UpdateState(RoomState newState)
