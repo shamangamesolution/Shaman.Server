@@ -61,6 +61,33 @@ docker run -p 23452:23452/udp --name=game-standalone -v /dev/MyBundle/:/bundle -
 6. Import [this](https://github.com/shamangamesolution/Samples/releases/download/v1.12-beta1/test-client-v1.12-beta1.unitypackage) package to Unity - it contains some libraries and a client code to connect to the server
 7. Press Play in Unity - you should see your logs in the console when player enters and leaves the room
 
+### Monitoring
+Shaman uses Graphite as a runtime statistics collector. To deploy Graphite using Docker you may use following comand
+```docker
+docker run -d --name graphite --restart=always -p 80:80 -p 2003-2004:2003-2004 -e “REDIS_TAGDB=true” --log-opt max-size=100m -v /data/graphite/sa/storage:/opt/graphite/storage -v /data/graphite/sa/logs:/var/log graphiteapp/graphite-statsd
+```
+and after that add the following environment variable to the Docker command which runs your Shaman server.
+```docker
+-e Metrics__GraphiteUrl:net.tcp://<name-of-graphite-host>:2003 -e Metrics__Path:samplemetrics -e Metrics__ReportIntervalMs:10000
+```
+You will be able to collect the following metrics (also there are some runtime metrics related to .net perfomance):  
+
+For Game Server  
+ - RoomPeers - number of clients
+ - Rooms - number of rooms
+ - AverageSendQueueSize - average size of the package sending queue among all rooms on the server
+ - MaxSendQueueSize - maximum size of the same queue
+ - RoomLiveTime - how many seconds do your rooms live on the server
+ - RoomMessagesReceived - total messages received by a single room (is reported while room is disposing)
+ - RoomMessagesSent - total messages sent by a single room (is reported while room is disposing)
+ - RoomTrafficReceived - total traffic (in megabytes) received by a single room (is reported while room is disposing)
+ - RoomTrafficSent - total traffic (in megabytes) sent by a single room (is reported while room is disposing)  
+
+For MatchMaker  
+ - MmPeers - number of clients on the MathMaker
+ - MmTime - time spent on matchmaking between moments when a player came to the MatchMaker and left it
+ 
+
 ### Plan of further development:
  - Fixing bugs
  - Creating Client sample based on sources instead of libraries
