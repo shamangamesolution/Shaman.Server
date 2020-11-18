@@ -1,8 +1,4 @@
-using System;
-using System.IO;
-using Microsoft.Extensions.Configuration;
 using Shaman.Contract.Routing;
-using Shaman.Launchers.Common;
 using Shaman.ServiceBootstrap;
 
 namespace Shaman.Launchers.Game
