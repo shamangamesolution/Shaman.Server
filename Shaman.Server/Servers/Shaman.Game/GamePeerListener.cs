@@ -143,10 +143,15 @@ namespace Shaman.Game
 
         protected override void ProcessDisconnectedPeer(GamePeer peer, IDisconnectInfo info)
         {
-            if (_roomManager.IsInRoom(peer.GetSessionId()))
-                _roomManager.PeerDisconnected(peer, info);
-
-            _messageSender.CleanupPeerData(peer);
+            try
+            {
+                if (_roomManager.IsInRoom(peer.GetSessionId()))
+                    _roomManager.PeerDisconnected(peer, info);
+            }
+            finally
+            {
+                _messageSender.CleanupPeerData(peer);
+            }
         }
     }
 }

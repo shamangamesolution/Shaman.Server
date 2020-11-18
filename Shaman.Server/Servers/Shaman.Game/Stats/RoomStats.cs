@@ -117,18 +117,20 @@ namespace Shaman.Game.Stats
 
         public MessageStatistics BuildMessageStatistics()
         {
-            var reliableSet = new HashSet<ushort>(ReliableMessages);
-
-            return new MessageStatistics
+            lock (_syncStat)
             {
-                Sent = MessagesSentCount
-                    .Select(item => new Tuple<ushort, bool, int>(item.Key, reliableSet.Contains(item.Key), item.Value))
-                    .OrderBy(t => t.Item1).ToList(),
+                var reliableSet = new HashSet<ushort>(ReliableMessages);
+                return new MessageStatistics
+                {
+                    Sent = MessagesSentCount
+                        .Select(item => new Tuple<ushort, bool, int>(item.Key, reliableSet.Contains(item.Key), item.Value))
+                        .OrderBy(t => t.Item1).ToList(),
 
-                Received = MessagesReceivedCount
-                    .Select(item => new Tuple<ushort, bool, int>(item.Key, reliableSet.Contains(item.Key), item.Value))
-                    .OrderBy(t => t.Item1).ToList(),
-            };
+                    Received = MessagesReceivedCount
+                        .Select(item => new Tuple<ushort, bool, int>(item.Key, reliableSet.Contains(item.Key), item.Value))
+                        .OrderBy(t => t.Item1).ToList(),
+                };
+            }
         }
 
         public override string ToString()
