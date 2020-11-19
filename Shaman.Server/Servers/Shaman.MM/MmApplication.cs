@@ -13,7 +13,6 @@ using Shaman.MM.MatchMaking;
 using Shaman.MM.Peers;
 using Shaman.MM.Managers;
 using Shaman.MM.Metrics;
-using Shaman.MM.Providers;
 using Shaman.Serialization;
 
 namespace Shaman.MM
@@ -84,6 +83,12 @@ namespace Shaman.MM
             {
                 listener.Initialize(_matchMaker, shamanMessageSender, _roomManager, _matchMakingGroupManager, Config.AuthSecret);
             }
+        }
+
+        protected override void TrackMetrics()
+        {
+            base.TrackMetrics();
+            ServerMetrics.TrackSendersCount(nameof(MmApplication), _packetSender.GetKnownPeersCount());
         }
 
         public override void OnShutDown()
