@@ -45,6 +45,12 @@ namespace Shaman.Common.Metrics
             MeasurementUnit = Unit.None,
         };
         
+        private static readonly HistogramOptions PacketSenderPeers = new HistogramOptions
+        {
+            Name = "PacketSenderPeers",
+            MeasurementUnit = Unit.Items,
+        };
+        
         private readonly ITaskScheduler _taskScheduler;
 
         protected BasicMetrics(IMetricsAgent metricsAgent, ITaskSchedulerFactory taskSchedulerFactory)
@@ -59,6 +65,12 @@ namespace Shaman.Common.Metrics
         {
             Metrics.Measure.Histogram.Update(MaxSendTickDuration, new MetricTags(SendTickTag, listenerTag), maxDurationForSec);
         }
+
+        public void TrackSendersCount(string source, int count)
+        {
+            Metrics.Measure.Histogram.Update(PacketSenderPeers, new MetricTags("SendSource", source), count);
+        }
+
         private void CollectMemoryAndThreadsUsage()
         {
             Metrics.Measure.Histogram.Update(Gen0Collections, GC.CollectionCount(0));

@@ -85,6 +85,12 @@ namespace Shaman.Game
             }
         }
 
+        protected override void TrackMetrics()
+        {
+            base.TrackMetrics();
+            ServerMetrics.TrackSendersCount(nameof(GameApplication), _packetSender.GetKnownPeersCount());
+        }
+
         public override void OnShutDown()
         {
         }
