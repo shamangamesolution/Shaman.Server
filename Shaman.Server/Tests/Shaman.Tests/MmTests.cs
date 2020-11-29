@@ -249,5 +249,33 @@ namespace Shaman.Tests
             Assert.AreEqual(2, stats.CreatedRoomsCount);
 
         }
+
+        [Test]
+        public async Task JoinMaxPlusOne()
+        {
+            RegisterServer();
+            
+            //clients connect
+            _client1.Connect(CLIENT_CONNECTS_TO_IP, MM_SERVER_PORT);
+            _client2.Connect(CLIENT_CONNECTS_TO_IP, MM_SERVER_PORT);
+            _client3.Connect(CLIENT_CONNECTS_TO_IP, MM_SERVER_PORT);
+
+            EmptyTask.Wait(WAIT_TIMEOUT);
+
+            await _client1.Send<EnterMatchMakingResponse>(new EnterMatchMakingRequest(new Dictionary<byte, object> { {FakePropertyCodes.PlayerProperties.Level, 3} }));
+            await _client2.Send<EnterMatchMakingResponse>(new EnterMatchMakingRequest(new Dictionary<byte, object> { {FakePropertyCodes.PlayerProperties.Level, 3} }));
+            await _client3.Send<EnterMatchMakingResponse>(new EnterMatchMakingRequest(new Dictionary<byte, object> { {FakePropertyCodes.PlayerProperties.Level, 3} }));
+            
+            //wait for adding bots and creating room
+            EmptyTask.Wait(1000);
+            
+            await _client1.WaitFor<JoinInfoEvent>(e => e.JoinInfo != null && e.JoinInfo.Status == JoinStatus.RoomIsReady);
+            await _client2.WaitFor<JoinInfoEvent>(e => e.JoinInfo != null && e.JoinInfo.Status == JoinStatus.RoomIsReady);
+            await _client3.WaitFor<JoinInfoEvent>(e => e.JoinInfo != null && e.JoinInfo.Status == JoinStatus.RoomIsReady);
+
+            //check room number
+            var stats = _mmApplication.GetStats();
+            Assert.AreEqual(2, stats.CreatedRoomsCount);
+        }
     }
 }
