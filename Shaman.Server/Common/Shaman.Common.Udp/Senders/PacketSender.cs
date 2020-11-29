@@ -87,7 +87,11 @@ namespace Shaman.Common.Udp.Senders
             if (!_peerToPackets.Any())
                 return 0;
 
-            return (int) (_peerToPackets.Average(p => p.Value.Count));
+            return (int) _peerToPackets.Average(p => p.Value.Count);
+        }
+        public int GetKnownPeersCount()
+        {
+            return _peerToPackets.Count;
         }
 
         private void Send()

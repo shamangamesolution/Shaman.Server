@@ -57,5 +57,9 @@ namespace Shaman.Game.Metrics
         public void TrackSendTickDuration(int maxDurationForSec, string listenerTag)
         {
         }
+
+        public void TrackSendersCount(string source, int count)
+        {
+        }
     }
 }

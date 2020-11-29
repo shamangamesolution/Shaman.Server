@@ -27,7 +27,7 @@ namespace Shaman.Common.Server.Applications
         protected readonly ISerializer Serializer;
         protected readonly ISocketFactory SocketFactory;
         protected readonly IRequestSender RequestSender;
-        private readonly IServerMetrics _serverMetrics;
+        protected readonly IServerMetrics ServerMetrics;
 
         protected ApplicationBase(IShamanLogger logger, IApplicationConfig config, ISerializer serializer,
             ISocketFactory socketFactory, ITaskSchedulerFactory taskSchedulerFactory, IRequestSender requestSender,
@@ -40,7 +40,7 @@ namespace Shaman.Common.Server.Applications
             TaskSchedulerFactory = taskSchedulerFactory;
             TaskScheduler = taskSchedulerFactory.GetTaskScheduler();
             RequestSender = requestSender;
-            _serverMetrics = serverMetrics;
+            ServerMetrics = serverMetrics;
         }
 
         private void Listen()
@@ -91,11 +91,13 @@ namespace Shaman.Common.Server.Applications
             Listen();
 
             // checking GC influence
-            TaskScheduler.ScheduleOnInterval(() =>
-            {
-                for (var i = 0; i < PeerListeners.Count; i++)
-                    _serverMetrics.TrackSendTickDuration(PeerListeners[i].ResetTickDurationStatistics(), i.ToString());
-            }, 1000, 1000);
+            TaskScheduler.ScheduleOnInterval(TrackMetrics, 1000, 1000);
+        }
+
+        protected virtual void TrackMetrics()
+        {
+            for (var i = 0; i < PeerListeners.Count; i++)
+                ServerMetrics.TrackSendTickDuration(PeerListeners[i].ResetTickDurationStatistics(), i.ToString());
         }
 
         public void ShutDown()
