@@ -12,5 +12,6 @@ namespace Shaman.Common.Udp.Senders
         int GetAverageQueueSize();
         void Start(bool shortLiving = false);
         void Stop();
+        int GetKnownPeersCount();
     }
 }
