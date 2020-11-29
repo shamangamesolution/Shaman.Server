@@ -241,14 +241,6 @@ namespace Shaman.Tests
             stats = _gameApplication.GetStats();
             Assert.AreEqual(roomsCount, stats.RoomCount);
             Assert.AreEqual(stats.RoomsPeerCount.Count, stats.RoomCount);
-            
-            //leave room
-//            _clients.ForEach(c => c.Send(new LeaveRoomEvent()));
-//            EmptyTask.Wait(WAIT_TIMEOUT * 300);
-//            
-//            stats = _gameApplication.GetStats();
-//            Assert.AreEqual(0, stats.RoomCount);
-//            Assert.AreEqual(totalPlayersJoined, stats.PeerCount);
 
             //disconnect from server
             _clients.ForEach(c => c.Disconnect());

@@ -31,9 +31,6 @@ namespace Shaman.Tests
 
             if (typeof(T) == typeof(ValidateSessionIdResponse))
                 return new ValidateSessionIdResponse() {ResultCode = ResultCode.OK} as T;
-
-//            if (typeof(T) == typeof(InitializationResponse))
-//                return new InitializationResponse(SerializationRules.AllInfo, new Player(), Guid.NewGuid()) {ResultCode = ResultCode.OK} as T;
             
             return new T();
         }
@@ -48,9 +45,6 @@ namespace Shaman.Tests
                 callback(CreateGetServerInfoListResponse<T>() as T);
             else if (typeof(T) == typeof(ValidateSessionIdResponse))
                 callback(new ValidateSessionIdResponse() {ResultCode = ResultCode.OK} as T);
-//            else         
-//            if (typeof(T) == typeof(InitializationResponse))
-//                callback(new InitializationResponse(SerializationRules.AllInfo, new Player(), Guid.NewGuid()) as T);
             else
                 callback(new T());
         }
@@ -98,12 +92,6 @@ namespace Shaman.Tests
             
             if (typeof(T) == typeof(GetServerInfoListResponse))
                 return FakeSender.CreateGetServerInfoListResponse<T>() as T;;
-
-//            if (typeof(T) == typeof(ValidateSessionIdResponse))
-//                return new ValidateSessionIdResponse() {ResultCode = ResultCode.OK} as T;
-            
-//            if (typeof(T) == typeof(InitializationResponse))
-//                return new InitializationResponse(SerializationRules.AllInfo, new Player(), Guid.NewGuid()) as T;
             
             return new T();
         }
@@ -121,9 +109,6 @@ namespace Shaman.Tests
             else
             if (typeof(T) == typeof(ValidateSessionIdResponse))
                 callback(new ValidateSessionIdResponse() {ResultCode = ResultCode.OK} as T);
-//            else
-//            if (typeof(T) == typeof(InitializationResponse))
-//                callback(new InitializationResponse(SerializationRules.AllInfo, new Player(), Guid.NewGuid()) as T);
             else
                 callback(new T());
         }
