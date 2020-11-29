@@ -226,6 +226,10 @@ namespace Shaman.Client.Peers
             _packetBatchSender = new PacketBatchSender(taskSchedulerFactory, clientPacketSenderConfig, _logger);
             _serverSender = new ServerSender(logger, OnPackageReceived, taskSchedulerFactory.GetTaskScheduler());
             _shamanSender = new ShamanSender(new BinarySerializer(), _packetBatchSender, clientPacketSenderConfig);
+            OnDisconnectedFromServer += s =>
+            {
+                DisconnectActions();
+            };
         }
 
         private void OnPackageReceived(DataPacket packetInfo, Action release)
@@ -261,7 +265,7 @@ namespace Shaman.Client.Peers
             _packetBatchSender.Start(false);
         }
 
-        public void Disconnect()
+        private void DisconnectActions()
         {
             _serverSender.Disconnect();
             _packetBatchSender.Stop();
@@ -269,6 +273,11 @@ namespace Shaman.Client.Peers
             {
                 _packets.Clear();
             }
+        }
+
+        public void Disconnect()
+        {
+            DisconnectActions();
         }
 
         public IPacketInfo PopNextPacket()
