@@ -1,5 +1,5 @@
 {
-	"container_name": "azurio-game",	
+	"container_name": "***REMOVED***io-game",	
 	"docker_image": "shaman.server.game:1.11.0",
 	"http_port":"7004",
 	"listen_ports":"23452",
