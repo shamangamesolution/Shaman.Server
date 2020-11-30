@@ -3,19 +3,18 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
-using Shaman.Common.Utils.Logging;
-using Shaman.Common.Utils.Senders;
+using Shaman.Common.Udp.Senders;
 using Shaman.Common.Utils.TaskScheduling;
+using Shaman.Contract.Bundle;
+using Shaman.Contract.Common.Logging;
 using Shaman.Game;
-using Shaman.Game.Configuration;
-using Shaman.Game.Contract;
 using Shaman.Game.Metrics;
 using Shaman.Game.Rooms;
-using Shaman.ServerSharedUtilities.Backends;
 using Shaman.Tests.GameModeControllers;
 using Shaman.Messages;
 using Shaman.Messages.Authorization;
 using Shaman.Messages.RoomFlow;
+using Shaman.Tests.Helpers;
 using Shaman.TestTools.ClientPeers;
 
 namespace Shaman.Tests
@@ -31,24 +30,20 @@ namespace Shaman.Tests
         
         private GameApplication _gameApplication;
         private TestClientPeer _client1, _client2;
-        private IRequestSender _requestSender;
-        private IBackendProvider _backendProvider;
-        private IRoomManager _roomManager;
-        private IGameModeControllerFactory _gameModeControllerFactory;
-        private IPacketSender _packetSender;
         [SetUp]
         public void Setup()
         {
-            taskSchedulerFactory = new TaskSchedulerFactory(_serverLogger);
-            var config =
-                new GameApplicationConfig("", "", "127.0.0.1", new List<ushort> {SERVER_PORT_1, SERVER_PORT_2}, "", "", 7000);
-            _requestSender = new FakeSender();
-            _backendProvider = new BackendProvider(taskSchedulerFactory, config, _requestSender, _serverLogger);
-            //setup server
-            _gameModeControllerFactory = new FakeGameModeControllerFactory();
-            _packetSender = new PacketBatchSender(taskSchedulerFactory, config, serializer, _serverLogger);
-            _roomManager = new RoomManager(_serverLogger, serializer, config, taskSchedulerFactory,  _gameModeControllerFactory, _packetSender,Mock.Of<IGameMetrics>(), _requestSender, Mock.Of<IRoomStateUpdater>());
-            _gameApplication = new GameApplication(_serverLogger, config, serializer, socketFactory, taskSchedulerFactory, _requestSender, _backendProvider, _roomManager, _packetSender,Mock.Of<IGameMetrics>());
+            // taskSchedulerFactory = new TaskSchedulerFactory(_serverLogger);
+            // var config =
+            //     new GameApplicationConfig("", "", "127.0.0.1", new List<ushort> {SERVER_PORT_1, SERVER_PORT_2}, "", "", 7000);
+            // _requestSender = new FakeSender();
+            // _backendProvider = new BackendProvider(taskSchedulerFactory, config, _requestSender, _serverLogger);
+            // //setup server
+            // _roomControllerFactory = new FakeRoomControllerFactory();
+            // _packetSender = new PacketBatchSender(taskSchedulerFactory, config, _serverLogger);
+            // _roomManager = new RoomManager(_serverLogger, serializer, config, taskSchedulerFactory,  _roomControllerFactory, _packetSender,Mock.Of<IGameMetrics>(), _requestSender);
+            // _gameApplication = new GameApplication(_serverLogger, config, serializer, socketFactory, taskSchedulerFactory, _requestSender, _backendProvider, _roomManager, _packetSender);
+            _gameApplication = InstanceHelper.GetGame(new List<ushort> {SERVER_PORT_1, SERVER_PORT_2});
             _gameApplication.Start();
             
             //setup client
@@ -86,8 +81,9 @@ namespace Shaman.Tests
             stats = _gameApplication.GetStats();
             Assert.AreEqual(2, stats.PeerCount);
             Assert.AreEqual(1, stats.RoomCount);
-            await _client1.Send<AuthorizationResponse>(new AuthorizationRequest(1, Guid.NewGuid()));            
-            await _client2.Send<AuthorizationResponse>(new AuthorizationRequest(1, Guid.NewGuid()));            
+            await _client1.Send<AuthorizationResponse>(new AuthorizationRequest() {SessionId = Guid.NewGuid()});            
+            await _client2.Send<AuthorizationResponse>(new AuthorizationRequest() {SessionId = Guid.NewGuid()});         
+            
             await _client1.Send<JoinRoomResponse>(new JoinRoomRequest(roomId, new Dictionary<byte, object>()));
             await _client2.Send<JoinRoomResponse>(new JoinRoomRequest(roomId, new Dictionary<byte, object>()));
 

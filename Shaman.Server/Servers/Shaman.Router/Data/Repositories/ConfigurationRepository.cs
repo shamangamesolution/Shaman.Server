@@ -2,36 +2,21 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Options;
-using Shaman.Common.Utils.Logging;
-using Shaman.Common.Utils.Messages;
-using Shaman.Common.Utils.Servers;
-using Shaman.DAL.Exceptions;
-using Shaman.DAL.Repositories;
-using Shaman.Messages;
-using Shaman.Messages.General.Entity.Router;
-using Shaman.Router.Config;
+using MySql.Data.MySqlClient;
+using Shaman.Bundling.Common;
+using Shaman.Contract.Routing;
+using Shaman.DAL.SQL.Repositories;
 using Shaman.Router.Data.Repositories.Interfaces;
+using Shaman.Serialization.Messages;
 
 namespace Shaman.Router.Data.Repositories
 {
     public class ConfigurationRepository : RepositoryBase, IConfigurationRepository
     {
+        public ConfigurationRepository(IRouterSqlDalProvider sqlDalProvider) : base(sqlDalProvider.Get())
+        {
+        }
 
-        public ConfigurationRepository(IOptions<RouterConfiguration> config, IShamanLogger logger)
-        {
-            Initialize(config.Value.DbServer, config.Value.DbName, config.Value.DbUser, config.Value.DbPassword,
-                config.Value.DbMaxPoolSize, logger);
-        }
-        
-        private int GetSum(DataTable dt)
-        {
-            if (dt == null || dt.Rows.Count == 0)
-                return 0;
-            
-            return GetInt(dt.Rows[0]["sum"]);
-        }
-        
         private EntityDictionary<ServerInfo> GetServerInfoListFromDataTable(DataTable dt)
         {
             var result = new EntityDictionary<ServerInfo>();
@@ -50,6 +35,7 @@ namespace Shaman.Router.Data.Repositories
                     Region = GetString(dt.Rows[i]["region"]),
                     ActualizedOn = GetNullableDateTime(dt.Rows[i]["actualized_on"]),
                     ClientVersion = GetString(dt.Rows[i]["client_version"]),
+                    PeerCount = GetInt(dt.Rows[i]["peers_count"]),
                     IsApproved = GetBoolean(dt.Rows[i]["is_approved"]),
                     ServerRole = (ServerRole)GetByte(dt.Rows[i]["server_role"]),
                     HttpPort = GetUshort(dt.Rows[i]["http_port"]),
@@ -59,6 +45,7 @@ namespace Shaman.Router.Data.Repositories
 
             return result;
         }
+
         private EntityDictionary<BundleInfo> GetBundleInfoListFromDataTable(DataTable dt)
         {
             var result = new EntityDictionary<BundleInfo>();
@@ -78,13 +65,10 @@ namespace Shaman.Router.Data.Repositories
 
             return result;
         }
-        
+
         public async Task<EntityDictionary<ServerInfo>> GetAllServerInfo()
         {
-            try
-            {
-
-                var sql = $@"SELECT `servers`.`id`,
+            const string getAllServersSql = @"SELECT `servers`.`id`,
                                 `servers`.`address`,
                                 `servers`.`ports`,
                                 `servers`.`server_role`,
@@ -96,74 +80,36 @@ namespace Shaman.Router.Data.Repositories
                                 `servers`.`peers_count`,
                                 `servers`.`http_port`,
                                 `servers`.`https_port`
-                            FROM `{DbName}`.`servers`";
+                            FROM `servers`";
 
-                return GetServerInfoListFromDataTable(await dal.Select(sql));
-            }
-            catch (DalException ex)
-            {
-                LogError($"{typeof(ConfigurationRepository)}.{nameof(this.GetAllServerInfo)}", ex.ToString());
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                LogError($"{typeof(ConfigurationRepository)}.{nameof(this.GetAllServerInfo)}", ex.ToString());
-                throw new DalException(DalExceptionCode.GeneralException, "DAL Exception", ex);
-            }
+            return GetServerInfoListFromDataTable(await Dal.Select(getAllServersSql));
         }
-        
+
         public async Task<EntityDictionary<BundleInfo>> GetBundlesInfo()
         {
-            try
-            {
-
-                var sql = $@"SELECT `bundles`.`id`,
+            const string bundlesInfoSql = @"SELECT `bundles`.`id`,
                                 `bundles`.`server_id`,
                                 `bundles`.`uri`
-                            FROM `{DbName}`.`bundles`";
+                            FROM `bundles`";
 
-                return GetBundleInfoListFromDataTable(await dal.Select(sql));
-            }
-            catch (DalException ex)
-            {
-                LogError($"{typeof(ConfigurationRepository)}.{nameof(this.GetBundlesInfo)}", ex.ToString());
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                LogError($"{typeof(ConfigurationRepository)}.{nameof(this.GetBundlesInfo)}", ex.ToString());
-                throw new DalException(DalExceptionCode.GeneralException, "DAL Exception", ex);
-            }
+            return GetBundleInfoListFromDataTable(await Dal.Select(bundlesInfoSql));
         }
 
         public async Task<List<int>> GetServerId(ServerIdentity identity)
         {
-            try
-            {
-                var sql = $@"SELECT `servers`.`id`, `servers`.`address`, `servers`.`ports` 
-                            FROM `{DbName}`.`servers`
-                            WHERE `servers`.`address` = {Value(identity.Address)} and `servers`.`ports` = {Value(identity.PortsString)}";
+            const string sql = @"SELECT `servers`.`id`, `servers`.`address`, `servers`.`ports` 
+                            FROM `servers`
+                            WHERE `servers`.`address` = ?address and `servers`.`ports` = ?ports";
 
-                return GetIdList(await dal.Select(sql));
-            }
-            catch (DalException ex)
-            {
-                LogError($"{typeof(ConfigurationRepository)}.{nameof(this.GetServerId)}", ex.ToString());
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                LogError($"{typeof(ConfigurationRepository)}.{nameof(this.GetServerId)}", ex.ToString());
-                throw new DalException(DalExceptionCode.GeneralException, "DAL Exception", ex);
-            }
+            return GetIdList(await Dal.Select(sql,
+                new MySqlParameter("?address", identity.Address),
+                new MySqlParameter("?ports", identity.PortsString)
+            ));
         }
 
         public async Task<int> CreateServerInfo(ServerInfo serverInfo)
         {
-            try
-            {
-
-                var sql = $@"INSERT INTO `{DbName}`.`servers`
+            const string sql = @"INSERT INTO `servers`
                                 (`address`,
                                 `ports`,
                                 `server_role`,
@@ -174,55 +120,44 @@ namespace Shaman.Router.Data.Repositories
                                 `http_port`,
                                 `https_port`)
                                 VALUES
-                                ({Value(serverInfo.Address)},
-                                {Value(serverInfo.Ports)},
-                                {Value((byte)serverInfo.ServerRole)},
-                                {Value(serverInfo.Name)},
+                                (?address,
+                                 ?ports,
+                                 ?server_role,
+                                 ?name,
                                 '',
-                                {Value(serverInfo.ClientVersion)},
-                                {Value(serverInfo.ActualizedOn)},
-                                {Value(serverInfo.HttpPort)},
-                                {Value(serverInfo.HttpsPort)})";
+                                ?client_version,
+                                ?actualized_on,
+                                ?http_port,
+                                ?https_port)";
 
-                return (int)(await dal.Insert(sql));
-            }
-            catch (DalException ex)
-            {
-                LogError($"{typeof(ConfigurationRepository)}.{nameof(this.CreateServerInfo)}", ex.ToString());
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                LogError($"{typeof(ConfigurationRepository)}.{nameof(this.CreateServerInfo)}", ex.ToString());
-                throw new DalException(DalExceptionCode.GeneralException, "DAL Exception", ex);
-            }
+            return (int) await Dal.Insert(sql,
+                new MySqlParameter("?address", serverInfo.Address),
+                new MySqlParameter("?ports", serverInfo.Ports),
+                new MySqlParameter("?server_role", serverInfo.ServerRole),
+                new MySqlParameter("?name", serverInfo.Name),
+                new MySqlParameter("?client_version", serverInfo.ClientVersion),
+                new MySqlParameter("?actualized_on", serverInfo.ActualizedOn),
+                new MySqlParameter("?http_port", serverInfo.HttpPort),
+                new MySqlParameter("?Https_port", serverInfo.HttpsPort)
+            );
         }
 
         public async Task UpdateServerInfoActualizedOn(int id, int peerCount, ushort httpPort, ushort httpsPort)
         {
-            try
-            {
-
-                var sql = $@"UPDATE `{DbName}`.`servers`
+            const string sql = @"UPDATE `servers`
                                 SET 
-                                    `servers`.`actualized_on` = {Value(DateTime.UtcNow)}, 
-                                    `servers`.`peers_count` = {Value(peerCount)},
-                                    `servers`.`http_port` = {Value(httpPort)},
-                                    `servers`.`https_port` = {Value(httpsPort)}
-                                WHERE `servers`.`id` = {Value(id)}";
-
-                await dal.Update(sql);
-            }
-            catch (DalException ex)
-            {
-                LogError($"{typeof(ConfigurationRepository)}.{nameof(this.UpdateServerInfoActualizedOn)}", ex.ToString());
-                throw ex;
-            }
-            catch (Exception ex)
-            {
-                LogError($"{typeof(ConfigurationRepository)}.{nameof(this.UpdateServerInfoActualizedOn)}", ex.ToString());
-                throw new DalException(DalExceptionCode.GeneralException, "DAL Exception", ex);
-            }
+                                    `servers`.`actualized_on` = ?date, 
+                                    `servers`.`peers_count` = ?peer_count,
+                                    `servers`.`http_port` = ?http_port,
+                                    `servers`.`https_port` = ?https_port
+                                WHERE `servers`.`id` = ?id";
+            await Dal.Update(sql,
+                new MySqlParameter("?id", id),
+                new MySqlParameter("?date", DateTime.UtcNow),
+                new MySqlParameter("?peer_count", peerCount),
+                new MySqlParameter("?http_port", httpPort),
+                new MySqlParameter("?https_port", httpsPort)
+            );
         }
     }
 }

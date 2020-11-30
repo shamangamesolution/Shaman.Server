@@ -16,6 +16,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\Serialization\Shaman.Serialization\Shaman.Serialization.csproj" />
       <ProjectReference Include="..\Shaman.Common.Utils\Shaman.Common.Utils.csproj" />
     </ItemGroup>
 

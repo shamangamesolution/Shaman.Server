@@ -1,5 +1,5 @@
-using Shaman.Common.Utils.Messages;
-using Shaman.Common.Utils.Serialization;
+using Shaman.Serialization;
+using Shaman.Serialization.Messages.Udp;
 
 namespace Shaman.Messages.General.DTO.Events.RepositorySync
 {
@@ -7,7 +7,7 @@ namespace Shaman.Messages.General.DTO.Events.RepositorySync
     {
         public override bool IsReliable => true;
 
-        public ForceSyncEventBase(ushort operationCode) : base(operationCode)
+        public ForceSyncEventBase(byte operationCode) : base(operationCode)
         {
         }
 

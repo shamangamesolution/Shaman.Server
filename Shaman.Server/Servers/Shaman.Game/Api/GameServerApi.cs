@@ -5,7 +5,7 @@ using Shaman.Game.Rooms;
 
 namespace Shaman.Game.Api
 {
-    class GameServerApi : IGameServerApi
+    public class GameServerApi : IGameServerApi
     {
         private readonly GameApplication _gameApplication;
         private readonly IRoomManager _roomManager;

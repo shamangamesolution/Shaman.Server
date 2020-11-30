@@ -1,9 +1,9 @@
 using System;
 using System.Net;
 using Shaman.Common.Server.Configuration;
-using Shaman.Common.Utils.Logging;
-using Shaman.Common.Utils.Serialization;
-using Shaman.Common.Utils.Sockets;
+using Shaman.Common.Udp.Sockets;
+using Shaman.Contract.Common.Logging;
+using Shaman.Serialization;
 
 namespace Shaman.Common.Server.Peers
 {
@@ -37,12 +37,11 @@ namespace Shaman.Common.Server.Peers
             _socket = socket;
             _logger = logger;
         }
-
+        
         public void Disconnect(ServerDisconnectReason reason)
         {
-            if (reason != ServerDisconnectReason.KickedByServer)
-                _logger.Error($"DEBUG: Peer '{_sessionId}' disconnected {reason}: {Environment.StackTrace}");
-            _socket.DisconnectPeer(_endpoint);
+            var reasonPayload = ServerDisconnectReasonPayloadHelper.GetReasonPayload(reason);
+            _socket.DisconnectPeer(_endpoint, reasonPayload, 0, reasonPayload.Length);
         }
 
 //        public void Send(MessageBase message)

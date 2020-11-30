@@ -1,6 +1,6 @@
 using System;
-using Shaman.Common.Utils.Messages;
-using Shaman.Common.Utils.Serialization;
+using Shaman.Serialization;
+using Shaman.Serialization.Messages.Udp;
 
 namespace Shaman.Messages.General.DTO.Requests
 {
@@ -8,11 +8,10 @@ namespace Shaman.Messages.General.DTO.Requests
     {
 
         public override bool IsReliable => false;
-        public override bool IsBroadcasted => false;
 
         public long SourceTicks { get; set; }
 
-        public PingRequest() : base(CustomOperationCode.PingRequest)
+        public PingRequest() : base(ShamanOperationCode.PingRequest)
         {
             SourceTicks = DateTime.UtcNow.Ticks;
         }

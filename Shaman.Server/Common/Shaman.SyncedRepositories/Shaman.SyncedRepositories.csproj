@@ -3,12 +3,14 @@
     <PropertyGroup>
         <TargetFramework>netcoreapp2.2</TargetFramework>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <PackageVersion>1.8.0</PackageVersion>
+        <PackageVersion>1.12.2</PackageVersion>
+        <RepositoryUrl>https://github.com/shamangamesolution/Shaman.Server</RepositoryUrl>
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\Contracts\Shaman.Contract.Bundle\Shaman.Contract.Bundle.csproj" />
       <ProjectReference Include="..\..\Messages\Shaman.Messages\Shaman.Messages.csproj" />
-      <ProjectReference Include="..\Shaman.Game.Contract\Shaman.Game.Contract.csproj" />
+      <ProjectReference Include="..\..\Serialization\Shaman.Serialization.Room\Shaman.Serialization.Room.csproj" />
     </ItemGroup>
 
 </Project>

@@ -1,10 +1,8 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
-using Shaman.Common.Utils.Configuration;
-using Shaman.Common.Utils.Logging;
-using Shaman.Common.Utils.Senders;
-using Shaman.Common.Utils.Serialization;
-using Shaman.Game.Contract;
+using Shaman.Contract.Bundle;
+using Shaman.Contract.Common.Logging;
+using Shaman.Contract.Routing.Meta;
 
 namespace Shaman.Game.Providers
 {
@@ -17,9 +15,8 @@ namespace Shaman.Game.Providers
             _serviceProvider = serviceProvider;
         }
 
-        public IRequestSender RequestSender => _serviceProvider.GetService<IRequestSender>();
         public IShamanLogger Logger => _serviceProvider.GetService<IShamanLogger>();
-        public ISerializer Serializer => _serviceProvider.GetService<ISerializer>();
-        public IApplicationCoreConfig ApplicationCoreConfig => _serviceProvider.GetService<IApplicationCoreConfig>();
+        public IBundleConfig Config => _serviceProvider.GetService<IBundleConfig>();
+        public IMetaProvider MetaProvider => _serviceProvider.GetService<IMetaProvider>();
     }
 }

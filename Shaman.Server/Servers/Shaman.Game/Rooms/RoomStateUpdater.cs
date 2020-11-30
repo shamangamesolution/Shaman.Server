@@ -1,8 +1,7 @@
 using System;
-using Shaman.Common.Utils.Logging;
-using Shaman.Common.Utils.Senders;
-using Shaman.Game.Contract;
-using Shaman.Messages;
+using System.Threading.Tasks;
+using Shaman.Common.Http;
+using Shaman.Contract.Common.Logging;
 using Shaman.Messages.MM;
 
 namespace Shaman.Game.Rooms
@@ -18,7 +17,7 @@ namespace Shaman.Game.Rooms
             _logger = logger;
         }
 
-        public async void UpdateRoomState(Guid roomId, int roomPlayersCount, RoomState roomState, string matchMakerUrl)
+        public async Task UpdateRoomState(Guid roomId, int roomPlayersCount, RoomState roomState, string matchMakerUrl, int maxMatchMakingWeight)
         {
             try
             {
@@ -29,7 +28,7 @@ namespace Shaman.Game.Rooms
                 }
 
                 await _requestSender.SendRequest<UpdateRoomStateResponse>(matchMakerUrl,
-                    new UpdateRoomStateRequest(roomId, roomPlayersCount, roomState), (r) =>
+                    new UpdateRoomStateRequest(roomId, roomPlayersCount, roomState, maxMatchMakingWeight), (r) =>
                     {
                         if (!r.Success)
                         {

@@ -2,12 +2,12 @@ using System;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Shaman.Common.Utils.Logging;
-using Shaman.Common.Utils.Messages;
-using Shaman.Common.Utils.Serialization;
+using Shaman.Contract.Common.Logging;
 using Shaman.Game.Api;
 using Shaman.Game.Extensions;
 using Shaman.Messages.RoomFlow;
+using Shaman.Serialization;
+using Shaman.Serialization.Messages;
 
 namespace Shaman.Game.Controllers
 {
@@ -53,7 +53,6 @@ namespace Shaman.Game.Controllers
             }
             
             return new FileContentResult(_serializer.Serialize(response), "text/html");
-
         }
         
         [HttpPost("canjoinroom")]

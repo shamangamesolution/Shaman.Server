@@ -4,15 +4,20 @@
         <LangVersion>default</LangVersion>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <PackageVersion>1.8.0</PackageVersion>
+        <PackageVersion>1.12.3</PackageVersion>
+        <RepositoryUrl>https://github.com/shamangamesolution/Shaman.Server</RepositoryUrl>
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\Contracts\Shaman.Contract.Routing.Balancing\Shaman.Contract.Routing.Balancing.csproj" />
+      <ProjectReference Include="..\..\Contracts\Shaman.Contract.Routing\Shaman.Contract.Routing.csproj" />
       <ProjectReference Include="..\..\Messages\Shaman.Messages\Shaman.Messages.csproj" />
       <ProjectReference Include="..\..\Network\Shaman.LiteNetLibAdapter\Shaman.LiteNetLibAdapter.csproj" />
+      <ProjectReference Include="..\..\Routing\Shaman.Routing.Balancing.Messages\Shaman.Routing.Balancing.Messages.csproj" />
     </ItemGroup>
 
     <ItemGroup>
+
     </ItemGroup>
 
 </Project>

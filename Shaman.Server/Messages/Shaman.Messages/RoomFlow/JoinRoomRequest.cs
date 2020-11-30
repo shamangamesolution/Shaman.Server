@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
-using Shaman.Common.Utils.Messages;
-using Shaman.Common.Utils.Serialization;
+using Shaman.Messages.Helpers;
+using Shaman.Serialization;
+using Shaman.Serialization.Messages.Udp;
 
 namespace Shaman.Messages.RoomFlow
 {
@@ -11,14 +12,14 @@ namespace Shaman.Messages.RoomFlow
         public Dictionary<byte, object> Properties { get; set; }
         
         public JoinRoomRequest(Guid roomId, Dictionary<byte, object> properties) 
-            : base(Messages.CustomOperationCode.JoinRoom)
+            : base(Messages.ShamanOperationCode.JoinRoom)
         {
             this.RoomId = roomId;
             this.Properties = properties;
         }
 
         public JoinRoomRequest() 
-            : base(Messages.CustomOperationCode.JoinRoom)
+            : base(Messages.ShamanOperationCode.JoinRoom)
         {
         }
 

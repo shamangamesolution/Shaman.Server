@@ -2,13 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Shaman.Common.Utils.Messages;
-using Shaman.Common.Utils.Senders;
-using Shaman.Common.Utils.Servers;
-using Shaman.Messages;
-using Shaman.Messages.General.Entity.Router;
+using Shaman.Common.Http;
+using Shaman.Contract.Routing;
+using Shaman.Contract.Routing.MM;
 using Shaman.Messages.RoomFlow;
-using Shaman.MM.Providers;
+using Shaman.Serialization.Messages;
 
 namespace Shaman.Tests.Providers
 {
@@ -56,6 +54,11 @@ namespace Shaman.Tests.Providers
         public ServerInfo GetLessLoadedServer()
         {
             return servers.FirstOrDefault();
+        }
+
+        public void AddServer(ServerInfo serverInfo)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task<Guid> CreateRoom(int serverId, Guid roomId, Dictionary<byte, object> properties,

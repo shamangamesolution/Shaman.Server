@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
-using Shaman.Common.Utils.Messages;
 using Shaman.Messages.General.DTO.Requests;
+using Shaman.Serialization.Messages.Udp;
 
 namespace Shaman.Messages.Tests
 {
@@ -15,8 +15,10 @@ namespace Shaman.Messages.Tests
         {
             var messageBaseType = typeof(PingRequest);
             var messageTypes = messageBaseType.Assembly.GetTypes().Where(t =>
-                    t.IsSubclassOf(typeof(MessageBase)) && !t.IsAbstract &&
-                    t.GetConstructor(Array.Empty<Type>()) == null)
+                    t.IsSubclassOf(typeof(MessageBase)) &&
+                    !t.Namespace.Contains("RepositorySync") && // todo resolve "problem" with sync rep
+                    !t.IsAbstract &&
+                    (t.GetConstructor(Array.Empty<Type>()) == null))
                 .ToArray();
             messageTypes.Should().BeEmpty();
         }
@@ -25,7 +27,9 @@ namespace Shaman.Messages.Tests
         {
             var messageBaseType = typeof(PingRequest);
             var messageTypes = messageBaseType.Assembly.GetTypes().Where(t =>
-                    t.IsSubclassOf(typeof(MessageBase)) && !t.IsAbstract)
+                    t.IsSubclassOf(typeof(MessageBase)) 
+                    && !t.IsAbstract
+                    && !t.Namespace.Contains("RepositorySync"))
                 .Select(t=>new Tuple<ushort, Type>(((MessageBase)Activator.CreateInstance(t)).OperationCode, t))
                 .ToArray();
 

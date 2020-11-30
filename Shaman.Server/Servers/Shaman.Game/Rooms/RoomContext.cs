@@ -1,17 +1,18 @@
 using System;
 using Shaman.Common.Server.Peers;
-using Shaman.Common.Utils.Messages;
-using Shaman.Game.Contract;
+using Shaman.Contract.Bundle;
 
 namespace Shaman.Game.Rooms
 {
     public class RoomContext : IRoomContext
     {
         private readonly IRoom _room;
+        private readonly RoomSenderProxy _roomSender;
 
         public RoomContext(IRoom room)
         {
             _room = room;
+            _roomSender = new RoomSenderProxy(room);
         }
 
         public Guid GetRoomId()
@@ -19,25 +20,15 @@ namespace Shaman.Game.Rooms
             return _room.GetRoomId();
         }
 
-        public int SendToAll(MessageBase message, params Guid[] exceptions)
-        {
-            return _room.SendToAll(message, exceptions);
-        }
-
-        public int AddToSendQueue(MessageBase message, Guid sessionId)
-        {
-            return _room.AddToSendQueue(message, sessionId);
-        }
-
         public void KickPlayer(Guid sessionId)
         {
-            _room.GetPlayer(sessionId).Peer.Disconnect(ServerDisconnectReason.KickedByServer);
+            if (_room.TryGetPlayer(sessionId, out var player))
+                player.Peer.Disconnect(ServerDisconnectReason.KickedByServer);
         }
-        
-        public void SendToAll(MessageData messageData, ushort opCode, bool isReliable, bool isOrdered,
-            params Guid[] exceptions)
+
+        public IRoomSender GetSender()
         {
-            _room.SendToAll(messageData, opCode, isReliable, isOrdered, exceptions);
+            return _roomSender;
         }
 
         public void Open()
@@ -48,6 +39,10 @@ namespace Shaman.Game.Rooms
         public void Close()
         {
             _room.Close();
+        }
+        public void Dispose()
+        {
+            _room.InvalidateRoom();
         }
     }
 }

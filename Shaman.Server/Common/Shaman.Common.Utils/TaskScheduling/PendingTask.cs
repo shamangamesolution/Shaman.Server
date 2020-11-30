@@ -1,10 +1,11 @@
 using System;
 using System.Threading;
-using Shaman.Common.Utils.Logging;
+using Shaman.Contract.Common;
+using Shaman.Contract.Common.Logging;
 
 namespace Shaman.Common.Utils.TaskScheduling
 {
-    public class PendingTask : IDisposable
+    public class PendingTask : IPendingTask
     {
         private readonly long _firstIntervalInMs;
         private readonly long _intervalInMs;
@@ -24,6 +25,7 @@ namespace Shaman.Common.Utils.TaskScheduling
         private static int _executingActionsCount;
 
         public static int GetActiveTimersCount()
+        
         {
             return _activeTimersCount;
         }
@@ -112,12 +114,18 @@ namespace Shaman.Common.Utils.TaskScheduling
                 {
                     Interlocked.Decrement(ref _executingActionsCount);
                     _goneToEnd = true;
+                    if (!_isPeriodic)
+                        Dispose();
                 }
             }), (object) null, _firstIntervalInMs, _intervalInMs);
         }
 
+        private int _disposed = 0;
+
         public virtual void Dispose()
         {
+            if (Interlocked.Exchange(ref _disposed, 1) == 1)
+                return;
             if (_isPeriodic)
                 if (_shortLiving)
                     Interlocked.Decrement(ref _activePeriodicSlTimersCount);
@@ -126,7 +134,7 @@ namespace Shaman.Common.Utils.TaskScheduling
             else
                 Interlocked.Decrement(ref _activeTimersCount);
             this._cancelled = true;
-            this._action = (Action) null;
+            this._action = null;
             try
             {
                 _timer?.Change(Timeout.Infinite, Timeout.Infinite);

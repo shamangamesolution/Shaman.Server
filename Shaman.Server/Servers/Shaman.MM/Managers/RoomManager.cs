@@ -3,10 +3,14 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Shaman.Common.Utils.Logging;
+using Shaman.Common.Utils.Helpers;
 using Shaman.Common.Utils.TaskScheduling;
+using Shaman.Contract.Common;
+using Shaman.Contract.Common.Logging;
+using Shaman.Contract.Routing;
+using Shaman.Contract.Routing.MM;
 using Shaman.Messages;
-using Shaman.Messages.General.Entity.Router;
+using Shaman.Messages.General.Entity;
 using Shaman.Messages.MM;
 using Shaman.MM.Providers;
 using Shaman.MM.Rooms;
@@ -18,19 +22,22 @@ namespace Shaman.MM.Managers
         private readonly IMatchMakerServerInfoProvider _serverProvider;
         private readonly IShamanLogger _logger;
         private readonly ITaskScheduler _taskScheduler;
+        private readonly IRoomApiProvider _roomApiProvider;
         
         private readonly ConcurrentDictionary<Guid, Room> _rooms = new ConcurrentDictionary<Guid, Room>();
         private readonly ConcurrentDictionary<Guid, List<Room>> _groupToRoom = new ConcurrentDictionary<Guid, List<Room>>();
         private readonly ConcurrentDictionary<Guid, Guid> _roomToGroupId = new ConcurrentDictionary<Guid, Guid>();
         private readonly Queue<Room> _roomsQueue = new Queue<Room>();
-        private PendingTask _clearTask, _closeTask;
+        private IPendingTask _clearTask, _closeTask;
         
         private readonly object _roomQueueSync = new object();
 
-        public RoomManager(IMatchMakerServerInfoProvider serverProvider, IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory)
+        public RoomManager(IMatchMakerServerInfoProvider serverProvider, IShamanLogger logger,
+            ITaskSchedulerFactory taskSchedulerFactory, IRoomApiProvider roomApiProvider)
         {
             _serverProvider = serverProvider;
             _logger = logger;
+            _roomApiProvider = roomApiProvider;
             _taskScheduler = taskSchedulerFactory.GetTaskScheduler();
         }
 
@@ -58,7 +65,8 @@ namespace Shaman.MM.Managers
             var room = RegisterRoom(groupId, roomProperties, Guid.NewGuid(), server, playersToSendToRoom);
             try
             {
-                await _serverProvider.CreateRoom(server.Id, room.Id, roomProperties, playersToSendToRoom);
+                var url = UrlHelper.GetUrl(server.HttpPort, server.HttpsPort, server.Address);
+                await _roomApiProvider.CreateRoom(url, room.Id, roomProperties, playersToSendToRoom);
 
                 //add to queue
                 lock (_roomQueueSync)
@@ -76,16 +84,19 @@ namespace Shaman.MM.Managers
             }
         }
 
+
+        
         private Room RegisterRoom(Guid groupId, Dictionary<byte, object> roomProperties, Guid roomId, ServerInfo server,
             Dictionary<Guid, Dictionary<byte, object>> playersToSendToRoom)
         {
             //create room to allow joining during game
             if (!roomProperties.TryGetValue(PropertyCode.RoomProperties.TotalPlayersNeeded, out var totalPlayersProperty))
                 throw new Exception($"MatchMakingGroup ctr error: there is no TotalPlayersNeeded property");
-
-            var createdRoom = new Room(roomId, (int) totalPlayersProperty, server.Id, roomProperties);
-            createdRoom.UpdateState(RoomState.Closed);
-            createdRoom.AddPlayers(playersToSendToRoom.Count);
+            
+            var createdRoom = new Room(roomId, (int) totalPlayersProperty, server.Id, roomProperties,
+                playersToSendToRoom.Count, RoomState.Closed);
+            // createdRoom.UpdateState(RoomState.Closed);
+            // createdRoom.AddPlayers(playersToSendToRoom.Count);
 
             //add to main collection
             _rooms.TryAdd(roomId, createdRoom);
@@ -99,11 +110,11 @@ namespace Shaman.MM.Managers
             return createdRoom;
         }
 
-        public async Task<JoinRoomResult> JoinRoom(Guid roomId, Dictionary<Guid, Dictionary<byte, object>> players)
+        public async Task<JoinRoomResult> JoinRoom(Guid roomId, Dictionary<Guid, Dictionary<byte, object>> players, int maxWeightInList, int totalWeightInList)
         {
             var room = _rooms[roomId];
 
-            if (!room.CanJoin(players.Count))
+            if (!room.CanJoin(totalWeightInList, maxWeightInList))
                 return new JoinRoomResult() {Result = RoomOperationResult.JoinRoomError};
             
             //update room with new players data
@@ -113,13 +124,15 @@ namespace Shaman.MM.Managers
 
             try
             {
-                await _serverProvider.UpdateRoom(room.ServerId, players, roomId);
+                var url = UrlHelper.GetUrl(server.HttpPort, server.HttpsPort, server.Address);
+                await _roomApiProvider.UpdateRoom(url, players, roomId);
             
                 var port = server.GetLessLoadedPort();
             
                 //add new players to room
-                room.AddPlayers(players.Count);
-            
+                // room.AddPlayers(players.Count);
+                room.Update(RoomState.Closed, room.CurrentWeight + players.Count);
+                
                 return new JoinRoomResult {Address = server.Address, Port = port, RoomId = roomId, Result = RoomOperationResult.OK};
             }
             catch
@@ -128,7 +141,7 @@ namespace Shaman.MM.Managers
             }
         }
 
-        public void UpdateRoomState(Guid roomId, int currentPlayers, RoomState roomState)
+        public void UpdateRoomState(Guid roomId, int currentPlayers, RoomState roomState, int currentMaxWeight)
         {
             var room = GetRoom(roomId);
             if (room == null)
@@ -137,17 +150,21 @@ namespace Shaman.MM.Managers
                 return;
             }
 
-            room.CurrentPlayersCount = currentPlayers;
+            room.MaxWeightToJoin = currentMaxWeight;
+            room.CurrentWeight = currentPlayers;
             room.UpdateState(roomState);
             _logger.Debug($"Update received: {roomId} State {roomState}");
         }
 
-        public Room GetRoom(Guid groupId, int playersCount)
+        public Room GetRoom(Guid groupId, int playersCount, int maxWeightInPlayerList, int totalWeightOnPlayerList)
         {
+            if (maxWeightInPlayerList > 1)
+                return null;
+            
             if (!_groupToRoom.ContainsKey(groupId))
                 return null;
             
-            return _groupToRoom[groupId].FirstOrDefault(r => r.CanJoin(playersCount));
+            return _groupToRoom[groupId].FirstOrDefault(r => r.CanJoin(totalWeightOnPlayerList, maxWeightInPlayerList));
         }
 
         public Room GetRoom(Guid roomId)

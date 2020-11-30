@@ -1,14 +1,16 @@
 using System;
 using System.Collections.Generic;
-using Shaman.Common.Utils.Messages;
-using Shaman.Common.Utils.Serialization;
+using Shaman.Messages.Helpers;
+using Shaman.Serialization;
+using Shaman.Serialization.Messages;
 
 namespace Shaman.Messages.MM
 {
     public enum RoomState : byte
     {
         Open,
-        Closed
+        Closed,
+        Disposed
     }
     
     public class RoomInfo : EntityBase

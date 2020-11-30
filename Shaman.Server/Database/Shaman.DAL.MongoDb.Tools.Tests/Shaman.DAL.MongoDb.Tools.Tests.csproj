@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp2.2</TargetFramework>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.4.0" />
+        <PackageReference Include="Moq" Version="4.13.1" />
+        <PackageReference Include="NUnit" Version="3.12.0" />
+        <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
+        <PackageReference Include="Shaman.DAL.MongoDb" Version="1.11.0" />
+    </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\..\Serialization\Shaman.Serialization.Messages\Shaman.Serialization.Messages.csproj" />
+      <ProjectReference Include="..\Shaman.DAL.MongoDb.Tools\Shaman.DAL.MongoDb.Tools.csproj" />
+    </ItemGroup>
+</Project>

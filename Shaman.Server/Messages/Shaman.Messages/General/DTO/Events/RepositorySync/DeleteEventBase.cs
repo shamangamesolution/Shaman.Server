@@ -1,7 +1,8 @@
 using System.Collections.Generic;
-using Shaman.Common.Utils.Messages;
-using Shaman.Common.Utils.Serialization;
 using Shaman.Messages.General.Entity;
+using Shaman.Serialization;
+using Shaman.Serialization.Extensions;
+using Shaman.Serialization.Messages.Udp;
 
 namespace Shaman.Messages.General.DTO.Events.RepositorySync
 {
@@ -11,7 +12,7 @@ namespace Shaman.Messages.General.DTO.Events.RepositorySync
         public List<DeletedInfo> DeletedInfoList { get; set; }
         public int ChangeId { get; set; }
         
-        public DeleteEventBase(ushort operationCode, List<DeletedInfo> deletedInfoList, int changeId)
+        public DeleteEventBase(byte operationCode, List<DeletedInfo> deletedInfoList, int changeId)
             :this(operationCode)
         {
             DeletedInfoList = deletedInfoList;
@@ -19,7 +20,7 @@ namespace Shaman.Messages.General.DTO.Events.RepositorySync
 
         }
         
-        public DeleteEventBase(ushort operationCode) : base(operationCode)
+        public DeleteEventBase(byte operationCode) : base(operationCode)
         {
         }
 

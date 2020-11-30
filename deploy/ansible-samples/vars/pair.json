@@ -1,0 +1,12 @@
+{
+	"error_level": "Error",
+	"loggly_token": "<your-loggly-token>",
+	"graphite_url": "<your-graphite-address>",
+	"metrics_path_prefix": "<prefix-for-graphite-metrics>",
+	"container_name": "pair",	
+	"docker_repository": "shamangamesolution/shaman.server",
+	"overwriteDownloadedBundle": true,
+	"server_version": "1.10.0",
+	"docker_image": "pair-1-10-0",
+	"bundle_uri": "<http-address-of-your-zipped-bundle>"
+}

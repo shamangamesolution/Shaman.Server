@@ -1,24 +1,24 @@
 using System;
-using Shaman.Common.Utils.Messages;
-using Shaman.Common.Utils.Serialization;
+using Shaman.Serialization;
+using Shaman.Serialization.Messages.Http;
 
 namespace Shaman.Messages.MM
 {
     public class RoomInfoResponse : HttpResponseBase
     {
         public DateTime CreatedDate { get; set; }
-        public bool IsOpen { get; set; }
+        public RoomState State { get; set; }
 
         protected override void SerializeResponseBody(ITypeWriter typeWriter)
         {
             typeWriter.Write(CreatedDate);
-            typeWriter.Write(IsOpen);
+            typeWriter.Write((byte)State);
         }
 
         protected override void DeserializeResponseBody(ITypeReader typeReader)
         {
             CreatedDate = typeReader.ReadDate();
-            IsOpen = typeReader.ReadBool();
+            State = (RoomState) typeReader.ReadByte();
         }
     }
 }

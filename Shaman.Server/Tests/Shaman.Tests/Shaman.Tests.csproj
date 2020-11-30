@@ -5,12 +5,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Shaman.TestTools\Shaman.TestTools.csproj" />
       <ProjectReference Include="..\..\Common\Shaman.Common.Server\Shaman.Common.Server.csproj" />
       <ProjectReference Include="..\..\Clients\Shaman.Client\Shaman.Client.csproj" />
+      <ProjectReference Include="..\..\Serialization\Shaman.Serialization.Room\Shaman.Serialization.Room.csproj" />
       <ProjectReference Include="..\..\Servers\Shaman.Game\Shaman.Game.csproj" />
       <ProjectReference Include="..\..\Messages\Shaman.Messages\Shaman.Messages.csproj" />
       <ProjectReference Include="..\..\Servers\Shaman.MM\Shaman.MM.csproj" />
+      <ProjectReference Include="..\Shaman.TestTools\Shaman.TestTools.csproj" />
     </ItemGroup>
 
     <ItemGroup>

@@ -4,13 +4,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using Shaman.Common.Utils.Logging;
-using Shaman.Common.Utils.Messages;
+using Shaman.Bundling.Common;
 using Shaman.Common.Utils.TaskScheduling;
-using Shaman.Messages;
-using Shaman.Messages.General.Entity.Router;
+using Shaman.Contract.Common;
+using Shaman.Contract.Common.Logging;
+using Shaman.Contract.Routing;
 using Shaman.Router.Config;
 using Shaman.Router.Data.Repositories.Interfaces;
+using Shaman.Serialization.Messages;
 
 namespace Shaman.Router.Data.Providers
 {
@@ -47,9 +48,15 @@ namespace Shaman.Router.Data.Providers
 
                 _isRequestingNow = true;
 
-                await LoadConfig();
+                try
+                {
+                    await LoadConfig();
+                }
+                finally
+                {
+                    _isRequestingNow = false;
+                }
 
-                _isRequestingNow = false;
                 _logger.Info($"Received {_serverList.Count()} server info records");
                 
             }, _config.Value.ServerInfoListUpdateIntervalMs, _config.Value.ServerInfoListUpdateIntervalMs);

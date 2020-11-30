@@ -1,12 +1,14 @@
 using System.Collections.Generic;
 using System.Linq;
+using Shaman.Common.Http;
+using Shaman.Common.Metrics;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Server.Peers;
-using Shaman.Common.Utils.Logging;
-using Shaman.Common.Utils.Senders;
-using Shaman.Common.Utils.Serialization;
-using Shaman.Common.Utils.Sockets;
+using Shaman.Common.Udp.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
+using Shaman.Contract.Common;
+using Shaman.Contract.Common.Logging;
+using Shaman.Serialization;
 
 namespace Shaman.Common.Server.Applications
 {
@@ -25,7 +27,7 @@ namespace Shaman.Common.Server.Applications
         protected readonly ISerializer Serializer;
         protected readonly ISocketFactory SocketFactory;
         protected readonly IRequestSender RequestSender;
-        private readonly IServerMetrics _serverMetrics;
+        protected readonly IServerMetrics ServerMetrics;
 
         protected ApplicationBase(IShamanLogger logger, IApplicationConfig config, ISerializer serializer,
             ISocketFactory socketFactory, ITaskSchedulerFactory taskSchedulerFactory, IRequestSender requestSender,
@@ -38,7 +40,7 @@ namespace Shaman.Common.Server.Applications
             TaskSchedulerFactory = taskSchedulerFactory;
             TaskScheduler = taskSchedulerFactory.GetTaskScheduler();
             RequestSender = requestSender;
-            _serverMetrics = serverMetrics;
+            ServerMetrics = serverMetrics;
         }
 
         private void Listen()
@@ -73,7 +75,7 @@ namespace Shaman.Common.Server.Applications
 //            Serializer.InitializeDefaultSerializers(8, $"Simple{this.GetType()}Buffer");
             Logger.Debug($"Serializer factory initialized as {Serializer.GetType()}");
             //initialize listener
-            foreach (var port in Config.GetListenPorts())
+            foreach (var port in Config.ListenPorts)
             {
                 var peerListener = new TL();
                 peerListener.Initialize(Logger, PeerCollection, Serializer, Config, TaskSchedulerFactory, port, SocketFactory, RequestSender);
@@ -89,11 +91,13 @@ namespace Shaman.Common.Server.Applications
             Listen();
 
             // checking GC influence
-            TaskScheduler.ScheduleOnInterval(() =>
-            {
-                for (var i = 0; i < PeerListeners.Count; i++)
-                    _serverMetrics.TrackSendTickDuration(PeerListeners[i].ResetTickDurationStatistics(), i.ToString());
-            }, 1000, 1000);
+            TaskScheduler.ScheduleOnInterval(TrackMetrics, 1000, 1000);
+        }
+
+        protected virtual void TrackMetrics()
+        {
+            for (var i = 0; i < PeerListeners.Count; i++)
+                ServerMetrics.TrackSendTickDuration(PeerListeners[i].ResetTickDurationStatistics(), i.ToString());
         }
 
         public void ShutDown()

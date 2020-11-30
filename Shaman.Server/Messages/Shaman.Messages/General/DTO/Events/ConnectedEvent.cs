@@ -1,16 +1,14 @@
-using Shaman.Common.Utils.Messages;
-using Shaman.Common.Utils.Serialization;
+using Shaman.Serialization;
+using Shaman.Serialization.Messages.Udp;
 
 namespace Shaman.Messages.General.DTO.Events
 {
     public class ConnectedEvent : EventBase
     {
         public override bool IsReliable => true;
-        public override bool IsBroadcasted => false;
-
         
         public ConnectedEvent()
-            : base(Messages.CustomOperationCode.Connect)
+            : base(Messages.ShamanOperationCode.Connect)
         {
             
         }

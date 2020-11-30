@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageVersion>1.12.2</PackageVersion>
+        <RepositoryUrl>https://github.com/shamangamesolution/Shaman.Server</RepositoryUrl>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Shaman.Contract.Common\Shaman.Contract.Common.csproj" />
+        <ProjectReference Include="..\Shaman.Contract.Routing.Meta\Shaman.Contract.Routing.Meta.csproj" />
+    </ItemGroup>
+</Project>

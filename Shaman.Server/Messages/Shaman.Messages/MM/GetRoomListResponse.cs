@@ -1,6 +1,7 @@
 using System.Collections.Generic;
-using Shaman.Common.Utils.Messages;
-using Shaman.Common.Utils.Serialization;
+using Shaman.Serialization;
+using Shaman.Serialization.Extensions;
+using Shaman.Serialization.Messages.Udp;
 
 namespace Shaman.Messages.MM
 {
@@ -8,7 +9,7 @@ namespace Shaman.Messages.MM
     {
         public List<RoomInfo> Rooms { get; set; }
 
-        public GetRoomListResponse() : base(Messages.CustomOperationCode.GetRoomListResponse)
+        public GetRoomListResponse() : base(Messages.ShamanOperationCode.GetRoomListResponse)
         {
             
         }

@@ -4,18 +4,16 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using Shaman.Common.Utils.Logging;
-using Shaman.Common.Utils.Serialization;
-using Shaman.Messages;
-using Shaman.Messages.General.DTO.Requests.Router;
-using Shaman.Messages.General.DTO.Responses.Router;
-using Shaman.Messages.General.Entity.Router;
+using Shaman.Common.Http;
+using Shaman.Contract.Common.Logging;
+using Shaman.Contract.Routing;
 using Shaman.Router.Config;
 using Shaman.Router.Data.Repositories.Interfaces;
 using Shaman.Router.Models;
-using Shaman.Messages.MM;
 using Shaman.Router.Data.Providers;
-using Shaman.ServerSharedUtilities.Extensions;
+using Shaman.Routing.Balancing.Messages;
+using Shaman.Serialization;
+using Shaman.Serialization.Messages;
 
 namespace Shaman.Router.Controllers
 {
@@ -89,7 +87,6 @@ namespace Shaman.Router.Controllers
                 {
                     throw new Exception($"No server found with specified identity: {request.ServerIdentity}");
                 }
-
                 var bundleInfo = _serverInfoProvider.GetAllBundles().SingleOrDefault(b => b.ServerId == serverInfoIdList.First());
                 if (bundleInfo == null)
                 {

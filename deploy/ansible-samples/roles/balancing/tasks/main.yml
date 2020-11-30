@@ -1,0 +1,27 @@
+---
+  - shell: dig @ns1.google.com ANY o-o.myaddr.l.google.com +short | tr -d '"'
+    register: public_ip_res
+  - set_fact:
+      public_ip={{public_ip_res.stdout}}
+  - debug: msg="Public IP = {{public_ip}}"
+  - template:
+      src: env.j2
+      dest: shaman.env.{{container_name}}.list
+  - name: Login
+    shell: "cat ~/.github/shaman-pat | docker login https://docker.pkg.github.com -u shamangamesolution --password-stdin"
+    register: res
+  - name: Pulling image
+    shell: "docker pull {{docker_repository}}/{{docker_image}}"
+    register: res
+  - debug: msg="{{res.stdout}}"
+  - name: Stop {{container_name}} container
+    shell: "docker stop {{container_name}} || true"
+    register: res
+  - name: Remove {{container_name}} container
+    shell: "docker rm {{container_name}} || true"
+    register: res
+  - debug: msg="{{res.stdout}}"    
+  - name: Run {{container_name}} container
+    shell: "docker run -d --net=host --name={{container_name}} --env-file ~/shaman.env.{{container_name}}.list --log-opt max-size=100m {{docker_repository}}/{{docker_image}}"
+    register: res
+  - debug: msg="{{res.stdout}}"

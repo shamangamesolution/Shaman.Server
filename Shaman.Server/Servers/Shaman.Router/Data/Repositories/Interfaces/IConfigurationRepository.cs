@@ -1,11 +1,8 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Shaman.Common.Server.Configuration;
-using Shaman.Common.Utils.Servers;
-using Shaman.Messages;
-using Shaman.Messages.General.Entity;
-using Shaman.Messages.General.Entity.Router;
-using Shaman.Messages.MM;
+using Shaman.Bundling.Common;
+using Shaman.Contract.Routing;
+using Shaman.Serialization.Messages;
 
 namespace Shaman.Router.Data.Repositories.Interfaces
 {

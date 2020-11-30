@@ -1,12 +1,12 @@
-using Shaman.Common.Utils.Messages;
-using Shaman.Common.Utils.Serialization;
+using Shaman.Serialization;
+using Shaman.Serialization.Messages.Udp;
 
 namespace Shaman.Messages.RoomFlow
 {
     public class JoinRoomResponse : ResponseBase
     {
         public JoinRoomResponse() 
-            : base(Messages.CustomOperationCode.JoinRoomResponse)
+            : base(Messages.ShamanOperationCode.JoinRoomResponse)
         {
         }
 

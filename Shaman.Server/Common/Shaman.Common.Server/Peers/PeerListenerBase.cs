@@ -1,11 +1,12 @@
 using System;
 using System.Net;
+using Shaman.Common.Http;
 using Shaman.Common.Server.Configuration;
-using Shaman.Common.Utils.Logging;
-using Shaman.Common.Utils.Senders;
-using Shaman.Common.Utils.Serialization;
-using Shaman.Common.Utils.Sockets;
+using Shaman.Common.Udp.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
+using Shaman.Contract.Common;
+using Shaman.Contract.Common.Logging;
+using Shaman.Serialization;
 
 namespace Shaman.Common.Server.Peers
 {
@@ -23,7 +24,7 @@ namespace Shaman.Common.Server.Peers
         protected IApplicationConfig Config;
         private ITaskSchedulerFactory _taskSchedulerFactory;
         protected ITaskScheduler TaskScheduler;
-        private PendingTask _socketTickTask;
+        private IPendingTask _socketTickTask;
 
         private int _maxSendDuration = int.MinValue;
         private DateTime _lastTick = DateTime.UtcNow;
@@ -79,7 +80,7 @@ namespace Shaman.Common.Server.Peers
         public void Listen()
         {
             //create reliable socket
-            switch (Config.GetSocketType())
+            switch (Config.SocketType)
             {
                 case SocketType.BareSocket:
                     _reliableSocket = _socketFactory.GetReliableSockWithBareSocket(_logger);
@@ -106,7 +107,7 @@ namespace Shaman.Common.Server.Peers
                     _maxSendDuration = duration;
 
                 _reliableSocket.Tick();
-            }, 0, Config.GetSocketTickTimeMs());
+            }, 0, Config.SocketTickTimeMs);
         }
 
         public ushort GetListenPort()

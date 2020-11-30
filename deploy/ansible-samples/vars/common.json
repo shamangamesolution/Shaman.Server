@@ -1,0 +1,15 @@
+{
+	"error_level": "Error",
+	"loggly_token": "<your-loggly-token>",
+	"graphite_url": "<your-graphite-address>",
+	"metrics_path_prefix": "<prefix-for-graphite-metrics>",
+	"docker_repository": "docker.pkg.github.com/shamangamesolution/shaman.server",
+	"overwriteDownloadedBundle": true,
+	"server_version": "1.11.0",
+	"socket_tick_time_ms":"10",
+	"receive_tick_time_ms":"20",
+	"send_tick_time_ms":"20",
+	"max_packet_size":"300",
+	"base_packet_buffer_size":"64",
+	"router_url": "<http-address-of-your-router>"
+}

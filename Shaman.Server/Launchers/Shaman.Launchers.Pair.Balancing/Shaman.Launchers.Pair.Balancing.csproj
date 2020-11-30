@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp2.2</TargetFramework>
+        <OutputType>Exe</OutputType>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.App" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\Bootstrap\Shaman.ServiceBootstrap\Shaman.ServiceBootstrap.csproj" />
+      <ProjectReference Include="..\Shaman.Launchers.Game.Balancing\Shaman.Launchers.Game.Balancing.csproj" />
+      <ProjectReference Include="..\Shaman.Launchers.MM.Balancing\Shaman.Launchers.MM.Balancing.csproj" />
+    </ItemGroup>
+
+</Project>

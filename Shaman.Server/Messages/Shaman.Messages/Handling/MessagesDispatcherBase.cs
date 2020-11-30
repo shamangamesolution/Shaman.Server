@@ -1,4 +1,4 @@
-using Shaman.Common.Utils.Messages;
+using Shaman.Serialization.Messages.Udp;
 
 namespace Shaman.Messages.Handling
 {

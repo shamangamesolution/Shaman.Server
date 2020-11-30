@@ -2,70 +2,81 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Shaman.Common.Utils.Messages;
-using Shaman.Common.Utils.Serialization;
-using Shaman.Common.Utils.TaskScheduling;
-using Shaman.Game.Contract;
-using Shaman.Game.Rooms;
-using Shaman.Messages;
+using Shaman.Contract.Bundle;
+using Shaman.Contract.Common;
+using Shaman.Serialization;
+using Shaman.Serialization.Messages.Udp;
+using Shaman.Tests.Helpers;
+using Shaman.TestTools.ClientPeers;
+using Shaman.TestTools.Events;
 
 namespace Shaman.Tests.GameModeControllers
 {
-    public class FakeGameModeController : IGameModeController
+    public class FakeRoomController : IRoomController
     {
         private readonly IRoomContext _room;
         private readonly ISerializer _serializer;
-
+        private readonly ISendManager _sendManager;
+        
         private int _playerCount = 0;
-
-        public FakeGameModeController(IRoomContext room)
+        
+        public FakeRoomController(IRoomContext room)
         {
             _room = room;
             _serializer = new BinarySerializer();
+            _sendManager = new SendManager(_room, _serializer);
         }
-        
+
         public Task<bool> ProcessNewPlayer(Guid sessionId, Dictionary<byte, object> properties)
         {
             Interlocked.Increment(ref _playerCount);
             return Task.FromResult(true);
         }
 
-        public void CleanupPlayer(Guid sessionId, PeerDisconnectedReason reason, byte[] reasonPayload)
+        public void ProcessPlayerDisconnected(Guid sessionId, PeerDisconnectedReason reason, byte[] reasonPayload)
         {
             Interlocked.Decrement(ref _playerCount);
         }
+
         public bool IsGameFinished()
         {
-            return _playerCount == 0;
+            //returning false to not allow room close
+            return false;
         }
 
         public TimeSpan ForceDestroyRoomAfter => TimeSpan.MaxValue;
 
-        public void Cleanup()
+        public void ProcessMessage(Payload message, DeliveryOptions deliveryOptions, Guid sessionId)
         {
-        }
+            // var testRoomEvent =
+            //     _serializer.DeserializeAs<TestRoomEvent>(message.Buffer, message.Offset, message.Length);
+            var operationCode = (byte)MessageBase.GetOperationCode(message.Buffer, message.Offset);
 
-        public void ProcessMessage(ushort operationCode, MessageData message, Guid sessionId)
-        {
-            //process room message
-            switch (operationCode)
+            if (operationCode == TestEventCodes.TestEventCode)
             {
-                case CustomOperationCode.Test:
-                    var testRoomEvent =
-                        _serializer.DeserializeAs<TestRoomEvent>(message.Buffer, message.Offset, message.Length);
-                    _room.SendToAll(testRoomEvent, new[] {sessionId});
-                    break;
+                var deserializedMessage =
+                    _serializer.DeserializeAs<TestRoomEvent>(message.Buffer, message.Offset, message.Length);
+                _sendManager.SendToAll(deserializedMessage, sessionId);
             }
         }
+
+        public int MaxMatchmakingWeight => 1;
+
+        public void Dispose()
+        {
+        }
     }
-    
-    public class FakeGameModeControllerFactory : IGameModeControllerFactory
+
+    public class FakeRoomControllerFactory : IRoomControllerFactory
     {
-        public IGameModeController GetGameModeController(IRoomContext room, ITaskScheduler taskScheduler,
+        public FakeRoomControllerFactory()
+        {
+            
+        }
+        public IRoomController GetGameModeController(IRoomContext room, ITaskScheduler taskScheduler,
             IRoomPropertiesContainer roomPropertiesContainer)
         {
-            return new FakeGameModeController(room);
-
+            return new FakeRoomController(room);
         }
     }
 }

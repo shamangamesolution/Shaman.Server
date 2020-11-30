@@ -1,5 +1,5 @@
-using Shaman.Common.Utils.Messages;
-using Shaman.Common.Utils.Serialization;
+using Shaman.Serialization;
+using Shaman.Serialization.Messages.Udp;
 
 namespace Shaman.Messages.Authorization
 {
@@ -7,7 +7,7 @@ namespace Shaman.Messages.Authorization
     {
         
         public AuthorizationResponse() 
-            : base(Messages.CustomOperationCode.AuthorizationResponse)
+            : base(Messages.ShamanOperationCode.AuthorizationResponse)
         {
         }
         

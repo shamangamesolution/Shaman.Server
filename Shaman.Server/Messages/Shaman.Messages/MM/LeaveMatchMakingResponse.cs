@@ -1,5 +1,5 @@
-using Shaman.Common.Utils.Messages;
-using Shaman.Common.Utils.Serialization;
+using Shaman.Serialization;
+using Shaman.Serialization.Messages.Udp;
 
 namespace Shaman.Messages.MM
 {
@@ -7,7 +7,7 @@ namespace Shaman.Messages.MM
     {
         public MatchMakingErrorCode MatchMakingErrorCode { get; set; }
 
-        public LeaveMatchMakingResponse() : base(CustomOperationCode.LeaveMatchMakingResponse)
+        public LeaveMatchMakingResponse() : base(ShamanOperationCode.LeaveMatchMakingResponse)
         {
             
         }

@@ -1,6 +1,6 @@
-using System.Collections.Generic;
-using Shaman.Messages;
-using Shaman.Messages.General.Entity.Router;
+using Shaman.Bundling.Common;
+using Shaman.Contract.Routing;
+using Shaman.Serialization.Messages;
 
 namespace Shaman.Router.Data.Providers
 {

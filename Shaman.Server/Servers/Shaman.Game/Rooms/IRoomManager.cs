@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Shaman.Common.Server.Peers;
-using Shaman.Common.Utils.Messages;
-using Shaman.Common.Utils.Sockets;
-using Shaman.Game.Contract;
+using Shaman.Common.Udp.Sockets;
+using Shaman.Contract.Common;
 
 namespace Shaman.Game.Rooms
 {
@@ -17,10 +15,9 @@ namespace Shaman.Game.Rooms
         int GetRoomsCount();
         IRoom GetRoomBySessionId(Guid sessionId);
         bool IsInRoom(Guid sessionId);
-        void ProcessMessage(ushort operationCode, MessageData message, IPeer peer);
+        void ProcessMessage(ushort operationCode, Payload message, DeliveryOptions deliveryOptions, IPeer peer);
         Dictionary<Guid, int> GetRoomPeerCount();
         IRoom GetOldestRoom();
-        void ConfirmedJoin(Guid sessionId, IRoom room);
         void PeerDisconnected(IPeer peer, IDisconnectInfo info);
         IRoom GetRoomById(Guid id);
     }

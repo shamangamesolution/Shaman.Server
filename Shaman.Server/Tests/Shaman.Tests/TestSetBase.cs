@@ -2,18 +2,20 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using Shaman.Common.Http;
+using Shaman.Common.Udp.Sockets;
 using Shaman.Common.Utils.Logging;
-using Shaman.Common.Utils.Messages;
-using Shaman.Common.Utils.Senders;
-using Shaman.Common.Utils.Serialization;
-using Shaman.Common.Utils.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
+using Shaman.Contract.Common.Logging;
+using Shaman.Contract.Routing;
+using Shaman.Game;
 using Shaman.LiteNetLibAdapter;
-using Shaman.Messages;
 using Shaman.Messages.General.DTO.Responses.Auth;
-using Shaman.Messages.General.DTO.Responses.Router;
-using Shaman.Messages.General.Entity.Router;
 using Shaman.Messages.RoomFlow;
+using Shaman.Routing.Balancing.Messages;
+using Shaman.Serialization;
+using Shaman.Serialization.Messages;
+using Shaman.Serialization.Messages.Http;
 
 namespace Shaman.Tests
 {
@@ -65,13 +67,15 @@ namespace Shaman.Tests
     
     public class FakeSenderWithGameApplication : IRequestSender
     {
-        private Func<Dictionary<byte, object>, Guid> _createRoomDelegate;
-        private Action<Guid> _updateRoomDelegate;
-        
+        private Func<Dictionary<byte, object>, GameApplication, Guid, Guid> _createRoomDelegate;
+        private Action<Guid, GameApplication> _updateRoomDelegate;
+
+        private readonly GameApplication _gameApplication;
         private Dictionary<byte, object> _roomProperties;
         
-        public FakeSenderWithGameApplication( Dictionary<byte, object> roomProperties, Func<Dictionary<byte, object>, Guid> createRoomDelegate, Action<Guid> updateRoomDelegate)
+        public FakeSenderWithGameApplication(GameApplication gameApplication,  Dictionary<byte, object> roomProperties, Func<Dictionary<byte, object>, GameApplication, Guid, Guid> createRoomDelegate, Action<Guid, GameApplication> updateRoomDelegate)
         {
+            _gameApplication = gameApplication;
             _roomProperties = roomProperties;
             _createRoomDelegate = createRoomDelegate;
             _updateRoomDelegate = updateRoomDelegate;
@@ -81,13 +85,14 @@ namespace Shaman.Tests
         {
             if (typeof(T) == typeof(CreateRoomResponse))
             {
-                var roomId = _createRoomDelegate(_roomProperties);
+                
+                var roomId = _createRoomDelegate(_roomProperties, _gameApplication, ((CreateRoomRequest)request).RoomId);
                 return new CreateRoomResponse(roomId) as T;
             }
             if (typeof(T) == typeof(UpdateRoomResponse))
             {
                 var req = request as UpdateRoomRequest;
-                _updateRoomDelegate(req.RoomId);
+                _updateRoomDelegate(req.RoomId, _gameApplication);
                 return new UpdateRoomResponse() as T;
             }
             
@@ -107,7 +112,7 @@ namespace Shaman.Tests
         {
             if (typeof(T) == typeof(CreateRoomResponse))
             {
-                var roomId = _createRoomDelegate(_roomProperties);
+                var roomId = _createRoomDelegate(_roomProperties, _gameApplication, ((CreateRoomRequest)request).RoomId);
                 callback(new CreateRoomResponse(roomId) as T);
             }
             else
@@ -127,7 +132,7 @@ namespace Shaman.Tests
     public class TestSetBase
     {
         //protected List<MessageBase> _receivedMessages = new List<MessageBase>();
-        protected IShamanLogger _clientLogger = new ConsoleLogger("C ", LogLevel.Error | LogLevel.Info | LogLevel.Debug);
+        protected IShamanLogger _clientLogger = new ConsoleLogger("C ", LogLevel.Error | LogLevel.Info);
         protected IShamanLogger _serverLogger = new ConsoleLogger("S ", LogLevel.Error | LogLevel.Info);
         protected ISerializer serializer;
         

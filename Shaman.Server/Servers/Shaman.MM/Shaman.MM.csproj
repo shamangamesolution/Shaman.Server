@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <TargetFramework>netcoreapp2.2</TargetFramework>
-        <OutputType>Exe</OutputType>
+        <OutputType>Library</OutputType>
     </PropertyGroup>
 
     <ItemGroup>
@@ -17,13 +17,24 @@
     </ItemGroup>
     
     <ItemGroup>
+      <ProjectReference Include="..\..\Bundling\Shaman.Bundling.Common\Shaman.Bundling.Common.csproj" />
       <ProjectReference Include="..\..\Common\Shaman.Common.Server\Shaman.Common.Server.csproj" />
       <ProjectReference Include="..\..\Common\Shaman.Common.Utils\Shaman.Common.Utils.csproj" />
-      <ProjectReference Include="..\..\Common\Shaman.MM.Contract\Shaman.MM.Contract.csproj" />
-<!--      <ProjectReference Include="..\..\Network\Shaman.HazelAdapter\Shaman.HazelAdapter.csproj" />-->
+      <ProjectReference Include="..\..\Contracts\Shaman.Contract.Bundle\Shaman.Contract.Bundle.csproj" />
+      <ProjectReference Include="..\..\Contracts\Shaman.Contract.MM\Shaman.Contract.MM.csproj" />
+      <ProjectReference Include="..\..\Contracts\Shaman.Contract.Routing.MM\Shaman.Contract.Routing.MM.csproj" />
       <ProjectReference Include="..\..\Messages\Shaman.Messages\Shaman.Messages.csproj" />
       <ProjectReference Include="..\..\Network\Shaman.LiteNetLibAdapter\Shaman.LiteNetLibAdapter.csproj" />
-      <ProjectReference Include="..\Shaman.ServerSharedUtilities\Shaman.ServerSharedUtilities.csproj" />
+      <ProjectReference Include="..\..\Routing\Shaman.Routing.Common.Messages\Shaman.Routing.Common.Messages.csproj" />
+      <ProjectReference Include="..\..\Bootstrap\Shaman.ServiceBootstrap\Shaman.ServiceBootstrap.csproj" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="publish\web.config" />
+      <_ContentIncludedByDefault Remove="publish\appsettings.development.json" />
+      <_ContentIncludedByDefault Remove="publish\appsettings.json" />
+      <_ContentIncludedByDefault Remove="publish\Shaman.MM.deps.json" />
+      <_ContentIncludedByDefault Remove="publish\Shaman.MM.runtimeconfig.json" />
     </ItemGroup>
 
 

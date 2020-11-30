@@ -1,19 +1,20 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Shaman.Common.Utils.Logging;
-using Shaman.Common.Utils.Messages;
-using Shaman.Common.Utils.Senders;
-using Shaman.Common.Utils.Serialization;
-using Shaman.Common.Utils.Sockets;
+using Shaman.Common.Udp.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
+using Shaman.Contract.Common;
+using Shaman.Contract.Common.Logging;
 using Shaman.Messages;
 using Shaman.Messages.Authorization;
 using Shaman.Messages.General.DTO.Requests;
 using Shaman.Messages.General.DTO.Responses;
 using Shaman.Messages.MM;
 using Shaman.Messages.RoomFlow;
+using Shaman.Serialization;
+using Shaman.Serialization.Messages;
+using Shaman.Serialization.Messages.Http;
+using Shaman.Serialization.Messages.Udp;
 
 namespace Shaman.Client.Peers
 {
@@ -56,7 +57,7 @@ namespace Shaman.Client.Peers
         private readonly ITaskScheduler _taskScheduler;
         private ISerializer _serializer;
         private ClientStatusLegacy _status;
-        private PendingTask _pollingTask;
+        private IPendingTask _pollingTask;
         private readonly int _pollPackageQueueIntervalMs;
         private readonly IRequestSender _requestSender;
         private int _backendId;
@@ -71,8 +72,8 @@ namespace Shaman.Client.Peers
         
 
         private Guid _joinInfoEventId;
-        private PendingTask _pingTask;
-        private PendingTask _resetPingTask;
+        private IPendingTask _pingTask;
+        private IPendingTask _resetPingTask;
         private bool _isPinging = false;
         private DateTime? _pingRequestSentOn = null;
         private JoinType _joinType;
@@ -135,7 +136,7 @@ namespace Shaman.Client.Peers
             SetAndReportStatus(ClientStatusLegacy.AuthorizingMatchMaking, _statusCallback);
                 
             //authorizing matchmaker
-            SendRequest(new AuthorizationRequest(_backendId, SessionId), OmMmAuthorizationResponse);
+            SendRequest(new AuthorizationRequest {SessionId = SessionId}, OmMmAuthorizationResponse);
         }
 
         private void GetRooms()
@@ -190,7 +191,7 @@ namespace Shaman.Client.Peers
 
         public void PingConnect(string address, ushort port, Action<bool> callback, int timeoutMs = 1000)
         {
-            var handlerId = RegisterOperationHandler(CustomOperationCode.Connect, (msg) =>
+            var handlerId = RegisterOperationHandler(ShamanOperationCode.Connect, (msg) =>
             {
                 Disconnect();
                 callback(true);
@@ -220,10 +221,10 @@ namespace Shaman.Client.Peers
                 SessionId = sessionId;
                 _backendId = backendId;
                 //waiting for join Info
-                _joinInfoEventId = RegisterOperationHandler(CustomOperationCode.JoinInfo, OnJoinInfoEvent);
+                _joinInfoEventId = RegisterOperationHandler(ShamanOperationCode.JoinInfo, OnJoinInfoEvent);
                 
                 SetAndReportStatus(ClientStatusLegacy.ConnectingMatchMaking, statusCallback);
-                RegisterOperationHandler(CustomOperationCode.Connect, OnConnectedToMatchMaker, true);
+                RegisterOperationHandler(ShamanOperationCode.Connect, OnConnectedToMatchMaker, true);
                 Connect(matchMakerAddress, matchMakerPort);
             }
             catch (Exception ex)
@@ -334,12 +335,12 @@ namespace Shaman.Client.Peers
                 case JoinType.RandomJoin:
                     _taskScheduler.ScheduleOnceOnNow(EnterMatchMaking);
                     break;
-                case JoinType.DirectJoin:
-                    _taskScheduler.ScheduleOnceOnNow(GetRooms);
-                    break;
-                case JoinType.CreateGame:
-                    _taskScheduler.ScheduleOnceOnNow(CreateGame);
-                    break;
+                // case JoinType.DirectJoin:
+                //     _taskScheduler.ScheduleOnceOnNow(GetRooms);
+                //     break;
+                // case JoinType.CreateGame:
+                //     _taskScheduler.ScheduleOnceOnNow(CreateGame);
+                //     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -538,7 +539,7 @@ namespace Shaman.Client.Peers
             SetAndReportStatus(ClientStatusLegacy.AuthorizingGameServer, _statusCallback);
                 
             //authorizing matchmaker
-            SendRequest(new AuthorizationRequest(_backendId, SessionId), OnGameAuthorizationResponse);
+            SendRequest(new AuthorizationRequest {SessionId = SessionId}, OnGameAuthorizationResponse);
         }
         
         private void ConnectToGameServer(string gameServerAddress, ushort gameServerPort)
@@ -547,7 +548,7 @@ namespace Shaman.Client.Peers
             {
                 SetAndReportStatus(ClientStatusLegacy.ConnectingGameServer, _statusCallback);
 
-                RegisterOperationHandler(CustomOperationCode.Connect, OnConnectedToGameServer, true);
+                RegisterOperationHandler(ShamanOperationCode.Connect, OnConnectedToGameServer, true);
                 
                 _clientPeer.Connect(gameServerAddress, gameServerPort);
             }
@@ -701,23 +702,23 @@ namespace Shaman.Client.Peers
             });
         }
         
-        public void CreateGame(string matchMakerAddress, ushort matchMakerPort, int backendId, Guid sessionId,
-            Dictionary<byte, object> matchMakingProperties, Dictionary<byte, object> joinGameProperties,
-            Action<ConnectionStatusLegacy, JoinInfo> statusCallback)
-        {
-            _joinType = JoinType.CreateGame;
-            StartConnect(matchMakerAddress, matchMakerPort, backendId, sessionId, matchMakingProperties,
-                joinGameProperties, statusCallback);
-        }
-        
-        public void JoinRandomGame(string matchMakerAddress, ushort matchMakerPort, int backendId, Guid sessionId,
-            Dictionary<byte, object> matchMakingProperties, Dictionary<byte, object> joinGameProperties,
-            Action<ConnectionStatusLegacy, JoinInfo> statusCallback)
-        {
-            _joinType = JoinType.RandomJoin;
-            StartConnect(matchMakerAddress, matchMakerPort, backendId, sessionId, matchMakingProperties,
-                joinGameProperties, statusCallback);
-        }
+        // public void CreateGame(string matchMakerAddress, ushort matchMakerPort, int backendId, Guid sessionId,
+        //     Dictionary<byte, object> matchMakingProperties, Dictionary<byte, object> joinGameProperties,
+        //     Action<ConnectionStatusLegacy, JoinInfo> statusCallback)
+        // {
+        //     _joinType = JoinType.CreateGame;
+        //     StartConnect(matchMakerAddress, matchMakerPort, backendId, sessionId, matchMakingProperties,
+        //         joinGameProperties, statusCallback);
+        // }
+        //
+        // public void JoinRandomGame(string matchMakerAddress, ushort matchMakerPort, int backendId, Guid sessionId,
+        //     Dictionary<byte, object> matchMakingProperties, Dictionary<byte, object> joinGameProperties,
+        //     Action<ConnectionStatusLegacy, JoinInfo> statusCallback)
+        // {
+        //     _joinType = JoinType.RandomJoin;
+        //     StartConnect(matchMakerAddress, matchMakerPort, backendId, sessionId, matchMakingProperties,
+        //         joinGameProperties, statusCallback);
+        // }
         
         public void Disconnect()
         {

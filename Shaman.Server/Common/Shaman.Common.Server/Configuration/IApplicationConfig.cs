@@ -1,8 +1,6 @@
 using System.Collections.Generic;
-using Shaman.Common.Utils.Configuration;
-using Shaman.Common.Utils.Messages;
-using Shaman.Common.Utils.Senders;
-using Shaman.Common.Utils.Servers;
+using Shaman.Common.Udp.Senders;
+using Shaman.Contract.Routing;
 
 namespace Shaman.Common.Server.Configuration
 {
@@ -12,20 +10,20 @@ namespace Shaman.Common.Server.Configuration
         ThreadSocket = 2
     }
     
-    public interface IApplicationConfig: IPacketSenderConfig, IApplicationCoreConfig
+    public interface IApplicationConfig: IPacketSenderConfig
     {
-//        void Initialize(string publicDomainNameOrIpAddress, ushort[] ports, int socketTickTimeMs, int receiveTickTimeMs, int sendTickTimeMs, string routerUrl, SocketType socketType = SocketType.BareSocket, bool isAuthOn = true, int backEndsListRequestIntervalMs = 30000, int maxPacketSize = 300);
-        string GetPublicName();
-        List<ushort> GetListenPorts();
-        int GetSocketTickTimeMs();
-        int GetReceiveTickTimerMs();
-        bool IsAuthOn();
-        SocketType GetSocketType();
-        int GetBackendListFromRouterIntervalMs();
-        string GetAuthSecret();
-        string GetServerName();
-        string GetRegion();
-        ServerRole GetServerRole();
+        string PublicDomainNameOrAddress { get; set; }
+        List<ushort> ListenPorts { get; set; }
+        int SocketTickTimeMs { get; set; }
+        int ReceiveTickTimeMs { get; set; }
+        bool IsAuthOn { get; set; }
+        SocketType SocketType { get; set; }
+        string AuthSecret { get; set; }
+        string ServerName { get; set; }
+        string Region { get; set; }
+        ServerRole ServerRole { get; set; }
         ushort BindToPortHttp { get; set; }
+        ServerIdentity GetIdentity();
+
     }
 }

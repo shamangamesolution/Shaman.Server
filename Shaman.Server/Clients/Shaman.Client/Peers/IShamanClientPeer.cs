@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Shaman.Common.Utils.Messages;
-using Shaman.Messages.General.Entity.Router;
 using Shaman.Messages.RoomFlow;
+using Shaman.Serialization.Messages.Http;
+using Shaman.Serialization.Messages.Udp;
 
 namespace Shaman.Client.Peers
 {
@@ -14,8 +14,11 @@ namespace Shaman.Client.Peers
         Action<string> OnDisconnectedFromGameServer { get; set; }
 
         void Connect(string address, ushort port);
-        Task<JoinInfo> JoinGame(string matchMakerAddress, ushort matchMakerPort, int backendId, Guid sessionId,
+        Task<JoinInfo> JoinGame(string matchMakerAddress, ushort matchMakerPort, Guid sessionId,
             Dictionary<byte, object> matchMakingProperties, Dictionary<byte, object> joinGameProperties);
+
+        Task<JoinInfo> DirectConnectToGameServerToRandomRoom(string gameServerAddress, ushort gameServerPort,
+            Guid sessionId, Dictionary<byte, object> roomProperties, Dictionary<byte, object> joinGameProperties);
 
         Task<JoinInfo> DirectConnectToGameServer(string gameServerAddress, ushort gameServerPort, Guid sessionId,  Guid roomId, Dictionary<byte, object> joinGameProperties);
         Task<TResponse> SendRequest<TResponse>(RequestBase request) where TResponse : ResponseBase, new();
@@ -28,7 +31,7 @@ namespace Shaman.Client.Peers
         Task<T> SendWebRequest<T>(string url, HttpRequestBase request)
             where T : HttpResponseBase, new();
 
-        void SendEvent(MessageBase eve);
+        void SendEvent<TMessage>(TMessage eve) where TMessage : MessageBase;
         void Disconnect();
         void ProcessMessages();
         ShamanClientStatus GetStatus();

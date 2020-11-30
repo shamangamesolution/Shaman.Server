@@ -2,12 +2,13 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using Shaman.Common.Utils.Logging;
-using Shaman.Common.Utils.Serialization;
-using Shaman.Common.Utils.TaskScheduling;
-using Shaman.Game.Contract;
+using Shaman.Contract.Bundle;
+using Shaman.Contract.Common;
+using Shaman.Contract.Common.Logging;
 using Shaman.Messages.General.DTO.Events.RepositorySync;
 using Shaman.Messages.General.Entity;
+using Shaman.Serialization;
+using Shaman.Serialization.Room;
 using Shaman.SyncedRepositories.Managers;
 
 namespace Shaman.SyncedRepositories.Syncers
@@ -54,7 +55,7 @@ namespace Shaman.SyncedRepositories.Syncers
         private readonly IConfirmationManager _confirmationManager;
 
         private int _currentRevision = 0;
-        private PendingTask _getPlayersForForSyncTask;
+        private IPendingTask _getPlayersForForSyncTask;
         private int _baseRevisionSaved = 0;
         //private EventBase[] _sendEvents;
         private readonly object _mutex = new object();
@@ -66,7 +67,8 @@ namespace Shaman.SyncedRepositories.Syncers
         private Guid _id;
         private int _maxSendTimes = 3;
         private ConcurrentDictionary<int, int> _revisionSendTimes = new ConcurrentDictionary<int, int>();
-        
+        private readonly ShamanRoomSender _shamanRoomSender;
+
         public RepositorySyncerBase(ISyncedRepository<T> repo, IRoomContext room, ITaskScheduler taskScheduler, IPlayerRepository playerRepo, ISerializer serializer, IConfirmationManager confirmationManager, IShamanLogger logger)
         {
             _repo = repo;
@@ -77,6 +79,7 @@ namespace Shaman.SyncedRepositories.Syncers
             _confirmationManager = confirmationManager;
             _logger = logger;
             _id = Guid.NewGuid();
+            _shamanRoomSender = new ShamanRoomSender(Room.GetSender(), _serializer);
         }
 
         protected abstract void SendEvents(List<ChangesContainerInfo<T>> list);
@@ -115,11 +118,18 @@ namespace Shaman.SyncedRepositories.Syncers
                     {
                         var sessionId = _playerRepo.GetPlayerSessionId(item.Key);
                         _logger.Error($"Forcing player {item.Key} to refresh repo with {typeof(TEvent)} (miss rate {item.Value})");
-                        Room.AddToSendQueue(new TEvent(), sessionId);
+                        SendForceSync(sessionId);
                         _confirmationManager.ConfirmAllChanges(_id, item.Key);
                     }
                 }
             }
+        }
+
+        private void SendForceSync(Guid sessionId)
+        {
+            var forceSyncEvent = new TEvent();
+            _shamanRoomSender.Send(forceSyncEvent,
+                new DeliveryOptions(forceSyncEvent.IsReliable, forceSyncEvent.IsOrdered), sessionId);
         }
 
         public Guid GetId()

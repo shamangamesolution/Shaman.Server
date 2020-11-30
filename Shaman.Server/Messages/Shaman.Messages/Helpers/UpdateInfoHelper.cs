@@ -1,7 +1,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using Shaman.Messages.General.DTO.Requests.Auth;
 using Shaman.Messages.General.Entity;
 
 namespace Shaman.Messages.Helpers

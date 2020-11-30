@@ -1,15 +1,14 @@
-using Shaman.Common.Utils.Messages;
-using Shaman.Common.Utils.Serialization;
+using Shaman.Serialization;
+using Shaman.Serialization.Messages.Udp;
 
 namespace Shaman.Messages.RoomFlow
 {
     public class LeaveRoomEvent : EventBase
     {
         public override bool IsReliable => true;
-        public override bool IsBroadcasted => true;
 
         public LeaveRoomEvent() 
-            : base(Messages.CustomOperationCode.LeaveRoom)
+            : base(Messages.ShamanOperationCode.LeaveRoom)
         {
         }
         protected override void SerializeBody(ITypeWriter typeWriter)

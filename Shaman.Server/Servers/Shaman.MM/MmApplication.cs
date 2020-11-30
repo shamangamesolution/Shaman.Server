@@ -1,26 +1,19 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
+using Shaman.Common.Http;
 using Shaman.Common.Server.Applications;
 using Shaman.Common.Server.Configuration;
-using Shaman.Common.Utils.Logging;
-using Shaman.Common.Utils.Senders;
-using Shaman.Common.Utils.Serialization;
-using Shaman.Common.Utils.Sockets;
+using Shaman.Common.Udp.Senders;
+using Shaman.Common.Udp.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
-using Shaman.Game.Contract;
-using Shaman.Game.Contract.Stats;
-using Shaman.Messages.General.DTO.Requests.Router;
-using Shaman.Messages.General.DTO.Responses.Router;
-using Shaman.MM.Configuration;
+using Shaman.Contract.Bundle.Stats;
+using Shaman.Contract.Common.Logging;
+using Shaman.Contract.Routing.MM;
 using Shaman.MM.MatchMaking;
 using Shaman.MM.Peers;
-using Shaman.MM.Players;
-// using Shaman.ServerSharedUtilities.Backends;
-using Shaman.Messages.MM;
 using Shaman.MM.Managers;
 using Shaman.MM.Metrics;
-using Shaman.MM.Providers;
+using Shaman.Serialization;
 
 namespace Shaman.MM
 {
@@ -28,6 +21,7 @@ namespace Shaman.MM
     {
         private readonly IMatchMaker _matchMaker;
         private readonly IPacketSender _packetSender;
+        private readonly IShamanMessageSenderFactory _messageSenderFactory;
         private readonly IPlayersManager _playersManager;
         private readonly IMatchMakerServerInfoProvider _serverProvider;
         private readonly IRoomManager _roomManager;
@@ -45,11 +39,13 @@ namespace Shaman.MM
             IRequestSender requestSender,
             ITaskSchedulerFactory taskSchedulerFactory,
             IPacketSender packetSender, 
+            IShamanMessageSenderFactory messageSenderFactory,
             IMatchMakerServerInfoProvider serverProvider,
             IRoomManager roomManager, IMatchMakingGroupsManager matchMakingGroupManager, IPlayersManager playersManager, IMmMetrics mmMetrics) : base(logger, config, serializer,
             socketFactory, taskSchedulerFactory, requestSender, mmMetrics)
         {
             _packetSender = packetSender;
+            _messageSenderFactory = messageSenderFactory;
             _serverProvider = serverProvider;
             _roomManager = roomManager;
             _matchMakingGroupManager = matchMakingGroupManager;
@@ -78,16 +74,21 @@ namespace Shaman.MM
         
         public override void OnStart()
         {
-            var config = GetConfigAs<MmApplicationConfig>();
-            
             _packetSender.Start(false);
             
             _matchMaker.Start();
             var listeners = GetListeners();
+            var shamanMessageSender = _messageSenderFactory.Create(_packetSender);
             foreach (var listener in listeners)
             {
-                listener.Initialize(_matchMaker, _packetSender, _roomManager, _matchMakingGroupManager, Config.GetAuthSecret());
+                listener.Initialize(_matchMaker, shamanMessageSender, _roomManager, _matchMakingGroupManager, Config.AuthSecret);
             }
+        }
+
+        protected override void TrackMetrics()
+        {
+            base.TrackMetrics();
+            ServerMetrics.TrackSendersCount(nameof(MmApplication), _packetSender.GetKnownPeersCount());
         }
 
         public override void OnShutDown()

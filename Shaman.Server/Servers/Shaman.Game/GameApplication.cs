@@ -1,21 +1,17 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using Shaman.Common.Http;
 using Shaman.Common.Server.Applications;
 using Shaman.Common.Server.Configuration;
-using Shaman.Common.Utils.Logging;
-using Shaman.Common.Utils.Senders;
-using Shaman.Common.Utils.Serialization;
-using Shaman.Common.Utils.Sockets;
+using Shaman.Common.Udp.Senders;
+using Shaman.Common.Udp.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
-using Shaman.Game.Configuration;
-using Shaman.Game.Contract;
-using Shaman.Game.Contract.Stats;
+using Shaman.Contract.Bundle.Stats;
+using Shaman.Contract.Common.Logging;
 using Shaman.Game.Metrics;
 using Shaman.Game.Peers;
 using Shaman.Game.Rooms;
-// using Shaman.ServerSharedUtilities.Backends;
-using Shaman.Messages.MM;
+using Shaman.Serialization;
 
 namespace Shaman.Game
 {
@@ -23,15 +19,17 @@ namespace Shaman.Game
     {
         private readonly IRoomManager _roomManager;
         private readonly IPacketSender _packetSender;
+        private readonly IShamanMessageSenderFactory _messageSenderFactory;
 
         public GameApplication(IShamanLogger logger, IApplicationConfig config, ISerializer serializer,
             ISocketFactory socketFactory, ITaskSchedulerFactory taskSchedulerFactory, IRequestSender requestSender,
-            IRoomManager roomManager,
-            IPacketSender packetSender, IGameMetrics gameMetrics) : base(logger, config, serializer, socketFactory, taskSchedulerFactory,
-            requestSender, gameMetrics)
+            IRoomManager roomManager, IPacketSender packetSender, IGameMetrics gameMetrics,
+            IShamanMessageSenderFactory messageSenderFactory) :
+            base(logger, config, serializer, socketFactory, taskSchedulerFactory, requestSender, gameMetrics)
         {
             _roomManager = roomManager;
             _packetSender = packetSender;
+            _messageSenderFactory = messageSenderFactory;
             Logger.Debug($"GameApplication constructor called");
         }
 
@@ -75,16 +73,22 @@ namespace Shaman.Game
        
         public override void OnStart()
         {
-            _packetSender.Start(false);
+            _packetSender.Start();
             
-            var config = GetConfigAs<GameApplicationConfig>();
             Logger.Info($"Game server started...");
             
             var listeners = GetListeners();
+            var shamanMessageSender = _messageSenderFactory.Create(_packetSender);
             foreach (var listener in listeners)
             {
-                listener.Initialize(_roomManager, _packetSender, Config.GetAuthSecret());
+                listener.Initialize(_roomManager, shamanMessageSender, Config.AuthSecret);
             }
+        }
+
+        protected override void TrackMetrics()
+        {
+            base.TrackMetrics();
+            ServerMetrics.TrackSendersCount(nameof(GameApplication), _packetSender.GetKnownPeersCount());
         }
 
         public override void OnShutDown()

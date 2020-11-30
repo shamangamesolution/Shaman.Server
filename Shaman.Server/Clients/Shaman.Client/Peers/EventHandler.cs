@@ -1,5 +1,5 @@
 using System;
-using Shaman.Common.Utils.Messages;
+using Shaman.Serialization.Messages.Udp;
 
 namespace Shaman.Client.Peers
 {

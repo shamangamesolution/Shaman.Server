@@ -1,9 +1,10 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using Shaman.Common.Utils.Messages;
-using Shaman.Common.Utils.Serialization;
-using Shaman.Messages.Extensions;
+using Shaman.Serialization;
+using Shaman.Serialization.Extensions;
+using Shaman.Serialization.Messages;
+using Shaman.Serialization.Messages.Extensions;
 
 namespace Shaman.Messages.General.Entity
 {

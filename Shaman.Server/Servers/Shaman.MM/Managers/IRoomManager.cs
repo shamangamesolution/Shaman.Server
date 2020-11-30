@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Shaman.Common.Server.Peers;
 using Shaman.Messages.MM;
 using Shaman.MM.Rooms;
 
@@ -27,9 +26,9 @@ namespace Shaman.MM.Managers
     {
         Task<JoinRoomResult> CreateRoom(Guid groupId, Dictionary<Guid, Dictionary<byte, object>> players,
             Dictionary<byte, object> roomProperties);
-        Task<JoinRoomResult> JoinRoom(Guid roomId, Dictionary<Guid, Dictionary<byte, object>> players);
-        void UpdateRoomState(Guid roomId, int currentPlayers, RoomState roomState);
-        Room GetRoom(Guid groupId, int playersCount);
+        Task<JoinRoomResult> JoinRoom(Guid roomId, Dictionary<Guid, Dictionary<byte, object>> players, int maxWeightInList, int totalWeightInList);
+        void UpdateRoomState(Guid roomId, int currentPlayers, RoomState roomState, int maxWeightToJoin);
+        Room GetRoom(Guid groupId, int playersCount, int maxWeightInPlayersList, int totalWeightOnPlayerList);
         Room GetRoom(Guid roomId);
         IEnumerable<Room> GetAllRooms();
         IEnumerable<Room> GetRooms(Guid groupId, bool openOnly = true, int limit = 10);

@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using Shaman.Common.Server.Configuration;
+using Shaman.Common.Udp.Senders;
 using Shaman.Common.Utils.Helpers;
-using Shaman.Common.Utils.Logging;
-using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.TaskScheduling;
+using Shaman.Contract.Common.Logging;
+using Shaman.Contract.MM;
 using Shaman.Messages;
-using Shaman.MM.Configuration;
-using Shaman.MM.Contract;
 using Shaman.MM.MatchMaking;
 using Shaman.MM.Metrics;
 using Shaman.MM.Players;
@@ -23,11 +22,11 @@ namespace Shaman.MM.Managers
         private readonly IShamanLogger _logger;
         private readonly ITaskSchedulerFactory _taskSchedulerFactory;
         private readonly IPlayersManager _playersManager;
-        private readonly IPacketSender _packetSender;
+        private readonly IShamanMessageSender _messageSender;
         private readonly IMmMetrics _mmMetrics;
         private readonly IRoomManager _roomManager;
         private readonly IRoomPropertiesProvider _roomPropertiesProvider;
-        private readonly MmApplicationConfig _config;
+        private readonly IApplicationConfig _config;
 
         private readonly Dictionary<Guid, MatchMakingGroup> _groups = new Dictionary<Guid, MatchMakingGroup>();
         private readonly Dictionary<Guid, Dictionary<byte, object>> _groupsToProperties = new Dictionary<Guid, Dictionary<byte, object>>();
@@ -35,39 +34,20 @@ namespace Shaman.MM.Managers
         private bool _isStarted = false;
         
         public MatchMakingGroupManager(IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory,
-            IPlayersManager playersManager, IPacketSender packetSender, IMmMetrics mmMetrics, IRoomManager roomManager, 
+            IPlayersManager playersManager, IShamanMessageSender messageSender, IMmMetrics mmMetrics, IRoomManager roomManager, 
             IRoomPropertiesProvider roomPropertiesProvider, IApplicationConfig config)
         {
             _logger = logger;
             _taskSchedulerFactory = taskSchedulerFactory;
             _playersManager = playersManager;
-            _packetSender = packetSender;
+            _messageSender = messageSender;
             _mmMetrics = mmMetrics;
             _roomManager = roomManager;
             _roomPropertiesProvider = roomPropertiesProvider;
-            _config = (MmApplicationConfig) config;
+            _config = config;
         }
 
-        private bool AreDictionariesEqual(Dictionary<byte, object> dict1, Dictionary<byte, object> dict2)
-        {
-            if (dict1 == null && dict2 == null)
-                return true;
-            if (dict1 == null)
-                return false;
-            if (dict2 == null)
-                return false;
 
-            if (dict1.Count != dict2.Count)
-                return false;
-
-            foreach (var item in dict1)
-            {
-                if (!dict2.ContainsKey(item.Key) || !Equals(dict2[item.Key], item.Value))
-                    return false;
-            }
-
-            return true;
-        }
         
         public Guid AddMatchMakingGroup(Dictionary<byte, object> measures)
         {
@@ -78,16 +58,18 @@ namespace Shaman.MM.Managers
                     _roomPropertiesProvider.GetMatchMakingTick(measures));
                 roomProperties.Add(PropertyCode.RoomProperties.MaximumMmTime,
                     _roomPropertiesProvider.GetMaximumMatchMakingTime(measures));
+                roomProperties.Add(PropertyCode.RoomProperties.MaximumMatchMakingWeight,
+                    _roomPropertiesProvider.GetMaximumMatchMakingWeight(measures));
                 roomProperties.Add(PropertyCode.RoomProperties.TotalPlayersNeeded,
                     _roomPropertiesProvider.GetMaximumPlayers(measures));
                 roomProperties.Add(PropertyCode.RoomProperties.MatchMakerUrl,
-                    UrlHelper.GetUrl(_config.BindToPortHttp, 0, _config.GetPublicName()));
+                    UrlHelper.GetUrl(_config.BindToPortHttp, 0, _config.PublicDomainNameOrAddress));
 
                 foreach (var add in _roomPropertiesProvider.GetAdditionalRoomProperties(measures))
                     roomProperties.Add(add.Key, add.Value);
 
                 var group = new MatchMakingGroup(roomProperties, _logger, _taskSchedulerFactory, _playersManager,
-                    _packetSender, _mmMetrics, _roomManager);
+                    _messageSender, _mmMetrics, _roomManager);
                 _groups.Add(group.Id, group);
                 _groupsToProperties.Add(group.Id, measures);
                 if (_isStarted)
@@ -110,7 +92,7 @@ namespace Shaman.MM.Managers
             {
                 var result = new List<Guid>();
                 foreach (var group in _groupsToProperties)
-                    if (AreDictionariesEqual(group.Value, playerProperties))
+                    if (DictionaryHelpers.AreDictionariesEqual(group.Value, playerProperties))
                         result.Add(group.Key);
                 return result;
             }

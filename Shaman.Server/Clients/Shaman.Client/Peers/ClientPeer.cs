@@ -1,14 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
-using Shaman.Common.Utils.Logging;
-using Shaman.Common.Utils.Messages;
-using Shaman.Common.Utils.Peers;
-using Shaman.Common.Utils.Senders;
-using Shaman.Common.Utils.Serialization;
-using Shaman.Common.Utils.Sockets;
+using Shaman.Common.Udp.Peers;
+using Shaman.Common.Udp.Senders;
+using Shaman.Common.Udp.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
+using Shaman.Contract.Common;
+using Shaman.Contract.Common.Logging;
 using Shaman.LiteNetLibAdapter;
+using Shaman.Serialization;
+using Shaman.Serialization.Messages.Udp;
 
 namespace Shaman.Client.Peers
 {
@@ -38,31 +39,18 @@ namespace Shaman.Client.Peers
 
     public class ClientPacketSenderConfig : IPacketSenderConfig
     {
-        private readonly int _maxPacketSize;
-        private readonly int _sendTickTImerMs;
-        private readonly int _baseBufferSize;
+
 
         public ClientPacketSenderConfig(int maxPacketSize, int sendTickTImerMs, int baseBufferSize = 64)
         {
-            _maxPacketSize = maxPacketSize;
-            _sendTickTImerMs = sendTickTImerMs;
-            _baseBufferSize = baseBufferSize;
+            MaxPacketSize = maxPacketSize;
+            SendTickTimeMs = sendTickTImerMs;
+            BasePacketBufferSize = baseBufferSize;
         }
 
-        public int GetBasePacketBufferSize()
-        {
-            return _baseBufferSize;
-        }
-
-        public int GetMaxPacketSize()
-        {
-            return _maxPacketSize;
-        }
-
-        public int GetSendTickTimerMs()
-        {
-            return _sendTickTImerMs;
-        }
+        public int MaxPacketSize { get; set; }
+        public int BasePacketBufferSize { get; set; }
+        public int SendTickTimeMs { get; set; }
     }
 
     class ServerSender : IPeerSender
@@ -70,7 +58,7 @@ namespace Shaman.Client.Peers
         private readonly IShamanLogger _logger;
         private readonly Action<DataPacket, Action> _onPackageReceived;
         private IReliableSock _socket;
-        private PendingTask _socketTickTask = null;
+        private IPendingTask _socketTickTask = null;
         private IPEndPoint _ep;
         private readonly ITaskScheduler _taskScheduler;
         public Action<string> OnDisconnectedFromServer;
@@ -136,7 +124,6 @@ namespace Shaman.Client.Peers
                     if (!_connected)
                         return;
                     
-                    _logger?.Debug($"Socket tick started");
                     _socket.Tick();
                 }
             }, 0, 10);
@@ -201,9 +188,9 @@ namespace Shaman.Client.Peers
 
         public Action OnPackageAvailable;
 
-        private readonly ISerializer _serializer;
         private readonly PacketBatchSender _packetBatchSender;
         private readonly ServerSender _serverSender;
+        private readonly ShamanSender _shamanSender;
 
         public Action<string> OnDisconnectedFromServer
         {
@@ -235,10 +222,10 @@ namespace Shaman.Client.Peers
             int sendTickMs)
         {
             _logger = logger;
-            _serializer = new BinarySerializer();
-            _packetBatchSender = new PacketBatchSender(taskSchedulerFactory,
-                new ClientPacketSenderConfig(maxMessageSize, sendTickMs), _serializer, _logger);
+            var clientPacketSenderConfig = new ClientPacketSenderConfig(maxMessageSize, sendTickMs);
+            _packetBatchSender = new PacketBatchSender(taskSchedulerFactory, clientPacketSenderConfig, _logger);
             _serverSender = new ServerSender(logger, OnPackageReceived, taskSchedulerFactory.GetTaskScheduler());
+            _shamanSender = new ShamanSender(new BinarySerializer(), _packetBatchSender, clientPacketSenderConfig);
         }
 
         private void OnPackageReceived(DataPacket packetInfo, Action release)
@@ -302,11 +289,9 @@ namespace Shaman.Client.Peers
             }
         }
 
-        public int Send(MessageBase message, bool isReliable, bool isOrdered)
+        public int Send(ISerializable message, bool isReliable, bool isOrdered)
         {
-            var initMsgArray = _serializer.Serialize(message);
-            _packetBatchSender.AddPacket(_serverSender, initMsgArray, isReliable, isOrdered);
-            return initMsgArray.Length;
+            return _shamanSender.Send(message, new DeliveryOptions(isReliable, isOrdered), _serverSender);
         }
 
         public int GetSendQueueLength()

@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using Shaman.Common.Utils.Extensions;
-using Shaman.Common.Utils.Logging;
-using Shaman.Game.Contract;
+using Shaman.Contract.Bundle;
+using Shaman.Contract.Common.Logging;
 using Shaman.Messages;
 
 namespace Shaman.Game.Rooms.RoomProperties
@@ -103,6 +103,11 @@ namespace Shaman.Game.Rooms.RoomProperties
             {
                 _playersCameFromMatchMaker.Remove(sessionId);
             }
+        }
+
+        public Dictionary<byte, object> GetRoomProperties()
+        {
+            return _roomProperties;
         }
     }
 }

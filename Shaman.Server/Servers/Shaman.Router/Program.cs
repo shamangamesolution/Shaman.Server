@@ -1,5 +1,5 @@
-﻿using Shaman.Common.Utils.Logging;
-using Shaman.ServerSharedUtilities;
+﻿using Shaman.Contract.Routing;
+using Shaman.ServiceBootstrap;
 
 namespace Shaman.Router
 {
@@ -7,7 +7,7 @@ namespace Shaman.Router
     {
         internal static void Main(string[] args)
         {
-            Bootstrap.Launch<Startup>(SourceType.Router);
+            Bootstrap.Launch<Startup>();
         }
     }
 }

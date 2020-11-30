@@ -2,8 +2,8 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using Shaman.Common.Utils.Logging;
-using Shaman.Common.Utils.TaskScheduling;
+using Shaman.Contract.Common;
+using Shaman.Contract.Common.Logging;
 
 namespace Shaman.SyncedRepositories.Managers
 {
@@ -23,7 +23,7 @@ namespace Shaman.SyncedRepositories.Managers
         
         private object _queueSync = new object();
         private ConcurrentQueue<int> _changesQueue = new ConcurrentQueue<int>();
-        private PendingTask _clearTask;
+        private IPendingTask _clearTask;
         private object _changeIdMutex = new object();
         private int _currentChangeId;
         

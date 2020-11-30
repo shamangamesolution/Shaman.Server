@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp2.2</TargetFramework>
+        <OutputType>Exe</OutputType>
+    </PropertyGroup>
+    
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.App" />
+        <ProjectReference Include="..\..\Contracts\Shaman.Contract.Routing.Actualization\Shaman.Contract.Routing.Actualization.csproj" />
+        <ProjectReference Include="..\..\Contracts\Shaman.Contract.Routing.Meta\Shaman.Contract.Routing.Meta.csproj" />
+        <ProjectReference Include="..\..\Routing\Shaman.Routing.Common.Messages\Shaman.Routing.Common.Messages.csproj" />
+        <ProjectReference Include="..\Shaman.Launchers.Common.Game\Shaman.Launchers.Common.Game.csproj" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <Content Include="appsettings.launcher.GameServer.json">
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      </Content>
+    </ItemGroup>
+    
+
+
+</Project>

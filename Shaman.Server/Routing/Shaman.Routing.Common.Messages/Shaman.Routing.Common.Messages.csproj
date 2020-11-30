@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp2.2</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\Contracts\Shaman.Contract.Routing\Shaman.Contract.Routing.csproj" />
+      <ProjectReference Include="..\..\Serialization\Shaman.Serialization.Messages.Http\Shaman.Serialization.Messages.Http.csproj" />
+    </ItemGroup>
+
+</Project>

@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
-using Shaman.Common.Utils.Messages;
-using Shaman.Common.Utils.Serialization;
+using Shaman.Messages.Helpers;
+using Shaman.Serialization;
+using Shaman.Serialization.Messages.Udp;
 
 namespace Shaman.Messages.MM
 {
@@ -9,15 +10,17 @@ namespace Shaman.Messages.MM
     {
         public Guid RoomId { get; set; }
         public Dictionary<byte, object> MatchMakingProperties { get; set; }
-
-        public DirectJoinRequest(Guid roomId, Dictionary<byte, object> matchMakingProperties)
+        public int MatchMakingWeight { get; set; }
+        
+        public DirectJoinRequest(Guid roomId, Dictionary<byte, object> matchMakingProperties, int matchMakingWeight = 1)
             :this()
         {
             RoomId = roomId;
             MatchMakingProperties = matchMakingProperties;
+            MatchMakingWeight = matchMakingWeight;
         }
         
-        public DirectJoinRequest(): base(CustomOperationCode.DirectJoin)
+        public DirectJoinRequest(): base(ShamanOperationCode.DirectJoin)
         {
             
         }
@@ -27,12 +30,14 @@ namespace Shaman.Messages.MM
         {
             typeWriter.Write(RoomId);
             typeWriter.WriteDictionary(MatchMakingProperties, typeWriter.Write);
+            typeWriter.Write(MatchMakingWeight);
         }
 
         protected override void DeserializeRequestBody(ITypeReader typeReader)
         {
             RoomId = typeReader.ReadGuid();
             MatchMakingProperties = typeReader.ReadDictionary<byte>(typeReader.ReadByte);
+            MatchMakingWeight = typeReader.ReadInt();
         }
     }
 }

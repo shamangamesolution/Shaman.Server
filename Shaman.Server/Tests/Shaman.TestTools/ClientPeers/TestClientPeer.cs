@@ -4,20 +4,22 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Shaman.Client;
 using Shaman.Client.Peers;
 using Shaman.Client.Providers;
-using Shaman.Common.Server.Senders;
-using Shaman.Common.Utils.Logging;
-using Shaman.Common.Utils.Messages;
-using Shaman.Common.Utils.Serialization;
-using Shaman.Common.Utils.Sockets;
+using Shaman.Common.Http;
+using Shaman.Common.Udp.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
+using Shaman.Contract.Common;
+using Shaman.Contract.Common.Logging;
 using Shaman.Messages;
 using Shaman.Messages.General.DTO.Requests;
 using Shaman.Messages.General.DTO.Responses;
-using Shaman.Messages.General.Entity.Router;
 using Shaman.Messages.MM;
 using Shaman.Messages.RoomFlow;
+using Shaman.Serialization;
+using Shaman.Serialization.Messages;
+using Shaman.Serialization.Messages.Udp;
 
 namespace Shaman.TestTools.ClientPeers
 {
@@ -54,7 +56,7 @@ namespace Shaman.TestTools.ClientPeers
             _logger = logger;
             _serializer = serializer;
             _taskScheduler = taskSchedulerFactory.GetTaskScheduler();
-            _clientPeer = new ClientPeer(logger,taskSchedulerFactory, 300, 20);
+            _clientPeer = new ClientPeer(logger,taskSchedulerFactory, 300, 10);
             //_clientPeer.OnPackageReceived += ClientOnPackageReceived;
 
             _clientPeer.OnDisconnectedFromServer = OnDisconnected;
@@ -66,7 +68,7 @@ namespace Shaman.TestTools.ClientPeers
                 {
                     ClientOnPackageReceived(pack);
                 }
-            }, 0, 20);
+            }, 0, 10);
         }
 
         private void OnDisconnected(string reason)
@@ -78,9 +80,10 @@ namespace Shaman.TestTools.ClientPeers
 
         public async Task LoadRoutes(string routerUrl, string clientVersion)
         {
-            var httpSender = new HttpSender(_logger, new BinarySerializer());
-            var clientServerInfoProvider = new ClientServerInfoProvider(httpSender, _logger);
-
+            var httpSender = new TestClientHttpSender(_logger, new BinarySerializer());
+            var routerClient = new TestRouterClient(httpSender, _logger, routerUrl);
+            var clientServerInfoProvider =
+                new ClientServerInfoProvider(_logger, routerClient);
             _routeTable.AddRange(await clientServerInfoProvider.GetRoutes(routerUrl, clientVersion));
             _routeTable.Should().NotBeEmpty();
         }
@@ -114,6 +117,10 @@ namespace Shaman.TestTools.ClientPeers
         {
             _clientPeer.Send(message, message.IsReliable, message.IsOrdered);
         }
+        public void SendEvent<TMessage>(TMessage eve) where TMessage : MessageBase
+        {
+            _clientPeer.Send(new BundleMessageWrapper<TMessage>(eve), eve.IsReliable, eve.IsOrdered);
+        }
         public async Task<TResponse> Send<TResponse>(RequestBase message) where TResponse:ResponseBase, new()
         {
             _clientPeer.Send(message, message.IsReliable, message.IsOrdered);
@@ -125,18 +132,33 @@ namespace Shaman.TestTools.ClientPeers
         private void ProcessMessage(byte[] buffer, int offset, int length)
         {
             var operationCode = MessageBase.GetOperationCode(buffer, offset);
-            _logger.Info($"Message received. Operation code: {operationCode}");
-
-            _receivedMessages.Add(new RawMessage
+            _logger.LogInfo($"Message received. Operation code: {operationCode}");
+            if (operationCode != ShamanOperationCode.Bundle)
             {
-                Data = buffer.ToArray(),
-                Offset = offset,
-                Length = length,
-                OperationCode = operationCode
-            });
+                _receivedMessages.Add(new RawMessage
+                {
+                    Data = buffer.ToArray(),
+                    Offset = offset,
+                    Length = length,
+                    OperationCode = operationCode
+                });
+            }
+            else
+            {
+                var bundleOperationCode = MessageBase.GetOperationCode(buffer, offset + 1);
+                _logger.LogInfo($"It is bundle message ! {bundleOperationCode}");
+                _receivedMessages.Add(new RawMessage
+                {
+                    Data = buffer.ToArray(),
+                    Offset = offset + 1,
+                    Length = length - 1,
+                    OperationCode = bundleOperationCode
+                });
+            }
+
 
             //save join info
-            if (operationCode == CustomOperationCode.JoinInfo)
+            if (operationCode == ShamanOperationCode.JoinInfo)
                 _joinInfo = _serializer.DeserializeAs<JoinInfoEvent>(buffer, offset, length).JoinInfo;
         }
         
@@ -182,7 +204,7 @@ namespace Shaman.TestTools.ClientPeers
                     var deserialized = _serializer.DeserializeAs<T>(msg.Data, msg.Offset, msg.Length);
                     if (condition(deserialized))
                     {
-                        _logger.Info($"Condition for event {typeof(T)} was matched for {stopwatch.ElapsedMilliseconds}ms");
+                        _logger.LogInfo($"Condition for event {typeof(T)} was matched for {stopwatch.ElapsedMilliseconds}ms");
                         return deserialized;    
                     }
                 }

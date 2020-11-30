@@ -1,11 +1,11 @@
-using Shaman.Common.Utils.Messages;
-using Shaman.Common.Utils.Serialization;
+using Shaman.Serialization;
+using Shaman.Serialization.Messages.Udp;
 
 namespace Shaman.Messages.General.DTO.Requests.RepositorySync
 {
     public class GetAllRequestBase : RequestBase
     {
-        public GetAllRequestBase(ushort operationCode) : base(operationCode)
+        public GetAllRequestBase(byte operationCode) : base(operationCode)
         {
         }
 
