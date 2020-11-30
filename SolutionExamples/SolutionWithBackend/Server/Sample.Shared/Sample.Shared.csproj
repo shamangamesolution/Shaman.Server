@@ -1,0 +1,16 @@
+﻿ <Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>netstandard2.0;netcoreapp2.2</TargetFrameworks>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Shaman.Common.Utils" Version="1.7.3" />
+      <PackageReference Include="Shaman.Messages" Version="1.7.5" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Data\DTO\Events" />
+    </ItemGroup>
+
+</Project>

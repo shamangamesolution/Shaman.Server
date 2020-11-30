@@ -1,0 +1,11 @@
+{
+	"docker_repository": "dockerreport",
+	"router_url": "http://routerurul",
+	"aws_region": "eu-west-1",
+	"aws_profile": "profile",
+	"graphite_url": "net.tcp://graphitedomain",
+	"metrics_path_prefix": "mygame",
+	"loggly_token": "",
+	"error_level": "Error",
+	"overwriteDownloadedBundle": true
+}

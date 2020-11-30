@@ -1,0 +1,1 @@
+Publish *.Bundle project to folder X, then configure "BundlePath" variable of Game and MM applications in Shaman.Server.sln to corresponding publish path and run. 

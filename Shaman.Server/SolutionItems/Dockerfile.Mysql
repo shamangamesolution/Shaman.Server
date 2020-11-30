@@ -1,0 +1,3 @@
+FROM mysql:8.0
+
+ADD /DbBackups/db_all.sql /docker-entrypoint-initdb.d
