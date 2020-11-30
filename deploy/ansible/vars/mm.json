@@ -1,7 +1,0 @@
-{
-	"docker_image": "mm.latest",
-	"http_port": 7010,
-	"udp_port": 23458,
-	"container_name": "mm",
-	"server_version": "mm.latest"
-}

@@ -204,7 +204,17 @@ namespace Shaman.Client.Peers
                 {
                     //launch callback in another thread
                     var pack1 = pack;
-                    _taskScheduler.ScheduleOnceOnNow(() => { ClientOnPackageReceived(pack1); });
+                    _taskScheduler.ScheduleOnceOnNow(() =>
+                    {
+                        try
+                        {
+                            ClientOnPackageReceived(pack1);
+                        }
+                        catch (Exception e)
+                        {
+                            _logger.Error($"ClientOnPackageReceived  error: {e}");
+                        }
+                    });
                 }
             }, 0, _pollPackageQueueIntervalMs);
         }
@@ -214,8 +224,16 @@ namespace Shaman.Client.Peers
             IPacketInfo pack;
             while ((pack = PopNextPacket()) != null)
             {
-                //launch callback in another thread
-                ClientOnPackageReceived(pack);
+                try
+                {
+                    //launch callback in another thread
+                    ClientOnPackageReceived(pack);
+                }
+                catch (Exception e)
+                {
+                    _logger.Error($"ClientOnPackageReceived error: {e}");
+                }
+
             }
         }
 

@@ -47,48 +47,6 @@ namespace Shaman.Tests
         [SetUp]
         public void Setup()
         {
-            // _measures = new Dictionary<byte, object>();
-            // _measures.Add(PropertyCode.PlayerProperties.Level, 1);
-            // _roomPropertiesProvider = new FakeRoomPropertiesProvider1();
-            //
-            // var config = new MmApplicationConfig("", "127.0.0.1", new List<ushort> {MM_SERVER_PORT}, "", 120000, GameProject.DefaultGame, "", 7002);
-            // taskSchedulerFactory = new TaskSchedulerFactory(_serverLogger);
-            // requestSender = new FakeSender();
-            // _serverProvider = new FakeMatchMakerServerInfoProvider(requestSender, "127.0.0.1", "222");
-            //
-            // _backendProvider = new BackendProvider(taskSchedulerFactory, config, requestSender, _serverLogger);
-            // _packetSender = new PacketBatchSender(taskSchedulerFactory, config, _serverLogger);
-            // _playerManager = new PlayersManager( Mock.Of<IMmMetrics>(), _serverLogger);
-            // _mmRoomManager =
-            //     new MM.Managers.RoomManager(_serverProvider, _serverLogger, taskSchedulerFactory);
-            // _mmGroupManager = new MatchMakingGroupManager(_serverLogger, taskSchedulerFactory, _playerManager, _packetSender,  Mock.Of<IMmMetrics>(), _mmRoomManager, _roomPropertiesProvider, config);
-            //
-            // matchMaker = new MatchMaker(_serverLogger,  _packetSender,Mock.Of<IMmMetrics>(), _playerManager, _mmGroupManager);
-            // _measures = new Dictionary<byte, object>();
-            // _measures.Add(PropertyCode.PlayerProperties.Level, 1);
-            //
-            // //matchMaker.AddMatchMakingGroup(TOTAL_PLAYERS_NEEDED_1, MM_TICK, true, true, 5000, 120000, new Dictionary<byte, object>(), new Dictionary<byte, object> {{PropertyCode.PlayerProperties.Level, 1}});
-            // matchMaker.AddMatchMakingGroup(_measures);
-            //
-            // _measures = new Dictionary<byte, object>();
-            // _measures.Add(PropertyCode.PlayerProperties.Level, 2);
-            //
-            // //matchMaker.AddMatchMakingGroup(TOTAL_PLAYERS_NEEDED_2, MM_TICK, true, true, 5000, 120000, new Dictionary<byte, object>(), new Dictionary<byte, object> {{PropertyCode.PlayerProperties.Level, 2}});
-            // matchMaker.AddMatchMakingGroup(_measures);
-            //
-            // _measures = new Dictionary<byte, object>();
-            // _measures.Add(PropertyCode.PlayerProperties.Level, 3);
-            //
-            // //matchMaker.AddMatchMakingGroup(TOTAL_PLAYERS_NEEDED_2, MM_TICK, true, true, 1000, 10000, new Dictionary<byte, object>(), new Dictionary<byte, object> {{PropertyCode.PlayerProperties.Level, 3}});
-            // matchMaker.AddMatchMakingGroup(_measures);
-            //
-            // matchMaker.AddRequiredProperty(PropertyCode.PlayerProperties.Level);
-            //
-            // //setup server
-            // _mmApplication = new MmApplication(_serverLogger, config, serializer, socketFactory, matchMaker,
-            //     requestSender, taskSchedulerFactory, _backendProvider, _packetSender, _serverProvider, _mmRoomManager,
-            //     _mmGroupManager, _playerManager, Mock.Of<IMmMetrics>());
-
             _gameApplication = InstanceHelper.GetGame(SERVER_PORT);
             _mmApplication = InstanceHelper.GetMm(MM_SERVER_PORT, 0, _gameApplication);
             _mmApplication.Start();
@@ -154,30 +112,7 @@ namespace Shaman.Tests
             stats = _mmApplication.GetStats();
             Assert.AreEqual(0, stats.TotalPlayers);
         }
-        
-        
-        // //player joining with level which is not included in matchmaking rules
-        // [Test]
-        // public void UnsuccessfulJoinBecauseOfIncorrectLevel()
-        // {
-        //
-        //     //11 level is not included in MM rules 
-        //     JoinMm(11);
-        //     var stats = _mmApplication.GetStats();
-        //     
-        //     //wait for MM_TICK*2 ms
-        //     EmptyTask.Wait(MM_TICK*2);
-        //     //check if we received join info event
-        //     var joinInfoCount = _client1.GetCountOf(CustomOperationCode.JoinInfo);
-        //     Assert.AreEqual(0, joinInfoCount);
-        //     
-        //     _client1.Send(new LeaveMatchMakingRequest());
-        //     EmptyTask.Wait(WAIT_TIMEOUT*2);
-        //     stats = _mmApplication.GetStats();
-        //     Assert.AreEqual(0, stats.TotalPlayers);
-        // }
-        
-        //player joining to group where 2 players are required
+
         [Test]
         public async Task UnsuccessfulLongMMTime()
         {            
@@ -216,6 +151,7 @@ namespace Shaman.Tests
         public async Task SecondJoinToSameRoom()
         {
             RegisterServer();
+            
             //clients connect
             _client1.Connect(CLIENT_CONNECTS_TO_IP, MM_SERVER_PORT);
             _client2.Connect(CLIENT_CONNECTS_TO_IP, MM_SERVER_PORT);
@@ -240,14 +176,41 @@ namespace Shaman.Tests
             Assert.AreEqual(1, stats.CreatedRoomsCount);
             
             //third join after room closed
-            EmptyTask.Wait(10000);
             await _client3.Send<EnterMatchMakingResponse>(new EnterMatchMakingRequest(new Dictionary<byte, object> { {FakePropertyCodes.PlayerProperties.Level, 3} }));
 
-            await _client3.WaitFor<JoinInfoEvent>(e => e.JoinInfo != null && e.JoinInfo.Status == JoinStatus.RoomIsReady);
+            await _client3.WaitFor<JoinInfoEvent>(e => e.JoinInfo != null && e.JoinInfo.Status == JoinStatus.RoomIsReady, 11000);
             
             stats = _mmApplication.GetStats();
             Assert.AreEqual(2, stats.CreatedRoomsCount);
 
+        }
+
+        [Test]
+        public async Task JoinMaxPlusOne()
+        {
+            RegisterServer();
+            
+            //clients connect
+            _client1.Connect(CLIENT_CONNECTS_TO_IP, MM_SERVER_PORT);
+            _client2.Connect(CLIENT_CONNECTS_TO_IP, MM_SERVER_PORT);
+            _client3.Connect(CLIENT_CONNECTS_TO_IP, MM_SERVER_PORT);
+
+            EmptyTask.Wait(WAIT_TIMEOUT);
+
+            await _client1.Send<EnterMatchMakingResponse>(new EnterMatchMakingRequest(new Dictionary<byte, object> { {FakePropertyCodes.PlayerProperties.Level, 3} }));
+            await _client2.Send<EnterMatchMakingResponse>(new EnterMatchMakingRequest(new Dictionary<byte, object> { {FakePropertyCodes.PlayerProperties.Level, 3} }));
+            await _client3.Send<EnterMatchMakingResponse>(new EnterMatchMakingRequest(new Dictionary<byte, object> { {FakePropertyCodes.PlayerProperties.Level, 3} }));
+            
+            //wait for adding bots and creating room
+            EmptyTask.Wait(1000);
+            
+            await _client1.WaitFor<JoinInfoEvent>(e => e.JoinInfo != null && e.JoinInfo.Status == JoinStatus.RoomIsReady);
+            await _client2.WaitFor<JoinInfoEvent>(e => e.JoinInfo != null && e.JoinInfo.Status == JoinStatus.RoomIsReady);
+            await _client3.WaitFor<JoinInfoEvent>(e => e.JoinInfo != null && e.JoinInfo.Status == JoinStatus.RoomIsReady);
+
+            //check room number
+            var stats = _mmApplication.GetStats();
+            Assert.AreEqual(2, stats.CreatedRoomsCount);
         }
     }
 }

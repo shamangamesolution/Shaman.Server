@@ -33,16 +33,6 @@ namespace Shaman.Tests
         [SetUp]
         public void Setup()
         {
-            // taskSchedulerFactory = new TaskSchedulerFactory(_serverLogger);
-            // var config =
-            //     new GameApplicationConfig("", "", "127.0.0.1", new List<ushort> {SERVER_PORT_1, SERVER_PORT_2}, "", "", 7000);
-            // _requestSender = new FakeSender();
-            // _backendProvider = new BackendProvider(taskSchedulerFactory, config, _requestSender, _serverLogger);
-            // //setup server
-            // _roomControllerFactory = new FakeRoomControllerFactory();
-            // _packetSender = new PacketBatchSender(taskSchedulerFactory, config, _serverLogger);
-            // _roomManager = new RoomManager(_serverLogger, serializer, config, taskSchedulerFactory,  _roomControllerFactory, _packetSender,Mock.Of<IGameMetrics>(), _requestSender);
-            // _gameApplication = new GameApplication(_serverLogger, config, serializer, socketFactory, taskSchedulerFactory, _requestSender, _backendProvider, _roomManager, _packetSender);
             _gameApplication = InstanceHelper.GetGame(new List<ushort> {SERVER_PORT_1, SERVER_PORT_2});
             _gameApplication.Start();
             

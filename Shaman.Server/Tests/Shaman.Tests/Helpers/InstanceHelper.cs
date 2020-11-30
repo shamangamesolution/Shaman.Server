@@ -59,7 +59,7 @@ namespace Shaman.Tests.Helpers
                 SocketType = SocketType.BareSocket,
                 ReceiveTickTimeMs = 20
             };
-            var roomPropertiesProvider = new FakeRoomPropertiesProvider3(250, maximumPlayers, 5000);
+            var roomPropertiesProvider = new FakeRoomPropertiesProvider3(250, maximumPlayers, 10000);
             var taskSchedulerFactory = new TaskSchedulerFactory(serverLogger);
             var requestSender = new FakeSenderWithGameApplication(gameApplication,  new Dictionary<byte, object> {{PropertyCode.RoomProperties.GameMode, (byte) GameMode.SinglePlayer}}, CreateRoomDelegate,  UpdateRoomDelegate);
 

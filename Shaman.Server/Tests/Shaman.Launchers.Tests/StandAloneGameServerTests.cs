@@ -58,9 +58,9 @@ namespace Shaman.Launchers.Tests
             }
 
             foreach (var client in clients)
-                client.Key.DirectConnectToGameServerToRandomRoom("127.0.0.1", 23452, client.Value, mmProperties, joinProperties);
+                await client.Key.DirectConnectToGameServerToRandomRoom("127.0.0.1", 23452, client.Value, mmProperties, joinProperties);
             
-            await Task.Delay(3000);
+            await Task.Delay(5000);
             
             foreach(var client in clients)
                 Assert.AreEqual(ShamanClientStatus.InRoom,  client.Key.GetStatus());
