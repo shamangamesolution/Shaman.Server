@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Shaman.Common.Server.Peers;
 using Shaman.Common.Utils.Messages;
+using Shaman.Common.Utils.Sockets;
 using Shaman.Game.Contract;
 using Shaman.Game.Contract.Stats;
 
@@ -12,7 +13,7 @@ namespace Shaman.Game.Rooms
     {
         Guid GetRoomId();
         Task<bool> PeerJoined(IPeer peer, Dictionary<byte, object> peerProperties);
-        bool PeerDisconnected(Guid sessionId, PeerDisconnectedReason reason);
+        bool PeerDisconnected(Guid sessionId, IDisconnectInfo reason);
         int SendToAll(MessageBase message, params Guid[] exceptions);
         int AddToSendQueue(MessageBase message, Guid sessionId);
         void ProcessMessage(ushort operationCode, MessageData message, Guid sessionId);
@@ -38,5 +39,6 @@ namespace Shaman.Game.Rooms
             params Guid[] exceptions);
 
         TimeSpan ForceDestroyRoomAfter { get; }
+        bool AddPeerToRoom(IPeer peer, Dictionary<byte, object> peerProperties);
     }
 }

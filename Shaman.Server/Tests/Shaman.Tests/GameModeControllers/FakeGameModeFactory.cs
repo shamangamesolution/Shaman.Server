@@ -30,7 +30,7 @@ namespace Shaman.Tests.GameModeControllers
             return Task.FromResult(true);
         }
 
-        public void CleanupPlayer(Guid sessionId, PeerDisconnectedReason reason)
+        public void CleanupPlayer(Guid sessionId, PeerDisconnectedReason reason, byte[] reasonPayload)
         {
             Interlocked.Decrement(ref _playerCount);
         }

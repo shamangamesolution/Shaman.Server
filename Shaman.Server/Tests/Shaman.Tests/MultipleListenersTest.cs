@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
+using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Game;
@@ -46,8 +47,8 @@ namespace Shaman.Tests
             //setup server
             _gameModeControllerFactory = new FakeGameModeControllerFactory();
             _packetSender = new PacketBatchSender(taskSchedulerFactory, config, serializer, _serverLogger);
-            _roomManager = new RoomManager(_serverLogger, serializer, config, taskSchedulerFactory,  _gameModeControllerFactory, _packetSender,Mock.Of<IGameMetrics>(), _requestSender);
-            _gameApplication = new GameApplication(_serverLogger, config, serializer, socketFactory, taskSchedulerFactory, _requestSender, _backendProvider, _roomManager, _packetSender);
+            _roomManager = new RoomManager(_serverLogger, serializer, config, taskSchedulerFactory,  _gameModeControllerFactory, _packetSender,Mock.Of<IGameMetrics>(), _requestSender, Mock.Of<IRoomStateUpdater>());
+            _gameApplication = new GameApplication(_serverLogger, config, serializer, socketFactory, taskSchedulerFactory, _requestSender, _backendProvider, _roomManager, _packetSender,Mock.Of<IGameMetrics>());
             _gameApplication.Start();
             
             //setup client

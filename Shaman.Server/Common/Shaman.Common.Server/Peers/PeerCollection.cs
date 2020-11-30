@@ -36,6 +36,11 @@ namespace Shaman.Common.Server.Peers
         {
             _peers.TryRemove(endPoint, out var peer);
         }
+        
+        public bool TryRemove(IPEndPoint endPoint, out T peer)
+        {
+            return _peers.TryRemove(endPoint, out peer);
+        }
 
         public void RemoveAll()
         {

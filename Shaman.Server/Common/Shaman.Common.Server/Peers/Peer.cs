@@ -38,13 +38,11 @@ namespace Shaman.Common.Server.Peers
             _logger = logger;
         }
 
-        public void Disconnect(DisconnectReason reason)
+        public void Disconnect(ServerDisconnectReason reason)
         {
-            // todo test this stuff before open
-            if (reason == DisconnectReason.Forced)
-            {
-                _socket.DisconnectPeer(_endpoint);
-            }
+            if (reason != ServerDisconnectReason.KickedByServer)
+                _logger.Error($"DEBUG: Peer '{_sessionId}' disconnected {reason}: {Environment.StackTrace}");
+            _socket.DisconnectPeer(_endpoint);
         }
 
 //        public void Send(MessageBase message)

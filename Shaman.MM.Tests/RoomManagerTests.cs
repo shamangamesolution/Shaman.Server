@@ -2,17 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
-using Newtonsoft.Json.Bson;
 using NUnit.Framework;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Messages;
-using Shaman.Messages.General.Entity;
 using Shaman.Messages.MM;
-using Shaman.MM.Configuration;
 using Shaman.MM.Managers;
-using Shaman.MM.Metrics;
 using Shaman.MM.Providers;
 using Shaman.MM.Tests.Fakes;
 
@@ -45,7 +40,7 @@ namespace Shaman.MM.Tests
         }
 
         [Test]
-        public void CreateRoomTest()
+        public async Task CreateRoomTest()
         {
             var players = new Dictionary<Guid, Dictionary<byte, object>>
             {
@@ -58,7 +53,7 @@ namespace Shaman.MM.Tests
             JoinRoomResult result = null;
             try
             {
-                result = _roomManager.CreateRoom(_group1Id, players, properties);
+                result = await _roomManager.CreateRoom(_group1Id, players, properties);
             }
             catch (Exception e)
             {
@@ -77,7 +72,7 @@ namespace Shaman.MM.Tests
             result = null;
             try
             {
-                result = _roomManager.CreateRoom(_group1Id, players, properties);
+                result = await _roomManager.CreateRoom(_group1Id, players, properties);
             }
             catch (Exception e)
             {
@@ -94,7 +89,7 @@ namespace Shaman.MM.Tests
         }
 
         [Test]
-        public void CreateRoomNoServersTest()
+        public async Task CreateRoomNoServersTest()
         {
             _serverProvider = new FakeServerProvider(false, true);
             _roomManager = new RoomManager(_serverProvider, _logger, _taskSchedulerFactory);
@@ -108,7 +103,7 @@ namespace Shaman.MM.Tests
             properties.Add(PropertyCode.RoomProperties.TotalPlayersNeeded, 3);
             try
             {
-                result = _roomManager.CreateRoom(_group1Id, players, properties);
+                result = await _roomManager.CreateRoom(_group1Id, players, properties);
             }
             catch (Exception e)
             {
@@ -124,7 +119,7 @@ namespace Shaman.MM.Tests
         }
         
         [Test]
-        public void CreateRoomRoomEmptyTest()
+        public async Task CreateRoomRoomEmptyTest()
         {
             _serverProvider = new FakeServerProvider(returnEmptyGuid: true);
             _roomManager = new RoomManager(_serverProvider, _logger, _taskSchedulerFactory);
@@ -138,7 +133,7 @@ namespace Shaman.MM.Tests
             properties.Add(PropertyCode.RoomProperties.TotalPlayersNeeded, 3);
             try
             {
-                result = _roomManager.CreateRoom(_group1Id, players, properties);
+                result = await _roomManager.CreateRoom(_group1Id, players, properties);
             }
             catch (Exception e)
             {
@@ -154,7 +149,7 @@ namespace Shaman.MM.Tests
         }
 
         [Test]
-        public void GetRoomTest()
+        public async Task GetRoomTest()
         {
             //create room
             var players = new Dictionary<Guid, Dictionary<byte, object>>
@@ -166,7 +161,7 @@ namespace Shaman.MM.Tests
             
             properties.Add(PropertyCode.RoomProperties.TotalPlayersNeeded, 3);
             
-            var result = _roomManager.CreateRoom(_group1Id, players, properties);
+            var result = await _roomManager.CreateRoom(_group1Id, players, properties);
             Assert.IsNotNull(result);
             Assert.AreEqual(result.Result, RoomOperationResult.OK);
             Assert.AreEqual(result.Address, "0.0.0.0");
@@ -217,7 +212,7 @@ namespace Shaman.MM.Tests
         }
 
         [Test]
-        public void JoinNoServersTest()
+        public async Task JoinNoServersTest()
         {
             var players = new Dictionary<Guid, Dictionary<byte, object>>
             {
@@ -227,7 +222,7 @@ namespace Shaman.MM.Tests
             
             properties.Add(PropertyCode.RoomProperties.TotalPlayersNeeded, 2);
             
-            var result = _roomManager.CreateRoom(_group1Id, players, properties);
+            var result = await _roomManager.CreateRoom(_group1Id, players, properties);
             Assert.IsNotNull(result);
             Assert.AreEqual(result.Result, RoomOperationResult.OK);
             Assert.AreEqual(result.Address, "0.0.0.0");
@@ -243,7 +238,7 @@ namespace Shaman.MM.Tests
             {
                 {Guid.NewGuid(), new Dictionary<byte, object>()}
             };
-            result = _roomManager.JoinRoom(result.RoomId, players);
+            result = await _roomManager.JoinRoom(result.RoomId, players);
             Assert.IsNotNull(result);
             Assert.AreEqual(result.Result, RoomOperationResult.OK);
             Assert.AreEqual(result.Address, "0.0.0.0");
@@ -258,13 +253,13 @@ namespace Shaman.MM.Tests
             {
                 {Guid.NewGuid(), new Dictionary<byte, object>()}
             };
-            result = _roomManager.JoinRoom(result.RoomId, players);
+            result = await _roomManager.JoinRoom(result.RoomId, players);
             Assert.IsNotNull(result);
             Assert.AreEqual(RoomOperationResult.JoinRoomError, result.Result);
         }
         
         [Test]
-        public void JoinTest()
+        public async Task JoinTest()
         {
             var players = new Dictionary<Guid, Dictionary<byte, object>>
             {
@@ -275,7 +270,7 @@ namespace Shaman.MM.Tests
             
             properties.Add(PropertyCode.RoomProperties.TotalPlayersNeeded, 2);
             
-            var result = _roomManager.CreateRoom(_group1Id, players, properties);
+            var result = await _roomManager.CreateRoom(_group1Id, players, properties);
             Assert.IsNotNull(result);
             Assert.AreEqual(result.Result, RoomOperationResult.OK);
             Assert.AreEqual(result.Address, "0.0.0.0");
@@ -291,7 +286,7 @@ namespace Shaman.MM.Tests
             {
                 {Guid.NewGuid(), new Dictionary<byte, object>()}
             };
-            result = _roomManager.JoinRoom(result.RoomId, players);
+            result = await _roomManager.JoinRoom(result.RoomId, players);
             Assert.IsNotNull(result);
             Assert.AreEqual(result.Result, RoomOperationResult.OK);
             Assert.AreEqual(result.Address, "0.0.0.0");
@@ -306,7 +301,7 @@ namespace Shaman.MM.Tests
             {
                 {Guid.NewGuid(), new Dictionary<byte, object>()}
             };
-            result = _roomManager.JoinRoom(result.RoomId, players);
+            result = await _roomManager.JoinRoom(result.RoomId, players);
             Assert.IsNotNull(result);
             Assert.AreEqual(RoomOperationResult.JoinRoomError, result.Result);
         }

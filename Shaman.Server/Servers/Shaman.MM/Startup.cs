@@ -19,7 +19,7 @@ using Shaman.Game.Contract;
 using Shaman.LiteNetLibAdapter;
 using Shaman.MM.Configuration;
 using Shaman.MM.MatchMaking;
-using Shaman.ServerSharedUtilities.Backends;
+// using Shaman.ServerSharedUtilities.Backends;
 using Shaman.ServerSharedUtilities.Logging;
 using Shaman.MM.Contract;
 using Shaman.MM.Managers;
@@ -94,7 +94,6 @@ namespace Shaman.MM
             services.AddSingleton<IRequestSender, HttpSender>();            
             services.AddSingleton<IMatchMaker, MatchMaker>();    
             services.AddSingleton<IApplication, MmApplication>();
-            services.AddSingleton<IBackendProvider, BackendProvider>();
             services.AddSingleton<IStatisticsProvider, StatisticsProvider>();
             services.AddSingleton<IMatchMakingGroupsManager, MatchMakingGroupManager>();
             services.AddSingleton<IPlayersManager, PlayersManager>();

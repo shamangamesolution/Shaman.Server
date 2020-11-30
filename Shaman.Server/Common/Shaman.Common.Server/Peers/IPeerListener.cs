@@ -17,6 +17,7 @@ namespace Shaman.Common.Server.Peers
         void StopListening();
         void OnReceivePacketFromClient(IPEndPoint endPoint, DataPacket dataPacket);
         void OnNewClientConnect(IPEndPoint endPoint);
-        void OnClientDisconnect(IPEndPoint endPoint, string reason);
+        void OnClientDisconnect(IPEndPoint endPoint, IDisconnectInfo info);
+        int ResetTickDurationStatistics();
     }
 }

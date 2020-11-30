@@ -24,7 +24,17 @@ namespace Shaman.Common.Server.Peers
         private ITaskSchedulerFactory _taskSchedulerFactory;
         protected ITaskScheduler TaskScheduler;
         private PendingTask _socketTickTask;
-        
+
+        private int _maxSendDuration = int.MinValue;
+        private DateTime _lastTick = DateTime.UtcNow;
+
+        public int ResetTickDurationStatistics()
+        {
+            var duration = _maxSendDuration;
+            _maxSendDuration = 0;
+            return duration;
+        }
+
         public abstract void OnReceivePacketFromClient(IPEndPoint endPoint, DataPacket dataPacket);
 
         private ushort _port;
@@ -83,11 +93,17 @@ namespace Shaman.Common.Server.Peers
             _reliableSocket.Listen(_port);
             
             _reliableSocket.AddEventCallbacks(OnReceivePacket, OnNewClientConnect, OnClientDisconnect);
-
+            
+            _lastTick = DateTime.UtcNow;
             _socketTickTask = TaskScheduler.ScheduleOnInterval(() =>
             {
                 if (_isStopping)
                     return;
+
+                var duration = (DateTime.UtcNow - _lastTick).Milliseconds;
+                _lastTick = DateTime.UtcNow;
+                if (duration > _maxSendDuration) // overlapping not matters
+                    _maxSendDuration = duration;
 
                 _reliableSocket.Tick();
             }, 0, Config.GetSocketTickTimeMs());
@@ -105,11 +121,22 @@ namespace Shaman.Common.Server.Peers
             PeerCollection.Add(endPoint, _reliableSocket);
         }
 
-        public virtual void OnClientDisconnect(IPEndPoint endPoint, string reason)
+        public void OnClientDisconnect(IPEndPoint endPoint, IDisconnectInfo info)
         {
-            _logger.Info($"Disconnected: {endPoint.Address} : {endPoint.Port}. Reason: {reason}");
-            PeerCollection.Remove(endPoint);
+            using (info)
+            {
+                _logger.Info($"Disconnected: {endPoint.Address} : {endPoint.Port}. Reason: {info}");
+                if (!PeerCollection.TryRemove(endPoint, out var peer))
+                {
+                    _logger.Warning($"OnClientDisconnect error: can not find peer for endpoint {endPoint.Address}:{endPoint.Port}");
+                    return;
+                }
+                PeerCollection.Remove(endPoint);
+                ProcessDisconnectedPeer(peer, info);
+            }
         }
+
+        protected abstract void ProcessDisconnectedPeer(T peer, IDisconnectInfo info);
 
         public void StopListening()
         {

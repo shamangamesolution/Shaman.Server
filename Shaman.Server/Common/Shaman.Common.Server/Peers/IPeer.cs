@@ -17,6 +17,6 @@ namespace Shaman.Common.Server.Peers
         void Initialize(IPEndPoint endpoint, Guid peerId, IReliableSock socket, ISerializer serializer,
             IApplicationConfig config, IShamanLogger logger);
 
-        void Disconnect(DisconnectReason reason);
+        void Disconnect(ServerDisconnectReason reason);
     }
 }

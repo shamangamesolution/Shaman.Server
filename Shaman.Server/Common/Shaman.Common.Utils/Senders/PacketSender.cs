@@ -113,14 +113,15 @@ namespace Shaman.Common.Utils.Senders
 
         public void PeerDisconnected(IPeerSender peer)
         {
-            lock (_sync)
+            if (_peerToPackets.TryRemove(peer, out var packetQueue))
             {
-                if (_peerToPackets.TryRemove(peer, out var packetQueue))
+                lock (_sync)
                 {
                     foreach (var packet in packetQueue)
                     {
                         packet.Dispose();
                     }
+                    packetQueue.Clear();
                 }
             }
         }
@@ -147,7 +148,6 @@ namespace Shaman.Common.Utils.Senders
             {
                 lock (_sync)
                 {
-                    var queueCount = kv.Value.Count;
                     while (kv.Value.TryDequeue(out var pack))
                     {
                         using (pack)
@@ -155,7 +155,6 @@ namespace Shaman.Common.Utils.Senders
                             kv.Key.Send(pack);
                         }
                     }
-                    _logger.Debug($"Send {queueCount} packets");
                 }
             }
         }
@@ -180,9 +179,12 @@ namespace Shaman.Common.Utils.Senders
             {
                 if (_peerToPackets.TryRemove(peer, out var q))
                 {
-                    while (q.TryDequeue(out var pack))
+                    lock (_sync)
                     {
-                        pack.Dispose();
+                        while (q.TryDequeue(out var pack))
+                        {
+                            pack.Dispose();
+                        }
                     }
                 }
             }

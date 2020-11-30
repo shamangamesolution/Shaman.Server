@@ -80,6 +80,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Monkeys", "Shaman.Se
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.SyncedRepositories", "Shaman.Server\Common\Shaman.SyncedRepositories\Shaman.SyncedRepositories.csproj", "{ECB0F723-FD79-4AD5-BBDD-2A2407C2FA15}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.DAL.MongoDb", "Shaman.Server\Database\Shaman.DAL.MongoDb\Shaman.DAL.MongoDb.csproj", "{7C6833AA-010D-4A6F-9EFA-5E838F9CEE4D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.DAL.MongoDb.Tests", "Shaman.Server\Tests\Shaman.DAL.MongoDb.Tests\Shaman.DAL.MongoDb.Tests.csproj", "{8080CAC9-A80C-4DC3-80E9-DF5894A53CD7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Client.Tests", "Shaman.Server\Clients\Shaman.Client.Tests\Shaman.Client.Tests.csproj", "{EAED5187-3EAB-40FD-B2F7-ED83F5A01940}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Client.TestBundle", "Shaman.Server\Clients\Shaman.Client.TestBundle\Shaman.Client.TestBundle.csproj", "{9CCCDD65-5516-418F-8EAA-E9A7A72C5D53}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -450,6 +458,54 @@ Global
 		{ECB0F723-FD79-4AD5-BBDD-2A2407C2FA15}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{ECB0F723-FD79-4AD5-BBDD-2A2407C2FA15}.Release|Win32.ActiveCfg = Release|Any CPU
 		{ECB0F723-FD79-4AD5-BBDD-2A2407C2FA15}.Release|Win32.Build.0 = Release|Any CPU
+		{7C6833AA-010D-4A6F-9EFA-5E838F9CEE4D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C6833AA-010D-4A6F-9EFA-5E838F9CEE4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7C6833AA-010D-4A6F-9EFA-5E838F9CEE4D}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{7C6833AA-010D-4A6F-9EFA-5E838F9CEE4D}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{7C6833AA-010D-4A6F-9EFA-5E838F9CEE4D}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{7C6833AA-010D-4A6F-9EFA-5E838F9CEE4D}.Debug|Win32.Build.0 = Debug|Any CPU
+		{7C6833AA-010D-4A6F-9EFA-5E838F9CEE4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7C6833AA-010D-4A6F-9EFA-5E838F9CEE4D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7C6833AA-010D-4A6F-9EFA-5E838F9CEE4D}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{7C6833AA-010D-4A6F-9EFA-5E838F9CEE4D}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{7C6833AA-010D-4A6F-9EFA-5E838F9CEE4D}.Release|Win32.ActiveCfg = Release|Any CPU
+		{7C6833AA-010D-4A6F-9EFA-5E838F9CEE4D}.Release|Win32.Build.0 = Release|Any CPU
+		{8080CAC9-A80C-4DC3-80E9-DF5894A53CD7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8080CAC9-A80C-4DC3-80E9-DF5894A53CD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8080CAC9-A80C-4DC3-80E9-DF5894A53CD7}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{8080CAC9-A80C-4DC3-80E9-DF5894A53CD7}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{8080CAC9-A80C-4DC3-80E9-DF5894A53CD7}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{8080CAC9-A80C-4DC3-80E9-DF5894A53CD7}.Debug|Win32.Build.0 = Debug|Any CPU
+		{8080CAC9-A80C-4DC3-80E9-DF5894A53CD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8080CAC9-A80C-4DC3-80E9-DF5894A53CD7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8080CAC9-A80C-4DC3-80E9-DF5894A53CD7}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{8080CAC9-A80C-4DC3-80E9-DF5894A53CD7}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{8080CAC9-A80C-4DC3-80E9-DF5894A53CD7}.Release|Win32.ActiveCfg = Release|Any CPU
+		{8080CAC9-A80C-4DC3-80E9-DF5894A53CD7}.Release|Win32.Build.0 = Release|Any CPU
+		{EAED5187-3EAB-40FD-B2F7-ED83F5A01940}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EAED5187-3EAB-40FD-B2F7-ED83F5A01940}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EAED5187-3EAB-40FD-B2F7-ED83F5A01940}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{EAED5187-3EAB-40FD-B2F7-ED83F5A01940}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{EAED5187-3EAB-40FD-B2F7-ED83F5A01940}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{EAED5187-3EAB-40FD-B2F7-ED83F5A01940}.Debug|Win32.Build.0 = Debug|Any CPU
+		{EAED5187-3EAB-40FD-B2F7-ED83F5A01940}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EAED5187-3EAB-40FD-B2F7-ED83F5A01940}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EAED5187-3EAB-40FD-B2F7-ED83F5A01940}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{EAED5187-3EAB-40FD-B2F7-ED83F5A01940}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{EAED5187-3EAB-40FD-B2F7-ED83F5A01940}.Release|Win32.ActiveCfg = Release|Any CPU
+		{EAED5187-3EAB-40FD-B2F7-ED83F5A01940}.Release|Win32.Build.0 = Release|Any CPU
+		{9CCCDD65-5516-418F-8EAA-E9A7A72C5D53}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9CCCDD65-5516-418F-8EAA-E9A7A72C5D53}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9CCCDD65-5516-418F-8EAA-E9A7A72C5D53}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{9CCCDD65-5516-418F-8EAA-E9A7A72C5D53}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{9CCCDD65-5516-418F-8EAA-E9A7A72C5D53}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{9CCCDD65-5516-418F-8EAA-E9A7A72C5D53}.Debug|Win32.Build.0 = Debug|Any CPU
+		{9CCCDD65-5516-418F-8EAA-E9A7A72C5D53}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9CCCDD65-5516-418F-8EAA-E9A7A72C5D53}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9CCCDD65-5516-418F-8EAA-E9A7A72C5D53}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{9CCCDD65-5516-418F-8EAA-E9A7A72C5D53}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{9CCCDD65-5516-418F-8EAA-E9A7A72C5D53}.Release|Win32.ActiveCfg = Release|Any CPU
+		{9CCCDD65-5516-418F-8EAA-E9A7A72C5D53}.Release|Win32.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -483,5 +539,9 @@ Global
 		{9299C868-D953-42BF-B296-BA6C89909C57} = {5681CC39-9FAB-4A2F-935B-3BE870EB18B6}
 		{F0CCAFC4-109E-45EB-B8C2-F36F80931096} = {3A4DE7F7-1B80-4C8D-9175-A2CED54DA593}
 		{ECB0F723-FD79-4AD5-BBDD-2A2407C2FA15} = {0F24BC06-D961-4A3F-9EFD-1B4A96688425}
+		{7C6833AA-010D-4A6F-9EFA-5E838F9CEE4D} = {A491A8CA-15CB-4741-9356-D9378A3AD48E}
+		{8080CAC9-A80C-4DC3-80E9-DF5894A53CD7} = {3A4DE7F7-1B80-4C8D-9175-A2CED54DA593}
+		{EAED5187-3EAB-40FD-B2F7-ED83F5A01940} = {6D2BFABF-B635-44CE-B8D1-535521B1174C}
+		{9CCCDD65-5516-418F-8EAA-E9A7A72C5D53} = {6D2BFABF-B635-44CE-B8D1-535521B1174C}
 	EndGlobalSection
 EndGlobal

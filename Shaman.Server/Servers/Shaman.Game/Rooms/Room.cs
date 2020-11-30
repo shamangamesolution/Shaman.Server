@@ -7,6 +7,7 @@ using Shaman.Common.Server.Peers;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Senders;
+using Shaman.Common.Utils.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Game.Contract;
 using Shaman.Messages;
@@ -155,31 +156,28 @@ namespace Shaman.Game.Rooms
             return _roomId;
         }
 
-        public async Task<bool> PeerJoined(IPeer peer, Dictionary<byte, object> peerProperties)
+        public bool AddPeerToRoom(IPeer peer, Dictionary<byte, object> peerProperties)
         {
             if (!_roomPlayers.TryAdd(peer.GetSessionId(), new RoomPlayer(peer, peerProperties)))
             {
                 _logger.Error($"Error adding player to peer collection");
                 return false;
             }
+            return true;
+        }
+        
+        public async Task<bool> PeerJoined(IPeer peer, Dictionary<byte, object> peerProperties)
+        {
+            if (_gameModeController == null)
+            {
+                _logger.Error($"GameModeController == null while peer joining");
+                return false;
+            }
 
             try
             {
-                if (_gameModeController == null)
-                {
-                    _logger.Error($"GameModeController == null while peer joining");
-                    return false;
-                }
-
-                var processNewPlayerResult = await _gameModeController.ProcessNewPlayer(peer.GetSessionId(), peerProperties);
-                if (processNewPlayerResult && !_roomPlayers.ContainsKey(peer.GetSessionId()))
-                {
-                    //in case if player was disconnected during ProcessNewPlayer
-                    
-                    // todo here we dont now true reason (plan to remove this workaround)
-                    _gameModeController.CleanupPlayer(peer.GetSessionId(), PeerDisconnectedReason.PeerLeave);
-                }
-                return processNewPlayerResult;;
+                return await _gameModeController.ProcessNewPlayer(peer.GetSessionId(), peerProperties) && 
+                       _roomPlayers.ContainsKey(peer.GetSessionId());// if player still in room
             }
             catch (Exception ex)
             {
@@ -189,7 +187,7 @@ namespace Shaman.Game.Rooms
 
         }
 
-        public bool PeerDisconnected(Guid sessionId, PeerDisconnectedReason reason)
+        public bool PeerDisconnected(Guid sessionId, IDisconnectInfo reason)
         {
             var peerRemoved = _roomPlayers.TryRemove(sessionId, out var roomPlayer);
             if (peerRemoved)
@@ -197,7 +195,7 @@ namespace Shaman.Game.Rooms
             _roomPropertiesContainer.RemovePlayer(sessionId);
             try
             {
-                _gameModeController.CleanupPlayer(sessionId, reason);
+                _gameModeController.ProcessPlayerDisconnected(sessionId, ResolveReason(reason.Reason), reason.Payload);
             }
             catch (Exception ex)
             {
@@ -205,6 +203,18 @@ namespace Shaman.Game.Rooms
             }
             UpdateRoomStateOnMm();
             return peerRemoved;
+        }
+        
+        
+        private static PeerDisconnectedReason ResolveReason(ClientDisconnectReason reason)
+        {
+            switch (reason)
+            {
+                case ClientDisconnectReason.PeerLeave:
+                    return PeerDisconnectedReason.PeerLeave;
+                default:
+                    return PeerDisconnectedReason.ConnectionLost;
+            }
         }
 
         public int AddToSendQueue(MessageBase message, Guid sessionId)
@@ -246,15 +256,8 @@ namespace Shaman.Game.Rooms
 
         public void ProcessMessage(ushort operationCode, MessageData message, Guid sessionId)
         {
-            try
-            {
-                _gameModeController.ProcessMessage(operationCode, message, sessionId);
-                _roomStats.TrackReceivedMessage(operationCode, message.Length, message.IsReliable);
-            }
-            catch (Exception ex)
-            {
-                _logger.Error($"Room.ProcessMessage: Error processing {operationCode} message: {ex}");
-            }
+            _gameModeController.ProcessMessage(operationCode, message, sessionId);
+            _roomStats.TrackReceivedMessage(operationCode, message.Length, message.IsReliable);
         }
 
         public int CleanUp()
@@ -266,7 +269,7 @@ namespace Shaman.Game.Rooms
                 {
                     if (_roomPlayers.TryRemove(player.Key, out _))
                     {
-                        player.Value.Peer.Disconnect(DisconnectReason.RoomCleanup);
+                        player.Value.Peer.Disconnect(ServerDisconnectReason.RoomCleanup);
                         ++removedPlayers;
                     }
                 }

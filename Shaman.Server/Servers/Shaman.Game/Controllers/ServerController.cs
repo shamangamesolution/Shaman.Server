@@ -71,7 +71,7 @@ namespace Shaman.Game.Controllers
             }
             catch (Exception ex)
             {
-                _logger.Error($"Update room error: {ex}");
+                _logger.Error(ex);
                 response.ResultCode = ResultCode.RequestProcessingError;
             }
             

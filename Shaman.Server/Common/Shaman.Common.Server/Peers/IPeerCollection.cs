@@ -13,5 +13,6 @@ namespace Shaman.Common.Server.Peers
         T Get(IPEndPoint endPoint);
         ConcurrentDictionary<IPEndPoint, T> GetAll();
         int GetPeerCount();
+        bool TryRemove(IPEndPoint endPoint, out T peer);
     }
 }

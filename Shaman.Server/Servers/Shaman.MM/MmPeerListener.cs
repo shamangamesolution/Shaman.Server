@@ -8,6 +8,7 @@ using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Sockets;
 using Shaman.Game.Contract;
+using Shaman.LiteNetLibAdapter;
 using Shaman.MM.MatchMaking;
 using Shaman.MM.Peers;
 using Shaman.Messages;
@@ -25,17 +26,17 @@ namespace Shaman.MM
     public class MmPeerListener : PeerListenerBase<MmPeer>
     {
         private IMatchMaker _matchMaker;
-        private IBackendProvider _backendProvider;
         private IPacketSender _packetSender;
         private IRoomManager _roomManager;
         private IMatchMakingGroupsManager _matchMakingGroupsManager;
         private string _authSecret;
 
-        public void Initialize(IMatchMaker matchMaker, IBackendProvider backendProvider, IPacketSender packetSender, IRoomManager roomManager, IMatchMakingGroupsManager matchMakingGroupsManager,
+        public void Initialize(IMatchMaker matchMaker, 
+            IPacketSender packetSender,
+            IRoomManager roomManager, IMatchMakingGroupsManager matchMakingGroupsManager,
             string authSecret)
         {
             _matchMaker = matchMaker;
-            _backendProvider = backendProvider;
             _packetSender = packetSender;
             _authSecret = authSecret;
             _roomManager = roomManager;
@@ -86,7 +87,7 @@ namespace Shaman.MM
                     //ping processing
                     break;
                 case CustomOperationCode.Disconnect:
-                    OnClientDisconnect(endPoint, "On Disconnect event received");
+                    OnClientDisconnect(endPoint, new LightNetDisconnectInfo(ClientDisconnectReason.PeerLeave));
                     break;
                 case CustomOperationCode.Authorization:
                     var authMessage =
@@ -103,34 +104,8 @@ namespace Shaman.MM
                     }
                     else
                     {
-                        if (peer.IsAuthorizing)
-                            return;
-                        
-                        // todo Review auth flow
-                        RequestSender.SendRequest<ValidateSessionIdResponse>(
-                            _backendProvider.GetBackendUrl(authMessage.BackendId),
-                            new ValidateSessionIdRequest
-                            {
-                                SessionId = authMessage.SessionId, 
-                                Secret = _authSecret
-                            },
-                            (response) =>
-                            {
-                                if (response.Success)
-                                {
-                                    //if success - send auth success
-                                    peer.IsAuthorizing = false;
-                                    peer.IsAuthorized = true;
-                                    //this sessionID will be got from backend, after we send authToken, which will come in player properties
-                                    peer.SetSessionId(authMessage.SessionId);
-                                    _packetSender.AddPacket(new AuthorizationResponse(), peer);
-                                }
-                                else
-                                {
-                                    peer.IsAuthorizing = false;
-                                    _packetSender.AddPacket(new AuthorizationResponse() {ResultCode = ResultCode.NotAuthorized}, peer);
-                                }
-                            });
+                        //TODO authorizing logic
+                        throw new NotImplementedException();
                     }
                     break;
                 default:
@@ -267,20 +242,11 @@ namespace Shaman.MM
             
             _packetSender.AddPacket(new ConnectedEvent(), peer);
         }
-        
-        public override void OnClientDisconnect(IPEndPoint endPoint, string reason)
+
+        protected override void ProcessDisconnectedPeer(MmPeer peer, IDisconnectInfo info)
         {
-            var peer = PeerCollection.Get(endPoint);
-            if (peer == null)
-            {
-                _logger.Warning($"GamePeerListener.OnClientDisconnect error: can not find peer for endpoint {endPoint.Address}:{endPoint.Port}");
-                return;
-            }
-            base.OnClientDisconnect(endPoint, reason);            
-            
             _matchMaker.RemovePlayer(peer.GetPeerId());
             _packetSender.PeerDisconnected(peer);
-            
         }
     }
 }

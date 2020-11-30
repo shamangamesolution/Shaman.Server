@@ -2,21 +2,21 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Server.Peers;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.Messages;
 using Shaman.Common.Utils.Senders;
 using Shaman.Common.Utils.Serialization;
+using Shaman.Common.Utils.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
-using Shaman.Game.Configuration;
 using Shaman.Game.Contract;
 using Shaman.Game.Contract.Stats;
 using Shaman.Game.Metrics;
-using Shaman.Game.Providers;
 using Shaman.Game.Rooms.RoomProperties;
+using Shaman.LiteNetLibAdapter;
 using Shaman.Messages;
+using Shaman.Messages.General.DTO.Responses;
 using Shaman.Messages.RoomFlow;
 
 namespace Shaman.Game.Rooms
@@ -82,8 +82,7 @@ namespace Shaman.Game.Rooms
                    destroyRoomAfter;
         }
 
-        /// <returns>IRoom?</returns>
-        private IRoom GetRoomById(Guid id)
+        public IRoom GetRoomById(Guid id)
         {
             _rooms.TryGetValue(id, out var room);
             return room;
@@ -152,30 +151,6 @@ namespace Shaman.Game.Rooms
                 TrackRoomMetricsOnDelete(roomStats);
             }
         }
-
-        public bool CanJoinRoom(Guid roomId)
-        {
-            lock (_syncPeersList)
-            {
-                try
-                {
-                    if (_rooms.TryGetValue(roomId, out var room))
-                    {
-                        if (room.IsOpen())
-                        {
-                            return true;
-                        }
-                    }
-                }
-                catch (Exception e)
-                {
-                    _logger.Error($"CanJoinRoom error: {e}");
-                }
-                
-                return false;
-            }
-        }
-
         private void TrackRoomMetricsOnDelete(RoomStats roomStats)
         {
             _gameMetrics.TrackRoomDestroyed();
@@ -228,7 +203,7 @@ namespace Shaman.Game.Rooms
             return _sessionsToRooms.ContainsKey(sessionId);
         }
 
-        public void PeerDisconnected(IPeer peer, PeerDisconnectedReason reason)
+        public void PeerDisconnected(IPeer peer, IDisconnectInfo info)
         {
             lock (_syncPeersList)
             {
@@ -239,7 +214,7 @@ namespace Shaman.Game.Rooms
                     return;
                 }
 
-                if (room.PeerDisconnected(sessionId, reason))
+                if (room.PeerDisconnected(sessionId, info))
                     _gameMetrics.TrackPeerDisconnected();
                 
                 _sessionsToRooms.TryRemove(sessionId, out _);
@@ -269,47 +244,57 @@ namespace Shaman.Game.Rooms
                         {
                             var msg = $"Peer {sessionId} attempted to join to non-exist room {joinMessage.RoomId}";
                             _logger.Error(msg);
-                            throw new Exception(msg);
+                            _packetSender.AddPacket(new JoinRoomResponse() { ResultCode = ResultCode.RequestProcessingError }, peer);
                         }
-                        roomToJoin.ConfirmedJoin(sessionId);
-                        _taskScheduler.ScheduleOnceOnNow(async () =>
+                        else
                         {
-                            try
+                            roomToJoin.ConfirmedJoin(sessionId);
+                            if (!roomToJoin.AddPeerToRoom(peer, joinMessage.Properties))
+                                _packetSender.AddPacket(new JoinRoomResponse() { ResultCode = ResultCode.RequestProcessingError }, peer);
+                            
+                            _gameMetrics.TrackPeerJoin();
+                            _taskScheduler.ScheduleOnceOnNow(async () =>
                             {
-                                if (await roomToJoin.PeerJoined(peer, joinMessage.Properties))
+                                try
                                 {
-                                    _gameMetrics.TrackPeerJoin();
-                                    _packetSender.AddPacket(new JoinRoomResponse(), peer);
+                                    if (await roomToJoin.PeerJoined(peer, joinMessage.Properties))
+                                    {
+                                        _packetSender.AddPacket(new JoinRoomResponse(), peer);
+                                    }
+                                    else
+                                    {
+                                        // peer.Disconnect(DisconnectReason.JustBecause);
+                                        _packetSender.AddPacket(new JoinRoomResponse() { ResultCode = ResultCode.RequestProcessingError }, peer);
+                                    }
                                 }
-                                else
+                                catch (Exception ex)
                                 {
-                                    // todo disconnect doesn't work for now
-                                    // peer.Disconnect(DisconnectReason.JustBecause);
+                                    _logger.Error($"JoinRoom failed for player {peer.GetSessionId()}: {ex}");
                                     _packetSender.AddPacket(new JoinRoomResponse() { ResultCode = ResultCode.RequestProcessingError }, peer);
                                 }
-                            }
-                            catch (Exception ex)
-                            {
-                                _logger.Error($"JoinRoom failed for player {peer.GetSessionId()}: {ex}");
-                                _packetSender.AddPacket(new JoinRoomResponse() { ResultCode = ResultCode.RequestProcessingError }, peer);
-                            }
-                        });
+                            });
+                        }
                         
                         break;
                     case CustomOperationCode.LeaveRoom:
-                        PeerDisconnected(peer, PeerDisconnectedReason.PeerLeave);
+                        PeerDisconnected(peer, new LightNetDisconnectInfo(ClientDisconnectReason.PeerLeave));
                         break;
                     default:
                         if (_sessionsToRooms.TryGetValue(peer.GetSessionId(), out var room))
                             room.ProcessMessage(operationCode, message, peer.GetSessionId());
                         else
+                        {
                             _logger.Error($"ProcessMessage error: Can not get room for peer {peer.GetSessionId()}");
+                            _packetSender.AddPacket(new ErrorResponse() {ResultCode = ResultCode.MessageProcessingError}, peer);
+                        }
+
                         break;
                 }
             }
             catch (Exception ex)
             {
                 _logger.Error($"RoomManager.ProcessMessage: Error processing {operationCode} message: {ex}");
+                _packetSender.AddPacket(new ErrorResponse() {ResultCode = ResultCode.MessageProcessingError}, peer);
             }
 
         }
