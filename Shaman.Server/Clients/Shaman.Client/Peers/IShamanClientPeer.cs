@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Shaman.Common.Udp.Sockets;
 using Shaman.Messages.RoomFlow;
 using Shaman.Serialization.Messages.Http;
 using Shaman.Serialization.Messages.Udp;
@@ -9,9 +10,9 @@ namespace Shaman.Client.Peers
 {
     public interface IShamanClientPeer
     {
-        Action<string> OnDisconnected { get; set; }
-        Action<string> OnDisconnectedFromMmServer { get; set; }
-        Action<string> OnDisconnectedFromGameServer { get; set; }
+        Action<IDisconnectInfo> OnDisconnected { get; set; }
+        Action<IDisconnectInfo> OnDisconnectedFromMmServer { get; set; }
+        Action<IDisconnectInfo> OnDisconnectedFromGameServer { get; set; }
 
         void Connect(string address, ushort port);
         Task<JoinInfo> JoinGame(string matchMakerAddress, ushort matchMakerPort, Guid sessionId,

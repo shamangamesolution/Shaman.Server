@@ -14,7 +14,23 @@ namespace Shaman.Common.Udp.Sockets
         ClientDisconnectReason Reason { get; }
         byte[] Payload { get; }
     }
-    
+
+    public class SimpleDisconnectInfo : IDisconnectInfo
+    {
+        public SimpleDisconnectInfo(ClientDisconnectReason reason)
+        {
+            Reason = reason;
+            Payload = null;
+        }
+
+        public void Dispose()
+        {
+        }
+
+        public ClientDisconnectReason Reason { get; }
+        public byte[] Payload { get; }
+    }
+
     public interface IReliableSock
     {
         void Connect(IPEndPoint endPoint);

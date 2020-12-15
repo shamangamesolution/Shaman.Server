@@ -7,34 +7,34 @@ namespace Shaman.LiteNetLibAdapter
     public class LightNetDisconnectInfo : IDisconnectInfo
     {
         private readonly NetPacketReader _payload;
+        public DisconnectReason DisconnectReason { get; private set; }
 
-        public LightNetDisconnectInfo(ClientDisconnectReason reason)
+        public LightNetDisconnectInfo(DisconnectInfo info)
         {
-            _payload = null;
-            Reason = reason;
-        }
-        public LightNetDisconnectInfo(DisconnectReason reason, NetPacketReader payload)
-        {
-            _payload = payload;
-            Reason = ConvertReason(reason);
+            _payload = info.AdditionalData;
+            DisconnectReason = info.Reason;
+            ShamanServerReason = GetServerDisconnectReason(info);
         }
 
-        private ClientDisconnectReason ConvertReason(DisconnectReason reason)
+        private static ServerDisconnectReason? GetServerDisconnectReason(DisconnectInfo info)
         {
-            switch (reason)
+            return info.Reason == DisconnectReason.RemoteConnectionClose 
+                   && info.AdditionalData != null 
+                   && info.AdditionalData.UserDataSize == 1 
+                ? ParseServerDisconnectReason(info)
+                : null;
+        }
+
+        private static ServerDisconnectReason? ParseServerDisconnectReason(DisconnectInfo info)
+        {
+            try
             {
-                case DisconnectReason.RemoteConnectionClose:
-                case DisconnectReason.DisconnectPeerCalled:
-                    return ClientDisconnectReason.PeerLeave;
-                default:
-                    return ClientDisconnectReason.ConnectionLost;
+                return (ServerDisconnectReason?) info.AdditionalData.RawData[info.AdditionalData.UserDataOffset];
             }
-        }
-
-        public LightNetDisconnectInfo(DisconnectReason reason)
-        {
-            _payload = null;
-            Reason = ConvertReason(reason);
+            catch
+            {
+                return null;
+            }
         }
 
         public void Dispose()
@@ -42,20 +42,10 @@ namespace Shaman.LiteNetLibAdapter
             _payload?.Recycle();
         }
 
+        public ServerDisconnectReason? ShamanServerReason { get; }
+        
+        //todo will be removed
         public ClientDisconnectReason Reason { get; }
-        public byte[] Payload
-        {
-            get
-            {
-                if (_payload != null && _payload.UserDataSize > 0)
-                {
-                    var payload = new byte[_payload.UserDataSize];
-                    Array.Copy(_payload.RawData, _payload.UserDataOffset, payload, 0, _payload.UserDataSize);
-                    return payload;
-                }
-
-                return null;
-            }
-        }
+        public byte[] Payload { get; }
     }
 }

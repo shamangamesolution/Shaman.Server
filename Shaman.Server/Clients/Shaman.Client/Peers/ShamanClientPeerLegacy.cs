@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using LiteNetLib;
 using Shaman.Common.Udp.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
+using Shaman.LiteNetLibAdapter;
 using Shaman.Messages;
 using Shaman.Messages.Authorization;
 using Shaman.Messages.General.DTO.Requests;
@@ -83,9 +85,9 @@ namespace Shaman.Client.Peers
         
         public JoinInfo JoinInfo;
         public Guid SessionId;
-        public Action<string> OnDisconnected;
-        public Action<string> OnDisconnectedFromMmServer;
-        public Action<string> OnDisconnectedFromGameServer;
+        public Action<IDisconnectInfo> OnDisconnected;
+        public Action<IDisconnectInfo> OnDisconnectedFromMmServer;
+        public Action<IDisconnectInfo> OnDisconnectedFromGameServer;
 
         public int Rtt => _rtt;
 
@@ -724,7 +726,7 @@ namespace Shaman.Client.Peers
         {
             _clientPeer.Disconnect();
             ResetState();
-            OnDisconnected?.Invoke("Disconnect call");
+            OnDisconnected?.Invoke(new SimpleDisconnectInfo(ClientDisconnectReason.PeerLeave));
         }
 
         public int GetSendQueueSize()

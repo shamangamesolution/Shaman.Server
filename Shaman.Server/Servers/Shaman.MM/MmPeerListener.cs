@@ -83,7 +83,7 @@ namespace Shaman.MM
                     //ping processing
                     break;
                 case ShamanOperationCode.Disconnect:
-                    OnClientDisconnect(endPoint, new LightNetDisconnectInfo(ClientDisconnectReason.PeerLeave));
+                    OnClientDisconnect(endPoint, new SimpleDisconnectInfo(ClientDisconnectReason.PeerLeave));
                     break;
                 case ShamanOperationCode.Authorization:
                     var authMessage =
