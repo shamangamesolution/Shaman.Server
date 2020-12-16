@@ -188,11 +188,11 @@ namespace Shaman.Game.Rooms
         }
         
         
-        private static PeerDisconnectedReason ResolveReason(ClientDisconnectReason reason)
+        private static PeerDisconnectedReason ResolveReason(ShamanDisconnectReason reason)
         {
             switch (reason)
             {
-                case ClientDisconnectReason.PeerLeave:
+                case ShamanDisconnectReason.PeerLeave:
                     return PeerDisconnectedReason.PeerLeave;
                 default:
                     return PeerDisconnectedReason.ConnectionLost;

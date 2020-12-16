@@ -726,7 +726,7 @@ namespace Shaman.Client.Peers
         {
             _clientPeer.Disconnect();
             ResetState();
-            OnDisconnected?.Invoke(new SimpleDisconnectInfo(ClientDisconnectReason.PeerLeave));
+            OnDisconnected?.Invoke(new SimpleDisconnectInfo(ShamanDisconnectReason.PeerLeave));
         }
 
         public int GetSendQueueSize()

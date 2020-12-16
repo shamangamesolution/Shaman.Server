@@ -54,7 +54,6 @@ namespace Shaman.Common.Server.Peers
                 finally
                 {
                     release();
-                    _reliableSocket.ReturnBufferToPool(data.Buffer);
                 }
             });
         }       
@@ -126,7 +125,7 @@ namespace Shaman.Common.Server.Peers
         {
             using (info)
             {
-                _logger.Info($"Disconnected: {endPoint.Address} : {endPoint.Port}. Reason: {info}");
+                _logger.Info($"Disconnected: {endPoint.Address} : {endPoint.Port}. Reason: {info.Reason}");
                 if (!PeerCollection.TryRemove(endPoint, out var peer))
                 {
                     _logger.Warning($"OnClientDisconnect error: can not find peer for endpoint {endPoint.Address}:{endPoint.Port}");

@@ -7,7 +7,6 @@ using Shaman.Contract.Common;
 using Shaman.Serialization;
 using Shaman.Serialization.Messages.Udp;
 using Shaman.Tests.Helpers;
-using Shaman.TestTools.ClientPeers;
 using Shaman.TestTools.Events;
 
 namespace Shaman.Tests.GameModeControllers
@@ -33,7 +32,7 @@ namespace Shaman.Tests.GameModeControllers
             return Task.FromResult(true);
         }
 
-        public void ProcessPlayerDisconnected(Guid sessionId, PeerDisconnectedReason reason, byte[] reasonPayload)
+        public void ProcessPlayerDisconnected(Guid sessionId, PeerDisconnectedReason reason, Payload reasonPayload)
         {
             Interlocked.Decrement(ref _playerCount);
         }

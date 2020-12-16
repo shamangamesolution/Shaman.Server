@@ -12,7 +12,7 @@ namespace Shaman.Common.Server.Tests
         {
             foreach (ServerDisconnectReason value in Enum.GetValues(typeof(ServerDisconnectReason)))
             {
-                var reasonPayload = ServerDisconnectReasonPayloadHelper.GetReasonPayload(value);
+                var reasonPayload = value.ToPayload();
                 reasonPayload[0].Should().Be((byte) value);
             }
         }

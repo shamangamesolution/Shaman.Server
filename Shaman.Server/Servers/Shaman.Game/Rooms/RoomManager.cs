@@ -335,7 +335,7 @@ namespace Shaman.Game.Rooms
                         
                         break;
                     case ShamanOperationCode.LeaveRoom:
-                        PeerDisconnected(peer, new SimpleDisconnectInfo(ClientDisconnectReason.PeerLeave));
+                        PeerDisconnected(peer, new SimpleDisconnectInfo(ShamanDisconnectReason.PeerLeave));
                         break;
                     case ShamanOperationCode.Bundle:
                         if (_sessionsToRooms.TryGetValue(peer.GetSessionId(), out var room))

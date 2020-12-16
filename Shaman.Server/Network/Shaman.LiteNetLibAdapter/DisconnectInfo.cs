@@ -1,39 +1,28 @@
-using System;
 using LiteNetLib;
 using Shaman.Common.Udp.Sockets;
+using Shaman.Contract.Common;
 
 namespace Shaman.LiteNetLibAdapter
 {
-    public class LightNetDisconnectInfo : IDisconnectInfo
+    public class LiteNetDisconnectInfo : IDisconnectInfo
     {
         private readonly NetPacketReader _payload;
-        public DisconnectReason DisconnectReason { get; private set; }
 
-        public LightNetDisconnectInfo(DisconnectInfo info)
+        public LiteNetDisconnectInfo(DisconnectInfo info)
         {
             _payload = info.AdditionalData;
-            DisconnectReason = info.Reason;
-            ShamanServerReason = GetServerDisconnectReason(info);
+            Reason = ConvertReason(info.Reason);
         }
 
-        private static ServerDisconnectReason? GetServerDisconnectReason(DisconnectInfo info)
+        private ShamanDisconnectReason ConvertReason(DisconnectReason reason)
         {
-            return info.Reason == DisconnectReason.RemoteConnectionClose 
-                   && info.AdditionalData != null 
-                   && info.AdditionalData.UserDataSize == 1 
-                ? ParseServerDisconnectReason(info)
-                : null;
-        }
-
-        private static ServerDisconnectReason? ParseServerDisconnectReason(DisconnectInfo info)
-        {
-            try
+            switch (reason)
             {
-                return (ServerDisconnectReason?) info.AdditionalData.RawData[info.AdditionalData.UserDataOffset];
-            }
-            catch
-            {
-                return null;
+                case DisconnectReason.RemoteConnectionClose:
+                case DisconnectReason.DisconnectPeerCalled:
+                    return ShamanDisconnectReason.PeerLeave;
+                default:
+                    return ShamanDisconnectReason.ConnectionLost;
             }
         }
 
@@ -42,10 +31,10 @@ namespace Shaman.LiteNetLibAdapter
             _payload?.Recycle();
         }
 
-        public ServerDisconnectReason? ShamanServerReason { get; }
-        
-        //todo will be removed
-        public ClientDisconnectReason Reason { get; }
-        public byte[] Payload { get; }
+        public ShamanDisconnectReason Reason { get; }
+
+        public Payload Payload => _payload != null
+            ? new Payload(_payload.RawData, _payload.UserDataOffset, _payload.UserDataSize)
+            : default;
     }
 }

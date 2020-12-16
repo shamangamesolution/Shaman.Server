@@ -43,20 +43,21 @@ namespace Shaman.LiteNetLibAdapter
             _listener.PeerDisconnectedEvent += (peer, info) =>
             {
                 _serverPeer = null;
-                var disconnectInfo = BuildDisconnectInfo(info);
-                using (disconnectInfo)
+                using (var disconnectInfo = new LiteNetDisconnectInfo(info))
                     OnDisconnected?.Invoke(endPoint, disconnectInfo);
             };
             _peer.Connect(endPoint.Address.ToString(), endPoint.Port, "SomeConnectionKey333");
         }
 
-        private static IDisconnectInfo BuildDisconnectInfo(DisconnectInfo info)
-        {
-            return new LightNetDisconnectInfo(info);
-        }
-
         public void AddEventCallbacks(Action<IPEndPoint, DataPacket, Action> onReceivePacket, Action<IPEndPoint> onConnect, Action<IPEndPoint, IDisconnectInfo> onDisconnect)
         {
+            if (onConnect == null)
+                throw new NullReferenceException($"{nameof(onConnect)} arg is null");
+            if (onReceivePacket == null)
+                throw new NullReferenceException($"{nameof(onReceivePacket)} arg is null");
+            if (onDisconnect == null)
+                throw new NullReferenceException($"{nameof(onDisconnect)} arg is null");
+            
             _listener.ConnectionRequestEvent += request =>
             {
                 request.AcceptIfKey("SomeConnectionKey333");
@@ -64,8 +65,16 @@ namespace Shaman.LiteNetLibAdapter
 
             _listener.PeerDisconnectedEvent += (peer, info) =>
             {
-                _endPointReceivers.TryRemove(peer.EndPoint, out var _);
-                var disconnectInfo = BuildDisconnectInfo(info);
+                _endPointReceivers.TryRemove(peer.EndPoint, out _);
+                var disconnectInfo = new LiteNetDisconnectInfo(info);
+                if (!disconnectInfo.Payload.Any)
+                {
+                    _logger.Error($"PeerDisconnectedEvent without payload");
+                }
+                else
+                {
+                    _logger.Error($"PeerDisconnectedEvent with payload {info.AdditionalData.UserDataSize} {info.AdditionalData.RawData[info.AdditionalData.UserDataOffset]}");
+                }
                 using (disconnectInfo)
                     onDisconnect(peer.EndPoint, disconnectInfo);
             };
@@ -79,6 +88,8 @@ namespace Shaman.LiteNetLibAdapter
             
             _listener.PeerConnectedEvent += peer =>
             {
+                if (peer == null)
+                    throw new NullReferenceException($"Peer arg is null");
                 onConnect(peer.EndPoint);
                 _endPointReceivers.TryAdd(peer.EndPoint, peer);
             };
@@ -107,8 +118,6 @@ namespace Shaman.LiteNetLibAdapter
             _peer.Start(port);
         }
 
-
-
         public void Tick()
         {
             _peer.PollEvents();
@@ -134,8 +143,7 @@ namespace Shaman.LiteNetLibAdapter
 
         // private bool debugLogSent = false;
 
-        public void Send(IPEndPoint endPoint, byte[] buffer, int offset, int length, bool reliable, bool orderControl,
-            bool returnAfterSend = true)
+        public void Send(IPEndPoint endPoint, byte[] buffer, int offset, int length, bool reliable, bool orderControl)
         {
             if (_endPointReceivers.TryGetValue(endPoint, out var connection))
             {
@@ -178,6 +186,7 @@ namespace Shaman.LiteNetLibAdapter
         public int Mtu => _serverPeer?.Mtu ?? 0;
         public void Close()
         {
+            Console.Out.WriteLine($"STOP ALL {Environment.StackTrace}");
             _peer.Stop();
             _peer.DisconnectAll();
             _serverPeer?.Disconnect();
@@ -189,11 +198,6 @@ namespace Shaman.LiteNetLibAdapter
             _peer.Stop();
             _peer.DisconnectAll();
             _endPointReceivers.Clear();
-        }
-
-        public void ReturnBufferToPool(byte[] buffer)
-        {
-            //nothing
         }
 
         public bool DisconnectPeer(IPEndPoint ipEndPoint)
