@@ -186,7 +186,6 @@ namespace Shaman.LiteNetLibAdapter
         public int Mtu => _serverPeer?.Mtu ?? 0;
         public void Close()
         {
-            Console.Out.WriteLine($"STOP ALL {Environment.StackTrace}");
             _peer.Stop();
             _peer.DisconnectAll();
             _serverPeer?.Disconnect();
