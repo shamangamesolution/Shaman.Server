@@ -66,16 +66,7 @@ namespace Shaman.LiteNetLibAdapter
             _listener.PeerDisconnectedEvent += (peer, info) =>
             {
                 _endPointReceivers.TryRemove(peer.EndPoint, out _);
-                var disconnectInfo = new LiteNetDisconnectInfo(info);
-                if (!disconnectInfo.Payload.Any)
-                {
-                    _logger.Error($"PeerDisconnectedEvent without payload");
-                }
-                else
-                {
-                    _logger.Error($"PeerDisconnectedEvent with payload {info.AdditionalData.UserDataSize} {info.AdditionalData.RawData[info.AdditionalData.UserDataOffset]}");
-                }
-                using (disconnectInfo)
+                using (var disconnectInfo = new LiteNetDisconnectInfo(info))
                     onDisconnect(peer.EndPoint, disconnectInfo);
             };
 

@@ -1,16 +1,17 @@
 using LiteNetLib;
 using Shaman.Common.Udp.Sockets;
+using Shaman.Common.Utils;
 using Shaman.Contract.Common;
 
 namespace Shaman.LiteNetLibAdapter
 {
-    public class LiteNetDisconnectInfo : IDisconnectInfo
+    public class LiteNetDisconnectInfo : OnceDisposable, IDisconnectInfo
     {
         private readonly NetPacketReader _payload;
 
         public LiteNetDisconnectInfo(DisconnectInfo info)
         {
-            _payload = info.AdditionalData;
+            _payload = info.Reason == DisconnectReason.RemoteConnectionClose ? info.AdditionalData : null;
             Reason = ConvertReason(info.Reason);
         }
 
@@ -26,7 +27,7 @@ namespace Shaman.LiteNetLibAdapter
             }
         }
 
-        public void Dispose()
+        protected override void DisposeImpl()
         {
             _payload?.Recycle();
         }
