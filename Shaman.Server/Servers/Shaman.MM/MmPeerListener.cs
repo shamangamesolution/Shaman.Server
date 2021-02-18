@@ -6,7 +6,6 @@ using Shaman.Common.Server.Peers;
 using Shaman.Common.Udp.Senders;
 using Shaman.Common.Udp.Sockets;
 using Shaman.Contract.Common.Logging;
-using Shaman.LiteNetLibAdapter;
 using Shaman.MM.MatchMaking;
 using Shaman.MM.Peers;
 using Shaman.Messages;
@@ -83,7 +82,7 @@ namespace Shaman.MM
                     //ping processing
                     break;
                 case ShamanOperationCode.Disconnect:
-                    OnClientDisconnect(endPoint, new LightNetDisconnectInfo(ClientDisconnectReason.PeerLeave));
+                    OnClientDisconnect(endPoint, new SimpleDisconnectInfo(ShamanDisconnectReason.PeerLeave));
                     break;
                 case ShamanOperationCode.Authorization:
                     var authMessage =

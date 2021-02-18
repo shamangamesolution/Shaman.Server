@@ -40,7 +40,7 @@ namespace Shaman.Common.Server.Peers
         
         public void Disconnect(ServerDisconnectReason reason)
         {
-            var reasonPayload = ServerDisconnectReasonPayloadHelper.GetReasonPayload(reason);
+            var reasonPayload = reason.ToPayload(); 
             _socket.DisconnectPeer(_endpoint, reasonPayload, 0, reasonPayload.Length);
         }
 

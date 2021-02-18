@@ -14,7 +14,7 @@ namespace Shaman.Contract.Bundle
         /// <param name="properties"></param>
         /// <returns></returns>
         Task<bool> ProcessNewPlayer(Guid sessionId, Dictionary<byte, object> properties);
-        void ProcessPlayerDisconnected(Guid sessionId, PeerDisconnectedReason reason, byte[] reasonPayload);
+        void ProcessPlayerDisconnected(Guid sessionId, PeerDisconnectedReason reason, Payload reasonPayload);
         /// <returns>true if room should be destroyed</returns>
         bool IsGameFinished();
 

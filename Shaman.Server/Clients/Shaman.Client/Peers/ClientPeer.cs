@@ -9,7 +9,6 @@ using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
 using Shaman.LiteNetLibAdapter;
 using Shaman.Serialization;
-using Shaman.Serialization.Messages.Udp;
 
 namespace Shaman.Client.Peers
 {
@@ -61,7 +60,7 @@ namespace Shaman.Client.Peers
         private IPendingTask _socketTickTask = null;
         private IPEndPoint _ep;
         private readonly ITaskScheduler _taskScheduler;
-        public Action<string> OnDisconnectedFromServer;
+        public Action<IDisconnectInfo> OnDisconnectedFromServer;
         public Action OnConnectedToServer;
 
         private bool _connected;
@@ -81,7 +80,7 @@ namespace Shaman.Client.Peers
             if (_ep.Equals(obj))
             {
                 _connected = false;
-                OnDisconnectedFromServer?.Invoke(info.Reason.ToString());
+                OnDisconnectedFromServer?.Invoke(info);
             }
         }
 
@@ -165,6 +164,20 @@ namespace Shaman.Client.Peers
                 _socket?.Close();
             }
         }
+        public void Disconnect(byte[] data, int offset, int length)
+        {
+            lock (_stateSync)
+            {
+                _connected = false;
+
+                //stop ticking
+                _taskScheduler.Remove(_socketTickTask);
+
+                //_receiveTimer.Change(Timeout.Infinite, Timeout.Infinite);
+                //Send(new DisconnectEvent());
+                _socket?.Close(data, offset, length);
+            }
+        }
 
 
         public bool IsConnected()
@@ -192,7 +205,7 @@ namespace Shaman.Client.Peers
         private readonly ServerSender _serverSender;
         private readonly ShamanSender _shamanSender;
 
-        public Action<string> OnDisconnectedFromServer
+        public Action<IDisconnectInfo> OnDisconnectedFromServer
         {
             get => _serverSender.OnDisconnectedFromServer;
             set => _serverSender.OnDisconnectedFromServer = value;
@@ -226,10 +239,6 @@ namespace Shaman.Client.Peers
             _packetBatchSender = new PacketBatchSender(taskSchedulerFactory, clientPacketSenderConfig, _logger);
             _serverSender = new ServerSender(logger, OnPackageReceived, taskSchedulerFactory.GetTaskScheduler());
             _shamanSender = new ShamanSender(new BinarySerializer(), _packetBatchSender, clientPacketSenderConfig);
-            OnDisconnectedFromServer += s =>
-            {
-                DisconnectActions();
-            };
         }
 
         private void OnPackageReceived(DataPacket packetInfo, Action release)
@@ -238,7 +247,6 @@ namespace Shaman.Client.Peers
             {
                 lock (_queueSync)
                 {
-                    _logger.Debug($"Enqueueing package {packetInfo.Length} bytes");
                     _packets.Enqueue(new SimplePacketInfo(packetInfo.Buffer, packetInfo.Offset, packetInfo.Length,
                         release));
                 }
@@ -265,7 +273,7 @@ namespace Shaman.Client.Peers
             _packetBatchSender.Start(false);
         }
 
-        private void DisconnectActions()
+        public void Disconnect()
         {
             _serverSender.Disconnect();
             _packetBatchSender.Stop();
@@ -274,10 +282,14 @@ namespace Shaman.Client.Peers
                 _packets.Clear();
             }
         }
-
-        public void Disconnect()
+        public void Disconnect(byte[] data, int offset, int length)
         {
-            DisconnectActions();
+            _serverSender.Disconnect(data, offset, length);
+            _packetBatchSender.Stop();
+            lock (_queueSync)
+            {
+                _packets.Clear();
+            }
         }
 
         public IPacketInfo PopNextPacket()

@@ -54,7 +54,7 @@ namespace Shaman.Game
                     _messageSender.Send(new PingEvent(), peer);
                     break;
                 case ShamanOperationCode.Disconnect:
-                    OnClientDisconnect(endPoint, new LightNetDisconnectInfo(ClientDisconnectReason.PeerLeave));
+                    OnClientDisconnect(endPoint, new SimpleDisconnectInfo(ShamanDisconnectReason.PeerLeave));
                     break;
                 case ShamanOperationCode.Authorization:
                     var authMessage = Serializer.DeserializeAs<AuthorizationRequest>(payload.Buffer, payload.Offset, payload.Length);

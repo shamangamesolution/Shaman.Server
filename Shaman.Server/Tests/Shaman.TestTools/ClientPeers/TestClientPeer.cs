@@ -49,7 +49,7 @@ namespace Shaman.TestTools.ClientPeers
         public ushort MmPort => _routeTable.First().MatchMakerPort;
         public string BackendUrl => $"{_routeTable.First().BackendProtocol}://{_routeTable.First().BackendAddress}:{_routeTable.First().BackendPort}/";
         public int BackendId => _routeTable.First().BackendId;
-        public Action<string> OnDisconnectedFromServer;
+        public Action<IDisconnectInfo> OnDisconnectedFromServer;
 
         public TestClientPeer(IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory, ISerializer serializer)
         {
@@ -71,10 +71,10 @@ namespace Shaman.TestTools.ClientPeers
             }, 0, 10);
         }
 
-        private void OnDisconnected(string reason)
+        private void OnDisconnected(IDisconnectInfo disconnectInfo)
         {
-            _logger.Info($"Disconnected from server: {reason}");
-            OnDisconnectedFromServer?.Invoke(reason);
+            _logger.Info($"Disconnected from server: {disconnectInfo.Reason}");
+            OnDisconnectedFromServer?.Invoke(disconnectInfo);
         }
 
 

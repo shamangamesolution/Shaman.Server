@@ -72,7 +72,7 @@ namespace Shaman.Launchers.TestBundle
             return Task.FromResult(true);
         }
 
-        public void ProcessPlayerDisconnected(Guid sessionId, PeerDisconnectedReason reason, byte[] reasonPayload)
+        public void ProcessPlayerDisconnected(Guid sessionId, PeerDisconnectedReason reason, Payload reasonPayload)
         {
             Trace($"Player with sid {sessionId} disconnected because {reason}");
         }

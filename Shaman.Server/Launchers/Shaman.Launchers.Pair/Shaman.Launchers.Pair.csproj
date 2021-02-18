@@ -14,10 +14,6 @@
       <ProjectReference Include="..\Shaman.Launchers.MM\Shaman.Launchers.MM.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-
-    </ItemGroup>
-
 
 
 </Project>

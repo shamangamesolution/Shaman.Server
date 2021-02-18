@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using LiteNetLib;
 using Shaman.Client.Peers.MessageHandling;
 using Shaman.Common.Udp.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
+using Shaman.LiteNetLibAdapter;
 using Shaman.Messages;
 using Shaman.Messages.Authorization;
 using Shaman.Messages.General.DTO.Events;
@@ -50,9 +52,9 @@ namespace Shaman.Client.Peers
         
         public JoinInfo JoinInfo;
         public Guid SessionId;
-        public Action<string> OnDisconnected { get; set; }
-        public Action<string> OnDisconnectedFromMmServer { get; set; }
-        public Action<string> OnDisconnectedFromGameServer { get; set; }
+        public Action<IDisconnectInfo> OnDisconnected { get; set; }
+        public Action<IDisconnectInfo> OnDisconnectedFromMmServer { get; set; }
+        public Action<IDisconnectInfo> OnDisconnectedFromGameServer { get; set; }
 
         public int GetRtt()
         {
@@ -113,7 +115,7 @@ namespace Shaman.Client.Peers
                         break;
                 }
                 OnDisconnected?.Invoke(reason);
-                SetAndReportStatus(ShamanClientStatus.Disconnected, _statusCallback, error: reason);
+                SetAndReportStatus(ShamanClientStatus.Disconnected, _statusCallback, error: reason.ToString());
                 ResetState();
             };
             _pollPackageQueueIntervalMs = config.PollPackageQueueIntervalMs;
@@ -668,7 +670,7 @@ namespace Shaman.Client.Peers
         {
             _clientPeer.Disconnect();
             ResetState();
-            OnDisconnected?.Invoke("Disconnect call");
+            OnDisconnected?.Invoke(new SimpleDisconnectInfo(ShamanDisconnectReason.PeerLeave));
         }
 
         public int GetSendQueueSize()

@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Shaman.Common.Server.Peers
 {
-    public class ServerDisconnectReasonPayloadHelper
+    public static class ServerDisconnectReasonPayloadHelper
     {
         private static readonly IDictionary<ServerDisconnectReason, byte[]> ReasonPayloadCache =
             CreateReasonPayloadCache();
@@ -16,9 +16,14 @@ namespace Shaman.Common.Server.Peers
                 .ToDictionary(k => k, v => new[] {(byte) v});
         }
 
-        public static byte[] GetReasonPayload(ServerDisconnectReason reason)
+        public static byte[] ToPayload(this ServerDisconnectReason reason)
         {
             return ReasonPayloadCache[reason];
+        }
+
+        public static ServerDisconnectReason ServerDisconnectReason(this byte[] payload, int offset)
+        {
+            return (ServerDisconnectReason) payload[offset];
         }
     }
 }

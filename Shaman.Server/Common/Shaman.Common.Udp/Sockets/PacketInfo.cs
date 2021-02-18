@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Buffers;
 using System.Collections.Generic;
-using System.Threading;
+using Shaman.Common.Utils;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
 
@@ -48,7 +48,7 @@ namespace Shaman.Common.Udp.Sockets
         int Length { get; }
     }
 
-    public class PacketInfo : IPacketInfo
+    public class PacketInfo : OnceDisposable, IPacketInfo
     {
         private readonly IShamanLogger _logger;
         public bool IsReliable { get; }
@@ -128,17 +128,9 @@ namespace Shaman.Common.Udp.Sockets
             Buffer[Length + 1] = (byte) (length >> 8);
             Length += 2;
         }
-
-        public void Dispose()
+        protected override void DisposeImpl()
         {
-            if (Interlocked.CompareExchange(ref _disposed, 1, 0) == 0)
-            {
-                ArrayPool<byte>.Shared.Return(Buffer);
-            }
-            else
-            {
-                _logger.Error($"DOUBLE_RENT_RETURN in PacketInfo");
-            }
+            ArrayPool<byte>.Shared.Return(Buffer);
         }
 
         public static IEnumerable<OffsetInfo> GetOffsetInfo(byte[] array, int offset)
