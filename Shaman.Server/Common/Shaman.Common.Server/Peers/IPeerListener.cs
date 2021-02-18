@@ -1,6 +1,7 @@
 using System.Net;
 using Shaman.Common.Http;
 using Shaman.Common.Server.Configuration;
+using Shaman.Common.Server.Protection;
 using Shaman.Common.Udp.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Common.Logging;
@@ -11,7 +12,9 @@ namespace Shaman.Common.Server.Peers
     public interface IPeerListener<T> 
         where T : class, IPeer, new()
     {
-        void Initialize(IShamanLogger logger, IPeerCollection<T> peerCollection, ISerializer serializer, IApplicationConfig config, ITaskSchedulerFactory taskSchedulerFactory, ushort port, ISocketFactory socketFactory, IRequestSender requestSender);
+        void Initialize(IShamanLogger logger, IPeerCollection<T> peerCollection, ISerializer serializer,
+            IApplicationConfig config, ITaskSchedulerFactory taskSchedulerFactory, ushort port,
+            ISocketFactory socketFactory, IRequestSender requestSender, IProtectionManager banManager);
         void Listen();
         ushort GetListenPort();
         void StopListening();

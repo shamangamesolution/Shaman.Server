@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Shaman.Common.Http;
 using Shaman.Common.Server.Applications;
 using Shaman.Common.Server.Configuration;
+using Shaman.Common.Server.Protection;
 using Shaman.Common.Udp.Senders;
 using Shaman.Common.Udp.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
@@ -24,8 +25,8 @@ namespace Shaman.Game
         public GameApplication(IShamanLogger logger, IApplicationConfig config, ISerializer serializer,
             ISocketFactory socketFactory, ITaskSchedulerFactory taskSchedulerFactory, IRequestSender requestSender,
             IRoomManager roomManager, IPacketSender packetSender, IGameMetrics gameMetrics,
-            IShamanMessageSenderFactory messageSenderFactory) :
-            base(logger, config, serializer, socketFactory, taskSchedulerFactory, requestSender, gameMetrics)
+            IShamanMessageSenderFactory messageSenderFactory, IProtectionManager protectionManager ) :
+            base(logger, config, serializer, socketFactory, taskSchedulerFactory, requestSender, gameMetrics, protectionManager)
         {
             _roomManager = roomManager;
             _packetSender = packetSender;

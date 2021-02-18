@@ -4,6 +4,7 @@ using Shaman.Common.Http;
 using Shaman.Common.Metrics;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Server.Peers;
+using Shaman.Common.Server.Protection;
 using Shaman.Common.Udp.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Common;
@@ -28,10 +29,11 @@ namespace Shaman.Common.Server.Applications
         protected readonly ISocketFactory SocketFactory;
         protected readonly IRequestSender RequestSender;
         protected readonly IServerMetrics ServerMetrics;
-
+        private readonly IProtectionManager _protectionManager;
+        
         protected ApplicationBase(IShamanLogger logger, IApplicationConfig config, ISerializer serializer,
             ISocketFactory socketFactory, ITaskSchedulerFactory taskSchedulerFactory, IRequestSender requestSender,
-            IServerMetrics serverMetrics)
+            IServerMetrics serverMetrics, IProtectionManager banManager)
         {
             Logger = logger;
             Config = config;
@@ -41,6 +43,7 @@ namespace Shaman.Common.Server.Applications
             TaskScheduler = taskSchedulerFactory.GetTaskScheduler();
             RequestSender = requestSender;
             ServerMetrics = serverMetrics;
+            _protectionManager = banManager;
         }
 
         private void Listen()
@@ -78,7 +81,7 @@ namespace Shaman.Common.Server.Applications
             foreach (var port in Config.ListenPorts)
             {
                 var peerListener = new TL();
-                peerListener.Initialize(Logger, PeerCollection, Serializer, Config, TaskSchedulerFactory, port, SocketFactory, RequestSender);
+                peerListener.Initialize(Logger, PeerCollection, Serializer, Config, TaskSchedulerFactory, port, SocketFactory, RequestSender, _protectionManager);
                 PeerListeners.Add(peerListener);
                 Logger.Info($"PeerListener initialized as {peerListener.GetType()} on port {port}");
             }

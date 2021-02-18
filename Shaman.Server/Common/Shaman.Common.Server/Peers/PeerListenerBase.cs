@@ -2,6 +2,7 @@ using System;
 using System.Net;
 using Shaman.Common.Http;
 using Shaman.Common.Server.Configuration;
+using Shaman.Common.Server.Protection;
 using Shaman.Common.Udp.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Common;
@@ -25,7 +26,8 @@ namespace Shaman.Common.Server.Peers
         private ITaskSchedulerFactory _taskSchedulerFactory;
         protected ITaskScheduler TaskScheduler;
         private IPendingTask _socketTickTask;
-
+        private IProtectionManager _protectionManager;
+        
         private int _maxSendDuration = int.MinValue;
         private DateTime _lastTick = DateTime.UtcNow;
 
@@ -45,6 +47,9 @@ namespace Shaman.Common.Server.Peers
         
         private void OnReceivePacket(IPEndPoint endPoint, DataPacket data, Action release)
         {
+            if (_protectionManager.IsBanned(endPoint))
+                return;
+            
             TaskScheduler.ScheduleOnceOnNow(() =>
             {
                 try
@@ -59,7 +64,9 @@ namespace Shaman.Common.Server.Peers
             });
         }       
         
-        public virtual void Initialize(IShamanLogger logger, IPeerCollection<T> peerCollection, ISerializer serializer, IApplicationConfig config, ITaskSchedulerFactory taskSchedulerFactory, ushort port, ISocketFactory socketFactory, IRequestSender requestSender) 
+        public virtual void Initialize(IShamanLogger logger, IPeerCollection<T> peerCollection, ISerializer serializer,
+            IApplicationConfig config, ITaskSchedulerFactory taskSchedulerFactory, ushort port,
+            ISocketFactory socketFactory, IRequestSender requestSender, IProtectionManager protectionManager) 
         {
             _logger = logger;
             PeerCollection = peerCollection;
@@ -70,6 +77,7 @@ namespace Shaman.Common.Server.Peers
             _port = port;
             _socketFactory = socketFactory;
             RequestSender = requestSender;
+            _protectionManager = protectionManager;
         }
 
         public IPeerCollection<T> GetPeerCollection()
@@ -108,6 +116,9 @@ namespace Shaman.Common.Server.Peers
 
                 _reliableSocket.Tick();
             }, 0, Config.SocketTickTimeMs);
+            
+            //start protection
+            _protectionManager.Start();
         }
 
         public ushort GetListenPort()
@@ -118,6 +129,9 @@ namespace Shaman.Common.Server.Peers
         public virtual void OnNewClientConnect(IPEndPoint endPoint)
         {
             _logger.Info($"Connected: {endPoint.Address} : {endPoint.Port}");
+            if (_protectionManager.IsBanned(endPoint))
+                return;
+            _protectionManager.PeerConnected(endPoint);
             //add peer to collection
             PeerCollection.Add(endPoint, _reliableSocket);
         }
@@ -145,6 +159,7 @@ namespace Shaman.Common.Server.Peers
             TaskScheduler.Remove(_socketTickTask);
             TaskScheduler.Dispose();
             _reliableSocket.Close();
+            _protectionManager.Stop();
         }
     }
 }
