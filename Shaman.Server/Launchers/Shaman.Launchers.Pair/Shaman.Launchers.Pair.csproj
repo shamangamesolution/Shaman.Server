@@ -14,19 +14,6 @@
       <ProjectReference Include="..\Shaman.Launchers.MM\Shaman.Launchers.MM.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-        <Content Include="appsettings.Development.MatchMaker.json">
-            <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-        </Content>
-        <Content Include="appsettings.Development.GameServer.json">
-            <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-        </Content>
-    </ItemGroup>
-
 
 
 </Project>

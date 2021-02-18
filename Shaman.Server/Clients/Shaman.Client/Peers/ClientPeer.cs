@@ -56,7 +56,7 @@ namespace Shaman.Client.Peers
     {
         private readonly IShamanLogger _logger;
         private readonly Action<DataPacket, Action> _onPackageReceived;
-        private LiteNetSock _socket;
+        private IReliableSock _socket;
         private IPendingTask _socketTickTask = null;
         private IPEndPoint _ep;
         private readonly ITaskScheduler _taskScheduler;
