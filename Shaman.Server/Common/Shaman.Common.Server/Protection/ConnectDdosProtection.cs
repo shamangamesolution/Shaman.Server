@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+using Shaman.Common.Server.Configuration;
 using Shaman.Common.Server.Peers;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Common;
@@ -8,13 +9,7 @@ using Shaman.Contract.Common.Logging;
 
 namespace Shaman.Common.Server.Protection
 {
-    public interface IConnectDdosProtectionConfig
-    {
-        int MaxConnectsFromSingleIp { get; }
-        int CheckIntervalMs { get; }
-        int BanCheckIntervalMs { get; }
-        int BanMs { get; }
-    }
+
     
     public interface IConnectDdosProtection
     {
@@ -26,7 +21,7 @@ namespace Shaman.Common.Server.Protection
     
     public class ConnectDdosProtection : IConnectDdosProtection
     {
-        private readonly IConnectDdosProtectionConfig _config;
+        private readonly IProtectionManagerConfig _config;
         private readonly ITaskScheduler _taskScheduler;
         private readonly IShamanLogger _logger;
 
@@ -38,7 +33,7 @@ namespace Shaman.Common.Server.Protection
         private object _bannedMutex = new object();
         
         public ConnectDdosProtection(
-            IConnectDdosProtectionConfig config, 
+            IProtectionManagerConfig config, 
             ITaskSchedulerFactory taskSchedulerFactory,
             IShamanLogger logger)
         {
@@ -80,7 +75,7 @@ namespace Shaman.Common.Server.Protection
                 var toDelete = new HashSet<string>();
                 foreach (var item in _bannedTill)
                 {
-                    if (item.Value >= DateTime.UtcNow)
+                    if (item.Value <= DateTime.UtcNow)
                         toDelete.Add(item.Key);
                 }
 
@@ -97,11 +92,11 @@ namespace Shaman.Common.Server.Protection
             {
                 foreach (var item in _connectsFromIp)
                 {
-                    if (item.Value > _config.MaxConnectsFromSingleIp)
+                    if (item.Value >= _config.MaxConnectsFromSingleIp)
                     {
                         _logger.Error($"Ddos probably: ip {item.Key}");
                         if (!_bannedTill.ContainsKey(item.Key))
-                            _bannedTill.Add(item.Key, DateTime.UtcNow.AddMilliseconds(_config.BanMs));
+                            _bannedTill.Add(item.Key, DateTime.UtcNow.AddMilliseconds(_config.BanDurationMs));
                     }
                 }
                 _connectsFromIp.Clear();
@@ -110,7 +105,7 @@ namespace Shaman.Common.Server.Protection
         
         public void Start()
         {
-            _pendingTask = _taskScheduler.ScheduleOnInterval(Tick, 0, _config.CheckIntervalMs);
+            _pendingTask = _taskScheduler.ScheduleOnInterval(Tick, 0, _config.ConnectionCountCheckIntervalMs);
             _bannedPendingTask = _taskScheduler.ScheduleOnInterval(BannedTick, 0, _config.BanCheckIntervalMs);
         }
 

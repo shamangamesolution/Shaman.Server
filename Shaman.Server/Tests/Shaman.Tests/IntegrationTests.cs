@@ -44,7 +44,7 @@ namespace Shaman.Tests
         private const ushort WAIT_TIMEOUT = 1000;
         private const int MM_TICK = 250;
         private const int CLIENTS_NUMBER_1 = 12;
-        private const int CLIENTS_NUMBER_2 = 100;
+        private const int CLIENTS_NUMBER_2 = 30;
         
         private const int TOTAL_PLAYERS_NEEDED_1 = 12;
         private const int EVENTS_SENT = 10;
@@ -60,7 +60,7 @@ namespace Shaman.Tests
             _clients.Clear();
 
             _gameApplication = InstanceHelper.GetGame(SERVER_PORT_GAME);
-            _mmApplication = InstanceHelper.GetMm(SERVER_PORT_MM, SERVER_PORT_GAME, _gameApplication, 12);
+            _mmApplication = InstanceHelper.GetMm(SERVER_PORT_MM, SERVER_PORT_GAME, _gameApplication, TOTAL_PLAYERS_NEEDED_1, 1000);
 
             _mmApplication.Start();
             _gameApplication.Start();
@@ -209,6 +209,7 @@ namespace Shaman.Tests
                     joinedCount++;
                 }
             });
+            Assert.AreEqual(0, notJoinedCount);
             var roomsCount = CLIENTS_NUMBER_2 / TOTAL_PLAYERS_NEEDED_1 + (CLIENTS_NUMBER_2 % TOTAL_PLAYERS_NEEDED_1 > 0 ? 1: 0);
             
             Assert.AreEqual(CLIENTS_NUMBER_2 - joinedCount, notJoinedCount);

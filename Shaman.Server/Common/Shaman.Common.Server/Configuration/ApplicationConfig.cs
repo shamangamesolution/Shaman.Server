@@ -21,6 +21,11 @@ namespace Shaman.Common.Server.Configuration
         public int BasePacketBufferSize { get; set; }
         private ServerIdentity _identity;
         public ushort BindToPortHttp { get; set; }
+        public int MaxConnectsFromSingleIp { get; set; }
+        public int ConnectionCountCheckIntervalMs { get; set; }
+        public int BanCheckIntervalMs { get; set; }
+        public int BanDurationMs { get; set; }
+        public bool IsConnectionDdosProtectionOn { get; set; }
 
         public ServerIdentity GetIdentity()
         {

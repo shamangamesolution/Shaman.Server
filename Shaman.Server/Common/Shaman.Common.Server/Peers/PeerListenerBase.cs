@@ -125,14 +125,15 @@ namespace Shaman.Common.Server.Peers
             return _port;
         }
 
-        public virtual void OnNewClientConnect(IPEndPoint endPoint)
+        public virtual bool OnNewClientConnect(IPEndPoint endPoint)
         {
             _logger.Info($"Connected: {endPoint.Address} : {endPoint.Port}");
             if (_protectionManager.IsBanned(endPoint))
-                return;
+                return false;
             _protectionManager.PeerConnected(endPoint);
             //add peer to collection
             PeerCollection.Add(endPoint, _reliableSocket);
+            return true;
         }
 
         public void OnClientDisconnect(IPEndPoint endPoint, IDisconnectInfo info)

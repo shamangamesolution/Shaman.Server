@@ -127,18 +127,20 @@ namespace Shaman.Game
             }
         }
 
-        public override void OnNewClientConnect(IPEndPoint endPoint)
+        public override bool OnNewClientConnect(IPEndPoint endPoint)
         {
-            base.OnNewClientConnect(endPoint);
+            if (!base.OnNewClientConnect(endPoint))
+                return false;
             
             var peer = PeerCollection.Get(endPoint);
             if (peer == null)
             {
                 _logger.Warning($"GamePeerListener.OnClientDisconnect error: can not find peer for endpoint {endPoint.Address}:{endPoint.Port}");
-                return;
+                return false;
             }
             
             _messageSender.Send(new ConnectedEvent(), peer);
+            return true;
         }
 
         protected override void ProcessDisconnectedPeer(GamePeer peer, IDisconnectInfo info)

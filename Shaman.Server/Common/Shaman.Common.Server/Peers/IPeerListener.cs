@@ -19,7 +19,7 @@ namespace Shaman.Common.Server.Peers
         ushort GetListenPort();
         void StopListening();
         void OnReceivePacketFromClient(IPEndPoint endPoint, DataPacket dataPacket);
-        void OnNewClientConnect(IPEndPoint endPoint);
+        bool OnNewClientConnect(IPEndPoint endPoint);
         void OnClientDisconnect(IPEndPoint endPoint, IDisconnectInfo info);
         int ResetTickDurationStatistics();
     }

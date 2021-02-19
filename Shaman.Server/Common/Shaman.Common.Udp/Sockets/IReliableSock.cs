@@ -56,7 +56,7 @@ namespace Shaman.Common.Udp.Sockets
         #region server
 
         // todo merge AddEventCallbacks and Listen
-        void AddEventCallbacks(Action<IPEndPoint, DataPacket, Action> onReceivePacket, Action<IPEndPoint> onConnect,
+        void AddEventCallbacks(Action<IPEndPoint, DataPacket, Action> onReceivePacket, Func<IPEndPoint, bool> onConnect,
             Action<IPEndPoint, IDisconnectInfo> onDisconnect);
         void Listen(int port);
         void Tick();

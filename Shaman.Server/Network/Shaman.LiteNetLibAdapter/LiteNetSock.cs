@@ -49,7 +49,7 @@ namespace Shaman.LiteNetLibAdapter
             _peer.Connect(endPoint.Address.ToString(), endPoint.Port, "SomeConnectionKey333");
         }
 
-        public void AddEventCallbacks(Action<IPEndPoint, DataPacket, Action> onReceivePacket, Action<IPEndPoint> onConnect, Action<IPEndPoint, IDisconnectInfo> onDisconnect)
+        public void AddEventCallbacks(Action<IPEndPoint, DataPacket, Action> onReceivePacket, Func<IPEndPoint, bool> onConnect, Action<IPEndPoint, IDisconnectInfo> onDisconnect)
         {
             if (onConnect == null)
                 throw new NullReferenceException($"{nameof(onConnect)} arg is null");
@@ -65,6 +65,8 @@ namespace Shaman.LiteNetLibAdapter
 
             _listener.PeerDisconnectedEvent += (peer, info) =>
             {
+                if (peer == null)
+                    return;
                 _endPointReceivers.TryRemove(peer.EndPoint, out _);
                 using (var disconnectInfo = new LiteNetDisconnectInfo(info))
                     onDisconnect(peer.EndPoint, disconnectInfo);
@@ -81,8 +83,8 @@ namespace Shaman.LiteNetLibAdapter
             {
                 if (peer == null)
                     throw new NullReferenceException($"Peer arg is null");
-                onConnect(peer.EndPoint);
-                _endPointReceivers.TryAdd(peer.EndPoint, peer);
+                if (onConnect(peer.EndPoint))
+                    _endPointReceivers.TryAdd(peer.EndPoint, peer);
             };
         }
 

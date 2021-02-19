@@ -189,7 +189,7 @@ namespace Shaman.TestTools.ClientPeers
         }
 
         public async Task<T> WaitFor<T>(Func<T, bool> condition,
-            int timeoutMs = 10000, int checkPeriod = 10) where T : MessageBase, new()
+            int timeoutMs = 20000, int checkPeriod = 10) where T : MessageBase, new()
         {
             var operationCode = (new T()).OperationCode;
             var stopwatch = Stopwatch.StartNew();

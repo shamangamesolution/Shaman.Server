@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Moq;
 using Shaman.Common.Server.Configuration;
+using Shaman.Common.Server.Protection;
 using Shaman.Common.Udp.Senders;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.TaskScheduling;
@@ -17,6 +18,7 @@ using Shaman.MM.MatchMaking;
 using Shaman.MM.Metrics;
 using Shaman.MM.Providers;
 using Shaman.Serialization;
+using Shaman.Tests.Configuration;
 using Shaman.Tests.GameModeControllers;
 using Shaman.Tests.Providers;
 using Shaman.TestTools.Events;
@@ -41,11 +43,11 @@ namespace Shaman.Tests.Helpers
             return new ShamanMessageSender(new ShamanSender(serializer, packetSender, config));
         }
         
-        public static MmApplication GetMm(ushort mmPort, ushort gamePort, GameApplication gameApplication, int maximumPlayers = 2)
+        public static MmApplication GetMm(ushort mmPort, ushort gamePort, GameApplication gameApplication, int maximumPlayers = 2, int mmTime = 10000, int ddosConnectionsLevel = 300, int ddosConnectionCheckInterval = 5000)
         {
             var socketFactory = new LiteNetSockFactory();
             var serializer = new BinarySerializer();
-            var serverLogger = new ConsoleLogger("M ", LogLevel.Error | LogLevel.Info);
+            var serverLogger = new ConsoleLogger("M ", LogLevel.Error | LogLevel.Info | LogLevel.Debug);
 
             var config = new ApplicationConfig
             {
@@ -59,7 +61,7 @@ namespace Shaman.Tests.Helpers
                 SocketType = SocketType.BareSocket,
                 ReceiveTickTimeMs = 20
             };
-            var roomPropertiesProvider = new FakeRoomPropertiesProvider3(250, maximumPlayers, 10000);
+            var roomPropertiesProvider = new FakeRoomPropertiesProvider3(250, maximumPlayers, mmTime);
             var taskSchedulerFactory = new TaskSchedulerFactory(serverLogger);
             var requestSender = new FakeSenderWithGameApplication(gameApplication,  new Dictionary<byte, object> {{PropertyCode.RoomProperties.GameMode, (byte) GameMode.SinglePlayer}}, CreateRoomDelegate,  UpdateRoomDelegate);
 
@@ -85,10 +87,13 @@ namespace Shaman.Tests.Helpers
             matchMaker.AddRequiredProperty(FakePropertyCodes.PlayerProperties.Level);
 
             var senderFactory = new ShamanMessageSenderFactory(serializer, config);
+            var protectionManagerConfig = new ConnectionDdosProtectionConfig(ddosConnectionsLevel, ddosConnectionCheckInterval, 5000, 60000);
+            var connectionDdosProtection = new ConnectDdosProtection(protectionManagerConfig,taskSchedulerFactory, serverLogger);
+            var protectionManager = new ProtectionManager(connectionDdosProtection, protectionManagerConfig);
             //setup mm server
             return new MmApplication(serverLogger, config, serializer, socketFactory, matchMaker,
                 requestSender, taskSchedulerFactory, _mmPacketSender,senderFactory, _serverProvider, _mmRoomManager,
-                _mmGroupManager, _playerManager, Mock.Of<IMmMetrics>());
+                _mmGroupManager, _playerManager, Mock.Of<IMmMetrics>(),protectionManager);
         }
 
         public static GameApplication GetGame(ushort gamePort, bool isAuthOn = false)
@@ -103,7 +108,10 @@ namespace Shaman.Tests.Helpers
             var socketFactory = new LiteNetSockFactory();
             var serializer = new BinarySerializer();
             var taskSchedulerFactory = new TaskSchedulerFactory(serverLogger);
-
+            var protectionManagerConfig = new ConnectionDdosProtectionConfig(300, 5000, 5000, 60000);
+            var connectionDdosProtection = new ConnectDdosProtection(protectionManagerConfig,taskSchedulerFactory, serverLogger);
+            var protectionManager = new ProtectionManager(connectionDdosProtection, protectionManagerConfig);
+            
             var config = new ApplicationConfig
             {
                 PublicDomainNameOrAddress = "127.0.0.1",
@@ -136,7 +144,9 @@ namespace Shaman.Tests.Helpers
                 requestSender,
                 _roomManager,
                 gamePacketSender,
-                Mock.Of<IGameMetrics>(), gameSenderFactory);
+                Mock.Of<IGameMetrics>(), 
+                gameSenderFactory,
+                protectionManager);
         }
     }
 }

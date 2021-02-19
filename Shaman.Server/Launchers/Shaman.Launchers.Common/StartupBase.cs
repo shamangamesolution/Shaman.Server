@@ -12,6 +12,7 @@ using Shaman.Common.Http;
 using Shaman.Common.Metrics;
 using Shaman.Common.Server.Applications;
 using Shaman.Common.Server.Configuration;
+using Shaman.Common.Server.Protection;
 using Shaman.Common.Udp.Senders;
 using Shaman.Common.Udp.Sockets;
 using Shaman.Common.Utils.Logging;
@@ -62,6 +63,8 @@ namespace Shaman.Launchers.Common
             services.AddSingleton<IShamanLogger, SerilogLogger>();
             //part of config responsible for packets sending
             services.AddSingleton<IPacketSenderConfig>(c => c.GetRequiredService<IApplicationConfig>());
+            //part of config responsible for ddos protection
+            services.AddSingleton<IProtectionManagerConfig>(c => c.GetRequiredService<IApplicationConfig>());
             //packet sender itself
             services.AddSingleton<IPacketSender, PacketBatchSender>();
             //serializer - binary by default
@@ -78,7 +81,10 @@ namespace Shaman.Launchers.Common
             services.AddSingleton<IShamanMessageSender, ShamanMessageSender>();
             //factory for producing senders - you may reinject it in bundle for use of another types of senders and serializers
             services.AddSingleton<IShamanMessageSenderFactory, ShamanMessageSenderFactory>();
-
+            //part of protection system responsible for connection ddos protection
+            services.AddSingleton<IConnectDdosProtection, ConnectDdosProtection>();
+            //protection manager itself
+            services.AddSingleton<IProtectionManager, ProtectionManager>();
         }
 
         /// <summary>
