@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions;
@@ -58,6 +59,7 @@ namespace Shaman.Launchers.Tests
             if (!_isLaunched)
             {
                 Task.Factory.StartNew(LocalPairLauncher.Launch);
+                await Task.Delay(3000);
                 _isLaunched = true;
             }
                 
@@ -85,9 +87,11 @@ namespace Shaman.Launchers.Tests
                 client.Key.JoinGame("127.0.0.1", 23453, client.Value, mmProperties, joinProperties);
             
             await Task.Delay(10000);
-            
-            foreach(var client in clients)
-                Assert.AreEqual(ShamanClientStatus.InRoom,  client.Key.GetStatus());
+
+            var clientsInRoom = clients.Count(c => c.Key.GetStatus() == ShamanClientStatus.InRoom);
+            Assert.AreEqual(clients.Count, clientsInRoom);
+            // foreach(var client in clients)
+            //     Assert.AreEqual(ShamanClientStatus.InRoom,  client.Key.GetStatus());
         }
     }
 }

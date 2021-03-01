@@ -17,6 +17,8 @@ namespace Shaman.Common.Server.Peers
     {
         private IReliableSock _reliableSocket;
         private bool _isStopping = false;
+        private bool _isTicking = false;
+        private object _isTickingMutex = new object();
         protected ISerializer Serializer;
 
         protected IPeerCollection<T> PeerCollection;
@@ -103,17 +105,35 @@ namespace Shaman.Common.Server.Peers
             _reliableSocket.AddEventCallbacks(OnReceivePacket, OnNewClientConnect, OnClientDisconnect);
             
             _lastTick = DateTime.UtcNow;
+            _isTicking = false;
             _socketTickTask = TaskScheduler.ScheduleOnInterval(() =>
             {
                 if (_isStopping)
                     return;
-
+                lock (_isTickingMutex)
+                {
+                    if (_isTicking)
+                        return;
+                    _isTicking = true;
+                }
                 var duration = (DateTime.UtcNow - _lastTick).Milliseconds;
                 _lastTick = DateTime.UtcNow;
                 if (duration > _maxSendDuration) // overlapping not matters
                     _maxSendDuration = duration;
 
-                _reliableSocket.Tick();
+                try
+                {
+                    _reliableSocket.Tick();
+                }
+                catch
+                {
+                    //empty
+                }
+                finally
+                {
+                    lock(_isTickingMutex)
+                        _isTicking = false;
+                }
             }, 0, Config.SocketTickTimeMs);
             
             //start protection

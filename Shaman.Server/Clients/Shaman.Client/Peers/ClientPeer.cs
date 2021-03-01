@@ -64,6 +64,8 @@ namespace Shaman.Client.Peers
         public Action OnConnectedToServer;
 
         private bool _connected;
+        private bool _isTicking = false;
+        private object _isTickingMutex = new object();
         private readonly object _stateSync = new object();
 
         public ServerSender(IShamanLogger logger, Action<DataPacket, Action> onPackageReceived,
@@ -115,6 +117,7 @@ namespace Shaman.Client.Peers
             _socket.Connect(_ep);
 
             _connected = true;
+            _isTicking = false;
             //Send(new ConnectedEvent());
             _socketTickTask = _taskScheduler.ScheduleOnInterval(() =>
             {
@@ -122,8 +125,27 @@ namespace Shaman.Client.Peers
                 {
                     if (!_connected)
                         return;
+
+                    lock (_isTickingMutex)
+                    {
+                        if (_isTicking)
+                            return;
+                        _isTicking = true;
+                    }
                     
-                    _socket.Tick();
+                    try
+                    {
+                        _socket.Tick();
+                    }
+                    catch
+                    {
+                        //empty
+                    }
+                    finally
+                    {
+                        lock(_isTickingMutex)
+                            _isTicking = false;
+                    }
                 }
             }, 0, 10);
             _logger?.Debug($"Receive loop started");
