@@ -46,7 +46,6 @@ namespace Shaman.Common.Server.Peers
         private ISocketFactory _socketFactory;
         protected IRequestSender RequestSender;
 
-        
         private void OnReceivePacket(IPEndPoint endPoint, DataPacket data, Action release)
         {
             if (_protectionManager.IsBanned(endPoint))
@@ -60,7 +59,10 @@ namespace Shaman.Common.Server.Peers
                 }
                 finally
                 {
-                    release();
+                    
+                    //litenet automatically releases all null packets
+                    if (data.Buffer != null)
+                        release();
                 }
             });
         }       
@@ -148,17 +150,25 @@ namespace Shaman.Common.Server.Peers
         public virtual bool OnNewClientConnect(IPEndPoint endPoint)
         {
             _logger.Info($"Connected: {endPoint.Address} : {endPoint.Port}");
-            if (_protectionManager.IsBanned(endPoint))
+            try
+            {
+                if (_protectionManager.IsBanned(endPoint))
+                    return false;
+                _protectionManager.PeerConnected(endPoint);
+                //add peer to collection
+                PeerCollection.Add(endPoint, _reliableSocket);
+                return true;
+            }
+            catch (Exception e)
+            {
+                _logger.Error($"OnNewClientConnect error: {e}");
                 return false;
-            _protectionManager.PeerConnected(endPoint);
-            //add peer to collection
-            PeerCollection.Add(endPoint, _reliableSocket);
-            return true;
+            }
         }
 
         public void OnClientDisconnect(IPEndPoint endPoint, IDisconnectInfo info)
         {
-            _logger.Info($"Disconnected: {endPoint.Address} : {endPoint.Port}. Reason: {info.Reason}");
+            // _logger.Error($"Disconnected: {endPoint.Address} : {endPoint.Port}. Reason: {info.Reason}");
             if (!PeerCollection.TryRemove(endPoint, out var peer))
             {
                 _logger.Warning(

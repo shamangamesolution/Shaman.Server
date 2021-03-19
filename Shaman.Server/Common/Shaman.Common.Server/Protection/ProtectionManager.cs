@@ -1,6 +1,8 @@
+using System;
 using System.Net;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Server.Peers;
+using Shaman.Contract.Common.Logging;
 
 namespace Shaman.Common.Server.Protection
 {
@@ -17,11 +19,13 @@ namespace Shaman.Common.Server.Protection
     {
         private readonly IConnectDdosProtection _ddosProtection;
         private readonly IProtectionManagerConfig _config;
+        private readonly IShamanLogger _logger;
         
-        public ProtectionManager(IConnectDdosProtection ddosProtection, IProtectionManagerConfig config)
+        public ProtectionManager(IConnectDdosProtection ddosProtection, IProtectionManagerConfig config, IShamanLogger logger)
         {
             _ddosProtection = ddosProtection;
             _config = config;
+            _logger = logger;
         }
 
         public void PeerConnected(IPEndPoint endPoint)
@@ -37,9 +41,18 @@ namespace Shaman.Common.Server.Protection
 
         public bool IsBanned(IPEndPoint endPoint)
         {
-            if (_config.IsConnectionDdosProtectionOn)
-                return _ddosProtection.IsBanned(endPoint);
-
+            try
+            {
+                if (_config.IsConnectionDdosProtectionOn)
+                    return _ddosProtection.IsBanned(endPoint);
+            }
+            catch (Exception e)
+            {
+                //if something go wrong - we return false
+                _logger.Error($"IsBanned error: {e}");
+                return false;
+            }
+            
             return false;
         }
 

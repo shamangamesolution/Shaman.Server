@@ -48,7 +48,7 @@ namespace Shaman.Tests
         public void Setup()
         {
             _gameApplication = InstanceHelper.GetGame(SERVER_PORT);
-            _mmApplication = InstanceHelper.GetMm(MM_SERVER_PORT, 0, _gameApplication);
+            _mmApplication = InstanceHelper.GetMm(MM_SERVER_PORT, 0, _gameApplication, 2, 500);
             _mmApplication.Start();
             _gameApplication.Start();
             
@@ -56,7 +56,6 @@ namespace Shaman.Tests
             _client1 = new TestClientPeer(_clientLogger, taskSchedulerFactory, serializer);
             _client2 = new TestClientPeer(_clientLogger, taskSchedulerFactory, serializer);
             _client3 = new TestClientPeer(_clientLogger, taskSchedulerFactory, serializer);
-            
         }
 
         [TearDown]
@@ -164,7 +163,7 @@ namespace Shaman.Tests
             //first creates room
             await _client1.Send<EnterMatchMakingResponse>(new EnterMatchMakingRequest(new Dictionary<byte, object> { {FakePropertyCodes.PlayerProperties.Level, 3} }));
             //wait for adding bots and creating room
-            EmptyTask.Wait(1000);
+            EmptyTask.Wait(100);
             //second should go to the same room
             await _client2.Send<EnterMatchMakingResponse>(new EnterMatchMakingRequest(new Dictionary<byte, object> { {FakePropertyCodes.PlayerProperties.Level, 3} }));
 
@@ -201,7 +200,7 @@ namespace Shaman.Tests
             await _client2.Send<EnterMatchMakingResponse>(new EnterMatchMakingRequest(new Dictionary<byte, object> { {FakePropertyCodes.PlayerProperties.Level, 3} }));
             await _client3.Send<EnterMatchMakingResponse>(new EnterMatchMakingRequest(new Dictionary<byte, object> { {FakePropertyCodes.PlayerProperties.Level, 3} }));
             
-            //wait for adding bots and creating room
+            //wait for creating room
             EmptyTask.Wait(1000);
             
             await _client1.WaitFor<JoinInfoEvent>(e => e.JoinInfo != null && e.JoinInfo.Status == JoinStatus.RoomIsReady);

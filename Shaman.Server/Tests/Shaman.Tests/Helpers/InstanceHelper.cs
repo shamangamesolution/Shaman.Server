@@ -59,7 +59,8 @@ namespace Shaman.Tests.Helpers
                 SendTickTimeMs = 20,
                 SocketTickTimeMs = 10,
                 SocketType = SocketType.BareSocket,
-                ReceiveTickTimeMs = 20
+                ReceiveTickTimeMs = 20,
+                IsConnectionDdosProtectionOn = false
             };
             var roomPropertiesProvider = new FakeRoomPropertiesProvider3(250, maximumPlayers, mmTime);
             var taskSchedulerFactory = new TaskSchedulerFactory(serverLogger);
@@ -89,7 +90,7 @@ namespace Shaman.Tests.Helpers
             var senderFactory = new ShamanMessageSenderFactory(serializer, config);
             var protectionManagerConfig = new ConnectionDdosProtectionConfig(ddosConnectionsLevel, ddosConnectionCheckInterval, 5000, 60000);
             var connectionDdosProtection = new ConnectDdosProtection(protectionManagerConfig,taskSchedulerFactory, serverLogger);
-            var protectionManager = new ProtectionManager(connectionDdosProtection, protectionManagerConfig);
+            var protectionManager = new ProtectionManager(connectionDdosProtection, protectionManagerConfig, serverLogger);
             //setup mm server
             return new MmApplication(serverLogger, config, serializer, socketFactory, matchMaker,
                 requestSender, taskSchedulerFactory, _mmPacketSender,senderFactory, _serverProvider, _mmRoomManager,
@@ -110,7 +111,7 @@ namespace Shaman.Tests.Helpers
             var taskSchedulerFactory = new TaskSchedulerFactory(serverLogger);
             var protectionManagerConfig = new ConnectionDdosProtectionConfig(300, 5000, 5000, 60000);
             var connectionDdosProtection = new ConnectDdosProtection(protectionManagerConfig,taskSchedulerFactory, serverLogger);
-            var protectionManager = new ProtectionManager(connectionDdosProtection, protectionManagerConfig);
+            var protectionManager = new ProtectionManager(connectionDdosProtection, protectionManagerConfig, serverLogger);
             
             var config = new ApplicationConfig
             {
@@ -123,7 +124,8 @@ namespace Shaman.Tests.Helpers
                 SocketTickTimeMs = 10,
                 SocketType = SocketType.BareSocket,
                 ReceiveTickTimeMs = 20,
-                IsAuthOn = isAuthOn
+                IsAuthOn = isAuthOn,
+                IsConnectionDdosProtectionOn = false
             };
             var requestSender = new FakeSenderWithGameApplication(null, new Dictionary<byte, object> {{PropertyCode.RoomProperties.GameMode, (byte) GameMode.SinglePlayer}}, CreateRoomDelegate,  UpdateRoomDelegate);
 

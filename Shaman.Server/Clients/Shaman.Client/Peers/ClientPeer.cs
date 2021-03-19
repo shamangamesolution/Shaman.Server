@@ -137,9 +137,9 @@ namespace Shaman.Client.Peers
                     {
                         _socket.Tick();
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        //empty
+                        _logger.Error($"Socket tick error: {ex}");                        
                     }
                     finally
                     {

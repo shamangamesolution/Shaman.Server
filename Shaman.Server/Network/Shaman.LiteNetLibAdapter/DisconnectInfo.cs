@@ -29,7 +29,11 @@ namespace Shaman.LiteNetLibAdapter
 
         protected override void DisposeImpl()
         {
-            _payload?.Recycle();
+            
+            //we need to check for null here because if RawData is null - this item
+            //will be recycled by litenet for second time
+            if (_payload?.RawData != null)
+                _payload.Recycle();
         }
 
         public ShamanDisconnectReason Reason { get; }

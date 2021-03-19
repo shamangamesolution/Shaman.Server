@@ -10,10 +10,11 @@
     <ItemGroup>
       <ProjectReference Include="..\..\Common\Shaman.Common.Udp\Shaman.Common.Udp.csproj" />
       <ProjectReference Include="..\..\Common\Shaman.Common.Utils\Shaman.Common.Utils.csproj" />
+      <ProjectReference Include="..\LiteNetLib\LiteNetLib.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="LiteNetLib" Version="0.9.4" />
+
     </ItemGroup>
 
 </Project>
