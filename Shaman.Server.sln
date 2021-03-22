@@ -166,8 +166,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Launchers", "Launchers", "{
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Launchers.Tests", "Shaman.Server\Tests\Shaman.Launchers.Tests\Shaman.Launchers.Tests.csproj", "{74B5800C-282E-4593-A07B-C4E876C84056}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiteNetLib", "Shaman.Server\Network\LiteNetLib\LiteNetLib.csproj", "{0417E6DE-E479-4352-B931-4A449107640C}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -886,18 +884,6 @@ Global
 		{74B5800C-282E-4593-A07B-C4E876C84056}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{74B5800C-282E-4593-A07B-C4E876C84056}.Release|Win32.ActiveCfg = Release|Any CPU
 		{74B5800C-282E-4593-A07B-C4E876C84056}.Release|Win32.Build.0 = Release|Any CPU
-		{0417E6DE-E479-4352-B931-4A449107640C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0417E6DE-E479-4352-B931-4A449107640C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0417E6DE-E479-4352-B931-4A449107640C}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{0417E6DE-E479-4352-B931-4A449107640C}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{0417E6DE-E479-4352-B931-4A449107640C}.Debug|Win32.ActiveCfg = Debug|Any CPU
-		{0417E6DE-E479-4352-B931-4A449107640C}.Debug|Win32.Build.0 = Debug|Any CPU
-		{0417E6DE-E479-4352-B931-4A449107640C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0417E6DE-E479-4352-B931-4A449107640C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0417E6DE-E479-4352-B931-4A449107640C}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{0417E6DE-E479-4352-B931-4A449107640C}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{0417E6DE-E479-4352-B931-4A449107640C}.Release|Win32.ActiveCfg = Release|Any CPU
-		{0417E6DE-E479-4352-B931-4A449107640C}.Release|Win32.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -968,6 +954,5 @@ Global
 		{82150A95-1C21-43F1-9B4D-041F7FFD38C6} = {66CAA0A7-9D41-4A97-B7CB-0D360817E841}
 		{70CED3A1-18D5-4D4F-9BB1-CB83CAC5D77E} = {3A4DE7F7-1B80-4C8D-9175-A2CED54DA593}
 		{74B5800C-282E-4593-A07B-C4E876C84056} = {70CED3A1-18D5-4D4F-9BB1-CB83CAC5D77E}
-		{0417E6DE-E479-4352-B931-4A449107640C} = {8BF92AD4-B028-49F4-8BB3-26FDAFE7298A}
 	EndGlobalSection
 EndGlobal
