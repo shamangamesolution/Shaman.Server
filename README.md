@@ -26,7 +26,7 @@ Let's talk about Launchers, mentioned above. The way to actually launch it is de
 Let's start a StandAlone Game launcher. We will use our Test Bundle which will be downloaded from here. For the testing we will use our Test Unity client.
  - Launch this command in command prompt and your server will be ready to accept players  
 ```docker 
-docker run -p 23452:23452/udp --name=game-standalone -e LauncherSettings__BundleUri=https://github.com/shamangamesolution/Shaman.Server/releases/download/1.13.1/test-bundle-v1.13.1.zip docker.pkg.github.com/shamangamesolution/shaman.server/shaman.server.game.standalone:1.13.1
+docker run -p 23452:23452/udp --name=game-standalone -e LauncherSettings__BundleUri=https://shaman-sample.s3-eu-west-1.amazonaws.com/test-bundle-v1.13.1.zip shamangamesolution/shaman.server:standalone-1.13.1
 ```
  - Download the [unity package](https://github.com/shamangamesolution/Shaman.Server/releases/download/1.13.1/test-client-v1.13.1.unitypackage) and import it to Unity. By default Test Client will connect to the Standalone Game launcher, located on your localhost. So you need just to press Play and read logs. 
 
@@ -55,7 +55,7 @@ public void ProcessPlayerDisconnected(Guid sessionId, PeerDisconnectedReason rea
 3. Build project EmptyBundle.Bundle and publish it to some folder, for example /dev/MyBundle
 4. Launch a server with following command (you will require the Internet connection for the first run - to download docker image). Pay attention to -v parameter - you must set folder name you used on step 3
 ```docker
-docker run -p 23452:23452/udp --name=game-standalone -v /dev/MyBundle/:/bundle -e LauncherSettings__BundleUri=/bundle docker.pkg.github.com/shamangamesolution/shaman.server/shaman.server.game.standalone:1.12.1
+docker run -p 23452:23452/udp --name=game-standalone -v /dev/MyBundle/:/bundle -e LauncherSettings__BundleUri=/bundle shamangamesolution/shaman.server:standalone:1.13.1
 ```
 5. Create new project in Unity
 6. Import [this](https://github.com/shamangamesolution/Shaman.Server/releases/download/1.13.1/test-client-v1.13.1.unitypackage) package to Unity - it contains some libraries and a client code to connect to the server
