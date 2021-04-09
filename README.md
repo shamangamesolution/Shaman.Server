@@ -1,4 +1,4 @@
-Visit our [**Discord**](https://discord.gg/FjaYVjFe)
+Visit our [**Discord**](https://discord.gg/B2KAFy3yFf)
 
 # Shaman server
 C# solution for creating a full functional room-based game server system. 
