@@ -13,6 +13,7 @@ using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
 using Shaman.Messages;
+using Shaman.Messages.General.DTO.Events;
 using Shaman.Messages.General.DTO.Requests;
 using Shaman.Messages.General.DTO.Responses;
 using Shaman.Messages.MM;
@@ -49,7 +50,7 @@ namespace Shaman.TestTools.ClientPeers
         public ushort MmPort => _routeTable.First().MatchMakerPort;
         public string BackendUrl => $"{_routeTable.First().BackendProtocol}://{_routeTable.First().BackendAddress}:{_routeTable.First().BackendPort}/";
         public int BackendId => _routeTable.First().BackendId;
-        public Action<string> OnDisconnectedFromServer;
+        public Action<IDisconnectInfo> OnDisconnectedFromServer;
 
         public TestClientPeer(IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory, ISerializer serializer)
         {
@@ -71,10 +72,10 @@ namespace Shaman.TestTools.ClientPeers
             }, 0, 10);
         }
 
-        private void OnDisconnected(string reason)
+        private void OnDisconnected(IDisconnectInfo disconnectInfo)
         {
-            _logger.Info($"Disconnected from server: {reason}");
-            OnDisconnectedFromServer?.Invoke(reason);
+            _logger.Info($"Disconnected from server: {disconnectInfo.Reason}");
+            OnDisconnectedFromServer?.Invoke(disconnectInfo);
         }
 
 
@@ -93,9 +94,10 @@ namespace Shaman.TestTools.ClientPeers
             return _joinInfo;
         }
         
-        public void Connect(string address, ushort port)
+        public async Task Connect(string address, ushort port)
         {
             _clientPeer.Connect(address, port);
+            await WaitFor<ConnectedEvent>(); 
         }
 
         public void Disconnect()
@@ -188,8 +190,8 @@ namespace Shaman.TestTools.ClientPeers
             return _clientPeer.IsConnected();
         }
 
-        public async Task<T> WaitFor<T>(Func<T, bool> condition,
-            int timeoutMs = 10000, int checkPeriod = 10) where T : MessageBase, new()
+        public async Task<T> WaitFor<T>(Func<T, bool> condition = null,
+            int timeoutMs = 5000, int checkPeriod = 100) where T : MessageBase, new()
         {
             var operationCode = (new T()).OperationCode;
             var stopwatch = Stopwatch.StartNew();
@@ -202,11 +204,12 @@ namespace Shaman.TestTools.ClientPeers
                 if (msg != null)
                 {
                     var deserialized = _serializer.DeserializeAs<T>(msg.Data, msg.Offset, msg.Length);
-                    if (condition(deserialized))
+                    if (condition == null || condition.Invoke(deserialized))
                     {
                         _logger.LogInfo($"Condition for event {typeof(T)} was matched for {stopwatch.ElapsedMilliseconds}ms");
                         return deserialized;    
                     }
+
                 }
 
                 await Task.Delay(checkPeriod);

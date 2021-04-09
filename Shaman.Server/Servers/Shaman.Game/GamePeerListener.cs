@@ -48,13 +48,14 @@ namespace Shaman.Game
             switch (operationCode)
             {
                 case ShamanOperationCode.Connect:
+                    _logger.Error($"Sending ConnectedEvent to peer {peer.GetPeerId()}");
                     _messageSender.Send(new ConnectedEvent(), peer);
                     break;
                 case ShamanOperationCode.Ping:
                     _messageSender.Send(new PingEvent(), peer);
                     break;
                 case ShamanOperationCode.Disconnect:
-                    OnClientDisconnect(endPoint, new LightNetDisconnectInfo(ClientDisconnectReason.PeerLeave));
+                    OnClientDisconnect(endPoint, new SimpleDisconnectInfo(ShamanDisconnectReason.PeerLeave));
                     break;
                 case ShamanOperationCode.Authorization:
                     var authMessage = Serializer.DeserializeAs<AuthorizationRequest>(payload.Buffer, payload.Offset, payload.Length);
@@ -127,18 +128,29 @@ namespace Shaman.Game
             }
         }
 
-        public override void OnNewClientConnect(IPEndPoint endPoint)
+        public override bool OnNewClientConnect(IPEndPoint endPoint)
         {
-            base.OnNewClientConnect(endPoint);
-            
-            var peer = PeerCollection.Get(endPoint);
-            if (peer == null)
+            try
             {
-                _logger.Warning($"GamePeerListener.OnClientDisconnect error: can not find peer for endpoint {endPoint.Address}:{endPoint.Port}");
-                return;
-            }
+                if (!base.OnNewClientConnect(endPoint))
+                    return false;
+                
+                var peer = PeerCollection.Get(endPoint);
+                if (peer == null)
+                {
+                    _logger.Error($"GamePeerListener.OnClientDisconnect error: can not find peer for endpoint {endPoint.Address}:{endPoint.Port}");
+                    return false;
+                }
             
-            _messageSender.Send(new ConnectedEvent(), peer);
+                // _logger.Error($"Sending ConnectedEvent to peer {peer.GetPeerId()}");
+                _messageSender.Send(new ConnectedEvent(), peer);
+                return true;
+            }
+            catch (Exception e)
+            {
+                _logger.Error($"OnNewClientConnect error: {e}");
+                return false;
+            }
         }
 
         protected override void ProcessDisconnectedPeer(GamePeer peer, IDisconnectInfo info)

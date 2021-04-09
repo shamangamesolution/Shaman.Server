@@ -1,12 +1,10 @@
 using System;
 using System.Linq;
 using FluentAssertions;
-using Moq;
 using NUnit.Framework;
 using Shaman.Common.Udp.Sockets;
 using Shaman.Common.Utils.Logging;
 using Shaman.Contract.Common;
-using Shaman.Contract.Common.Logging;
 
 namespace Shaman.Common.Udp.Tests
 {
@@ -70,20 +68,6 @@ namespace Shaman.Common.Udp.Tests
                 .BeEquivalentTo(new byte[] {5, 2, 3, 1});
             new ArraySegment<byte>(packetInfo.Buffer, offsets[5].Offset, offsets[5].Length).ToArray().Should()
                 .BeEquivalentTo(new byte[] {6, 2, 3, 1});
-        }
-
-        [Test]
-        public void TestDoubleDispose()
-        {
-            var mock = new Mock<IShamanLogger>();
-            
-            var packetInfo = new PacketInfo(new DeliveryOptions(false, true), 100, mock.Object, new Payload(new byte[] {0, 0, 1, 2, 3, 9, 9}, 2, 3));
-
-            packetInfo.Dispose();
-            mock.Verify(s => s.Error(It.IsAny<string>()), Times.Never);
-            packetInfo.Dispose();
-
-            mock.Verify(s => s.Error("DOUBLE_RENT_RETURN in PacketInfo"), Times.Once);
         }
     }
 }

@@ -1,61 +1,45 @@
-using System;
 using LiteNetLib;
 using Shaman.Common.Udp.Sockets;
+using Shaman.Common.Utils;
+using Shaman.Contract.Common;
 
 namespace Shaman.LiteNetLibAdapter
 {
-    public class LightNetDisconnectInfo : IDisconnectInfo
+    public class LiteNetDisconnectInfo : OnceDisposable, IDisconnectInfo
     {
         private readonly NetPacketReader _payload;
 
-        public LightNetDisconnectInfo(ClientDisconnectReason reason)
+        public LiteNetDisconnectInfo(DisconnectInfo info)
         {
-            _payload = null;
-            Reason = reason;
-        }
-        public LightNetDisconnectInfo(DisconnectReason reason, NetPacketReader payload)
-        {
-            _payload = payload;
-            Reason = ConvertReason(reason);
+            _payload = info.Reason == DisconnectReason.RemoteConnectionClose ? info.AdditionalData : null;
+            Reason = ConvertReason(info.Reason);
         }
 
-        private ClientDisconnectReason ConvertReason(DisconnectReason reason)
+        private ShamanDisconnectReason ConvertReason(DisconnectReason reason)
         {
             switch (reason)
             {
                 case DisconnectReason.RemoteConnectionClose:
                 case DisconnectReason.DisconnectPeerCalled:
-                    return ClientDisconnectReason.PeerLeave;
+                    return ShamanDisconnectReason.PeerLeave;
                 default:
-                    return ClientDisconnectReason.ConnectionLost;
+                    return ShamanDisconnectReason.ConnectionLost;
             }
         }
 
-        public LightNetDisconnectInfo(DisconnectReason reason)
+        protected override void DisposeImpl()
         {
-            _payload = null;
-            Reason = ConvertReason(reason);
+            
+            //we need to check for null here because if RawData is null - this item
+            //will be recycled by litenet for second time
+            if (_payload?.RawData != null)
+                _payload.Recycle();
         }
 
-        public void Dispose()
-        {
-            _payload?.Recycle();
-        }
+        public ShamanDisconnectReason Reason { get; }
 
-        public ClientDisconnectReason Reason { get; }
-        public byte[] Payload
-        {
-            get
-            {
-                if (_payload != null && _payload.UserDataSize > 0)
-                {
-                    var payload = new byte[_payload.UserDataSize];
-                    Array.Copy(_payload.RawData, _payload.UserDataOffset, payload, 0, _payload.UserDataSize);
-                    return payload;
-                }
-
-                return null;
-            }
-        }
+        public Payload Payload => _payload != null
+            ? new Payload(_payload.RawData, _payload.UserDataOffset, _payload.UserDataSize)
+            : default;
     }
 }

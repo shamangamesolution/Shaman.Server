@@ -3,6 +3,7 @@ using System.Linq;
 using Shaman.Common.Http;
 using Shaman.Common.Server.Applications;
 using Shaman.Common.Server.Configuration;
+using Shaman.Common.Server.Protection;
 using Shaman.Common.Udp.Senders;
 using Shaman.Common.Udp.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
@@ -41,8 +42,8 @@ namespace Shaman.MM
             IPacketSender packetSender, 
             IShamanMessageSenderFactory messageSenderFactory,
             IMatchMakerServerInfoProvider serverProvider,
-            IRoomManager roomManager, IMatchMakingGroupsManager matchMakingGroupManager, IPlayersManager playersManager, IMmMetrics mmMetrics) : base(logger, config, serializer,
-            socketFactory, taskSchedulerFactory, requestSender, mmMetrics)
+            IRoomManager roomManager, IMatchMakingGroupsManager matchMakingGroupManager, IPlayersManager playersManager, IMmMetrics mmMetrics, IProtectionManager protectionManager) : base(logger, config, serializer,
+            socketFactory, taskSchedulerFactory, requestSender, mmMetrics, protectionManager)
         {
             _packetSender = packetSender;
             _messageSenderFactory = messageSenderFactory;

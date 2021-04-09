@@ -4,6 +4,6 @@ namespace Shaman.Client.Peers
     {
         RandomJoin = 1,
         DirectJoin = 2,
-        // CreateGame = 3
+        CreateGame = 3
     }
 }

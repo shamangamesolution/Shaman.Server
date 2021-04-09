@@ -11,5 +11,10 @@
 	"send_tick_time_ms":"20",
 	"max_packet_size":"300",
 	"base_packet_buffer_size":"64",
-	"router_url": "<http-address-of-your-router>"
+	"router_url": "<http-address-of-your-router>",
+	"max_connects_from_single_ip": "30",
+	"connection_count_check_interval_ms": "5000",
+	"ban_check_interval_ms": "5000",
+	"ban_duration_ms": "60000",
+	"is_connection_ddos_protection_on": "false"
 }

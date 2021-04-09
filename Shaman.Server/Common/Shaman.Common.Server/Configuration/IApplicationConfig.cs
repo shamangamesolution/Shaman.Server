@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Shaman.Common.Server.Protection;
 using Shaman.Common.Udp.Senders;
 using Shaman.Contract.Routing;
 
@@ -10,7 +11,7 @@ namespace Shaman.Common.Server.Configuration
         ThreadSocket = 2
     }
     
-    public interface IApplicationConfig: IPacketSenderConfig
+    public interface IApplicationConfig: IPacketSenderConfig, IProtectionManagerConfig
     {
         string PublicDomainNameOrAddress { get; set; }
         List<ushort> ListenPorts { get; set; }
