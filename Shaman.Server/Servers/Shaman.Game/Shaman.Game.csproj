@@ -6,7 +6,6 @@
         <IsPackable>true</IsPackable>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageVersion>1.13.1</PackageVersion>
-        <RepositoryUrl>https://github.com/shamangamesolution/Shaman.Server</RepositoryUrl>
     </PropertyGroup>
 
     <ItemGroup>
