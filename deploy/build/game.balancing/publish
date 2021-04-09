@@ -1,5 +1,5 @@
-cat ~/.github/shaman-pat-write | docker login https://docker.pkg.github.com -u shamangamesolution --password-stdin
+cat ~/.docker/shaman-pat-write | docker login  -u shamangamesolution --password-stdin 
 
 docker build -t game-1.13.1 -f ../../../Shaman.Server/Launchers/Shaman.Launchers.Game.Balancing/Dockerfile ../../../Shaman.Server/
-docker tag game-1.13.1 docker.pkg.github.com/shamangamesolution/shaman.server/shaman.server.game:1.13.1
-docker push docker.pkg.github.com/shamangamesolution/shaman.server/shaman.server.game:1.13.1
+docker tag game-1.13.1 shamangamesolution/shaman.server:game-1.13.1
+docker push shamangamesolution/shaman.server:game-1.13.1

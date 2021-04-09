@@ -4,11 +4,10 @@
         <TargetFramework>netcoreapp2.2</TargetFramework>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageVersion>1.13.1</PackageVersion>
-        <RepositoryUrl>https://github.com/shamangamesolution/Shaman.Server</RepositoryUrl>
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Shaman.DAL.MongoDb" Version="1.11.0" />
+      <PackageReference Include="Shaman.DAL.MongoDb" Version="1.13.1" />
     </ItemGroup>
 
     <ItemGroup>
