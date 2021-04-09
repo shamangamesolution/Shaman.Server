@@ -26,9 +26,9 @@ Let's talk about Launchers, mentioned above. The way to actually launch it is de
 Let's start a StandAlone Game launcher. We will use our Test Bundle which will be downloaded from here. For the testing we will use our Test Unity client.
  - Launch this command in command prompt and your server will be ready to accept players  
 ```docker 
-docker run -p 23452:23452/udp --name=game-standalone -e LauncherSettings__BundleUri=https://github.com/shamangamesolution/Samples/releases/download/v1.12-beta1/test-bundle-v1.12-beta1.zip docker.pkg.github.com/shamangamesolution/shaman.server/shaman.server.game.standalone:1.12.1
+docker run -p 23452:23452/udp --name=game-standalone -e LauncherSettings__BundleUri=https://github.com/shamangamesolution/Shaman.Server/releases/download/1.13.1/test-bundle-v1.13.1.zip docker.pkg.github.com/shamangamesolution/shaman.server/shaman.server.game.standalone:1.13.1
 ```
- - Download the [unity package](https://github.com/shamangamesolution/Samples/releases/download/v1.12-beta1/test-client-v1.12-beta1.unitypackage) and import it to Unity. By default Test Client will connect to the Standalone Game launcher, located on your localhost. So you need just to press Play and read logs. 
+ - Download the [unity package](https://github.com/shamangamesolution/Shaman.Server/releases/download/1.13.1/test-client-v1.13.1.unitypackage) and import it to Unity. By default Test Client will connect to the Standalone Game launcher, located on your localhost. So you need just to press Play and read logs. 
 
 ### Frameworks and tools used for creating and deploying this solution:
  - .net Core 2.2 as main platform for all applications
@@ -44,7 +44,7 @@ The simplest way to deploy Shaman is to use docker to pull and run Shaman itself
 
 ### Create your bundle
 Let's create a simple bundle - it actually does nothing, but it really cool visualizes a workflow. You will need installed Docker for this demo.
-1. Download [EmptyBundle](https://github.com/shamangamesolution/Samples/releases/download/v1.12-beta1/test-client-v1.12-beta1.unitypackage) solution    
+1. Download [EmptyBundle](https://github.com/shamangamesolution/Samples/tree/develop/Shaman.EmptyBundle/EmptyBundle.Server) solution    
 2. Create your game logic inside IRoomController implementation (class RoomController) - something simple for the first time. For example, log when player leaves room (log for join is already there for example)
 ```csharp
 public void ProcessPlayerDisconnected(Guid sessionId, PeerDisconnectedReason reason, byte[] reasonPayload)
@@ -58,7 +58,7 @@ public void ProcessPlayerDisconnected(Guid sessionId, PeerDisconnectedReason rea
 docker run -p 23452:23452/udp --name=game-standalone -v /dev/MyBundle/:/bundle -e LauncherSettings__BundleUri=/bundle docker.pkg.github.com/shamangamesolution/shaman.server/shaman.server.game.standalone:1.12.1
 ```
 5. Create new project in Unity
-6. Import [this](https://github.com/shamangamesolution/Samples/releases/download/v1.12-beta1/test-client-v1.12-beta1.unitypackage) package to Unity - it contains some libraries and a client code to connect to the server
+6. Import [this](https://github.com/shamangamesolution/Shaman.Server/releases/download/1.13.1/test-client-v1.13.1.unitypackage) package to Unity - it contains some libraries and a client code to connect to the server
 7. Press Play in Unity - you should see your logs in the console when player enters and leaves the room
 
 ### Monitoring
