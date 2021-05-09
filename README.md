@@ -44,7 +44,7 @@ The simplest way to deploy Shaman is to use docker to pull and run Shaman itself
 
 ### Create your bundle
 Let's create a simple bundle - it actually does nothing, but it really cool visualizes a workflow. You will need installed Docker for this demo.
-1. Download [EmptyBundle](https://github.com/shamangamesolution/Samples/tree/develop/Shaman.EmptyBundle/EmptyBundle.Server) solution    
+1. Download [EmptyBundle](https://github.com/shamangamesolution/Samples/tree/master/Shaman.EmptyBundle/EmptyBundle.Server) solution    
 2. Create your game logic inside IRoomController implementation (class RoomController) - something simple for the first time. For example, log when player leaves room (log for join is already there for example)
 ```csharp
 public void ProcessPlayerDisconnected(Guid sessionId, PeerDisconnectedReason reason, byte[] reasonPayload)
