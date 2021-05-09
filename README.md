@@ -55,7 +55,7 @@ public void ProcessPlayerDisconnected(Guid sessionId, PeerDisconnectedReason rea
 3. Build project EmptyBundle.Bundle and publish it to some folder, for example /dev/MyBundle
 4. Launch a server with following command (you will require the Internet connection for the first run - to download docker image). Pay attention to -v parameter - you must set folder name you used on step 3
 ```docker
-docker run -p 23452:23452/udp --name=game-standalone -v /dev/MyBundle/:/bundle -e LauncherSettings__BundleUri=/bundle shamangamesolution/shaman.server:standalone:1.13.1
+docker run -p 23452:23452/udp --name=game-standalone -v /dev/MyBundle/:/bundle -e LauncherSettings__BundleUri=/bundle shamangamesolution/shaman.server:standalone-1.13.1
 ```
 5. Create new project in Unity
 6. Import [this](https://github.com/shamangamesolution/Shaman.Server/releases/download/1.13.1/test-client-v1.13.1.unitypackage) package to Unity - it contains some libraries and a client code to connect to the server
