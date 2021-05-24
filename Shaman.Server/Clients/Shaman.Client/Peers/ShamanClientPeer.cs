@@ -318,7 +318,14 @@ namespace Shaman.Client.Peers
                     $"JoinRoomResponse error: {response.ResultCode}");
                 return;
             }
-                    
+
+            if (response is DirectJoinRandomRoomResponse roomResponse)
+            {
+                var roomId = roomResponse.RoomId;
+                if (roomId != null)
+                    JoinInfo.RoomId = roomId.Value;
+            }
+            
             SetAndReportStatus(ShamanClientStatus.InRoom, _statusCallback);
         }
 

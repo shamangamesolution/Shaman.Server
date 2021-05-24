@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions;
@@ -9,6 +10,7 @@ using Shaman.Client.Peers;
 using Shaman.Common.Server.Configuration;
 using Shaman.Contract.Routing;
 using Shaman.Launchers.Game.DebugServer;
+using Shaman.Messages.RoomFlow;
 using Shaman.ServiceBootstrap;
 using Startup = Shaman.Launchers.Game.Standalone.Startup;
 
@@ -64,6 +66,7 @@ namespace Shaman.Launchers.Tests
         public async Task JoinRoomTests()
         {
             var clients = new Dictionary<IShamanClientPeer, Guid>();
+            var joinInfoList = new HashSet<Guid>();
             var mmProperties = new Dictionary<byte, object>();
             var joinProperties = new Dictionary<byte, object>();
             for (int i = 0; i < 10; i++)
@@ -71,13 +74,24 @@ namespace Shaman.Launchers.Tests
                 clients.Add(_clientFactory.GetClient(), Guid.NewGuid());
             }
 
+
+
             foreach (var client in clients)
-                client.Key.DirectConnectToGameServerToRandomRoom("127.0.0.1", 23452, client.Value, mmProperties, joinProperties);
-            
+            {
+                var joinInfo = await client.Key.DirectConnectToGameServerToRandomRoom("127.0.0.1", 23452,
+                    client.Value, mmProperties, joinProperties);
+                joinInfoList.Add(joinInfo.RoomId);
+            }
+
             await Task.Delay(3000);
+
+            foreach (var client in clients)
+            {
+                Assert.AreEqual(ShamanClientStatus.InRoom, client.Key.GetStatus());
+            }
             
-            foreach(var client in clients)
-                Assert.AreEqual(ShamanClientStatus.InRoom,  client.Key.GetStatus());
+            Assert.AreEqual(1, joinInfoList.Count);
+            Assert.AreNotEqual(Guid.Empty, joinInfoList.First());
         }
     }
 }

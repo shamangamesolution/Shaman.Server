@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions;
@@ -51,19 +52,27 @@ namespace Shaman.Launchers.Tests
         {
             var clients = new Dictionary<IShamanClientPeer, Guid>();
             var mmProperties = new Dictionary<byte, object>();
+            var joinInfoList = new HashSet<Guid>();
             var joinProperties = new Dictionary<byte, object>();
             for (int i = 0; i < 10; i++)
             {
                 clients.Add(_clientFactory.GetClient(), Guid.NewGuid());
             }
-
+            await Task.Delay(3000);
             foreach (var client in clients)
-                await client.Key.DirectConnectToGameServerToRandomRoom("127.0.0.1", 23452, client.Value, mmProperties, joinProperties);
-            
+            {
+                var joinInfo = await client.Key.DirectConnectToGameServerToRandomRoom("127.0.0.1", 23452, client.Value, mmProperties,
+                    joinProperties);
+                joinInfoList.Add(joinInfo.RoomId);
+            }
+
             await Task.Delay(5000);
             
             foreach(var client in clients)
                 Assert.AreEqual(ShamanClientStatus.InRoom,  client.Key.GetStatus());
+            
+            Assert.AreEqual(1, joinInfoList.Count);
+            Assert.AreNotEqual(Guid.Empty, joinInfoList.First());
         }
     }
 }

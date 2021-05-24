@@ -63,6 +63,7 @@ namespace Shaman.Launchers.TestBundle
         {
             _room = room;
             _logger = logger;
+            room.Open();
             Trace("Room crated");
         }
 
