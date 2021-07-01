@@ -213,6 +213,8 @@ namespace Shaman.Client.Peers
             _socket.Send(packetInfo.Buffer, packetInfo.Offset, packetInfo.Length, packetInfo.IsReliable,
                 packetInfo.IsOrdered);
         }
+
+        public int Mtu => _socket.Mtu;
     }
 
     public class ClientPeer
@@ -227,6 +229,8 @@ namespace Shaman.Client.Peers
         private readonly ServerSender _serverSender;
         private readonly ShamanSender _shamanSender;
 
+        public int Mtu => _serverSender.Mtu;
+        
         public Action<IDisconnectInfo> OnDisconnectedFromServer
         {
             get => _serverSender.OnDisconnectedFromServer;

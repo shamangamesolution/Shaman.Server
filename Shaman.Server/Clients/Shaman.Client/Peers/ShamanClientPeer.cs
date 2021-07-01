@@ -72,6 +72,11 @@ namespace Shaman.Client.Peers
             return _clientPeer.GetPing();
         }
 
+        public int GetMtu()
+        {
+            return _clientPeer.Mtu;
+        }
+
         private readonly IShamanClientPeerListener _listener;
         private static readonly TimeSpan JoinGameTimeout = TimeSpan.FromSeconds(30);
         private static readonly TimeSpan ReceiveEventTimeout = TimeSpan.FromSeconds(5);

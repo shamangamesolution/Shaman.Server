@@ -40,5 +40,6 @@ namespace Shaman.Client.Peers
         int GetMessagesCountInQueue();
         int GetRtt();
         int GetPing();
+        int GetMtu();
     }
 }

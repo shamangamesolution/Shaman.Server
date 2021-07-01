@@ -5,5 +5,6 @@ namespace Shaman.Common.Udp.Peers
     public interface IPeerSender
     {
         void Send(PacketInfo packetInfo);
+        int Mtu {get;}
     }
 }

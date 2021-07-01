@@ -48,5 +48,7 @@ namespace Shaman.MM.Tests.Fakes
         {
             throw new NotImplementedException();
         }
+
+        public int Mtu => 0;
     }
 }

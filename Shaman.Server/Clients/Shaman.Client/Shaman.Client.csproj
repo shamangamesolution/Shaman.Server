@@ -3,7 +3,7 @@
     <PropertyGroup>
         <LangVersion>default</LangVersion>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <PackageVersion>1.13.2-net5</PackageVersion>
+        <PackageVersion>1.13.3-dev</PackageVersion>
         <TargetFrameworks>net5.0;netstandard2.0</TargetFrameworks>
     </PropertyGroup>
 
