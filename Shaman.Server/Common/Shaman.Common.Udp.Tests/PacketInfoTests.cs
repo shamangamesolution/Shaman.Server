@@ -17,7 +17,7 @@ namespace Shaman.Common.Udp.Tests
         {
             var packetInfo = new PacketInfo(new DeliveryOptions(false, true), 100, ConsoleLogger, new Payload(new byte[] {1, 2, 3}, 0, 3));
 
-            packetInfo.Append(new Payload(new byte[] {2, 1}));
+            packetInfo.Append(new Payload(new byte[] {2, 1},0, 2));
             packetInfo.Append(new Payload(new byte[] {3, 2, 3, 1}, 0, 4));
 
             var offsets = PacketInfo.GetOffsetInfo(packetInfo.Buffer, packetInfo.Offset).ToArray();
@@ -40,7 +40,7 @@ namespace Shaman.Common.Udp.Tests
         {
             var packetInfo = new PacketInfo(new DeliveryOptions(false, true), 100, ConsoleLogger, new Payload(new byte[] {0, 0, 1, 2, 3, 9, 9}, 2, 3));
 
-            packetInfo.Append(new Payload(new byte[] {2, 1}));
+            packetInfo.Append(new Payload(new byte[] {2, 1}, 0, 2));
             packetInfo.Append(new Payload(new byte[] {3, 1}, 0, 2));
             packetInfo.Append(new Payload(new byte[] {4, 2, 3, 1, 8}, 0, 4));
             packetInfo.Append(new Payload(new byte[] {8, 5, 2, 3, 1}, 1, 4));

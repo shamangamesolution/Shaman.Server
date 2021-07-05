@@ -17,7 +17,7 @@ namespace Shaman.Tests.Helpers
 
 
             var packetInfo = new PacketInfo(new DeliveryOptions(false, false), 300, ConsoleLogger,
-                new Payload(initMsgArray));
+                new Payload(initMsgArray, 0, initMsgArray.Length));
 
             return new DataPacket(packetInfo.Buffer, 0, packetInfo.Length,
                 new DeliveryOptions(message.IsReliable, message.IsOrdered));

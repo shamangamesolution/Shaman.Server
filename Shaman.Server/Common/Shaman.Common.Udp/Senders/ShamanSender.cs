@@ -30,7 +30,7 @@ namespace Shaman.Common.Udp.Senders
             try
             {
                 _serializer.Serialize(message, stream);
-                _packetSender.AddPacket(peer, deliveryOptions, new Payload(stream.GetBuffer()));
+                _packetSender.AddPacket(peer, deliveryOptions, new Payload(stream.GetBuffer(), 0, (int)stream.Length));
                 return (int) stream.Length;
             }
             finally

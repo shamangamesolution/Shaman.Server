@@ -24,7 +24,7 @@ namespace Shaman.Serialization.Room
             try
             {
                 _serializer.Serialize(message, stream);
-                _roomSender.Send(new Payload(stream.GetBuffer()), deliveryOptions, peer);
+                _roomSender.Send(new Payload(stream.GetBuffer(), 0, (int)stream.Length), deliveryOptions, peer);
                 return (int) stream.Length;
             }
             finally
@@ -39,7 +39,7 @@ namespace Shaman.Serialization.Room
             try
             {
                 _serializer.Serialize(message, stream);
-                _roomSender.SendToAll(new Payload(stream.GetBuffer()), deliveryOptions);
+                _roomSender.SendToAll(new Payload(stream.GetBuffer(), 0, (int)stream.Length), deliveryOptions);
                 return (int) stream.Length;
             }
             finally
@@ -53,7 +53,7 @@ namespace Shaman.Serialization.Room
             try
             {
                 _serializer.Serialize(message, stream);
-                _roomSender.SendToAll(new Payload(stream.GetBuffer()), deliveryOptions, exception);
+                _roomSender.SendToAll(new Payload(stream.GetBuffer(), 0, (int)stream.Length), deliveryOptions, exception);
                 return (int) stream.Length;
             }
             finally

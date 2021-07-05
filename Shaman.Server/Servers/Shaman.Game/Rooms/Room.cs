@@ -259,7 +259,7 @@ namespace Shaman.Game.Rooms
             return _roomPlayers.TryGetValue(sessionId, out player);
         }
         
-        private static readonly Payload BundleMessagePrefix = new Payload(ShamanOperationCode.Bundle);
+        private static readonly Payload BundleMessagePrefix = new Payload(new[] {ShamanOperationCode.Bundle}, 0, 1);
 
         public void Send(Payload payload, DeliveryOptions deliveryOptions, Guid sessionId)
         {

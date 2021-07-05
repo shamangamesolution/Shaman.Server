@@ -13,12 +13,12 @@ namespace Shaman.Contract.Common
             Length = length;
         }
 
-        public Payload(params byte[] buffer)
-        {
-            Buffer = buffer;
-            Offset = 0;
-            Length = buffer.Length;
-        }
+        // public Payload(params byte[] buffer)
+        // {
+        //     Buffer = buffer;
+        //     Offset = 0;
+        //     Length = buffer.Length;
+        // }
 
         public bool Any => Length > 0;
     }

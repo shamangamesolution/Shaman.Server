@@ -1,5 +1,5 @@
 cat ~/.docker/shaman-pat-write | docker login  -u shamangamesolution --password-stdin
 
-docker build -t mm-1.13.1 -f ../../../Shaman.Server/Launchers/Shaman.Launchers.MM.Balancing/Dockerfile ../../../Shaman.Server/
-docker tag mm-1.13.1 shamangamesolution/shaman.server:mm-1.13.1
-docker push shamangamesolution/shaman.server:mm-1.13.1
+docker build -t mm-1.13.2-dev -f ../../../Shaman.Server/Launchers/Shaman.Launchers.MM.Balancing/Dockerfile ../../../Shaman.Server/
+docker tag mm-1.13.2-dev shamangamesolution/shaman.server:mm-1.13.2-dev
+docker push shamangamesolution/shaman.server:mm-1.13.2-dev
