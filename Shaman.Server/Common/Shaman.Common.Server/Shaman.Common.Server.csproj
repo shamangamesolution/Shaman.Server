@@ -4,7 +4,7 @@
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
         <TargetFramework>netcoreapp2.2</TargetFramework>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <PackageVersion>1.13.2-dev</PackageVersion>
+        <PackageVersion>1.14.0</PackageVersion>
     </PropertyGroup>
 
     <ItemGroup>

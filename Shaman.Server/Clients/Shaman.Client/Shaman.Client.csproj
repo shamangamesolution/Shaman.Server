@@ -3,8 +3,8 @@
     <PropertyGroup>
         <LangVersion>default</LangVersion>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <PackageVersion>1.13.3-dev</PackageVersion>
-        <TargetFrameworks>net5.0;netstandard2.0</TargetFrameworks>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <PackageVersion>1.14.0</PackageVersion>
     </PropertyGroup>
 
     <ItemGroup>
