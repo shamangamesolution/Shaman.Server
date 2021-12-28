@@ -1,6 +1,6 @@
 using Shaman.Contract.Routing;
 
-namespace Shaman.Launchers.Game.Balancing
+namespace Shaman.Launchers.Common.Balancing
 {
     public interface IServerIdentityProvider
     {

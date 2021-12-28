@@ -9,7 +9,7 @@ using Shaman.Contract.Routing;
 using Shaman.Contract.Routing.Balancing;
 using Shaman.Contract.Routing.Meta;
 
-namespace Shaman.Launchers.Game.Balancing
+namespace Shaman.Launchers.Common.Balancing
 {
     public class RouterMetaProvider : IMetaProvider
     {
