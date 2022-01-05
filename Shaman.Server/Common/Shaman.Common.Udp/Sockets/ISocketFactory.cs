@@ -7,4 +7,8 @@ namespace Shaman.Common.Udp.Sockets
         IReliableSock GetReliableSockWithBareSocket(IShamanLogger logger);
         IReliableSock GetReliableSockWithThreadSocket(IShamanLogger logger);
     }
+    public interface IClientSocketFactory
+    {
+        IReliableSock Create(IShamanLogger logger);
+    }
 }

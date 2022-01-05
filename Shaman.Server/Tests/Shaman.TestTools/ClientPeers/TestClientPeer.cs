@@ -12,6 +12,7 @@ using Shaman.Common.Udp.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
+using Shaman.LiteNetLibAdapter;
 using Shaman.Messages;
 using Shaman.Messages.General.DTO.Events;
 using Shaman.Messages.General.DTO.Requests;
@@ -33,7 +34,7 @@ namespace Shaman.TestTools.ClientPeers
             public int Offset { get; set; }
             public int Length { get; set; }
         }
-        
+
         private readonly ClientPeer _clientPeer;
         private readonly IShamanLogger _logger;
         private readonly ISerializer _serializer;
@@ -57,11 +58,11 @@ namespace Shaman.TestTools.ClientPeers
             _logger = logger;
             _serializer = serializer;
             _taskScheduler = taskSchedulerFactory.GetTaskScheduler();
-            _clientPeer = new ClientPeer(logger,taskSchedulerFactory, 300, 10);
+            _clientPeer = new ClientPeer(logger, new LiteNetClientSocketFactory(),taskSchedulerFactory, 300, 10);
             //_clientPeer.OnPackageReceived += ClientOnPackageReceived;
 
             _clientPeer.OnDisconnectedFromServer = OnDisconnected;
-            
+
             _taskScheduler.ScheduleOnInterval(() =>
             {
                 IPacketInfo pack = null;
@@ -93,11 +94,11 @@ namespace Shaman.TestTools.ClientPeers
         {
             return _joinInfo;
         }
-        
+
         public async Task Connect(string address, ushort port)
         {
             _clientPeer.Connect(address, port);
-            await WaitFor<ConnectedEvent>(); 
+            await WaitFor<ConnectedEvent>();
         }
 
         public void Disconnect()
@@ -163,7 +164,7 @@ namespace Shaman.TestTools.ClientPeers
             if (operationCode == ShamanOperationCode.JoinInfo)
                 _joinInfo = _serializer.DeserializeAs<JoinInfoEvent>(buffer, offset, length).JoinInfo;
         }
-        
+
         private void ClientOnPackageReceived(IPacketInfo packet)
         {
             lock (_syncCollection)
@@ -207,7 +208,7 @@ namespace Shaman.TestTools.ClientPeers
                     if (condition == null || condition.Invoke(deserialized))
                     {
                         _logger.LogInfo($"Condition for event {typeof(T)} was matched for {stopwatch.ElapsedMilliseconds}ms");
-                        return deserialized;    
+                        return deserialized;
                     }
 
                 }

@@ -54,6 +54,7 @@ namespace Shaman.Client.Peers
 
     class ServerSender : IPeerSender
     {
+        private readonly IClientSocketFactory _clientSocketFactory;
         private readonly IShamanLogger _logger;
         private readonly Action<DataPacket, Action> _onPackageReceived;
         private IReliableSock _socket;
@@ -68,9 +69,11 @@ namespace Shaman.Client.Peers
         private object _isTickingMutex = new object();
         private readonly object _stateSync = new object();
 
-        public ServerSender(IShamanLogger logger, Action<DataPacket, Action> onPackageReceived,
+        public ServerSender(IClientSocketFactory clientSocketFactory, IShamanLogger logger,
+            Action<DataPacket, Action> onPackageReceived,
             ITaskScheduler taskScheduler)
         {
+            _clientSocketFactory = clientSocketFactory;
             _logger = logger;
             _onPackageReceived = onPackageReceived;
             _taskScheduler = taskScheduler;
@@ -90,7 +93,7 @@ namespace Shaman.Client.Peers
         {
             return _socket?.GetRtt() ?? 0;
         }
-        
+
         public int GetPing()
         {
             return _socket?.GetPing() ?? 0;
@@ -98,16 +101,11 @@ namespace Shaman.Client.Peers
 
         public void Connect(string address, int port)
         {
-            //switch Sockets implementation.BEGIN
-            //_socket = new HazelSock(_logger);
-            _socket = new LiteNetSock(_logger);
-            //switch sockets implementation.END
+            _socket = _clientSocketFactory.Create(_logger);
 
             _socket.OnPacketReceived += (endPoint, dataPacket, release) =>
             {
                 _onPackageReceived(dataPacket, release);
-                //todo if using hazel then this part should be considered in releaseAction param
-//                _socket.ReturnBufferToPool(dataPacket.Buffer);
             };
             _socket.OnDisconnected += OnDisconnected;
 
@@ -132,14 +130,14 @@ namespace Shaman.Client.Peers
                             return;
                         _isTicking = true;
                     }
-                    
+
                     try
                     {
                         _socket.Tick();
                     }
                     catch (Exception ex)
                     {
-                        _logger.Error($"Socket tick error: {ex}");                        
+                        _logger.Error($"Socket tick error: {ex}");
                     }
                     finally
                     {
@@ -220,6 +218,7 @@ namespace Shaman.Client.Peers
     public class ClientPeer
     {
         private readonly IShamanLogger _logger;
+        private readonly IClientSocketFactory _clientSocketFactory;
         private readonly object _queueSync = new object();
         private readonly Queue<IPacketInfo> _packets = new Queue<IPacketInfo>();
 
@@ -230,7 +229,7 @@ namespace Shaman.Client.Peers
         private readonly ShamanSender _shamanSender;
 
         public int Mtu => _serverSender.Mtu;
-        
+
         public Action<IDisconnectInfo> OnDisconnectedFromServer
         {
             get => _serverSender.OnDisconnectedFromServer;
@@ -251,19 +250,20 @@ namespace Shaman.Client.Peers
         {
             return _serverSender.GetRtt();
         }
-        
+
         public int GetPing()
         {
             return _serverSender.GetPing();
         }
-        
-        public ClientPeer(IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory, int maxMessageSize,
+
+        public ClientPeer(IShamanLogger logger, IClientSocketFactory clientSocketFactory, ITaskSchedulerFactory taskSchedulerFactory, int maxMessageSize,
             int sendTickMs)
         {
             _logger = logger;
+            _clientSocketFactory = clientSocketFactory;
             var clientPacketSenderConfig = new ClientPacketSenderConfig(maxMessageSize, sendTickMs);
             _packetBatchSender = new PacketBatchSender(taskSchedulerFactory, clientPacketSenderConfig, _logger);
-            _serverSender = new ServerSender(logger, OnPackageReceived, taskSchedulerFactory.GetTaskScheduler());
+            _serverSender = new ServerSender(clientSocketFactory, logger, OnPackageReceived, taskSchedulerFactory.GetTaskScheduler());
             _shamanSender = new ShamanSender(new BinarySerializer(), _packetBatchSender, clientPacketSenderConfig);
         }
 

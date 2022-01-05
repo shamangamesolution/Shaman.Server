@@ -15,4 +15,11 @@ namespace Shaman.LiteNetLibAdapter
             return new LiteNetSock(logger);
         }
     }
+    public class LiteNetClientSocketFactory : IClientSocketFactory
+    {
+        public IReliableSock Create(IShamanLogger logger)
+        {
+            return new LiteNetSock(logger);
+        }
+    }
 }
