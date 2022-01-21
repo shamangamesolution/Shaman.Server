@@ -6,7 +6,7 @@ RUN dotnet clean   Launchers/Shaman.Launchers.MM.Balancing/*.csproj
 RUN dotnet restore Launchers/Shaman.Launchers.MM.Balancing/*.csproj
 RUN dotnet publish Launchers/Shaman.Launchers.MM.Balancing/*.csproj -c Release -o /app/build
 
-FROM mcr.microsoft.com/dotnet/runtime:6.0
+FROM mcr.microsoft.com/dotnet/aspnet:6.0
 WORKDIR /app
 COPY --from=build-env /app/build .
 ENTRYPOINT ["dotnet", "Shaman.Launchers.MM.Balancing.dll"]
