@@ -1,0 +1,5 @@
+sh game.balancing/publish && 
+sh mm.balancing/publish &&
+sh pair/publish &&
+sh standalone/publish &&
+sh standalone.balancing/publish
