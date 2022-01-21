@@ -4,10 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
-using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions;
 using NUnit.Framework;
 using Shaman.Client.Peers;
-using Shaman.Contract.Routing;
 using Shaman.Launchers.Game.Standalone;
 using Shaman.ServiceBootstrap;
 
@@ -71,7 +69,7 @@ namespace Shaman.Launchers.Tests
             foreach(var client in clients)
                 Assert.AreEqual(ShamanClientStatus.InRoom,  client.Key.GetStatus());
             
-            Assert.AreEqual(1, joinInfoList.Count);
+            Assert.AreEqual(10, joinInfoList.Count);
             Assert.AreNotEqual(Guid.Empty, joinInfoList.First());
         }
     }
