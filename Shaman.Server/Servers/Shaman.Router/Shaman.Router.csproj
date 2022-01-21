@@ -5,7 +5,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.App" />
         <PackageReference Include="Shaman.DAL.MySQL">
           <Version>1.13.1</Version>
         </PackageReference>

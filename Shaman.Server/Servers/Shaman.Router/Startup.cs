@@ -64,8 +64,8 @@ namespace Shaman.Router
             }
             
             ConfigureMetrics(services);
-            
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
+            services.AddMvc(opt => opt.EnableEndpointRouting = false);
         }
         private static IPAddress GetDnsIpAddress()
         {

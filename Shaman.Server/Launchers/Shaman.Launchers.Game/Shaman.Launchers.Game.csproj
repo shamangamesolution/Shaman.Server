@@ -6,7 +6,6 @@
     </PropertyGroup>
     
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.App" />
         <ProjectReference Include="..\..\Contracts\Shaman.Contract.Routing.Actualization\Shaman.Contract.Routing.Actualization.csproj" />
         <ProjectReference Include="..\..\Contracts\Shaman.Contract.Routing.Meta\Shaman.Contract.Routing.Meta.csproj" />
         <ProjectReference Include="..\..\Routing\Shaman.Routing.Common.Messages\Shaman.Routing.Common.Messages.csproj" />

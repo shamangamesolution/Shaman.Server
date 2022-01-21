@@ -10,9 +10,8 @@
       <ProjectReference Include="..\..\Contracts\Shaman.Contract.Common\Shaman.Contract.Common.csproj" />
     </ItemGroup>
 
-
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.App" />
+        <FrameworkReference Include="Microsoft.AspNetCore.App"/>
         <PackageReference Include="Serilog.AspNetCore">
             <Version>3.2.0</Version>
         </PackageReference>
