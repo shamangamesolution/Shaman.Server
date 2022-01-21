@@ -7,7 +7,7 @@ RUN dotnet restore Launchers/Shaman.Launchers.Game/*.csproj
 RUN dotnet build Launchers/Shaman.Launchers.Game/*.csproj -c Release
 RUN dotnet publish Launchers/Shaman.Launchers.Game/*.csproj -c Release -o /app/build
 
-FROM microsoft.com/dotnet/runtime:6.0
+FROM mcr.microsoft.com/dotnet/runtime:6.0
 WORKDIR /app
 COPY --from=build-env /app/build .
 ENTRYPOINT ["dotnet", "Shaman.Launchers.Game.dll"]
