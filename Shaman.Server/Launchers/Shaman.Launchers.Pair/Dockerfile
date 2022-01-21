@@ -1,13 +1,13 @@
-FROM microsoft/dotnet:2.2-sdk AS build-env
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build-env
 WORKDIR /app
 COPY . .
 ENV ASPNETCORE_ENVIRONMENT=Production
 RUN dotnet clean   Launchers/Shaman.Launchers.Pair/*.csproj
 RUN dotnet restore Launchers/Shaman.Launchers.Pair/*.csproj
 RUN dotnet build Launchers/Shaman.Launchers.Pair/*.csproj -c Release
-RUN dotnet publish Launchers/Shaman.Launchers.Pair/*.csproj -c Release -o ../../build
+RUN dotnet publish Launchers/Shaman.Launchers.Pair/*.csproj -c Release -o /app/build
 
-FROM microsoft/dotnet:2.2-aspnetcore-runtime
+FROM mcr.microsoft.com/dotnet/runtime:6.0
 WORKDIR /app
 COPY --from=build-env /app/build .
 ENTRYPOINT ["dotnet", "Shaman.Launchers.Pair.dll"]
