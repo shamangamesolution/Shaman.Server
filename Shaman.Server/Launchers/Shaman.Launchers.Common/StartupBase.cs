@@ -2,12 +2,12 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Serialization;
-using Shaman.Bundling.Common;
 using Shaman.Common.Http;
 using Shaman.Common.Metrics;
 using Shaman.Common.Server.Applications;
@@ -15,9 +15,7 @@ using Shaman.Common.Server.Configuration;
 using Shaman.Common.Server.Protection;
 using Shaman.Common.Udp.Senders;
 using Shaman.Common.Udp.Sockets;
-using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.TaskScheduling;
-using Shaman.Contract.Bundle;
 using Shaman.Contract.Common.Logging;
 using Shaman.LiteNetLibAdapter;
 using Shaman.Serialization;
@@ -25,6 +23,17 @@ using Shaman.ServiceBootstrap.Logging;
 
 namespace Shaman.Launchers.Common
 {
+    public class SnakeCaseNamingPolicy : JsonNamingPolicy
+    {
+        private SnakeCaseNamingStrategy _newtonsoftSnakeCaseNamingStrategy;
+        public static SnakeCaseNamingPolicy Instance { get; } = new SnakeCaseNamingPolicy();
+
+        public override string ConvertName(string name)
+        {
+            // todo remove newtonsoft dep
+            return _newtonsoftSnakeCaseNamingStrategy.GetPropertyName(name, false);
+        }
+    }
     /// <summary>
     /// base configuration for all types of launchers
     /// </summary>
@@ -47,17 +56,11 @@ namespace Shaman.Launchers.Common
         {
             services.AddOptions();
             var assembly = Assembly.Load(assemblyName);
-            
-            services.AddMvc()
+
+            services.AddMvc(opt => opt.EnableEndpointRouting = false)
                 .AddApplicationPart(assembly)
                 .AddControllersAsServices()
-                .AddJsonOptions(o =>
-            {
-                o.SerializerSettings.ContractResolver = new DefaultContractResolver()
-                {
-                    NamingStrategy = new SnakeCaseNamingStrategy()
-                };
-            });
+                .AddJsonOptions(o => o.JsonSerializerOptions.PropertyNamingPolicy = new SnakeCaseNamingPolicy());
             
             //logger
             services.AddSingleton<IShamanLogger, SerilogLogger>();
