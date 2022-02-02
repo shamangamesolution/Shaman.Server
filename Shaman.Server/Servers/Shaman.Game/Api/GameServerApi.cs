@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Shaman.Common.Server.Applications;
+using Shaman.Contract.Bundle;
 using Shaman.Game.Rooms;
 
 namespace Shaman.Game.Api
