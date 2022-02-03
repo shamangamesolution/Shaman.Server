@@ -7,7 +7,6 @@ using Shaman.Contract.Bundle;
 using Shaman.Contract.Bundle.DI;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
-using Shaman.Serialization;
 using Shaman.Serialization.Messages.Udp;
 
 namespace Shaman.Launchers.TestBundle
@@ -33,7 +32,7 @@ namespace Shaman.Launchers.TestBundle
 
         protected override void OnStart(IServiceProvider serviceProvider)
         {
-            //start
+            var gameServerApi = serviceProvider.GetRequiredService<IGameServerApi>();
         }
     }
 

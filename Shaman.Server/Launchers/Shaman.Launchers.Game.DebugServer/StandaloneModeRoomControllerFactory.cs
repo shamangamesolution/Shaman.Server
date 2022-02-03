@@ -9,12 +9,12 @@ namespace Shaman.Launchers.Game.DebugServer
     /// </summary>
     public class StandaloneModeRoomControllerFactory : IRoomControllerFactory
     {
-        // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
-        private readonly IGameBundle _bundle;
-        private readonly IRoomControllerFactory _roomControllerFactory;
+        private IGameBundle _bundle;
+        private IRoomControllerFactory _roomControllerFactory;
 
-        public StandaloneModeRoomControllerFactory(IShamanComponents shamanComponents)
+        public void Initialize(IShamanComponents shamanComponents)
         {
+            // note, avoid construction inside ctr - dependencies should be built first.
             _bundle = StandaloneServerLauncher.StandaloneBundle;
             _bundle.OnInitialize(shamanComponents);
             _roomControllerFactory = _bundle.GetRoomControllerFactory();
@@ -27,6 +27,10 @@ namespace Shaman.Launchers.Game.DebugServer
         public IRoomController GetGameModeController(IRoomContext room, ITaskScheduler taskScheduler,
             IRoomPropertiesContainer roomPropertiesContainer)
         {
+            if (_roomControllerFactory == null)
+            {
+                throw new NullReferenceException("StandaloneModeRoomControllerFactory wasn't initialized");
+            }
             return _roomControllerFactory.GetGameModeController(room, taskScheduler,
                 roomPropertiesContainer);
         }

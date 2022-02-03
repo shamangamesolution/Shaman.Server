@@ -49,11 +49,13 @@ namespace Shaman.Launchers.Game.DebugServer
             //meta
             services.AddSingleton<IMetaProvider, StandAloneMetaProvider>();
         }
-        
-        
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplication server, IShamanLogger logger)
+
+
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplication server,
+            IShamanLogger logger, IRoomControllerFactory roomControllerFactory, IShamanComponents shamanComponents)
         {
-            base.ConfigureGame(app, env, server, logger);
+            ConfigureGame(app, env, server, logger);
+            ((StandaloneModeRoomControllerFactory)roomControllerFactory).Initialize(shamanComponents);
         }
     }
 }
