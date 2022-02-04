@@ -117,5 +117,21 @@ namespace Shaman.Serialization.Extensions
 
             return list;
         }
+
+        public static T[] ReadArray<T>(this ITypeReader reader) where T : ISerializable, new()
+        {
+            var num = reader.ReadInt();
+            var resultArray = new T[num];
+            if (num == 0) return resultArray;
+            for (var index = 0; index < num; ++index)
+            {
+                var obj = new T();
+                obj.Deserialize(reader);
+                resultArray[index] = obj;
+            }
+
+            return resultArray;
+        }
+
     }
 }
