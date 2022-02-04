@@ -8,9 +8,8 @@ namespace Shaman.Serialization.Extensions
         public static List<T> ReadList<T>(this ITypeReader reader)
             where T : ISerializable, new()
         {
-            var result = new List<T>();
-
             var length = reader.ReadInt();
+            var result = new List<T>(length);
 
             if (length != 0)
             {
@@ -76,8 +75,8 @@ namespace Shaman.Serialization.Extensions
 
         public static List<int> ReadListOfInt(this ITypeReader reader)
         {
-            var list = new List<int>();
             var listLength = reader.ReadInt();
+            var list = new List<int>(listLength);
             if (listLength != 0)
             {
                 for (int i = 0; i < listLength; i++)
@@ -91,8 +90,8 @@ namespace Shaman.Serialization.Extensions
 
         public static List<string> ReadListOfString(this ITypeReader reader)
         {
-            var list = new List<string>();
             var listLength = reader.ReadInt();
+            var list = new List<string>(listLength);
             if (listLength != 0)
             {
                 for (int i = 0; i < listLength; i++)
@@ -106,8 +105,8 @@ namespace Shaman.Serialization.Extensions
 
         public static List<byte> ReadListOfByte(this ITypeReader reader)
         {
-            var list = new List<byte>();
             var listLength = reader.ReadInt();
+            var list = new List<byte>(listLength);
             if (listLength != 0)
             {
                 for (int i = 0; i < listLength; i++)
