@@ -116,7 +116,7 @@ namespace Shaman.Bundling.Common
             if (targetType == null)
             {
                 throw new BundleLoadException(
-                    $"No implementation of {typeof(T)} found in assemblies from  {_publishDir}");
+                    $"No implementation of {typeof(T)} found in assemblies from {Path.GetFullPath(_publishDir)}");
             }
 
             try

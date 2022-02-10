@@ -69,7 +69,7 @@ namespace Shaman.Launchers.Tests
             foreach(var client in clients)
                 Assert.AreEqual(ShamanClientStatus.InRoom,  client.Key.GetStatus());
             
-            Assert.AreEqual(10, joinInfoList.Count);
+            Assert.AreEqual(1, joinInfoList.Count);
             Assert.AreNotEqual(Guid.Empty, joinInfoList.First());
         }
     }

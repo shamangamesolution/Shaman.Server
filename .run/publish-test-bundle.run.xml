@@ -1,0 +1,6 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="publish-test-bundle" type="DotNetFolderPublish" factoryName="Publish to folder">
+    <riderPublish configuration="Release" delete_existing_files="true" platform="Any CPU" runtime="Portable" target_folder="$PROJECT_DIR$/Shaman.Server/Launchers/Shaman.Launchers.TestBundle/publish" target_framework="net6.0" uuid_high="5264993344104710560" uuid_low="-8044647943312753510" />
+    <method v="2" />
+  </configuration>
+</component>
