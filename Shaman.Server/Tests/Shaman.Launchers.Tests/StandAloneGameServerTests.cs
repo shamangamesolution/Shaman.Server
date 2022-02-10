@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
 using Shaman.Client.Peers;
 using Shaman.Launchers.Game.Standalone;
+using Shaman.Launchers.Tests.Common;
 using Shaman.ServiceBootstrap;
 
 namespace Shaman.Launchers.Tests
@@ -69,7 +70,7 @@ namespace Shaman.Launchers.Tests
             foreach(var client in clients)
                 Assert.AreEqual(ShamanClientStatus.InRoom,  client.Key.GetStatus());
             
-            Assert.AreEqual(1, joinInfoList.Count);
+            Assert.AreEqual(2, joinInfoList.Count, "Because 2 rooms should have been created (see OnStart method of bundle)");
             Assert.AreNotEqual(Guid.Empty, joinInfoList.First());
         }
     }

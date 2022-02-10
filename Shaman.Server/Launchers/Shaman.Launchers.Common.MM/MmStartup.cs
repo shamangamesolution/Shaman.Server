@@ -63,9 +63,6 @@ namespace Shaman.Launchers.Common.MM
         public void ConfigureMm(IApplicationBuilder app, IHostingEnvironment env, IApplication server,
             IShamanLogger logger, IMatchMaker matchMaker, IMatchMakerServerInfoProvider serverInfoProvider, IBundleLoader bundleLoader)
         {
-            //load bundle
-            bundleLoader.LoadBundle().Wait();
-            
             //resolve main bundle type and configure it
             //in case of matchmaker we can load bundle during this stage
             var resolver = bundleLoader.LoadTypeFromBundle<IMmResolver>();

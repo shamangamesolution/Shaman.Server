@@ -14,13 +14,15 @@ using Shaman.Launchers.Common.Game;
 
 namespace Shaman.Launchers.Game.DebugServer
 {
-    public class Startup : GameStartup
+    public class Startup :
+        // In standalone game server mode we use special room controller factory, which gets bundle from Standalone launcher
+        // other types of launchers get bundle via file directory or http request
+        GameStartup<StandaloneModeRoomControllerFactory>
     {
-
         public Startup(IConfiguration configuration) : base(configuration)
         {
         }
-        
+
         /// <summary>
         /// DI for services used in StandAlone launcher
         /// </summary>
@@ -29,13 +31,10 @@ namespace Shaman.Launchers.Game.DebugServer
         {
             //configure all services related to common Game server launchers 
             base.ConfigureServices(services);
-            
+
             //settings
             ConfigureSettings<ApplicationConfig>(services);
 
-            //in standalone game server mode we use special room controller factory, which gets bundle from Standalone launcher
-            //other types of launchers get bundle via file directory or http request
-            services.AddSingleton<IRoomControllerFactory, StandaloneModeRoomControllerFactory>();
             //game server core depend on Metrics, so we pass a stub here, because we do not need to send metrics in case of standalone launcher by default
             //if standalone launcher will be used in production environment - this dep should be reinjected on bundle level
             services.AddSingleton<IGameMetrics, GameMetricsStub>();
@@ -52,10 +51,11 @@ namespace Shaman.Launchers.Game.DebugServer
 
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplication server,
-            IShamanLogger logger, IRoomControllerFactory roomControllerFactory, IShamanComponents shamanComponents)
+            IShamanLogger logger, IBundledRoomControllerFactory roomControllerFactory,
+            IShamanComponents shamanComponents)
         {
-            ConfigureGame(app, env, server, logger);
-            ((StandaloneModeRoomControllerFactory)roomControllerFactory).Initialize(shamanComponents);
+            ConfigureGame(app, env, server, logger, StandaloneServerLauncher.StandaloneBundle, roomControllerFactory,
+                shamanComponents);
         }
     }
 }

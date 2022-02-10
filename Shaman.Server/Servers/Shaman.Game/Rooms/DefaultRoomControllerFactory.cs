@@ -7,7 +7,7 @@ namespace Shaman.Game.Rooms
     /// <summary>
     /// This implementation creates room controller factory using bundle passed through ctor
     /// </summary>
-    public class DefaultRoomControllerFactory : IRoomControllerFactory, IBundleRoomControllerRegistry
+    public class DefaultRoomControllerFactory : IBundledRoomControllerFactory
     {
         private IRoomControllerFactory _bundledRoomControllerFactory;
 

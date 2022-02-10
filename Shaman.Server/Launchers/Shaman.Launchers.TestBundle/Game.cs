@@ -11,32 +11,26 @@ using Shaman.Serialization.Messages.Udp;
 
 namespace Shaman.Launchers.TestBundle
 {
-    public class Game : GameBundleBase
+    public class Game : GameBundleBase<TestRoomControllerFactory>
     {
-        protected override void OnConfigureServices(IServiceCollection serviceCollection)
+        protected override void ConfigureServices(ServiceCollection serviceCollection)
         {
-            try
-            {
-                //singletons
-                serviceCollection.AddSingleton<IRoomControllerFactory, TestRoomControllerFactory>();
-                var provider = serviceCollection.BuildServiceProvider();
-                var value = provider.GetService<IBundleConfig>().GetValueOrNull("CustomSetting");
-                provider.GetService<IShamanLogger>().Error($"Received config value: {value}");
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
         }
 
-        protected override void OnStart(IServiceProvider serviceProvider)
+        protected override void OnStart(IServiceProvider serviceProvider, IShamanComponents shamanComponents)
         {
+            var logger = shamanComponents.Logger;
+            var value = shamanComponents.Config.GetValueOrNull("CustomSetting");
+            logger.Error($"Received config value: {value}: {Environment.StackTrace}");
             var gameServerApi = serviceProvider.GetRequiredService<IGameServerApi>();
+            gameServerApi.CreateRoom(new Dictionary<byte, object>(),
+                new Dictionary<Guid, Dictionary<byte, object>>());
+            gameServerApi.CreateRoom(new Dictionary<byte, object>(),
+                new Dictionary<Guid, Dictionary<byte, object>>());
         }
     }
 
-    class TestRoomControllerFactory : IRoomControllerFactory
+    public class TestRoomControllerFactory : IRoomControllerFactory
     {
         private readonly IShamanLogger _logger;
 

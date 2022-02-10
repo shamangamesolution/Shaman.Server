@@ -15,7 +15,9 @@ using Shaman.Launchers.Common.Game;
 
 namespace Shaman.Launchers.Game.Standalone
 {
-    public class Startup : GameStartup
+    public class Startup :
+        //default room controller factory - it gets bundle from bundle loader
+        GameStartup<DefaultRoomControllerFactory>
     {
         public Startup(IConfiguration configuration)
             :base(configuration)
@@ -34,8 +36,6 @@ namespace Shaman.Launchers.Game.Standalone
             
             //update room state on MM
             services.AddSingleton<IRoomStateUpdater, FakeRoomStateUpdater>();
-            //default room controller factory - it gets bundle from bundle loader
-            services.AddSingleton<IRoomControllerFactory, DefaultRoomControllerFactory>();
             //used for configuration of bundle related services
             services.AddSingleton<IDefaultBundleInfoConfig, DefaultBundleInfoConfig>(c =>
                 new DefaultBundleInfoConfig(Configuration["LauncherSettings:BundleUri"],
@@ -54,20 +54,10 @@ namespace Shaman.Launchers.Game.Standalone
         }
         
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplication server,
-            IShamanLogger logger, IBundleLoader bundleLoader, IShamanComponents shamanComponents, IRoomControllerFactory roomControllerFactory)
+            IShamanLogger logger, IBundleLoader bundleLoader, IShamanComponents shamanComponents, IBundledRoomControllerFactory roomControllerFactory)
         {
-            bundleLoader.LoadBundle();
             var gameBundle = bundleLoader.LoadTypeFromBundle<IGameBundle>();
-            gameBundle.OnInitialize(shamanComponents);
-            var bundledRoomControllerFactory = gameBundle.GetRoomControllerFactory();
-            if (bundledRoomControllerFactory == null)
-            {
-                throw new NullReferenceException("Game bundle returned null factory");
-            }
-            
-            ((IBundleRoomControllerRegistry)roomControllerFactory).RegisterBundleRoomController(bundledRoomControllerFactory);            
-            
-            base.ConfigureGame(app, env, server, logger);
+            ConfigureGame(app, env, server, logger, gameBundle, roomControllerFactory, shamanComponents);
         }
     }
 }

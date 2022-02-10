@@ -19,7 +19,7 @@ using Shaman.Launchers.Common.Game;
 
 namespace Shaman.Launchers.Standalone.Balancing
 {
-    public class Startup : GameStartup
+    public class Startup : GameStartup<DefaultRoomControllerFactory>
     {
         public Startup(IConfiguration configuration)
             :base(configuration)
@@ -34,7 +34,6 @@ namespace Shaman.Launchers.Standalone.Balancing
             base.ConfigureServices(services);
             
             //deps specific to this launcher
-            services.AddSingleton<IRoomControllerFactory, DefaultRoomControllerFactory>();
             services.AddSingleton<IRoomStateUpdater, FakeRoomStateUpdater>();
 
             ConfigureSettings<ApplicationConfig>(services);
@@ -77,23 +76,12 @@ namespace Shaman.Launchers.Standalone.Balancing
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplication server,
             IServerActualizer serverActualizer, IShamanLogger logger, IBundleLoader bundleLoader,
-            IShamanComponents shamanComponents, IRoomControllerFactory roomControllerFactory)
+            IShamanComponents shamanComponents, IBundledRoomControllerFactory roomControllerFactory)
         {
             //todo extract in one place
             serverActualizer.Start(Convert.ToInt32(Configuration["ServerSettings:ActualizationIntervalMs"]));
-
-            bundleLoader.LoadBundle().Wait();
             var gameBundle = bundleLoader.LoadTypeFromBundle<IGameBundle>();
-            gameBundle.OnInitialize(shamanComponents);
-            var bundledRoomControllerFactory = gameBundle.GetRoomControllerFactory();
-            if (bundledRoomControllerFactory == null)
-            {
-                throw new NullReferenceException("Game bundle returned null factory");
-            }
-            
-            ((IBundleRoomControllerRegistry)roomControllerFactory).RegisterBundleRoomController(bundledRoomControllerFactory);            
-            
-            base.ConfigureGame(app, env, server, logger);
+            ConfigureGame(app, env, server, logger, gameBundle, roomControllerFactory, shamanComponents);
         }
     }
 }

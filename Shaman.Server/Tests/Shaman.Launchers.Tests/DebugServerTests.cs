@@ -1,18 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
-using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions;
 using NUnit.Framework;
 using Shaman.Client.Peers;
 using Shaman.Common.Server.Configuration;
-using Shaman.Contract.Routing;
 using Shaman.Launchers.Game.DebugServer;
-using Shaman.Messages.RoomFlow;
-using Shaman.ServiceBootstrap;
-using Startup = Shaman.Launchers.Game.Standalone.Startup;
+using Shaman.Launchers.Tests.Common;
 
 namespace Shaman.Launchers.Tests
 {
@@ -20,7 +14,7 @@ namespace Shaman.Launchers.Tests
     public class StandAloneGameServerTests
     {
         private bool _isLaunched = false;
-        private ShamanClientFactory _clientFactory = new ShamanClientFactory();
+        private readonly ShamanClientFactory _clientFactory = new ShamanClientFactory();
 
         private void LaunchDebugServer()
         {
@@ -66,7 +60,7 @@ namespace Shaman.Launchers.Tests
         public async Task JoinRoomTests()
         {
             var clients = new Dictionary<IShamanClientPeer, Guid>();
-            var joinInfoList = new HashSet<Guid>();
+            var rooms = new HashSet<Guid>();
             var mmProperties = new Dictionary<byte, object>();
             var joinProperties = new Dictionary<byte, object>();
             for (int i = 0; i < 10; i++)
@@ -80,7 +74,7 @@ namespace Shaman.Launchers.Tests
             {
                 var joinInfo = await client.Key.DirectConnectToGameServerToRandomRoom("127.0.0.1", 23452,
                     client.Value, mmProperties, joinProperties);
-                joinInfoList.Add(joinInfo.RoomId);
+                rooms.Add(joinInfo.RoomId);
             }
 
             await Task.Delay(3000);
@@ -90,8 +84,8 @@ namespace Shaman.Launchers.Tests
                 Assert.AreEqual(ShamanClientStatus.InRoom, client.Key.GetStatus());
             }
             
-            Assert.AreEqual(1, joinInfoList.Count);
-            Assert.AreNotEqual(Guid.Empty, joinInfoList.First());
+            Assert.AreEqual(2, rooms.Count);
+            Assert.AreNotEqual(Guid.Empty, rooms.First());
         }
     }
 }

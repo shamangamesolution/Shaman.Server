@@ -1,41 +1,24 @@
 using System;
-using System.Diagnostics;
-using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json.Serialization;
 using Shaman.Bundling.Common;
-using Shaman.Common.Http;
-using Shaman.Common.Metrics;
 using Shaman.Common.Server.Applications;
 using Shaman.Common.Server.Configuration;
-using Shaman.Common.Server.Providers;
-using Shaman.Common.Udp.Senders;
-using Shaman.Common.Udp.Sockets;
-using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Bundle;
 using Shaman.Contract.Common.Logging;
 using Shaman.Contract.Routing.Actualization;
 using Shaman.Contract.Routing.Meta;
-using Shaman.Game;
-using Shaman.Game.Api;
 using Shaman.Game.Metrics;
-using Shaman.Game.Providers;
 using Shaman.Game.Rooms;
-using Shaman.Game.Rooms.RoomProperties;
 using Shaman.Launchers.Common;
 using Shaman.Launchers.Common.Game;
 using Shaman.Launchers.Game.Routing;
-using Shaman.LiteNetLibAdapter;
-using Shaman.Routing.Common;
-using Shaman.Serialization;
-using Shaman.ServiceBootstrap.Logging;
 
 namespace Shaman.Launchers.Game
 {
-    public class Startup : GameStartup
+    public class Startup : GameStartup<DefaultRoomControllerFactory>
     {
         public Startup(IConfiguration configuration)
             :base(configuration)
@@ -52,8 +35,6 @@ namespace Shaman.Launchers.Game
             //settings
             ConfigureSettings<ApplicationConfig>(services);
             
-            //default room controller factory - it gets bundle from bundle loader
-            services.AddSingleton<IRoomControllerFactory, DefaultRoomControllerFactory>();
             //update room state on MM
             services.AddSingleton<IRoomStateUpdater, RoomStateUpdater>();
             //used for configuration of bundle related services
@@ -81,23 +62,12 @@ namespace Shaman.Launchers.Game
         
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplication server,
             IServerActualizer serverActualizer, IShamanLogger logger, IBundleLoader bundleLoader,
-            IShamanComponents shamanComponents, IRoomControllerFactory roomControllerFactory)
+            IShamanComponents shamanComponents, IBundledRoomControllerFactory roomControllerFactory)
         {
             //todo extract in one place
             serverActualizer.Start(Convert.ToInt32(Configuration["ServerSettings:ActualizationIntervalMs"]));
-
-            bundleLoader.LoadBundle();
             var gameBundle = bundleLoader.LoadTypeFromBundle<IGameBundle>();
-            gameBundle.OnInitialize(shamanComponents);
-            var bundledRoomControllerFactory = gameBundle.GetRoomControllerFactory();
-            if (bundledRoomControllerFactory == null)
-            {
-                throw new NullReferenceException("Game bundle returned null factory");
-            }
-            
-            ((IBundleRoomControllerRegistry)roomControllerFactory).RegisterBundleRoomController(bundledRoomControllerFactory);            
-            
-            base.ConfigureGame(app, env, server, logger);
+            ConfigureGame(app, env, server, logger, gameBundle, roomControllerFactory, shamanComponents);
         }
 
 

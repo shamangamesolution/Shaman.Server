@@ -9,6 +9,7 @@ using NUnit.Framework;
 using Shaman.Client.Peers;
 using Shaman.Contract.Routing;
 using Shaman.Launchers.Game.Standalone;
+using Shaman.Launchers.Tests.Common;
 using Shaman.ServiceBootstrap;
 
 namespace Shaman.Launchers.Tests
@@ -78,20 +79,25 @@ namespace Shaman.Launchers.Tests
             var clients = new Dictionary<IShamanClientPeer, Guid>();
             var mmProperties = new Dictionary<byte, object>();
             var joinProperties = new Dictionary<byte, object>();
+            var rooms = new HashSet<Guid>();
             for (int i = 0; i < 10; i++)
             {
                 clients.Add(_clientFactory.GetClient(), Guid.NewGuid());
             }
 
             foreach (var client in clients)
-                client.Key.JoinGame("127.0.0.1", 23453, client.Value, mmProperties, joinProperties);
+            {
+                var joinGame = await client.Key.JoinGame("127.0.0.1", 23453, client.Value, mmProperties, joinProperties);
+                rooms.Add(joinGame.RoomId);
+            }
             
             await Task.Delay(10000);
 
             var clientsInRoom = clients.Count(c => c.Key.GetStatus() == ShamanClientStatus.InRoom);
             Assert.AreEqual(clients.Count, clientsInRoom);
-            // foreach(var client in clients)
-            //     Assert.AreEqual(ShamanClientStatus.InRoom,  client.Key.GetStatus());
+            Assert.AreEqual(2, rooms.Count);
+            foreach(var client in clients)
+            Assert.AreEqual(ShamanClientStatus.InRoom,  client.Key.GetStatus());
         }
     }
 }

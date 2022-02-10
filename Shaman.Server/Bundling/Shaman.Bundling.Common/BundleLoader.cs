@@ -11,7 +11,6 @@ namespace Shaman.Bundling.Common
 {
     public interface IBundleLoader
     {
-        Task LoadBundle();
         T LoadTypeFromBundle<T>();
         HashSet<string> GetConfigs();
     }
@@ -20,8 +19,8 @@ namespace Shaman.Bundling.Common
     {
         private readonly string _bundleTempSubFolder = "shaman.bundles";
         private readonly IBundleInfoProvider _bundleInfoProvider;
-        private HashSet<string> _dll = new HashSet<string>();
-        private HashSet<string> _configs = new HashSet<string>();
+        private readonly HashSet<string> _dll = new HashSet<string>();
+        private readonly HashSet<string> _configs = new HashSet<string>();
 
         private string _publishDir;
         
@@ -70,8 +69,8 @@ namespace Shaman.Bundling.Common
                     _configs.Add(s);
             }
         }
-        
-        public async Task LoadBundle()
+
+        private async Task LoadBundle()
         {
             var uri = await _bundleInfoProvider.GetBundleUri();
             if (uri.StartsWith("http"))
@@ -84,6 +83,7 @@ namespace Shaman.Bundling.Common
 
         public T LoadTypeFromBundle<T>()
         {
+            LoadBundle().Wait();
             Type targetType = null;
             foreach (var s in _dll)
             {
