@@ -12,18 +12,24 @@ namespace Shaman.Launchers.Common
     /// </summary>
     public class BundleSettingsFromBundleLoaderProvider : IBundleSettingsProvider
     {
+        private const string CommonAppSettingsFileName = "appsettings.bundle.json";
         private readonly IBundleLoader _bundleLoader;
+
+        private static readonly string EnvAppSettingsFileName =
+            $"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.bundle.json";
 
         public BundleSettingsFromBundleLoaderProvider(IBundleLoader bundleLoader)
         {
             _bundleLoader = bundleLoader;
         }
-        
+
         public Dictionary<string, string> GetSettings()
         {
             var dictionary = new Dictionary<string, string>();
-            //TODO file order - we don't know whick config comes first
-            foreach (var config in _bundleLoader.GetConfigs().Where(c=> c.EndsWith("appsettings.bundle.json") || c.EndsWith($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.bundle.json")))
+            foreach (var config in _bundleLoader.GetConfigs().Where(c =>
+                             c.EndsWith(CommonAppSettingsFileName) ||
+                             c.EndsWith(EnvAppSettingsFileName))
+                         .OrderBy(r => r.Length))
             {
                 var text = File.ReadAllText(config);
                 var deserialized = JsonConvert.DeserializeObject<Dictionary<string, string>>(text);
@@ -33,6 +39,7 @@ namespace Shaman.Launchers.Common
                         dictionary.Add(param.Key, param.Value);
                 }
             }
+
             return dictionary;
         }
     }
