@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Events;
+using Shaman.ServiceBootstrap.Logging;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 namespace Shaman.ServiceBootstrap
@@ -107,7 +108,7 @@ namespace Shaman.ServiceBootstrap
                         builder
                             .AddSerilog(Log.Logger, dispose: true)
                             .AddFilter(level => level >= logLevel)
-                            .AddConsole();
+                            .AddShamanConsole();
                     })
                     .UseStartup<T>()
                     .Build();
