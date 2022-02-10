@@ -145,9 +145,7 @@ internal class SimpleWithoutSourceConsoleFormatter : ConsoleFormatter, IDisposab
 
     private ConsoleColors GetLogLevelConsoleColors(LogLevel logLevel)
     {
-        bool disableColors = (FormatterOptions.ColorBehavior == LoggerColorBehavior.Disabled) ||
-                             (FormatterOptions.ColorBehavior == LoggerColorBehavior.Default &&
-                              System.Console.IsOutputRedirected);
+        bool disableColors = FormatterOptions.ColorBehavior == LoggerColorBehavior.Disabled;
         if (disableColors)
         {
             return new ConsoleColors(null, null);
