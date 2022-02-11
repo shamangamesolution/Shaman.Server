@@ -13,7 +13,7 @@ namespace Shaman.Launchers.TestBundle
 {
     public class Game : GameBundleBase<TestRoomControllerFactory>
     {
-        protected override void ConfigureServices(ServiceCollection serviceCollection)
+        protected override void ConfigureServices(IServiceCollection serviceCollection)
         {
         }
 
