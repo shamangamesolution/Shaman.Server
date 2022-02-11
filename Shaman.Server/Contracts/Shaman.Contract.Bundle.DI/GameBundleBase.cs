@@ -35,7 +35,7 @@ namespace Shaman.Contract.Bundle.DI
             OnStart(_serviceProvider, _shamanComponents);
         }
 
-        protected abstract void ConfigureServices(ServiceCollection serviceCollection);
+        protected abstract void ConfigureServices(IServiceCollection serviceCollection);
         protected abstract void OnStart(IServiceProvider serviceProvider, IShamanComponents shamanComponents);
     }
 }
