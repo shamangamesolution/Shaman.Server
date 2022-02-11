@@ -4,7 +4,7 @@
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
         <TargetFramework>net6.0</TargetFramework>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <PackageVersion>1.16.1</PackageVersion>
+        <PackageVersion>1.17.0</PackageVersion>
     </PropertyGroup>
 
     <ItemGroup>
