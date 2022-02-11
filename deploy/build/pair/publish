@@ -1,5 +1,5 @@
 cat ~/.docker/shaman-pat-write | docker login  -u shamangamesolution --password-stdin
 
-docker build -t pair-1.16.1 -f ../../../Shaman.Server/Launchers/Shaman.Launchers.Pair/Dockerfile ../../../Shaman.Server/
-docker tag pair-1.16.1 shamangamesolution/shaman.server:pair-1.16.1
-docker push shamangamesolution/shaman.server:pair-1.16.1
+docker build -t pair-1.17.0 -f ../../../Shaman.Server/Launchers/Shaman.Launchers.Pair/Dockerfile ../../../Shaman.Server/
+docker tag pair-1.17.0 shamangamesolution/shaman.server:pair-1.17.0
+docker push shamangamesolution/shaman.server:pair-1.17.0
