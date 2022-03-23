@@ -3,11 +3,13 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
+using Bro.BackEnd.Mvc;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Serialization;
+using Serilog;
 using Shaman.Common.Http;
 using Shaman.Common.Metrics;
 using Shaman.Common.Server.Applications;
@@ -25,7 +27,7 @@ namespace Shaman.Launchers.Common
 {
     public class SnakeCaseNamingPolicy : JsonNamingPolicy
     {
-        private SnakeCaseNamingStrategy _newtonsoftSnakeCaseNamingStrategy;
+        private readonly SnakeCaseNamingStrategy _newtonsoftSnakeCaseNamingStrategy = new();
         public static SnakeCaseNamingPolicy Instance { get; } = new SnakeCaseNamingPolicy();
 
         public override string ConvertName(string name)
@@ -57,9 +59,12 @@ namespace Shaman.Launchers.Common
             services.AddOptions();
             var assembly = Assembly.Load(assemblyName);
 
-            services.AddMvc(opt => opt.EnableEndpointRouting = false)
+            services.AddControllers(options =>
+                {
+                    options.ModelBinderProviders.Insert(0, new ShamanModelBinderProvider());
+                    options.Filters.Add<ShamanRequestsFilter>();
+                })
                 .AddApplicationPart(assembly)
-                .AddControllersAsServices()
                 .AddJsonOptions(o => o.JsonSerializerOptions.PropertyNamingPolicy = new SnakeCaseNamingPolicy());
             
             //logger
@@ -132,17 +137,13 @@ namespace Shaman.Launchers.Common
         /// <param name="logger"></param>
         protected void ConfigureCommon(IApplicationBuilder app, IHostingEnvironment env, IApplication server, IShamanLogger logger)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-            else
-            {
+            if (!env.IsDevelopment())
                 CheckProductionCompiledInRelease(logger);
-            }
 
-            app.UseMvc();
-
+            app.UseSerilogRequestLogging();
+            app.UseRouting();
+            app.UseEndpoints(builder =>
+                builder.MapControllerRoute("default", "{action=Index}"));
             server.Start();
         }
         

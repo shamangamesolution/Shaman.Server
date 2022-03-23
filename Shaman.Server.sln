@@ -166,6 +166,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Launchers.Tests", "S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Launchers.Standalone.Balancing", "Shaman.Server\Launchers\Shaman.Launchers.Standalone.Balancing\Shaman.Launchers.Standalone.Balancing.csproj", "{D150E3F5-3EB7-4E49-BAC4-57DABD8CB3B1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Common.Mvc", "Shaman.Server\Common\Shaman.Common.Mvc\Shaman.Common.Mvc.csproj", "{114AF435-03C5-4F12-9AE6-A593A57422D6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -884,6 +886,18 @@ Global
 		{D150E3F5-3EB7-4E49-BAC4-57DABD8CB3B1}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{D150E3F5-3EB7-4E49-BAC4-57DABD8CB3B1}.Release|Win32.ActiveCfg = Release|Any CPU
 		{D150E3F5-3EB7-4E49-BAC4-57DABD8CB3B1}.Release|Win32.Build.0 = Release|Any CPU
+		{114AF435-03C5-4F12-9AE6-A593A57422D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{114AF435-03C5-4F12-9AE6-A593A57422D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{114AF435-03C5-4F12-9AE6-A593A57422D6}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{114AF435-03C5-4F12-9AE6-A593A57422D6}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{114AF435-03C5-4F12-9AE6-A593A57422D6}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{114AF435-03C5-4F12-9AE6-A593A57422D6}.Debug|Win32.Build.0 = Debug|Any CPU
+		{114AF435-03C5-4F12-9AE6-A593A57422D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{114AF435-03C5-4F12-9AE6-A593A57422D6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{114AF435-03C5-4F12-9AE6-A593A57422D6}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{114AF435-03C5-4F12-9AE6-A593A57422D6}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{114AF435-03C5-4F12-9AE6-A593A57422D6}.Release|Win32.ActiveCfg = Release|Any CPU
+		{114AF435-03C5-4F12-9AE6-A593A57422D6}.Release|Win32.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -954,5 +968,6 @@ Global
 		{70CED3A1-18D5-4D4F-9BB1-CB83CAC5D77E} = {3A4DE7F7-1B80-4C8D-9175-A2CED54DA593}
 		{74B5800C-282E-4593-A07B-C4E876C84056} = {70CED3A1-18D5-4D4F-9BB1-CB83CAC5D77E}
 		{D150E3F5-3EB7-4E49-BAC4-57DABD8CB3B1} = {E8F21270-7C11-4AD6-8B51-A66592D6F6B5}
+		{114AF435-03C5-4F12-9AE6-A593A57422D6} = {0F24BC06-D961-4A3F-9EFD-1B4A96688425}
 	EndGlobalSection
 EndGlobal
