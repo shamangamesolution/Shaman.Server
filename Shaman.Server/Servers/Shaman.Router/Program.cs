@@ -1,13 +1,13 @@
-﻿using Shaman.Contract.Routing;
+﻿using System.Threading.Tasks;
 using Shaman.ServiceBootstrap;
 
 namespace Shaman.Router
 {
     public static class Program
     {
-        internal static void Main(string[] args)
+        internal static async Task Main(string[] args)
         {
-            Bootstrap.Launch<Startup>();
+            await Bootstrap.BuildWebApp<Startup>().RunAsync();
         }
     }
 }

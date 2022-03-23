@@ -1,14 +1,17 @@
 using System;
 using System.IO;
-using System.Net;
+using System.Linq;
+using System.Threading.Tasks;
+using Bro.BackEnd.Bootstrap;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Events;
-using Shaman.ServiceBootstrap.Logging;
-using LogLevel = Microsoft.Extensions.Logging.LogLevel;
+using Serilog.Sinks.SystemConsole.Themes;
 
 namespace Shaman.ServiceBootstrap
 {
@@ -27,119 +30,112 @@ namespace Shaman.ServiceBootstrap
                 .Build();
         }
         
-        public static void LaunchWithCommonAndRoleConfig<T>(string configRole, Action<LoggerConfiguration, IConfigurationRoot> configureLogging = null) where T : class
+        public static void LaunchWithCommonAndRoleConfig<T>(string configRole, Action<LoggerConfiguration, IConfiguration> configureLogging = null) where T : class
         {
-            Launch<T>(GetConfig(configRole), configureLogging);
+            BuildHostApp<T>(GetConfig(configRole), configureLogging);
         }
         
-        public static void Launch<T>(Action<LoggerConfiguration, IConfigurationRoot> configureLogging = null) where T : class
+        public static void Launch<T>(IConfigurationRoot config, Action<LoggerConfiguration, IConfiguration> configureLogging = null) where T : class
         {
-            //read config
-            var config = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: false)
-                .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", optional: true)
-                .AddEnvironmentVariables()
+            BuildHostApp<T>(config, configureLogging).Start();
+        }
+
+        public static async Task RunWebApp<TStartup>(string[] args) where TStartup : IShamanWebStartup, new()
+        {
+            await (await BuildWebApp<TStartup>(args)).RunAsync();
+        }
+
+        public static Task<WebApplication> BuildWebApp<TStartup>() where TStartup : IShamanWebStartup, new()
+        {
+            return BuildWebApp<TStartup>(Array.Empty<string>());
+        }
+
+        public static async Task<WebApplication> BuildWebApp<TStartup>(string[] args)
+            where TStartup : IShamanWebStartup, new()
+        {
+            var startup = new TStartup();
+            SubscribeOnUnhandledException();
+
+            var webAppBuilder = WebApplication.CreateBuilder(args);
+            var configurationManager = webAppBuilder.Configuration;
+            var port = configurationManager["CommonSettings:BindToPortHttp"];
+            UseSerilog(webAppBuilder.Host, configurationManager);
+            UseKestrel(webAppBuilder.WebHost, port);
+            webAppBuilder.Services
+                .AddControllers(startup.AddMvcOptions)
+                // this tells mvc where to search controllers
+                .AddApplicationPart(typeof(TStartup).Assembly);
+            startup.ConfigureServices(webAppBuilder.Services, configurationManager);
+            var app = webAppBuilder.Build();
+            app.UseSerilogRequestLogging(options =>
+            {
+                options.MessageTemplate =
+                    "HTTP {RequestMethod} {RequestPath} responded {StatusCode} in {Elapsed:0.0000} ms (In {RequestSizeKb:0.000}Kb, Out {ResponseSizeKb:0.000}Kb)";
+                options.EnrichDiagnosticContext = (context, httpContext) =>
+                {
+                    context.Set(LogOutputTempleteNames.RequestSize, httpContext.Request.ContentLength.GetValueOrDefault() / 1000f);
+                    context.Set(LogOutputTempleteNames.ResponseSize, httpContext.Response.Headers.ContentLength.GetValueOrDefault() / 1000f);
+                };
+            });
+            foreach (var middleWare in startup.GetMiddleWares(app.Services))
+                app.UseMiddleware(middleWare);
+            app.UseRouting();
+            app.UseEndpoints(builder =>
+                builder.MapControllerRoute("default", "{controller=Home}/{action=Index}"));
+            await startup.Initialize(app.Services);
+            return app;
+        }
+
+        private static IWebHostBuilder UseKestrel(IWebHostBuilder configureWebHostBuilder, string port)
+        {
+            return configureWebHostBuilder.UseKestrel(options =>
+            {
+                options.Limits.MinRequestBodyDataRate =
+                    new MinDataRate(bytesPerSecond: 10, gracePeriod: TimeSpan.FromSeconds(30));
+                options.Limits.MinResponseDataRate =
+                    new MinDataRate(bytesPerSecond: 10, gracePeriod: TimeSpan.FromSeconds(30));
+                options.ListenAnyIP(int.Parse(port));
+            });
+        }
+
+        private static void UseSerilog(IHostBuilder configureHostBuilder, IConfiguration configurationManager,
+            Action<LoggerConfiguration, IConfiguration> configureLogging = null)
+        {
+            configureHostBuilder
+                .UseSerilog((context, configuration) =>
+                {
+                    configuration
+                        .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
+                        .ReadFrom.Configuration(configurationManager)
+                        .Enrich.FromLogContext()
+                        .Enrich.WithProperty(LogOutputTempleteNames.RequestSize, 0f)
+                        .Enrich.WithProperty(LogOutputTempleteNames.ResponseSize, 0f);
+
+                    configureLogging?.Invoke(configuration, configurationManager);
+                    if (!IsSerilogConsoleDeclared(configurationManager))
+                        configuration.WriteTo.Console(applyThemeToRedirectedOutput: true, theme: AnsiConsoleTheme.Code,
+                            outputTemplate:
+                            "[{Timestamp:dd-MM-yyyy HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}");
+                });
+        }
+
+        private static bool IsSerilogConsoleDeclared(IConfiguration configurationManager)
+            => configurationManager.GetSection("Serilog:WriteTo").GetChildren()
+                .Any(s => s.GetValue<string>("Name") == "Console");
+
+        public static IHost BuildHostApp<TStartup>(IConfiguration configuration,
+            Action<LoggerConfiguration, IConfiguration> configureLogging = null) where TStartup : class
+        {
+            SubscribeOnUnhandledException();
+
+            var hostBuilder = Host.CreateDefaultBuilder(Array.Empty<string>());
+            var port = configuration["CommonSettings:BindToPortHttp"];
+            UseSerilog(hostBuilder, configuration, configureLogging);
+            return hostBuilder
+                .ConfigureWebHostDefaults(builder =>
+                    UseKestrel(builder.UseConfiguration(configuration), port)
+                        .UseStartup<TStartup>())
                 .Build();
-
-            Launch<T>(config, configureLogging);
-        }
-
-        public static void Launch<T>(IConfigurationRoot config, Action<LoggerConfiguration, IConfigurationRoot> configureLogging = null) where T : class
-        {
-            var logEventLevel = Enum.Parse<LogEventLevel>(config["Serilog:MinimumLevel"], ignoreCase: true);
-            var customerToken = config["Serilog:customerToken"];
-
-            var loggerConfiguration = new LoggerConfiguration()
-                .MinimumLevel.Is(logEventLevel);
-            if (!string.IsNullOrEmpty(customerToken))
-                loggerConfiguration
-                    .WriteTo.Loggly(customerToken: customerToken);
-            
-            loggerConfiguration
-                .Enrich.WithProperty("version", config["ServerVersion"])
-                .Enrich.FromLogContext();
-            configureLogging?.Invoke(loggerConfiguration, config);
-            Log.Logger = loggerConfiguration
-                .CreateLogger();
-
-
-            try
-            {
-                SubscribeOnUnhandledException();
-
-                var ip = config["CommonSettings:BindToIP"];
-                if (string.IsNullOrWhiteSpace(ip))
-                {
-                    Console.WriteLine("Unable to parse IPAddress from configuration file");
-                    return;
-                }
-
-                int port = 0, httpsPort = 0;
-                if (!int.TryParse(config["CommonSettings:BindToPortHttp"].ToString(), out port))
-                {
-                    Console.WriteLine("Unable to parse port number from configuration file");
-                    return;
-                }
-                // if (!int.TryParse(config["BindToPortHttps"].ToString(), out var httpsPort))
-                // {
-                //
-                // Console.WriteLine("Unable to parse port number from configuration file");
-                //     return;
-                // }
-
-                //run host       
-                var host = new WebHostBuilder()
-                    .UseKestrel(options =>
-                    {
-                        options.Limits.MinRequestBodyDataRate =
-                            new MinDataRate(bytesPerSecond: 10, gracePeriod: TimeSpan.FromSeconds(30));
-                        options.Limits.MinResponseDataRate =
-                            new MinDataRate(bytesPerSecond: 10, gracePeriod: TimeSpan.FromSeconds(30));
-                        options.Listen(IPAddress.Parse(ip), port);
-//                    options.Listen(IPAddress.Parse(ip), httpsPort,
-//                        listenOptions => { listenOptions.UseHttps("certificate.pfx", "***"); });
-                    })
-                    .UseConfiguration(config)
-                    .UseContentRoot(Directory.GetCurrentDirectory())
-                    .ConfigureLogging(builder =>
-                    {
-                        var logLevel = MapLogLevel(logEventLevel);
-                        builder
-                            .AddSerilog(Log.Logger, dispose: true)
-                            .AddFilter(level => level >= logLevel)
-                            .AddShamanConsole();
-                    })
-                    .UseStartup<T>()
-                    .Build();
-
-                host.Run();
-            }
-            finally
-            {
-                Log.CloseAndFlush();
-            }
-        }
-
-        private static LogLevel MapLogLevel(LogEventLevel logEventLevel)
-        {
-            switch (logEventLevel)
-            {
-                case LogEventLevel.Verbose:
-                    return LogLevel.Trace;
-                case LogEventLevel.Debug:
-                    return LogLevel.Debug;
-                case LogEventLevel.Information:
-                    return LogLevel.Information;
-                case LogEventLevel.Warning:
-                    return LogLevel.Warning;
-                case LogEventLevel.Error:
-                    return LogLevel.Error;
-                case LogEventLevel.Fatal:
-                    return LogLevel.Critical;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(logEventLevel), logEventLevel, null);
-            }
         }
 
         internal static void SubscribeOnUnhandledException()

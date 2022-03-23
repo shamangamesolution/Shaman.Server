@@ -16,7 +16,7 @@ namespace Shaman.Launchers.Tests
     public class DebugServerTests
     {
         private bool _isLaunched = false;
-        private ShamanClientFactory _clientFactory = new ShamanClientFactory();
+        private readonly ShamanClientFactory _clientFactory = new ShamanClientFactory();
         
         private IConfigurationRoot GetConfig()
         {
