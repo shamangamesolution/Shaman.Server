@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 
 namespace Shaman.Serialization
@@ -14,6 +15,7 @@ namespace Shaman.Serialization
 
             return memoryStream.ToArray();
         }
+
         public void Serialize(ISerializable serializable, Stream output)
         {
             var bw = new BinaryWriter(output);
@@ -33,6 +35,7 @@ namespace Shaman.Serialization
 
             return result;
         }
+
         public T DeserializeAs<T>(byte[] param)
             where T : ISerializable, new()
         {
@@ -43,6 +46,23 @@ namespace Shaman.Serialization
             where T : ISerializable, new()
         {
             return DeserializeAs<T>(new MemoryStream(param, offset, length));
+        }
+
+        public object Deserialize(Stream input, Type type)
+        {
+            var result = (ISerializable) Activator.CreateInstance(type);
+            using (var reader = new BinaryReader(input))
+            {
+                var deserializer = new BinaryTypeReader(reader);
+                result.Deserialize(deserializer);
+            }
+
+            return result;
+        }
+
+        public object Deserialize(byte[] param, Type type)
+        {
+            return Deserialize(new MemoryStream(param), type);
         }
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 
 namespace Shaman.Serialization
@@ -16,5 +17,7 @@ namespace Shaman.Serialization
 
         T DeserializeAs<T>(Stream input)
             where T : ISerializable, new();
+
+        object Deserialize(Stream input, Type type);
     }
 }
