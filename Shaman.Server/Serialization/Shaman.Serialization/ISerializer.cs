@@ -19,5 +19,6 @@ namespace Shaman.Serialization
             where T : ISerializable, new();
 
         object Deserialize(Stream input, Type type);
+        object Deserialize(byte[] param, Type type);
     }
 }
