@@ -21,7 +21,7 @@ namespace Shaman.Launchers.TestBundle
         {
             var logger = shamanComponents.Logger;
             var value = shamanComponents.Config.GetValueOrNull("CustomSetting");
-            logger.Error($"Received config value: {value}: {Environment.StackTrace}");
+            logger.Error($"Received config value: {value}");
             var gameServerApi = serviceProvider.GetRequiredService<IGameServerApi>();
             gameServerApi.CreateRoom(new Dictionary<byte, object>(),
                 new Dictionary<Guid, Dictionary<byte, object>>());
