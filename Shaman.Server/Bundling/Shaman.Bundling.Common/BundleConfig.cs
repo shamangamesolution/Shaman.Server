@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Runtime.Serialization.Json;
 using Shaman.Contract.Bundle;
 
 namespace Shaman.Bundling.Common

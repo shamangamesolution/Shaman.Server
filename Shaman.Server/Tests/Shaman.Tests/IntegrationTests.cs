@@ -2,38 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using FluentAssertions.Formatting;
-using Moq;
 using NUnit.Framework;
-using Shaman.Common.Http;
-using Shaman.Common.Server.Configuration;
-using Shaman.Common.Server.Providers;
-using Shaman.Common.Udp.Senders;
-using Shaman.Common.Utils.TaskScheduling;
-using Shaman.Contract.Bundle;
 using Shaman.Contract.Common.Logging;
-using Shaman.Contract.MM;
-using Shaman.Contract.Routing.MM;
 using Shaman.Game;
-using Shaman.Game.Metrics;
-using Shaman.Game.Rooms;
 using Shaman.MM;
-using Shaman.MM.MatchMaking;
-using Shaman.Tests.GameModeControllers;
-using Shaman.Messages;
 using Shaman.Messages.Authorization;
 using Shaman.Messages.MM;
 using Shaman.Messages.RoomFlow;
-using Shaman.MM.Managers;
-using Shaman.MM.Metrics;
-using Shaman.MM.Providers;
 using Shaman.Tests.Helpers;
-using Shaman.Tests.Providers;
 using Shaman.TestTools.ClientPeers;
 using Shaman.TestTools.Events;
-using GameProject = Shaman.Messages.General.Entity.GameProject;
-using IRoomManager = Shaman.Game.Rooms.IRoomManager;
-using RoomManager = Shaman.Game.Rooms.RoomManager;
 
 namespace Shaman.Tests
 {

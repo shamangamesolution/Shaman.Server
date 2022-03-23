@@ -4,11 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
-using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions;
 using NUnit.Framework;
 using Shaman.Client.Peers;
 using Shaman.Contract.Routing;
-using Shaman.Launchers.Game.Standalone;
 using Shaman.Launchers.Tests.Common;
 using Shaman.ServiceBootstrap;
 

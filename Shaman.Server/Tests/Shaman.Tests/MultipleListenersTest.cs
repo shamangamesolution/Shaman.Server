@@ -1,16 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Moq;
 using NUnit.Framework;
-using Shaman.Common.Udp.Senders;
-using Shaman.Common.Utils.TaskScheduling;
-using Shaman.Contract.Bundle;
 using Shaman.Contract.Common.Logging;
 using Shaman.Game;
-using Shaman.Game.Metrics;
-using Shaman.Game.Rooms;
-using Shaman.Tests.GameModeControllers;
 using Shaman.Messages;
 using Shaman.Messages.Authorization;
 using Shaman.Messages.RoomFlow;

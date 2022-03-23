@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Shaman.Common.Server.Protection;
 using Shaman.Common.Udp.Senders;
 using Shaman.Contract.Routing;
 

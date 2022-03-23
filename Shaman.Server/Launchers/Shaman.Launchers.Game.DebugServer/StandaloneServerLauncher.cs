@@ -7,7 +7,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
 using Shaman.Common.Server.Configuration;
 using Shaman.Contract.Bundle;
-using Shaman.Game.Api;
 using Shaman.ServiceBootstrap;
 
 namespace Shaman.Launchers.Game.DebugServer

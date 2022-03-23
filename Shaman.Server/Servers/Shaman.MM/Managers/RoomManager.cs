@@ -10,7 +10,6 @@ using Shaman.Contract.Common.Logging;
 using Shaman.Contract.Routing;
 using Shaman.Contract.Routing.MM;
 using Shaman.Messages;
-using Shaman.Messages.General.Entity;
 using Shaman.Messages.MM;
 using Shaman.MM.Providers;
 using Shaman.MM.Rooms;

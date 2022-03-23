@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Shaman.Contract.MM;
-using Shaman.Messages;
 using Shaman.TestTools.Events;
 
 namespace Shaman.Tests.Providers

@@ -22,7 +22,6 @@ using Shaman.Tests.Configuration;
 using Shaman.Tests.GameModeControllers;
 using Shaman.Tests.Providers;
 using Shaman.TestTools.Events;
-using RoomManager = Shaman.MM.Managers.RoomManager;
 
 namespace Shaman.Tests.Helpers
 {

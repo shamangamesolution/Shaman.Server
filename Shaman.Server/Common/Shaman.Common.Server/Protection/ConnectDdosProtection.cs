@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using Shaman.Common.Server.Configuration;
-using Shaman.Common.Server.Peers;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;

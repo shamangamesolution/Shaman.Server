@@ -9,20 +9,14 @@ using Shaman.Common.Udp.Senders;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Common.Logging;
-using Shaman.Contract.Routing;
 using Shaman.Contract.Routing.MM;
-using Shaman.Messages;
-using Shaman.Messages.General.DTO.Responses.Auth;
 using Shaman.Messages.MM;
-using Shaman.Messages.RoomFlow;
 using Shaman.MM.Managers;
 using Shaman.MM.MatchMaking;
 using Shaman.MM.Metrics;
 using Shaman.MM.Players;
 using Shaman.MM.Providers;
 using Shaman.MM.Tests.Fakes;
-using Shaman.Serialization.Messages;
-using Shaman.Serialization.Messages.Http;
 using Shaman.TestTools.Events;
 
 namespace Shaman.MM.Tests

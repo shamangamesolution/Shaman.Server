@@ -1,5 +1,4 @@
 using Shaman.Common.Server.Configuration;
-using Shaman.Common.Server.Protection;
 
 namespace Shaman.Tests.Configuration
 {

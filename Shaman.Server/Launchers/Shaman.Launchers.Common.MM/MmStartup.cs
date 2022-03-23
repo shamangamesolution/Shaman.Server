@@ -1,4 +1,3 @@
-using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -6,7 +5,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Shaman.Bundling.Common;
 using Shaman.Common.Server.Applications;
 using Shaman.Common.Server.Providers;
-using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Common.Logging;
 using Shaman.Contract.MM;
 using Shaman.Contract.Routing;

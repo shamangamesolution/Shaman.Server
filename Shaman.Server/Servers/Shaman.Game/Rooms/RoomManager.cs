@@ -15,7 +15,6 @@ using Shaman.Game.Metrics;
 using Shaman.Game.Rooms.Exceptions;
 using Shaman.Game.Rooms.RoomProperties;
 using Shaman.Game.Stats;
-using Shaman.LiteNetLibAdapter;
 using Shaman.Messages;
 using Shaman.Messages.General.DTO.Responses;
 using Shaman.Messages.RoomFlow;

@@ -1,26 +1,12 @@
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Moq;
 using NUnit.Framework;
-using Shaman.Common.Http;
-using Shaman.Common.Udp.Senders;
-using Shaman.Common.Utils.TaskScheduling;
-using Shaman.Contract.MM;
-using Shaman.Contract.Routing.MM;
 using Shaman.Game;
 using Shaman.MM;
-using Shaman.MM.MatchMaking;
-using Shaman.Messages;
-using Shaman.Messages.Authorization;
 using Shaman.Messages.General.DTO.Events;
-using Shaman.Messages.General.Entity;
 using Shaman.Messages.MM;
 using Shaman.Messages.RoomFlow;
-using Shaman.MM.Managers;
-using Shaman.MM.Metrics;
 using Shaman.Tests.Helpers;
-using Shaman.Tests.Providers;
 using Shaman.TestTools.ClientPeers;
 using Shaman.TestTools.Events;
 

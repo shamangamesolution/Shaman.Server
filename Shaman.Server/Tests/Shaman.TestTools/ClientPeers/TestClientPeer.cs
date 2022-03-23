@@ -7,7 +7,6 @@ using FluentAssertions;
 using Shaman.Client;
 using Shaman.Client.Peers;
 using Shaman.Client.Providers;
-using Shaman.Common.Http;
 using Shaman.Common.Udp.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Common;

@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Shaman.Contract.Bundle;
 using Shaman.Contract.Common.Logging;
-using Shaman.Game.Api;
 using Shaman.Game.Extensions;
 using Shaman.Messages.RoomFlow;
 using Shaman.Serialization;

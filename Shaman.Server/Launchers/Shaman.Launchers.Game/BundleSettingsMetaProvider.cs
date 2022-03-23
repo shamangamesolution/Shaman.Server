@@ -1,4 +1,3 @@
-using System;
 using Shaman.Contract.Bundle;
 using Shaman.Contract.Common.Logging;
 using Shaman.Contract.Routing.Meta;

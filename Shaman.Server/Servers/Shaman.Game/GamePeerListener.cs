@@ -7,7 +7,6 @@ using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
 using Shaman.Game.Peers;
 using Shaman.Game.Rooms;
-using Shaman.LiteNetLibAdapter;
 using Shaman.Messages;
 using Shaman.Messages.Authorization;
 using Shaman.Messages.General.DTO.Events;

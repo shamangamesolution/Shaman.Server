@@ -2,7 +2,6 @@ using App.Metrics;
 using App.Metrics.Counter;
 using App.Metrics.Histogram;
 using Shaman.Common.Metrics;
-using Shaman.Common.Server.Applications;
 using Shaman.Common.Utils.TaskScheduling;
 
 namespace Shaman.MM.Metrics

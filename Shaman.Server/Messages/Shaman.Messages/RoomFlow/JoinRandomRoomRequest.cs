@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Shaman.Messages.Helpers;
 using Shaman.Serialization;

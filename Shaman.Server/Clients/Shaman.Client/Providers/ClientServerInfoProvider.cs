@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Shaman.Contract.Common.Logging;
 using Shaman.Contract.Routing;
 using Shaman.Contract.Routing.Balancing;
-using Shaman.Messages.General.Entity;
 using Shaman.Serialization.Messages;
 
 namespace Shaman.Client.Providers
