@@ -32,12 +32,12 @@ namespace Shaman.ServiceBootstrap
         
         public static void LaunchWithCommonAndRoleConfig<T>(string configRole, Action<LoggerConfiguration, IConfiguration> configureLogging = null) where T : class
         {
-            BuildHostApp<T>(GetConfig(configRole), configureLogging);
+            BuildHostApp<T>(GetConfig(configRole), configureLogging).Run();
         }
         
         public static void Launch<T>(IConfigurationRoot config, Action<LoggerConfiguration, IConfiguration> configureLogging = null) where T : class
         {
-            BuildHostApp<T>(config, configureLogging).Start();
+            BuildHostApp<T>(config, configureLogging).Run();
         }
 
         public static async Task RunWebApp<TStartup>(string[] args) where TStartup : IShamanWebStartup, new()
