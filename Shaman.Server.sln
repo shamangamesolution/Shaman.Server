@@ -25,13 +25,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.MM", "Shaman.Server\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shaman.Tests", "Shaman.Server\Tests\Shaman.Tests\Shaman.Tests.csproj", "{47805C91-A245-4702-B142-2968E7F65B32}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{41E076DA-AB3A-4574-9D14-BC883159B60D}"
-ProjectSection(SolutionItems) = preProject
-	Shaman.Server\SolutionItems\db_all.sql = Shaman.Server\SolutionItems\db_all.sql
-	Shaman.Server\SolutionItems\Dockerfile.Mysql = Shaman.Server\SolutionItems\Dockerfile.Mysql
-	Shaman.Server\SolutionItems\docker-compose.yml = Shaman.Server\SolutionItems\docker-compose.yml
-EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Messages", "Messages", "{D997037A-8C67-4E13-84DB-79E586A39F96}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{3A4DE7F7-1B80-4C8D-9175-A2CED54DA593}"
