@@ -23,7 +23,7 @@ public class ShamanResult : IActionResult
         var data = serializer.Serialize(_response);
         var executor =
             context.HttpContext.RequestServices.GetRequiredService<IActionResultExecutor<FileContentResult>>();
-        executor.ExecuteAsync(context, new FileContentResult(data, "application/octet-stream"));
+        await executor.ExecuteAsync(context, new FileContentResult(data, "application/octet-stream"));
     }
 
     public static implicit operator ShamanResult(HttpResponseBase response)
