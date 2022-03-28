@@ -74,7 +74,7 @@ namespace Shaman.Router.Tests
         {
             return new SqlDbConfig
             {
-                Database = "rw_router",
+                Database = "db_router",
                 Host = "localhost",
                 User = "test",
                 Password = "test",

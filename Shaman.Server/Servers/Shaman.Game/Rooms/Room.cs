@@ -33,7 +33,7 @@ namespace Shaman.Game.Rooms
         private RoomState _roomState = RoomState.Closed;
 
         
-        public Room(IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory, IRoomManager roomManager,
+        public Room(IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory,
             IRoomPropertiesContainer roomPropertiesContainer,
             IRoomControllerFactory roomControllerFactory, IPacketSender packetSender,
             Guid roomId, IRoomStateUpdater roomStateUpdater)
