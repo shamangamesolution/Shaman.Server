@@ -9,10 +9,12 @@ namespace Shaman.Contract.Routing
         {
             return firstServerInfo.ClientVersionList.Intersect(secondServerInfo.ClientVersionList);
         }
-        
+
         public static bool AreVersionsIntersect(this ServerInfo firstServerInfo, ServerInfo secondServerInfo)
         {
-            return firstServerInfo.GetVersionIntersection(secondServerInfo).Any();
+            return string.IsNullOrEmpty(firstServerInfo.ClientVersion) &&
+                   string.IsNullOrEmpty(secondServerInfo.ClientVersion) ||
+                   firstServerInfo.GetVersionIntersection(secondServerInfo).Any();
         }
     }
 }
