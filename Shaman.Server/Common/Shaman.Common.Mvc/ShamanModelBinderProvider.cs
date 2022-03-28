@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Shaman.Common.Http;
 using Shaman.Serialization;
 
-namespace Bro.BackEnd.Mvc;
+namespace Shaman.Common.Mvc;
 
 public class ShamanModelBinderProvider : IModelBinderProvider
 {

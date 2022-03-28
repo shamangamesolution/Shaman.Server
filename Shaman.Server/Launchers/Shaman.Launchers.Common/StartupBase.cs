@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
-using Bro.BackEnd.Mvc;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -12,6 +11,7 @@ using Newtonsoft.Json.Serialization;
 using Serilog;
 using Shaman.Common.Http;
 using Shaman.Common.Metrics;
+using Shaman.Common.Mvc;
 using Shaman.Common.Server.Applications;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Server.Protection;
@@ -59,11 +59,7 @@ namespace Shaman.Launchers.Common
             services.AddOptions();
             var assembly = Assembly.Load(assemblyName);
 
-            services.AddControllers(options =>
-                {
-                    options.ModelBinderProviders.Insert(0, new ShamanModelBinderProvider());
-                    options.Filters.Add<ShamanRequestsFilter>();
-                })
+            services.AddControllers(options => options.AddShamanMvc())
                 .AddApplicationPart(assembly)
                 .AddJsonOptions(o => o.JsonSerializerOptions.PropertyNamingPolicy = new SnakeCaseNamingPolicy());
             

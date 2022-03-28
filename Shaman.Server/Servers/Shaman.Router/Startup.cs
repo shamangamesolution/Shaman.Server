@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using Shaman.Common.Mvc;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Common.Logging;
 using Shaman.Router.Config;
@@ -79,9 +80,7 @@ namespace Shaman.Router
             ConfigureMetrics(services, configuration);
         }
 
-        public void AddMvcOptions(MvcOptions options)
-        {
-        }
+        public void AddMvcOptions(MvcOptions options) => options.AddShamanMvc();
 
         public async Task Initialize(IServiceProvider services)
         {

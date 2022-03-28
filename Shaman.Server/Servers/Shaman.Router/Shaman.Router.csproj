@@ -15,6 +15,7 @@
       <ProjectReference Include="..\..\Bootstrap\Shaman.ServiceBootstrap\Shaman.ServiceBootstrap.csproj" />
       <ProjectReference Include="..\..\Bundling\Shaman.Bundling.Common\Shaman.Bundling.Common.csproj" />
       <ProjectReference Include="..\..\Common\Shaman.Common.Http\Shaman.Common.Http.csproj" />
+      <ProjectReference Include="..\..\Common\Shaman.Common.Mvc\Shaman.Common.Mvc.csproj" />
       <ProjectReference Include="..\..\Common\Shaman.Common.Utils\Shaman.Common.Utils.csproj" />
       <ProjectReference Include="..\..\Routing\Shaman.Routing.Balancing.Messages\Shaman.Routing.Balancing.Messages.csproj" />
     </ItemGroup>

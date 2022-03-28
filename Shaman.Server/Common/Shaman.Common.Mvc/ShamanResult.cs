@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Shaman.Serialization;
 using Shaman.Serialization.Messages.Http;
 
-namespace Bro.BackEnd.Mvc;
+namespace Shaman.Common.Mvc;
 
 public class ShamanResult : IActionResult
 {
