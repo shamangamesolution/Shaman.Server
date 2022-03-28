@@ -61,7 +61,7 @@ namespace Shaman.Router
             services.AddSingleton<IShamanLogger, SerilogLogger>();
             services.AddSingleton<ITaskSchedulerFactory, TaskSchedulerFactory>();
             services.AddSingleton<ISerializer, BinarySerializer>();
-            services.AddScoped<IRouterServerInfoProvider, RouterServerInfoProvider>();
+            services.AddSingleton<IRouterServerInfoProvider, RouterServerInfoProvider>();
 
             var staticRoutesSection = configuration.GetSection("StaticRoutes");
             if (staticRoutesSection.Exists())
@@ -73,7 +73,7 @@ namespace Shaman.Router
             else
             {
                 services.AddTransient<IConfigurationRepository, ConfigurationRepository>();
-                services.AddScoped<IRouterSqlDalProvider, RouterSqlDalProvider>();
+                services.AddSingleton<IRouterSqlDalProvider, RouterSqlDalProvider>();
             }
 
 
