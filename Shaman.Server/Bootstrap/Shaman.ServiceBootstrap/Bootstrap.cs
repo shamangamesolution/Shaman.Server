@@ -115,7 +115,7 @@ namespace Shaman.ServiceBootstrap
                     if (!IsSerilogConsoleDeclared(configurationManager))
                         configuration.WriteTo.Console(applyThemeToRedirectedOutput: true, theme: AnsiConsoleTheme.Code,
                             outputTemplate:
-                            "[{Timestamp:dd-MM-yyyy HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}");
+                            "[{Timestamp:dd-MM-yyyy HH:mm:ss.fff} {Level:u3}] {Message:lj}{NewLine}{Exception}");
                 });
         }
 
