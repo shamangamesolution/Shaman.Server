@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Threading;
 using Shaman.Contract.Common.Logging;
 using Shaman.Serialization;
 using Shaman.Serialization.Messages.Udp;
@@ -77,6 +79,8 @@ namespace Shaman.Client.Peers.MessageHandling
             return parser(buffer, offset, length);
         }
 
+        private readonly ThreadLocal<List<KeyValuePair<Guid, EventHandler>>> _handlerIterateBuffers = new();
+
         public bool ProcessMessage(ushort operationCode, byte[] buffer, int offset, int length)
         {
             MessageBase messageBase = null;
@@ -88,16 +92,19 @@ namespace Shaman.Client.Peers.MessageHandling
                 return false;
             }
 
-            foreach(var item in eventHandlers)
+            // take a snapshot of handler's set here, before any handler will be executed 
+            // using buffer to avoid allocations
+            var iterateBuffer = _handlerIterateBuffers.Value ??= new List<KeyValuePair<Guid, EventHandler>>();
+            iterateBuffer.Clear();
+            iterateBuffer.AddRange(eventHandlers);
+
+            foreach(var item in iterateBuffer)
             {
                 try
                 {
                     if (item.Value.CallOnce && !UnregisterOperationHandler(item.Key))
                         continue;
-                    if (messageBase == null)
-                    {
-                        messageBase = DeserializeMessage(operationCode, buffer, offset, length);
-                    }
+                    messageBase ??= DeserializeMessage(operationCode, buffer, offset, length);
                     item.Value.Handler.Invoke(messageBase);
                 }
                 catch (Exception ex)
