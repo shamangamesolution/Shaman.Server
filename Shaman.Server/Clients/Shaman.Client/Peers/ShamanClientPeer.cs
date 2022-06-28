@@ -724,18 +724,22 @@ namespace Shaman.Client.Peers
         //     return ping;//(int) timer.ElapsedMilliseconds;
         // }
 
-        public async Task<int> Ping(Route route, int timeoutMs = 500)
+        public async Task<int> Ping(string address, ushort port, int timeoutMs = 1000)
         {
             int result;
             var timer = Stopwatch.StartNew();
 
             try
             {
-                await ConnectTo(route.MatchMakerAddress, route.MatchMakerPort, timeoutMs);
+                await ConnectTo(address, port, timeoutMs);
+            }
+            catch (Exception e)
+            {
+                _logger.Error($"Ping timeout: {address}");
             }
             finally
             {
-                result = (int)timer.ElapsedMilliseconds;
+                result = (int) timer.ElapsedMilliseconds;
                 Disconnect();
             }
 

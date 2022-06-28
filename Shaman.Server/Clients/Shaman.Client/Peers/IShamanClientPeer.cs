@@ -36,10 +36,10 @@ namespace Shaman.Client.Peers
         void Disconnect();
         void ProcessMessages();
         ShamanClientStatus GetStatus();
-        Task<int> Ping(Route route, int timeoutMs = 500);
         int GetMessagesCountInQueue();
         int GetRtt();
         int GetPing();
         int GetMtu();
+        Task<int> Ping(string address, ushort port, int timeoutMs = 1000);
     }
 }
