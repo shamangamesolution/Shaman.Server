@@ -248,11 +248,11 @@ namespace Shaman.Client.Peers
         {
             var prevStatus = _status;
             _status = status;
-            statusCallback?.Invoke(new ShamanConnectionStatus(status, isSuccess, error), JoinInfo);
             if (prevStatus != _status)
             {
                 _listener?.OnStatusChanged(prevStatus, status);
             }
+            statusCallback?.Invoke(new ShamanConnectionStatus(status, isSuccess, error), JoinInfo);
         }
 
         private void OmMmAuthorizationResponse(AuthorizationResponse response)
