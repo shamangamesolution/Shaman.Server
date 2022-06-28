@@ -5,7 +5,6 @@ using Shaman.Common.Udp.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
-using Shaman.LiteNetLibAdapter;
 using Shaman.Messages;
 using Shaman.Messages.Authorization;
 using Shaman.Messages.General.DTO.Requests;
@@ -91,7 +90,11 @@ namespace Shaman.Client.Peers
         public int Rtt => _rtt;
 
         #region ctors
-        public ShamanClientPeerLegacy(IMessageDeserializer messageDeserializer, IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory, int pollPackageQueueIntervalMs, ISerializer serializer, IRequestSender requestSender, bool startOtherThreadMessageProcessing = true, int maxPacketSize = 300, int sendTickMs = 33)
+
+        public ShamanClientPeerLegacy(IMessageDeserializer messageDeserializer, IShamanLogger logger,
+            ITaskSchedulerFactory taskSchedulerFactory, int pollPackageQueueIntervalMs, ISerializer serializer,
+            IRequestSender requestSender, IClientSocketFactory clientSocketFactory, bool startOtherThreadMessageProcessing = true, int maxPacketSize = 300,
+            int sendTickMs = 33)
         {
             _status = ClientStatusLegacy.Offline;
 
@@ -100,7 +103,7 @@ namespace Shaman.Client.Peers
             _taskScheduler = taskSchedulerFactory.GetTaskScheduler();
             _serializer = serializer;
 //            _serializer.InitializeDefaultSerializers(0, "client");
-            _clientPeer = new ClientPeer(logger, new LiteNetClientSocketFactory(), taskSchedulerFactory, maxPacketSize,
+            _clientPeer = new ClientPeer(logger, clientSocketFactory, taskSchedulerFactory, maxPacketSize,
                 sendTickMs);
             _requestSender = requestSender;
             _clientPeer.OnDisconnectedFromServer += (reason) =>

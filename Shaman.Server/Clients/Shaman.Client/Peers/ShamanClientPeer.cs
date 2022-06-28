@@ -8,7 +8,6 @@ using Shaman.Common.Udp.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
-using Shaman.LiteNetLibAdapter;
 using Shaman.Messages;
 using Shaman.Messages.Authorization;
 using Shaman.Messages.General.DTO.Events;
@@ -86,7 +85,8 @@ namespace Shaman.Client.Peers
 
         public ShamanClientPeer(IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory,
             ISerializer serializer, IRequestSender requestSender,
-            IShamanClientPeerListener listener, IShamanClientPeerConfig config)
+            IShamanClientPeerListener listener, IShamanClientPeerConfig config,
+            IClientSocketFactory clientSocketFactory)
         {
             _status = ShamanClientStatus.Offline;
 
@@ -96,7 +96,7 @@ namespace Shaman.Client.Peers
             _logger = logger;
             _taskScheduler = taskSchedulerFactory.GetTaskScheduler();
 //            _serializer.InitializeDefaultSerializers(0, "client");
-            _clientPeer = new ClientPeer(logger, new LiteNetClientSocketFactory(), taskSchedulerFactory, config.MaxPacketSize, config.SendTickMs);
+            _clientPeer = new ClientPeer(logger, clientSocketFactory, taskSchedulerFactory, config.MaxPacketSize, config.SendTickMs);
             _requestSender = requestSender;
             _listener = listener;
             _clientPeer.OnDisconnectedFromServer += (reason) =>

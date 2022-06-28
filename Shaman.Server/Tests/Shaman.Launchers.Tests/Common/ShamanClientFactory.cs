@@ -3,6 +3,7 @@ using Shaman.Client.Peers;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Common.Logging;
+using Shaman.LiteNetLibAdapter;
 using Shaman.Serialization;
 using Shaman.TestTools.ClientPeers;
 
@@ -29,6 +30,6 @@ public class ShamanClientFactory
         
     public IShamanClientPeer GetClient()
     {
-        return new ShamanClientPeer(_logger, _taskSchedulerFactory, _serializer, _requestSender, _clientPeerListener, _clientPeerConfig);
+        return new ShamanClientPeer(_logger, _taskSchedulerFactory, _serializer, _requestSender, _clientPeerListener, _clientPeerConfig, new LiteNetClientSocketFactory());
     }
 }

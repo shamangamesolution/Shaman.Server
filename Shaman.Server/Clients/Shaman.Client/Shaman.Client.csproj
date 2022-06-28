@@ -11,8 +11,8 @@
       <ProjectReference Include="..\..\Contracts\Shaman.Contract.Routing.Balancing\Shaman.Contract.Routing.Balancing.csproj" />
       <ProjectReference Include="..\..\Contracts\Shaman.Contract.Routing\Shaman.Contract.Routing.csproj" />
       <ProjectReference Include="..\..\Messages\Shaman.Messages\Shaman.Messages.csproj" />
-      <ProjectReference Include="..\..\Network\Shaman.LiteNetLibAdapter\Shaman.LiteNetLibAdapter.csproj" />
-      <ProjectReference Include="..\..\Routing\Shaman.Routing.Balancing.Messages\Shaman.Routing.Balancing.Messages.csproj" />
+      <ProjectReference Include="..\..\Routing\Shaman.Routing.Balancing.Messages\Shaman.Routing.Balancing.Messages.csproj"/>
+      <ProjectReference Include="..\..\Common\Shaman.Common.Udp\Shaman.Common.Udp.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
