@@ -8,7 +8,6 @@ using Shaman.Common.Udp.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
-using Shaman.LiteNetLibAdapter;
 using Shaman.Messages;
 using Shaman.Messages.Authorization;
 using Shaman.Messages.General.DTO.Events;
@@ -86,7 +85,8 @@ namespace Shaman.Client.Peers
 
         public ShamanClientPeer(IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory,
             ISerializer serializer, IRequestSender requestSender,
-            IShamanClientPeerListener listener, IShamanClientPeerConfig config)
+            IShamanClientPeerListener listener, IShamanClientPeerConfig config,
+            IClientSocketFactory clientSocketFactory)
         {
             _status = ShamanClientStatus.Offline;
 
@@ -96,7 +96,7 @@ namespace Shaman.Client.Peers
             _logger = logger;
             _taskScheduler = taskSchedulerFactory.GetTaskScheduler();
 //            _serializer.InitializeDefaultSerializers(0, "client");
-            _clientPeer = new ClientPeer(logger, new LiteNetClientSocketFactory(), taskSchedulerFactory, config.MaxPacketSize, config.SendTickMs);
+            _clientPeer = new ClientPeer(logger, clientSocketFactory, taskSchedulerFactory, config.MaxPacketSize, config.SendTickMs);
             _requestSender = requestSender;
             _listener = listener;
             _clientPeer.OnDisconnectedFromServer += (reason) =>
@@ -248,11 +248,11 @@ namespace Shaman.Client.Peers
         {
             var prevStatus = _status;
             _status = status;
-            statusCallback?.Invoke(new ShamanConnectionStatus(status, isSuccess, error), JoinInfo);
             if (prevStatus != _status)
             {
                 _listener?.OnStatusChanged(prevStatus, status);
             }
+            statusCallback?.Invoke(new ShamanConnectionStatus(status, isSuccess, error), JoinInfo);
         }
 
         private void OmMmAuthorizationResponse(AuthorizationResponse response)
@@ -724,18 +724,22 @@ namespace Shaman.Client.Peers
         //     return ping;//(int) timer.ElapsedMilliseconds;
         // }
 
-        public async Task<int> Ping(Route route, int timeoutMs = 500)
+        public async Task<int> Ping(string address, ushort port, int timeoutMs = 1000)
         {
             int result;
             var timer = Stopwatch.StartNew();
 
             try
             {
-                await ConnectTo(route.MatchMakerAddress, route.MatchMakerPort, timeoutMs);
+                await ConnectTo(address, port, timeoutMs);
+            }
+            catch (Exception e)
+            {
+                _logger.Error($"Ping timeout: {address}");
             }
             finally
             {
-                result = (int)timer.ElapsedMilliseconds;
+                result = (int) timer.ElapsedMilliseconds;
                 Disconnect();
             }
 
