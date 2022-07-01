@@ -62,6 +62,7 @@ namespace Shaman.Router
             services.AddSingleton<ITaskSchedulerFactory, TaskSchedulerFactory>();
             services.AddSingleton<ISerializer, BinarySerializer>();
             services.AddSingleton<IRouterServerInfoProvider, RouterServerInfoProvider>();
+            services.AddSingleton<IStatesManager, StatesManager>();
 
             var staticRoutesSection = configuration.GetSection("StaticRoutes");
             if (staticRoutesSection.Exists())
@@ -73,6 +74,7 @@ namespace Shaman.Router
             else
             {
                 services.AddTransient<IConfigurationRepository, ConfigurationRepository>();
+                services.AddTransient<IStateRepository, StateRepository>();
                 services.AddSingleton<IRouterSqlDalProvider, RouterSqlDalProvider>();
             }
 
@@ -94,6 +96,9 @@ namespace Shaman.Router
                     $"Initial server list: {JsonConvert.SerializeObject(serverInfoProvider.GetAllServers(), Formatting.Indented)}");
                 logger.Error(
                     $"Initial bundles list: {JsonConvert.SerializeObject(serverInfoProvider.GetAllBundles(), Formatting.Indented)}");
+                
+                var statesProvider = scope.ServiceProvider.GetRequiredService<IStatesManager>();
+                statesProvider.Start();
             }
         }
 

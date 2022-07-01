@@ -21,13 +21,15 @@ namespace Shaman.Router.Controllers
         private readonly IRouterServerInfoProvider _serverInfoProvider;
         private readonly IShamanLogger _logger;
         private readonly IConfigurationRepository _configurationRepository;
+        private readonly IStatesManager _stateManager;
 
         public ServerController(IRouterServerInfoProvider serverInfoProvider, IShamanLogger logger,
-            IConfigurationRepository configurationRepository)
+            IConfigurationRepository configurationRepository, IStatesManager stateManager)
         {
             _serverInfoProvider = serverInfoProvider;
             _logger = logger;
             _configurationRepository = configurationRepository;
+            _stateManager = stateManager;
         }
 
         [HttpGet]
@@ -97,6 +99,40 @@ namespace Shaman.Router.Controllers
                 ServerInfoList = new EntityDictionary<ServerInfo>(_serverInfoProvider.GetAllServers().Where(s =>
                     !request.ActualOnly || (request.ActualOnly && s.IsApproved && s.IsActual(10000))))
             };
+
+            return response;
+        }
+        
+        [HttpPost]
+        public async Task<ShamanResult> GetState(GetStateRequest request)
+        {
+            var response = new GetStateResponse();
+
+            try
+            {
+                response.State = await _stateManager.GetState(request.ServerIdentity);
+            }
+            catch (Exception e)
+            {
+                response.SetError($"{e.Message}");
+            }
+
+            return response;
+        }
+        
+        [HttpPost]
+        public async Task<ShamanResult> SaveState(SaveStateRequest request)
+        {
+            var response = new SaveStateResponse();
+            
+            try
+            {
+                await _stateManager.SaveState(request.ServerIdentity, request.State);
+            }
+            catch (Exception e)
+            {
+                response.SetError($"{e.Message}");
+            }
 
             return response;
         }
