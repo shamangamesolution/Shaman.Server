@@ -73,8 +73,8 @@ namespace Shaman.ServiceBootstrap
                     "HTTP {RequestMethod} {RequestPath} responded {StatusCode} in {Elapsed:0.0000} ms (In {RequestSizeKb:0.000}Kb, Out {ResponseSizeKb:0.000}Kb)";
                 options.EnrichDiagnosticContext = (context, httpContext) =>
                 {
-                    context.Set(LogOutputTempleteNames.RequestSize, httpContext.Request.ContentLength.GetValueOrDefault() / 1000f);
-                    context.Set(LogOutputTempleteNames.ResponseSize, httpContext.Response.Headers.ContentLength.GetValueOrDefault() / 1000f);
+                    context.Set(LogOutputTemplateNames.RequestSize, httpContext.Request.ContentLength.GetValueOrDefault() / 1000f);
+                    context.Set(LogOutputTemplateNames.ResponseSize, httpContext.Response.Headers.ContentLength.GetValueOrDefault() / 1000f);
                 };
             });
             foreach (var middleWare in startup.GetMiddleWares(app.Services))
@@ -105,11 +105,12 @@ namespace Shaman.ServiceBootstrap
                 .UseSerilog((context, configuration) =>
                 {
                     configuration
-                        .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
+                        .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Error)
                         .ReadFrom.Configuration(configurationManager)
                         .Enrich.FromLogContext()
-                        .Enrich.WithProperty(LogOutputTempleteNames.RequestSize, 0f)
-                        .Enrich.WithProperty(LogOutputTempleteNames.ResponseSize, 0f);
+                        .Enrich.WithProperty("ServiceLabel", configurationManager["ServiceLabel"])
+                        .Enrich.WithProperty("ServiceVersion", configurationManager["ServiceVersion"])
+                        .Enrich.WithProperty("Host", Environment.MachineName);
 
                     configureLogging?.Invoke(configuration, configurationManager);
                     if (!IsSerilogConsoleDeclared(configurationManager))
