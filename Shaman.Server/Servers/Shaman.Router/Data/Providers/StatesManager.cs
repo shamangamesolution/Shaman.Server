@@ -70,7 +70,18 @@ public class StatesManager:IStatesManager
             return;
         }
 
-        await _stateRepository.SaveState(server.Id, state, DateTime.UtcNow);
+        var now = DateTime.UtcNow;
+        // races might occur, but who cares in this case
+        if (_states.ContainsKey(server.Id))
+            await _stateRepository.UpdateState(server.Id, state, now);
+        else
+            await _stateRepository.SaveState(server.Id, state, now);
+        _states[server.Id] = new StateInfo
+        {
+            CreatedOn = now,
+            SerializedState = state,
+            ServerId = server.Id
+        };
     }
     
     public void Start()

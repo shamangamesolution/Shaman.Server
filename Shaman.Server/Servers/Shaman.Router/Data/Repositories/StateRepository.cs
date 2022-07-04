@@ -3,11 +3,9 @@ using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
-using Shaman.Bundling.Common;
 using Shaman.DAL.SQL.Repositories;
 using Shaman.Router.Data.Repositories.Interfaces;
 using Shaman.Router.Models;
-using Shaman.Serialization.Messages;
 
 namespace Shaman.Router.Data.Repositories;
 
@@ -31,6 +29,7 @@ public class StateRepository : RepositoryBase, IStateRepository
             {
                 ServerId = GetInt(dt.Rows[i]["server_id"]),
                 SerializedState = GetString(dt.Rows[i]["state"]),
+                ActualizeOn = GetDateTime(dt.Rows[i]["actualized_on"]),
                 CreatedOn = GetDateTime(dt.Rows[i]["created_on"])
             });
         }
@@ -42,6 +41,7 @@ public class StateRepository : RepositoryBase, IStateRepository
     {
         const string bundlesInfoSql = @"SELECT `states`.`server_id`,
                                 `states`.`state`,
+                                `states`.`actualized_on`,
                                 `states`.`created_on`
                             FROM `states`";
 
@@ -53,16 +53,32 @@ public class StateRepository : RepositoryBase, IStateRepository
         const string sql = @"INSERT INTO `states`
                                 (`server_id`,
                                 `state`,
-                                `created_on`)
+                                `created_on`,
+                                `actualized_on`)
                                 VALUES
                                 (?server_id,
                                 ?state,
+                                ?created_on,
                                 ?created_on)";
 
         await Dal.Insert(sql,
             new MySqlParameter("?server_id", serverId),
             new MySqlParameter("?state", state),
             new MySqlParameter("?created_on", createdOn)
+        );
+    }
+
+    public async Task UpdateState(int serverId, string state, DateTime actualizedOn)
+    {
+        const string sql = @"UPDATE `states`
+                        SET 
+                                `states`.`state` = ?state,
+                                `states`.`actualized_on = ?date`
+                        WHERE server_id = ?server_id";
+        await Dal.Update(sql,
+            new MySqlParameter("?server_id", serverId),
+            new MySqlParameter("?state", state),
+            new MySqlParameter("?date", actualizedOn)
         );
     }
 }

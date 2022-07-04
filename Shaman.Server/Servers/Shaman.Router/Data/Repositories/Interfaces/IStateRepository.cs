@@ -9,4 +9,5 @@ public interface IStateRepository
 {
     Task<List<StateInfo>> GetStates();
     Task SaveState(int serverId, string state, DateTime createdOn);
+    Task UpdateState(int serverId, string state, DateTime actualizedOn);
 }
