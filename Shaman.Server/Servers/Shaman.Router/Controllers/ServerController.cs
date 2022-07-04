@@ -102,39 +102,21 @@ namespace Shaman.Router.Controllers
 
             return response;
         }
-        
+
         [HttpPost]
         public async Task<ShamanResult> GetState(GetStateRequest request)
         {
-            var response = new GetStateResponse();
-
-            try
+            return new GetStateResponse
             {
-                response.State = await _stateManager.GetState(request.ServerIdentity);
-            }
-            catch (Exception e)
-            {
-                response.SetError($"{e.Message}");
-            }
-
-            return response;
+                State = await _stateManager.GetState(request.ServerIdentity)
+            };
         }
-        
+
         [HttpPost]
         public async Task<ShamanResult> SaveState(SaveStateRequest request)
         {
-            var response = new SaveStateResponse();
-            
-            try
-            {
-                await _stateManager.SaveState(request.ServerIdentity, request.State);
-            }
-            catch (Exception e)
-            {
-                response.SetError($"{e.Message}");
-            }
-
-            return response;
+            await _stateManager.SaveState(request.ServerIdentity, request.State);
+            return new SaveStateResponse();
         }
     }
 }
