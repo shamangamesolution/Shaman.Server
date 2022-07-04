@@ -19,12 +19,11 @@ public class StateTests
 {
     private IStatesManager _statesManager;
     private IShamanLogger _logger;
-    private IStateRepository _stateRepository;
     private IRouterServerInfoProvider _serverInfoProvider;
     private IConfigurationRepository _configurationRepository;
     private ITaskSchedulerFactory _taskSchedulerFactory;
 
-    private static SqlDbConfig GEtTestDbConfig()
+    private static SqlDbConfig GetTestDbConfig()
     {
         return new SqlDbConfig
         {
@@ -43,18 +42,17 @@ public class StateTests
         _taskSchedulerFactory = new TaskSchedulerFactory(_logger);
         var config = new OptionsWrapper<RouterConfiguration>(new RouterConfiguration
         {
-            DbConfig = GEtTestDbConfig(),
+            DbConfig = GetTestDbConfig(),
             ServerInfoListUpdateIntervalMs = 1000
         });
         var dalProvider = new RouterSqlDalProvider(config);
 
-        _stateRepository = new StateRepository(dalProvider);
         _configurationRepository = new ConfigurationRepository(dalProvider);
 
         _serverInfoProvider =
             new RouterServerInfoProvider(_configurationRepository, _taskSchedulerFactory, config, _logger);
         _statesManager =
-            new StatesManager(_stateRepository, _serverInfoProvider, _logger, _taskSchedulerFactory, config);
+            new StatesManager(dalProvider, _serverInfoProvider, _logger, _taskSchedulerFactory, config);
     }
     
     [Test]
@@ -63,10 +61,10 @@ public class StateTests
         _serverInfoProvider.Start();
         _statesManager.Start();
         await Task.Delay(1000);
-        Assert.IsNotEmpty(_serverInfoProvider.GetAllServers());
-        _statesManager.Start();
-        await Task.Delay(1000);
+        var entityDictionary = _serverInfoProvider.GetAllServers();
+        Assert.IsNotEmpty(entityDictionary);
         var serverIdentity = new ServerIdentity(){Address = "127.0.0.1", Ports = new List<ushort> {23452},  PortsString = "23452", ServerRole = ServerRole.GameServer};
+        _serverInfoProvider.GetAllBundles();
         var anObject = await _statesManager.GetState(serverIdentity);
         Assert.IsNull(anObject);
         await _statesManager.SaveState(serverIdentity, "teststate");
@@ -74,5 +72,9 @@ public class StateTests
         anObject = await _statesManager.GetState(serverIdentity);
         Assert.IsNotNull(anObject);
         Assert.AreEqual("teststate", anObject);
+        await _statesManager.SaveState(serverIdentity, "teststate2");
+        anObject = await _statesManager.GetState(serverIdentity);
+        Assert.IsNotNull(anObject);
+        Assert.AreEqual("teststate2", anObject);
     }
 }

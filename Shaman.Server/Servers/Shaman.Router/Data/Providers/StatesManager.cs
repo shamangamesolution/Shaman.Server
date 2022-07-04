@@ -8,7 +8,7 @@ using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
 using Shaman.Contract.Routing;
 using Shaman.Router.Config;
-using Shaman.Router.Data.Repositories.Interfaces;
+using Shaman.Router.Data.Repositories;
 using Shaman.Router.Models;
 
 namespace Shaman.Router.Data.Providers;
@@ -24,17 +24,19 @@ public interface IStatesManager
 public class StatesManager:IStatesManager
 {
     private readonly IShamanLogger _logger;
-    private readonly IStateRepository _stateRepository;
+    private readonly IRouterSqlDalProvider _routerSqlDalProvider;
     private readonly IRouterServerInfoProvider _routerServerInfoProvider;
     private readonly ITaskScheduler _taskScheduler;
     private readonly IOptions<RouterConfiguration> _config;
 
-    private Dictionary<int, StateInfo> _states = new Dictionary<int, StateInfo>();
-    private bool _isRequestingNow = false;
+    private Dictionary<int, StateInfo> _states = new();
+    private bool _isRequestingNow;
+    private readonly StateRepository _stateRepositoryBackground;
 
-    public StatesManager(IStateRepository stateRepository, IRouterServerInfoProvider routerServerInfoProvider, IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory, IOptions<RouterConfiguration> config)
+    public StatesManager(IRouterSqlDalProvider routerSqlDalProvider, IRouterServerInfoProvider routerServerInfoProvider, IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory, IOptions<RouterConfiguration> config)
     {
-        _stateRepository = stateRepository;
+        _stateRepositoryBackground = new StateRepository(routerSqlDalProvider);
+        _routerSqlDalProvider = routerSqlDalProvider;
         _routerServerInfoProvider = routerServerInfoProvider;
         _logger = logger;
         _config = config;
@@ -58,7 +60,7 @@ public class StatesManager:IStatesManager
 
     private async Task RefreshStates()
     {
-        _states = (await _stateRepository.GetStates()).ToDictionary(k => k.ServerId, v => v);
+        _states = (await _stateRepositoryBackground.GetStates()).ToDictionary(k => k.ServerId, v => v);
     }
 
     public async Task SaveState(ServerIdentity identity, string state)
@@ -69,13 +71,14 @@ public class StatesManager:IStatesManager
             _logger.Error($"Cant get state for server {identity}. No server in collection");
             return;
         }
+        var stateRepository = new StateRepository(_routerSqlDalProvider);
 
         var now = DateTime.UtcNow;
         // races might occur, but who cares in this case
         if (_states.ContainsKey(server.Id))
-            await _stateRepository.UpdateState(server.Id, state, now);
+            await stateRepository.UpdateState(server.Id, state, now);
         else
-            await _stateRepository.SaveState(server.Id, state, now);
+            await stateRepository.InsertState(server.Id, state, now);
         _states[server.Id] = new StateInfo
         {
             CreatedOn = now,

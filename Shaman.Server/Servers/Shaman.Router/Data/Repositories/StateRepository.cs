@@ -48,7 +48,7 @@ public class StateRepository : RepositoryBase, IStateRepository
         return GetStateInfoListFromDataTable(await Dal.Select(bundlesInfoSql));
     }
 
-    public async Task SaveState(int serverId, string state, DateTime createdOn)
+    public async Task InsertState(int serverId, string state, DateTime createdOn)
     {
         const string sql = @"INSERT INTO `states`
                                 (`server_id`,
@@ -73,7 +73,7 @@ public class StateRepository : RepositoryBase, IStateRepository
         const string sql = @"UPDATE `states`
                         SET 
                                 `states`.`state` = ?state,
-                                `states`.`actualized_on = ?date`
+                                `states`.`actualized_on` = ?date
                         WHERE server_id = ?server_id";
         await Dal.Update(sql,
             new MySqlParameter("?server_id", serverId),
