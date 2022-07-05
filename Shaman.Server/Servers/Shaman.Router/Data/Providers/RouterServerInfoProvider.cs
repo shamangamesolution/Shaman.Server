@@ -75,7 +75,7 @@ namespace Shaman.Router.Data.Providers
             var staleList = _serverList.Where(l => l.IsApproved && l.ServerRole != ServerRole.BackEnd && !l.IsActual(30000)).ToArray();
             if (staleList.Any())
             {
-                _logger.Error($"Staled data ({string.Join(',',staleList.Select(s=>(DateTime.UtcNow - s.ActualizedOn.Value).TotalMilliseconds.ToString()))}) : {JsonConvert.SerializeObject(staleList, Formatting.Indented)}");
+                _logger.Error($"Staled data ({string.Join(',',staleList.Select(s=>s.ActualizedGap.TotalMilliseconds.ToString()))}) : {JsonConvert.SerializeObject(staleList, Formatting.Indented)}");
             }
         }
 

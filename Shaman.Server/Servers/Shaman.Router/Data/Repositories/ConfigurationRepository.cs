@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
@@ -33,7 +32,7 @@ namespace Shaman.Router.Data.Repositories
                     Name = GetString(dt.Rows[i]["name"]),
                     Ports = GetString(dt.Rows[i]["ports"]),
                     Region = GetString(dt.Rows[i]["region"]),
-                    ActualizedOn = GetNullableDateTime(dt.Rows[i]["actualized_on"]),
+                    ActualizedGap = GetTimeSpan(dt.Rows[i]["actualized_gap"]),
                     ClientVersion = GetString(dt.Rows[i]["client_version"]),
                     PeerCount = GetInt(dt.Rows[i]["peers_count"]),
                     IsApproved = GetBoolean(dt.Rows[i]["is_approved"]),
@@ -75,7 +74,7 @@ namespace Shaman.Router.Data.Repositories
                                 `servers`.`name`,
                                 `servers`.`region`,
                                 `servers`.`client_version`,
-                                `servers`.`actualized_on`,
+                                (UTC_TIMESTAMP - `servers`.`actualized_on`) AS `actualized_gap`,
                                 `servers`.`is_approved`,
                                 `servers`.`peers_count`,
                                 `servers`.`http_port`,
@@ -126,7 +125,7 @@ namespace Shaman.Router.Data.Repositories
                                  ?name,
                                 '',
                                 ?client_version,
-                                ?actualized_on,
+                                UTC_TIMESTAMP,
                                 ?http_port,
                                 ?https_port)";
 
@@ -136,7 +135,6 @@ namespace Shaman.Router.Data.Repositories
                 new MySqlParameter("?server_role", serverInfo.ServerRole),
                 new MySqlParameter("?name", serverInfo.Name),
                 new MySqlParameter("?client_version", serverInfo.ClientVersion),
-                new MySqlParameter("?actualized_on", serverInfo.ActualizedOn),
                 new MySqlParameter("?http_port", serverInfo.HttpPort),
                 new MySqlParameter("?Https_port", serverInfo.HttpsPort)
             );
@@ -146,14 +144,13 @@ namespace Shaman.Router.Data.Repositories
         {
             const string sql = @"UPDATE `servers`
                                 SET 
-                                    `servers`.`actualized_on` = ?date, 
+                                    `servers`.`actualized_on` = UTC_TIMESTAMP, 
                                     `servers`.`peers_count` = ?peer_count,
                                     `servers`.`http_port` = ?http_port,
                                     `servers`.`https_port` = ?https_port
                                 WHERE `servers`.`id` = ?id";
             await Dal.Update(sql,
                 new MySqlParameter("?id", id),
-                new MySqlParameter("?date", DateTime.UtcNow),
                 new MySqlParameter("?peer_count", peerCount),
                 new MySqlParameter("?http_port", httpPort),
                 new MySqlParameter("?https_port", httpsPort)

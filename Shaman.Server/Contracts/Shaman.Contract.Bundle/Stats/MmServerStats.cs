@@ -6,7 +6,7 @@ namespace Shaman.Contract.Bundle.Stats
     public class RegisteredServerStat
     {
         public string Address { get; set; }
-        public DateTime? ActualizedOn { get; set; }      
+        public TimeSpan ActualizedGap { get; set; }      
     }
     
     public class MmServerStats

@@ -107,7 +107,6 @@ namespace Shaman.Launchers.MM.Balancing
 
             foreach (var server in _serverList)
             {
-                // if (server.ServerRole == ServerRole.GameServer && versions.Contains(server.ClientVersion) && server.Region == me.Region)
                 if (server.ServerRole == ServerRole.GameServer && serverList.Any(s => s.AreVersionsIntersect(server)) && server.Region == me.Region)
                 {
                     if (server.IsActual(_config.ServerUnregisterTimeoutMs))

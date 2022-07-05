@@ -64,7 +64,7 @@ namespace Shaman.MM
             {
                 RegisteredServers = _serverProvider.GetGameServers().Select(s => new RegisteredServerStat
                 {
-                    ActualizedOn = s.ActualizedOn,
+                    ActualizedGap = s.ActualizedGap,
                     Address = s.Identity.ToString()
                 }).ToList(),
                 TotalPlayers = _playersManager.Count(),

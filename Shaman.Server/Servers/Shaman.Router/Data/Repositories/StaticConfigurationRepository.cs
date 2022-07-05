@@ -46,7 +46,7 @@ namespace Shaman.Router.Data.Repositories
 
         public Task UpdateServerInfoActualizedOn(int id, int peerCount, ushort httpPort, ushort httpsPort)
         {
-            _serverInfos[id].ActualizedOn = DateTime.UtcNow;
+            _serverInfos[id].ActualizedGap = TimeSpan.Zero;
             return Task.CompletedTask;
         }
 

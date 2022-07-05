@@ -2,12 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Shaman.Serialization;
-using Shaman.Serialization.Extensions;
 using Shaman.Serialization.Messages;
 
 namespace Shaman.Contract.Routing
 {
-    
     public class ServerInfo : EntityBase
     {
         public string Address { get; set; } = "";
@@ -18,7 +16,7 @@ namespace Shaman.Contract.Routing
         public string Name { get; set; } = "";
         public string Region { get; set; } = "";
         public string ClientVersion { get; set; } = "";
-        public DateTime? ActualizedOn { get; set; }
+        public TimeSpan ActualizedGap { get; set; }
         public bool IsApproved { get; set; }
         public int PeerCount { get; set; }
         
@@ -58,8 +56,7 @@ namespace Shaman.Contract.Routing
         
         public bool IsActual(int actualTimeoutMs)
         {
-            return IsApproved && ActualizedOn != null &&
-                   (DateTime.UtcNow - ActualizedOn.Value).TotalMilliseconds < actualTimeoutMs;
+            return IsApproved && ActualizedGap.TotalMilliseconds <= actualTimeoutMs;
         }
         
         public ServerInfo(ServerIdentity identity, string name, string region, ushort httpPort, ushort httpsPort = 0)
@@ -86,7 +83,7 @@ namespace Shaman.Contract.Routing
             typeWriter.Write(Name);
             typeWriter.Write(Region);
             typeWriter.Write(ClientVersion);
-            typeWriter.Write(ActualizedOn);
+            typeWriter.Write(ActualizedGap);
             typeWriter.Write(IsApproved);
             typeWriter.Write(PeerCount);
             typeWriter.Write(HttpPort);
@@ -101,7 +98,7 @@ namespace Shaman.Contract.Routing
             Name = typeReader.ReadString();
             Region = typeReader.ReadString();
             ClientVersion = typeReader.ReadString();
-            ActualizedOn = typeReader.ReadNullableDate();
+            ActualizedGap = typeReader.ReadTimeSpan();
             IsApproved = typeReader.ReadBool();
             PeerCount = typeReader.ReadInt();
             HttpPort = typeReader.ReadUShort();

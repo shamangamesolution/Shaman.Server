@@ -69,6 +69,11 @@ namespace Shaman.Serialization.Extensions
             writer.Write(dateTime?.ToBinary() ?? 0L);
         }
 
+        public static void Write(this ITypeWriter writer, TimeSpan? timeSpan)
+        {
+            writer.Write(timeSpan?.Ticks ?? 0L);
+        }
+
         public static void Write(this ITypeWriter writer, Guid? guid)
         {
             if (guid.HasValue)
