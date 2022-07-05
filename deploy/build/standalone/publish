@@ -1,5 +1,5 @@
 cat ~/.docker/shaman-pat-write | docker login  -u shamangamesolution --password-stdin
 
-docker build -t game-standalone-1.18.4 -f ../../../Shaman.Server/Launchers/Shaman.Launchers.Game.Standalone/Dockerfile ../../../Shaman.Server/
-docker tag game-standalone-1.18.4 shamangamesolution/shaman.server:standalone-1.18.4
-docker push shamangamesolution/shaman.server:standalone-1.18.4
+docker build -t game-standalone-1.19.0 -f ../../../Shaman.Server/Launchers/Shaman.Launchers.Game.Standalone/Dockerfile ../../../Shaman.Server/
+docker tag game-standalone-1.19.0 shamangamesolution/shaman.server:standalone-1.19.0
+docker push shamangamesolution/shaman.server:standalone-1.19.0
