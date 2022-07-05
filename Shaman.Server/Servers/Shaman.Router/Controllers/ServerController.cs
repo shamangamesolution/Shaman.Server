@@ -64,6 +64,9 @@ namespace Shaman.Router.Controllers
                 await _configurationRepository.UpdateServerInfoActualizedOn(item, request.PeersCount, request.HttpPort,
                     request.HttpsPort);
 
+            if (!string.IsNullOrEmpty(request.State))
+                await _stateManager.SaveState(request.ServerIdentity, request.State);
+
             return response;
         }
 

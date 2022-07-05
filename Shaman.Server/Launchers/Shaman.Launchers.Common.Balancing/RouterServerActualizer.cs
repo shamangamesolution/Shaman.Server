@@ -16,23 +16,26 @@ namespace Shaman.Launchers.Common.Balancing
         private readonly ITaskScheduler _taskScheduler;
         private readonly IRoutingConfig _routingConfig;
         private readonly IShamanLogger _logger;
+        private readonly IServerStateProvider _serverStateProvider;
 
         private IPendingTask _actualizeTask;
-        
-        public RouterServerActualizer(IStatisticsProvider statsProvider, ITaskSchedulerFactory taskSchedulerFactory, IRequestSender requestSender,
-            IRoutingConfig routingConfig, IShamanLogger logger)
+
+        public RouterServerActualizer(IStatisticsProvider statsProvider, ITaskSchedulerFactory taskSchedulerFactory,
+            IRequestSender requestSender, IRoutingConfig routingConfig, IShamanLogger logger,
+            IServerStateProvider serverStateProvider)
         {
             _statsProvider = statsProvider;
             _requestSender = requestSender;
             _routingConfig = routingConfig;
             _logger = logger;
+            _serverStateProvider = serverStateProvider;
             _taskScheduler = taskSchedulerFactory.GetTaskScheduler();
         }
 
-        public async Task Actualize(int peersCount)
+        public async Task Actualize(int peersCount, string state)
         {
             var response = await _requestSender.SendRequest<ActualizeServerOnRouterResponse>(_routingConfig.RouterUrl,
-                new ActualizeServerOnRouterRequest(_routingConfig.Identity, _routingConfig.ServerName, _routingConfig.Region, peersCount, _routingConfig.HttpPort, _routingConfig.HttpsPort));
+                new ActualizeServerOnRouterRequest(_routingConfig.Identity, _routingConfig.ServerName, _routingConfig.Region, peersCount, _routingConfig.HttpPort, _routingConfig.HttpsPort, state));
             if (!response.Success)
             {
                 _logger.Error($"MatchMakerServerInfoProvider.ActualizeMe error: {response.Message}");
@@ -44,7 +47,7 @@ namespace Shaman.Launchers.Common.Balancing
             _actualizeTask = _taskScheduler.ScheduleOnInterval(async () =>
              {
                  //actualize
-                 await Actualize(_statsProvider.GetPeerCount());
+                 await Actualize(_statsProvider.GetPeerCount(), _serverStateProvider.Get());
              }, 0, actualizationPeriodMs);
         }
 

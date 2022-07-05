@@ -53,6 +53,9 @@ namespace Shaman.Launchers.Standalone.Balancing
             services.AddSingleton<IBundleLoader, BundleLoader>();
 
             services.AddSingleton<IServerActualizer, RouterServerActualizer>();
+            services.AddSingleton<ServerStateHolder>();
+            services.AddSingleton<IServerStateProvider>(p=>p.GetService<ServerStateHolder>());
+            services.AddSingleton<IServerStateUpdater>(p=>p.GetService<ServerStateHolder>());
             services.AddSingleton<IRoutingConfig, RoutingConfig>(provider =>
             {
                 var config = provider.GetService<IApplicationConfig>();

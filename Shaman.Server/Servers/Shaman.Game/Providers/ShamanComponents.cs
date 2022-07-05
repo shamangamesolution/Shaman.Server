@@ -15,9 +15,10 @@ namespace Shaman.Game.Providers
             _serviceProvider = serviceProvider;
         }
 
-        public IShamanLogger Logger => _serviceProvider.GetService<IShamanLogger>();
-        public IBundleConfig Config => _serviceProvider.GetService<IBundleConfig>();
-        public IMetaProvider MetaProvider => _serviceProvider.GetService<IMetaProvider>();
-        public IGameServerApi GameServerApi => _serviceProvider.GetService<IGameServerApi>();
+        public IShamanLogger Logger => _serviceProvider.GetRequiredService<IShamanLogger>();
+        public IBundleConfig Config => _serviceProvider.GetRequiredService<IBundleConfig>();
+        public IMetaProvider MetaProvider => _serviceProvider.GetRequiredService<IMetaProvider>();
+        public IGameServerApi GameServerApi => _serviceProvider.GetRequiredService<IGameServerApi>();
+        public IServerStateUpdater ServerStateUpdater => _serviceProvider.GetRequiredService<IServerStateUpdater>();
     }
 }

@@ -20,7 +20,9 @@ namespace Shaman.Launchers.Game.Routing
         private readonly IShamanLogger _logger;
         private IPendingTask _actualizeTask;
 
-        public GameToMmServerActualizer(IRequestSender requestSender, ITaskSchedulerFactory taskSchedulerFactory, IStatisticsProvider statsProvider, IApplicationConfig config, IShamanLogger logger, IMatchMakerInfoProvider matchMakerInfoProvider)
+        public GameToMmServerActualizer(IRequestSender requestSender, ITaskSchedulerFactory taskSchedulerFactory,
+            IStatisticsProvider statsProvider, IApplicationConfig config, IShamanLogger logger,
+            IMatchMakerInfoProvider matchMakerInfoProvider)
         {
             _requestSender = requestSender;
             _taskScheduler = taskSchedulerFactory.GetTaskScheduler();
@@ -30,7 +32,7 @@ namespace Shaman.Launchers.Game.Routing
             _config = config;
         }
 
-        public async Task Actualize(int peersCount)
+        public async Task Actualize(int peersCount, string state)
         {
             var request = new ActualizeServerOnMatchMakerRequest(_config.GetIdentity(), _config.ServerName,
                 _config.Region, _statsProvider.GetPeerCount(), _config.BindToPortHttp, 0);
@@ -45,7 +47,7 @@ namespace Shaman.Launchers.Game.Routing
             _actualizeTask = _taskScheduler.ScheduleOnInterval(async () =>
             {
                 //actualize
-                await Actualize(_statsProvider.GetPeerCount());
+                await Actualize(_statsProvider.GetPeerCount(), null);
             }, 2000, actualizationPeriodMs);
         }
 

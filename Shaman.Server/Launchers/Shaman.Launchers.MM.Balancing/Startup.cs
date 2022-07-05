@@ -63,6 +63,9 @@ namespace Shaman.Launchers.MM.Balancing
             services.AddSingleton<IMatchMakerServerInfoProvider, MatchMakerServerInfoProvider>();
             services.AddSingleton<IRoomApiProvider, DefaultRoomApiProvider>();
             services.AddSingleton<IServerActualizer, RouterServerActualizer>();
+            services.AddSingleton<ServerStateHolder>();
+            services.AddSingleton<IServerStateProvider>(p=>p.GetService<ServerStateHolder>());
+            services.AddSingleton<IServerStateUpdater>(p=>p.GetService<ServerStateHolder>());
             services.AddSingleton<IBundleInfoProvider, RouterBundleInfoProvider>();
             services.AddSingleton<IBundleLoader, BundleLoader>();
             //gets bundle settings from directory where bundle files are located

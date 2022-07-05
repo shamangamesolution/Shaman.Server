@@ -13,13 +13,15 @@ namespace Shaman.Routing.Balancing.Messages
         public int PeersCount { get; set; }
         public ushort HttpPort { get; set; }
         public ushort HttpsPort { get; set; }
-        
+        public string State { get; set; }
+
         public ActualizeServerOnRouterRequest() : base(RouterEndpoints.ActualizeServer)
         {
             
         }
         
-        public ActualizeServerOnRouterRequest(ServerIdentity serverIdentity, string name, string region, int peersCount, ushort httpPort = 0, ushort httpsPort = 0) : this()
+        public ActualizeServerOnRouterRequest(ServerIdentity serverIdentity, string name, string region, int peersCount,
+            ushort httpPort = 0, ushort httpsPort = 0, string state = null) : this()
         {
             ServerIdentity = serverIdentity;
             Name = name;
@@ -27,6 +29,7 @@ namespace Shaman.Routing.Balancing.Messages
             PeersCount = peersCount;
             HttpPort = httpPort;
             HttpsPort = httpsPort;
+            State = state;
         }
 
         protected override void SerializeRequestBody(ITypeWriter typeWriter)
@@ -37,6 +40,7 @@ namespace Shaman.Routing.Balancing.Messages
             typeWriter.Write(PeersCount);
             typeWriter.Write(HttpPort);
             typeWriter.Write(HttpsPort);
+            typeWriter.Write(State);
         }
 
         protected override void DeserializeRequestBody(ITypeReader typeReader)
@@ -47,6 +51,7 @@ namespace Shaman.Routing.Balancing.Messages
             PeersCount = typeReader.ReadInt();
             HttpPort = typeReader.ReadUShort();
             HttpsPort = typeReader.ReadUShort();
+            State = typeReader.ReadString();
         }
     }
 }
