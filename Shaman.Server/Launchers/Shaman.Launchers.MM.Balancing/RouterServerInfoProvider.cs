@@ -17,7 +17,7 @@ namespace Shaman.Launchers.MM.Balancing
     {
         private readonly IShamanLogger _logger;
         private readonly ITaskScheduler _taskScheduler;
-        private IRouterClient _routerClient;
+        private readonly IRouterClient _routerClient;
         private readonly IRouterServerInfoProviderConfig _config;
         private bool _isRequestingNow;
         private IPendingTask _getServerInfoTask;
