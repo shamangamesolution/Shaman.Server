@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
@@ -32,7 +33,7 @@ namespace Shaman.Router.Data.Repositories
                     Name = GetString(dt.Rows[i]["name"]),
                     Ports = GetString(dt.Rows[i]["ports"]),
                     Region = GetString(dt.Rows[i]["region"]),
-                    ActualizedGap = GetTimeSpan(dt.Rows[i]["actualized_gap"]),
+                    ActualizedGap = GetNullableTimeSpan(dt.Rows[i]["actualized_gap"]) ?? TimeSpan.Zero,
                     ClientVersion = GetString(dt.Rows[i]["client_version"]),
                     PeerCount = GetInt(dt.Rows[i]["peers_count"]),
                     IsApproved = GetBoolean(dt.Rows[i]["is_approved"]),

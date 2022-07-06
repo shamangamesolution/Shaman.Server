@@ -97,9 +97,9 @@ namespace Shaman.DAL.SQL.Repositories
             return Convert.ToBoolean(obj);
         }
 
-        protected TimeSpan GetTimeSpan(object obj)
+        protected TimeSpan? GetNullableTimeSpan(object obj)
         {
-            return TimeSpan.FromSeconds(Convert.ToInt64(obj));
+            return obj == DBNull.Value ? (TimeSpan?) null : TimeSpan.FromSeconds(Convert.ToInt64(obj));
         }
 
         protected DateTime GetDateTime(object obj)
