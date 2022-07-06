@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using Bro.BackEnd.Bootstrap;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,6 +16,7 @@ using Shaman.Router.Data.Repositories;
 using Shaman.Router.Data.Repositories.Interfaces;
 using Shaman.Router.Metrics;
 using Shaman.Serialization;
+using Shaman.ServiceBootstrap;
 using Shaman.ServiceBootstrap.Logging;
 
 namespace Shaman.Router

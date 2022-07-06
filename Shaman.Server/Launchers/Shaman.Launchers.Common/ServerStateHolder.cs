@@ -1,7 +1,7 @@
 using System;
 using Shaman.Contract.Bundle;
 
-namespace Shaman.Launchers.Common.Balancing;
+namespace Shaman.Launchers.Common;
 
 public class ServerStateHolder : IServerStateHolder
 {

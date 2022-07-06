@@ -1,4 +1,4 @@
-namespace Bro.BackEnd.Bootstrap;
+namespace Shaman.ServiceBootstrap;
 
 internal class LogOutputTemplateNames
 {

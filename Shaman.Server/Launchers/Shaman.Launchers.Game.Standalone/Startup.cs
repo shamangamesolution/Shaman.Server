@@ -11,7 +11,6 @@ using Shaman.Contract.Common.Logging;
 using Shaman.Game.Metrics;
 using Shaman.Game.Rooms;
 using Shaman.Launchers.Common;
-using Shaman.Launchers.Common.Balancing;
 using Shaman.Launchers.Common.Game;
 
 namespace Shaman.Launchers.Game.Standalone

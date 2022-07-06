@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Bro.BackEnd.Bootstrap;
+namespace Shaman.ServiceBootstrap;
 
 public interface IShamanWebStartup
 {

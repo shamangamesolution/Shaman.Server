@@ -13,7 +13,6 @@ using Shaman.Contract.Routing.Meta;
 using Shaman.Game.Metrics;
 using Shaman.Game.Rooms;
 using Shaman.Launchers.Common;
-using Shaman.Launchers.Common.Balancing;
 using Shaman.Launchers.Common.Game;
 using Shaman.Launchers.Game.Routing;
 
