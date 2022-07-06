@@ -89,6 +89,8 @@ namespace Shaman.Router
             var logger = services.GetRequiredService<IShamanLogger>();
             using (var scope = services.CreateScope())
             {
+                var routerDbInitializer = new RouterDbInitializer(services.GetRequiredService<IRouterSqlDalProvider>());
+                await routerDbInitializer.Initialize();
                 var serverInfoProvider = scope.ServiceProvider.GetRequiredService<IRouterServerInfoProvider>();
                 serverInfoProvider.Start();
 

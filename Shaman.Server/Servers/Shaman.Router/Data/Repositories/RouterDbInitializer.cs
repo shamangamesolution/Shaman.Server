@@ -1,11 +1,33 @@
-CREATE TABLE `bundles` (
+using System.Threading.Tasks;
+
+namespace Shaman.Router.Data.Repositories;
+
+public interface IRouterDbInitializer
+{
+    Task Initialize();
+}
+
+public class RouterDbInitializer : IRouterDbInitializer
+{
+    private readonly IRouterSqlDalProvider _routerSqlDalProvider;
+
+    public RouterDbInitializer(IRouterSqlDalProvider routerSqlDalProvider)
+    {
+        _routerSqlDalProvider = routerSqlDalProvider;
+    }
+
+    public async Task Initialize()
+    {
+        var dal = _routerSqlDalProvider.Get();
+        await dal.Execute(@"
+CREATE TABLE IF NOT EXISTS `bundles` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `server_id` int(11) NOT NULL,
   `uri` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE `servers` (
+CREATE TABLE IF NOT EXISTS `servers` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `address` varchar(256) NOT NULL DEFAULT '',
   `ports` varchar(64) NOT NULL DEFAULT '',
@@ -22,7 +44,7 @@ CREATE TABLE `servers` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
-CREATE TABLE `states` (
+CREATE TABLE IF NOT EXISTS `states` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `server_id` int(11) NOT NULL DEFAULT '0',
   `state` varchar(256) NOT NULL DEFAULT '',
@@ -30,3 +52,6 @@ CREATE TABLE `states` (
   `actualized_on` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+");
+    }
+}
