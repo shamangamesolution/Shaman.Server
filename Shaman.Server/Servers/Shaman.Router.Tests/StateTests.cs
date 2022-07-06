@@ -10,7 +10,6 @@ using Shaman.DAL.SQL;
 using Shaman.Router.Config;
 using Shaman.Router.Data.Providers;
 using Shaman.Router.Data.Repositories;
-using Shaman.Router.Data.Repositories.Interfaces;
 
 namespace Shaman.Router.Tests;
 
@@ -20,7 +19,6 @@ public class StateTests
     private IStatesManager _statesManager;
     private IShamanLogger _logger;
     private IRouterServerInfoProvider _serverInfoProvider;
-    private IConfigurationRepository _configurationRepository;
     private ITaskSchedulerFactory _taskSchedulerFactory;
 
     private static SqlDbConfig GetTestDbConfig()
@@ -47,10 +45,8 @@ public class StateTests
         });
         var dalProvider = new RouterSqlDalProvider(config);
 
-        _configurationRepository = new ConfigurationRepository(dalProvider);
-
         _serverInfoProvider =
-            new RouterServerInfoProvider(_configurationRepository, _taskSchedulerFactory, config, _logger);
+            new RouterServerInfoProvider(new ConfigurationRepository(dalProvider), _taskSchedulerFactory, config, _logger);
         _statesManager =
             new StatesManager(dalProvider, _serverInfoProvider, _logger, _taskSchedulerFactory, config);
     }
