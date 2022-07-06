@@ -11,6 +11,7 @@ using Shaman.Contract.Common.Logging;
 using Shaman.Game.Metrics;
 using Shaman.Game.Rooms;
 using Shaman.Launchers.Common;
+using Shaman.Launchers.Common.Balancing;
 using Shaman.Launchers.Common.Game;
 
 namespace Shaman.Launchers.Game.Standalone
@@ -51,6 +52,8 @@ namespace Shaman.Launchers.Game.Standalone
             services.AddSingleton<IBundleConfig, BundleConfig>();
             //metrics
             ConfigureMetrics<IGameMetrics, GameMetrics>(services);
+            // stub state updater for routerless config
+            services.AddSingleton<IServerStateHolder, ServerStateHolder>();
         }
         
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplication server,

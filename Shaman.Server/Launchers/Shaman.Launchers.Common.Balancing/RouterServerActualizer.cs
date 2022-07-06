@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using Shaman.Common.Http;
 using Shaman.Common.Server.Providers;
 using Shaman.Common.Utils.TaskScheduling;
+using Shaman.Contract.Bundle;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
 using Shaman.Contract.Routing.Actualization;
@@ -16,19 +17,19 @@ namespace Shaman.Launchers.Common.Balancing
         private readonly ITaskScheduler _taskScheduler;
         private readonly IRoutingConfig _routingConfig;
         private readonly IShamanLogger _logger;
-        private readonly IServerStateProvider _serverStateProvider;
+        private readonly IServerStateHolder _serverStateHolder;
 
         private IPendingTask _actualizeTask;
 
         public RouterServerActualizer(IStatisticsProvider statsProvider, ITaskSchedulerFactory taskSchedulerFactory,
             IRequestSender requestSender, IRoutingConfig routingConfig, IShamanLogger logger,
-            IServerStateProvider serverStateProvider)
+            IServerStateHolder serverStateHolder)
         {
             _statsProvider = statsProvider;
             _requestSender = requestSender;
             _routingConfig = routingConfig;
             _logger = logger;
-            _serverStateProvider = serverStateProvider;
+            _serverStateHolder = serverStateHolder;
             _taskScheduler = taskSchedulerFactory.GetTaskScheduler();
         }
 
@@ -47,7 +48,7 @@ namespace Shaman.Launchers.Common.Balancing
             _actualizeTask = _taskScheduler.ScheduleOnInterval(async () =>
              {
                  //actualize
-                 await Actualize(_statsProvider.GetPeerCount(), _serverStateProvider.Get());
+                 await Actualize(_statsProvider.GetPeerCount(), _serverStateHolder.Get());
              }, 0, actualizationPeriodMs);
         }
 

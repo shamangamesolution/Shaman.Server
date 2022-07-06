@@ -9,6 +9,6 @@ namespace Shaman.Contract.Bundle
         IBundleConfig Config { get; }
         IMetaProvider MetaProvider { get; }
         IGameServerApi GameServerApi { get; }
-        IServerStateUpdater ServerStateUpdater { get; }
+        IServerStateHolder ServerStateHolder { get; }
     }
 }

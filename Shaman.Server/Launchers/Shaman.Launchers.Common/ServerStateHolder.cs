@@ -1,12 +1,12 @@
 using System;
 using Shaman.Contract.Bundle;
-using Shaman.Contract.Routing.Actualization;
 
 namespace Shaman.Launchers.Common.Balancing;
 
-public class ServerStateHolder : IServerStateProvider, IServerStateUpdater
+public class ServerStateHolder : IServerStateHolder
 {
     private string actualState;
+
     public string Get()
     {
         return actualState;

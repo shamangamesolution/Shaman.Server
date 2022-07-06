@@ -53,9 +53,8 @@ namespace Shaman.Launchers.Game.Balancing
             services.AddSingleton<IBundleLoader, BundleLoader>();
 
             services.AddSingleton<IServerActualizer, RouterServerActualizer>();
-            services.AddSingleton<ServerStateHolder>();
-            services.AddSingleton<IServerStateProvider>(p=>p.GetService<ServerStateHolder>());
-            services.AddSingleton<IServerStateUpdater>(p=>p.GetService<ServerStateHolder>());
+            services.AddSingleton<IServerStateHolder, ServerStateHolder>();
+            services.AddSingleton<IServerStateProvider, ServerStateProvider>();
             services.AddSingleton<IRoutingConfig, RoutingConfig>(provider =>
             {
                 var config = provider.GetService<IApplicationConfig>();
@@ -79,9 +78,11 @@ namespace Shaman.Launchers.Game.Balancing
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplication server,
             IServerActualizer serverActualizer, IShamanLogger logger, IBundleLoader bundleLoader,
-            IShamanComponents shamanComponents, IBundledRoomControllerFactory roomControllerFactory)
+            IShamanComponents shamanComponents, IBundledRoomControllerFactory roomControllerFactory,
+            IServerStateProvider serverStateProvider, IServerStateHolder serverStateHolder)
         {
             //todo extract in one place
+            serverStateHolder.Update(serverStateProvider.GetState().Result);
             serverActualizer.Start(Convert.ToInt32(Configuration["ServerSettings:ActualizationIntervalMs"]));
             var gameBundle = bundleLoader.LoadTypeFromBundle<IGameBundle>();
             ConfigureGame(app, env, server, logger, gameBundle, roomControllerFactory, shamanComponents);
