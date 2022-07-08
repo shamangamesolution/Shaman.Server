@@ -5,7 +5,9 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
+using Shaman.Contract.Common.Logging;
 
 namespace Shaman.Bundling.Common
 {
@@ -19,14 +21,16 @@ namespace Shaman.Bundling.Common
     {
         private readonly string _bundleTempSubFolder = "shaman.bundles";
         private readonly IBundleInfoProvider _bundleInfoProvider;
+        private readonly IShamanLogger _logger;
         private readonly HashSet<string> _dll = new HashSet<string>();
         private readonly HashSet<string> _configs = new HashSet<string>();
 
         private string _publishDir;
         
-        public BundleLoader(IBundleInfoProvider bundleInfoProvider) 
+        public BundleLoader(IBundleInfoProvider bundleInfoProvider, IShamanLogger logger)
         {
             _bundleInfoProvider = bundleInfoProvider;
+            _logger = logger;
         }
 
         private string LoadFromHttp(string url, bool overwriteExisting = false)
@@ -81,7 +85,31 @@ namespace Shaman.Bundling.Common
             LoadAll(_publishDir);
         }
 
+        private const int BundleRetryMsec = 1500;
+
         public T LoadTypeFromBundle<T>()
+        {
+            bool messageSent = false;
+            while (true)
+            {
+                try
+                {
+                    return LoadTypeFromBundleImpl<T>();
+                }
+                catch (Exception e)
+                {
+                    if (!messageSent)
+                    {
+                        _logger.Error($"Retry bundle loading in {BundleRetryMsec:F1} sec: {e.Message}");
+                        messageSent = true;
+                    }
+
+                    Thread.Sleep(BundleRetryMsec);
+                }
+            }
+        }
+
+        public T LoadTypeFromBundleImpl<T>()
         {
             LoadBundle().Wait();
             Type targetType = null;

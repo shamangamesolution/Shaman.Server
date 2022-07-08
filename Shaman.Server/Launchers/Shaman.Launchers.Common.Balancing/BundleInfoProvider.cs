@@ -29,28 +29,6 @@ namespace Shaman.Launchers.Common.Balancing
                 _config.Ports, _config.Role);
         }
 
-        public async Task<string> GetBundleUri()
-        {
-            var messageSent = false;
-            while (true)
-            {
-                try
-                {
-                    return await GetBundleUriImpl();
-                }
-                catch (BundleNotFoundException e)
-                {
-                    if (!messageSent)
-                    {
-                        _logger.Error($"Retry bundle in 3 sec: {e.Message}");
-                        messageSent = true;
-                    }
-
-                    Thread.Sleep(BundleRetryMsec);
-                }
-            }
-        }
-
         public async Task<bool> GetToOverwriteExisting()
         {
             return _config.OverwriteBundle;
@@ -61,8 +39,7 @@ namespace Shaman.Launchers.Common.Balancing
             return _config.Role.ToString();
         }
 
-
-        private async Task<string> GetBundleUriImpl()
+        public async Task<string> GetBundleUri()
         {
             var serverIdentity = GetServerIdentity();
             var response = await _requestSender.SendRequest<GetBundleUriResponse>(_config.RouterUrl,
