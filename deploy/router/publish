@@ -1,5 +1,5 @@
 cat ~/.docker/shaman-pat-write | docker login  -u shamangamesolution --password-stdin
 
-docker build -t router-1.19.0 -f ../../Shaman.Server/Servers/Shaman.Router/Dockerfile ../../Shaman.Server
-docker tag router-1.19.0 shamangamesolution/shaman.server:router-1.19.0
-docker push shamangamesolution/shaman.server:router-1.19.0
+docker build -t router-1.20.0 -f ../../Shaman.Server/Servers/Shaman.Router/Dockerfile ../../Shaman.Server
+docker tag router-1.20.0 shamangamesolution/shaman.server:router-1.20.0
+docker push shamangamesolution/shaman.server:router-1.20.0
