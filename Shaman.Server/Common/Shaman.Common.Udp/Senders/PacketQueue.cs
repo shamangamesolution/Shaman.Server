@@ -65,7 +65,8 @@ namespace Shaman.Common.Udp.Senders
             if (_packetsQueue.Count > 0)
             {
                 var prevPacket = _packetsQueue.Last();
-                if (prevPacket.Length + length <= _maxPacketSize
+                if (prevPacket.Length + length <= _maxPacketSize 
+                    && prevPacket.AllowAppendPackage()
                     && prevPacket.IsReliable == deliveryOptions.IsReliable
                     && prevPacket.IsOrdered == deliveryOptions.IsOrdered)
                 {

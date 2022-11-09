@@ -92,14 +92,9 @@ namespace Shaman.Common.Udp.Sockets
 
         public void Append(Payload payload)
         {
-            Buffer[0]++;
-            Buffer[Length] = (byte) payload.Length;
-            Buffer[Length + 1] = (byte) (payload.Length >> 8);
-
-            System.Buffer.BlockCopy(payload.Buffer, payload.Offset, Buffer, Length + sizeof(ushort),
-                payload.Length);
-
-            Length += sizeof(ushort) + payload.Length;
+            IncrementPackets();
+            AppendLength(payload.Length);
+            AppendPayload(payload);
         }
 
         public void Append(Payload payloadPart1, Payload payloadPart2)
@@ -119,15 +114,36 @@ namespace Shaman.Common.Udp.Sockets
 
         private void IncrementPackets()
         {
+            if (!AllowAppendPackage())
+                throw new Exception("Packages count exceeded");
             Buffer[0]++;
+        }
+
+        public bool AllowAppendPackage()
+        {
+            return Buffer[0] != byte.MaxValue;
         }
 
         private void AppendLength(int length)
         {
-            Buffer[Length] = (byte) length;
-            Buffer[Length + 1] = (byte) (length >> 8);
-            Length += 2;
+            if (length > ushort.MaxValue)
+            {
+                Buffer[Length] = 0;
+                Buffer[Length + 1] = 0;
+                Buffer[Length + 2] = (byte) length;
+                Buffer[Length + 3] = (byte) (length >> 8);
+                Buffer[Length + 4] = (byte) (length >> 16);
+                Buffer[Length + 5] = (byte) (length >> 24);
+                Length += 6;
+            }
+            else
+            {
+                Buffer[Length] = (byte) length;
+                Buffer[Length + 1] = (byte) (length >> 8);
+                Length += 2;
+            }
         }
+
         protected override void DisposeImpl()
         {
             ArrayPool<byte>.Shared.Return(Buffer);
@@ -141,11 +157,18 @@ namespace Shaman.Common.Udp.Sockets
             var messageCount = array[offset];
             var totalOffset = offset + 1;
 
-            for (int i = 0; i < messageCount; i++)
+            for (var i = 0; i < messageCount; i++)
             {
-                var len = BitConverter.ToUInt16(new byte[2] {array[totalOffset], array[totalOffset + 1]}, 0);
-                yield return new OffsetInfo(totalOffset + sizeof(ushort), len);
-                totalOffset += sizeof(ushort) + len;
+                int len = BitConverter.ToUInt16(array, totalOffset);
+                totalOffset += 2;
+                if (len == 0)
+                {
+                    len = BitConverter.ToInt32(array, totalOffset);
+                    totalOffset += 4;
+                }
+
+                yield return new OffsetInfo(totalOffset, len);
+                totalOffset += len;
             }
         }
     };
