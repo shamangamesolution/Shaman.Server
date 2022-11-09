@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Shaman.Client.Peers;
@@ -48,7 +49,12 @@ public class NetworkTests
         taskScheduler.ScheduleOnInterval(() => { server.Tick(); }, 0, 20);
         await Task.Delay(1000);
         var length = 303075;
-        packetBatchSender.AddPacket(sender, new DeliveryOptions(true, false), new Payload(new byte[length], 0, length));
+        packetBatchSender.AddPacket(sender, new DeliveryOptions(true, false), BuildReadablePayload(length));
         await Task.Delay(2000);
+    }
+
+    private static Payload BuildReadablePayload(int length)
+    {
+        return new Payload(Enumerable.Range(0, length).Select((b, i) => (byte) ('0' + (i % 10))).ToArray(), 0, length);
     }
 }
