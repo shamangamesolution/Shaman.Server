@@ -51,7 +51,7 @@ namespace Shaman.Client.Peers
         public int SendTickTimeMs { get; set; }
     }
 
-    class ServerSender : IPeerSender
+    public class ServerSender : IPeerSender
     {
         private readonly IClientSocketFactory _clientSocketFactory;
         private readonly IShamanLogger _logger;
