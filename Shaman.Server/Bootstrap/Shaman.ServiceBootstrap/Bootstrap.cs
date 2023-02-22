@@ -107,6 +107,7 @@ namespace Shaman.ServiceBootstrap
                         .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Error)
                         .ReadFrom.Configuration(configurationManager)
                         .Enrich.FromLogContext()
+                        .Enrich.WithThreadId()
                         .Enrich.WithProperty("ServiceLabel", configurationManager["ServiceLabel"])
                         .Enrich.WithProperty("ServiceVersion", configurationManager["ServiceVersion"])
                         .Enrich.WithProperty("Host", Environment.MachineName);
