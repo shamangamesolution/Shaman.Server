@@ -28,28 +28,35 @@ namespace Shaman.ServiceBootstrap
                 .AddEnvironmentVariables()
                 .Build();
         }
-        
-        public static void LaunchWithCommonAndRoleConfig<T>(string configRole, Action<LoggerConfiguration, IConfiguration> configureLogging = null) where T : class
+
+        public static void LaunchWithCommonAndRoleConfig<T>(string configRole,
+            Action<LoggerConfiguration, IConfiguration> configureLogging = null) where T : class
         {
             BuildHostApp<T>(GetConfig(configRole), configureLogging).Run();
         }
-        
-        public static void Launch<T>(IConfigurationRoot config, Action<LoggerConfiguration, IConfiguration> configureLogging = null) where T : class
+
+        public static void Launch<T>(IConfigurationRoot config,
+            Action<LoggerConfiguration, IConfiguration> configureLogging = null) where T : class
         {
             BuildHostApp<T>(config, configureLogging).Run();
         }
 
-        public static async Task RunWebApp<TStartup>(string[] args) where TStartup : IShamanWebStartup, new()
+        public static async Task RunWebApp<TStartup>(string[] args,
+            Action<LoggerConfiguration, IConfiguration> configureLogging = null)
+            where TStartup : IShamanWebStartup, new()
         {
-            await (await BuildWebApp<TStartup>(args)).RunAsync();
+            await (await BuildWebApp<TStartup>(args, configureLogging)).RunAsync();
         }
 
-        public static Task<WebApplication> BuildWebApp<TStartup>() where TStartup : IShamanWebStartup, new()
+        public static Task<WebApplication> BuildWebApp<TStartup>(
+            Action<LoggerConfiguration, IConfiguration> configureLogging = null)
+            where TStartup : IShamanWebStartup, new()
         {
-            return BuildWebApp<TStartup>(Array.Empty<string>());
+            return BuildWebApp<TStartup>(Array.Empty<string>(), configureLogging);
         }
 
-        public static async Task<WebApplication> BuildWebApp<TStartup>(string[] args)
+        public static async Task<WebApplication> BuildWebApp<TStartup>(string[] args,
+            Action<LoggerConfiguration, IConfiguration> configureLogging = null)
             where TStartup : IShamanWebStartup, new()
         {
             var startup = new TStartup();
@@ -58,7 +65,7 @@ namespace Shaman.ServiceBootstrap
             var webAppBuilder = WebApplication.CreateBuilder(args);
             var configurationManager = webAppBuilder.Configuration;
             var port = configurationManager["CommonSettings:BindToPortHttp"];
-            UseSerilog(webAppBuilder.Host, configurationManager);
+            UseSerilog(webAppBuilder.Host, configurationManager, configureLogging);
             UseKestrel(webAppBuilder.WebHost, port);
             webAppBuilder.Services
                 .AddControllers(startup.AddMvcOptions)
