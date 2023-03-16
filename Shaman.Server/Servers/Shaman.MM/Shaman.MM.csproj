@@ -11,7 +11,7 @@
 
         <!--        Raise Newtonsoft.Json to actual version as it may be declared in bundle 
             and Microsoft.AspNetCore.App (included previously) depends on 11.x cversion -->
-        <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 
     </ItemGroup>
     
