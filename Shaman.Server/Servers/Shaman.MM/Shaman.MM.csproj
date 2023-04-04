@@ -7,7 +7,7 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
-        <PackageReference Include="Serilog.AspNetCore" Version="5.0.0" />
+        <PackageReference Include="Serilog.AspNetCore" Version="6.1.0" />
 
         <!--        Raise Newtonsoft.Json to actual version as it may be declared in bundle 
             and Microsoft.AspNetCore.App (included previously) depends on 11.x cversion -->
