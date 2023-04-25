@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using System.Linq;
 using Shaman.Contract.Routing;
 
 namespace Shaman.Common.Server.Configuration
@@ -29,7 +29,7 @@ namespace Shaman.Common.Server.Configuration
 
         public ServerIdentity GetIdentity()
         {
-            return new ServerIdentity(PublicDomainNameOrAddress, ListenPorts, ServerRole);;
+            return new ServerIdentity(PublicDomainNameOrAddress, this.GetPortDefinitions().Select(d=>d.Port), ServerRole);;
         }
     }
 }
