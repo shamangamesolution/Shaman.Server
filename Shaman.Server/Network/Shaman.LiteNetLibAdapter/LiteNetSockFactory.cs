@@ -12,7 +12,7 @@ namespace Shaman.LiteNetLibAdapter
             _logger = logger;
         }
 
-        public ITransportLayer GetLayer(string protocol)
+        public ITransportLayer GetLayer(ListenProtocol protocol)
         {
             return new LiteNetSock(_logger);
         }

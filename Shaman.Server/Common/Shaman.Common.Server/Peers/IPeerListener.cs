@@ -13,7 +13,7 @@ namespace Shaman.Common.Server.Peers
         where T : class, IPeer, new()
     {
         void Initialize(IShamanLogger logger, IPeerCollection<T> peerCollection, ISerializer serializer,
-            IApplicationConfig config, ITaskSchedulerFactory taskSchedulerFactory, ushort port,
+            IApplicationConfig config, ITaskSchedulerFactory taskSchedulerFactory, ListenPortDefinition port,
             IServerTransportLayerFactory serverTransportLayerFactory, IRequestSender requestSender,
             IProtectionManager banManager);
         void Listen();

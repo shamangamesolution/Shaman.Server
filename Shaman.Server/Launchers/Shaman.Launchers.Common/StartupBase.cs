@@ -101,8 +101,7 @@ namespace Shaman.Launchers.Common
             var settings = new T();
             var configurationSection = Configuration.GetSection("CommonSettings");
             configurationSection.Bind(settings);
-            var ports = Configuration["CommonSettings:ListenPorts"].Split(',').Select(s => Convert.ToUInt16(s)).ToList();
-            settings.ListenPorts = ports;
+            settings.ListenPorts = Configuration["CommonSettings:ListenPorts"];
             services.AddSingleton<IApplicationConfig>(c => settings);
         }
 

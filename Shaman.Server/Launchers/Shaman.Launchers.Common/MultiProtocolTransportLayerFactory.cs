@@ -18,21 +18,13 @@ public class MultiProtocolTransportLayerFactory : IServerTransportLayerFactory
         _logger = logger;
     }
 
-    public ITransportLayer GetLayer(string protocol)
+    public ITransportLayer GetLayer(ListenProtocol protocol)
     {
-        if (string.IsNullOrEmpty(protocol))
-        {
-            _logger.Info("No protocol specified, using default (udp)");
-            return new LiteNetSock(_logger);
-        }
-
         switch (protocol)
         {
-            case "udp":
-                _logger.Info("Using udp protocol");
+            case ListenProtocol.Udp:
                 return new LiteNetSock(_logger);
-            case "ws":
-                _logger.Info("Using websocket protocol");
+            case ListenProtocol.WebSocket:
                 return new WebSocketServerTransport(_taskSchedulerFactory.GetTaskScheduler(), _logger);
         }
 

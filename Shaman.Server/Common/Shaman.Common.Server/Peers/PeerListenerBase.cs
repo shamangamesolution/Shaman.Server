@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Net;
 using Shaman.Common.Http;
 using Shaman.Common.Server.Configuration;
@@ -42,7 +43,7 @@ namespace Shaman.Common.Server.Peers
 
         public abstract void OnReceivePacketFromClient(IPEndPoint endPoint, DataPacket dataPacket);
 
-        private ushort _port;
+        private ListenPortDefinition _port;
         private IServerTransportLayerFactory _serverTransportLayerFactory;
         protected IRequestSender RequestSender;
 
@@ -68,7 +69,7 @@ namespace Shaman.Common.Server.Peers
         }       
         
         public virtual void Initialize(IShamanLogger logger, IPeerCollection<T> peerCollection, ISerializer serializer,
-            IApplicationConfig config, ITaskSchedulerFactory taskSchedulerFactory, ushort port,
+            IApplicationConfig config, ITaskSchedulerFactory taskSchedulerFactory, ListenPortDefinition port,
             IServerTransportLayerFactory serverTransportLayerFactory, IRequestSender requestSender,
             IProtectionManager protectionManager) 
         {
@@ -91,16 +92,11 @@ namespace Shaman.Common.Server.Peers
         
         public void Listen()
         {
-            _reliableSocket =
-                _serverTransportLayerFactory.GetLayer(
-                    Config.ProtocolByPort != null &&
-                    Config.ProtocolByPort.TryGetValue(_port.ToString(), out var protocol)
-                        ? protocol
-                        : null);
+            _reliableSocket = _serverTransportLayerFactory.GetLayer(_port.Protocol);
             _logger.Info($"Network impl {_reliableSocket.GetType().Name} created");
 
             _reliableSocket.AddEventCallbacks(OnReceivePacket, OnNewClientConnect, OnClientDisconnect);
-            _reliableSocket.Listen(_port);
+            _reliableSocket.Listen(_port.Port);
             
             _lastTick = DateTime.UtcNow;
             _isTicking = false;
@@ -140,7 +136,7 @@ namespace Shaman.Common.Server.Peers
 
         public ushort GetListenPort()
         {
-            return _port;
+            return _port.Port;
         }
 
         public virtual bool OnNewClientConnect(IPEndPoint endPoint)

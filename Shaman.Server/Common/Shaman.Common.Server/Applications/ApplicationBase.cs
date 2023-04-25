@@ -78,9 +78,7 @@ namespace Shaman.Common.Server.Applications
 //            Serializer.InitializeDefaultSerializers(8, $"Simple{this.GetType()}Buffer");
             Logger.Debug($"Serializer factory initialized as {Serializer.GetType()}");
             //initialize listener
-            if (Config.ProtocolByPort == null && Config.ListenPorts.Count > 1)
-                Logger.Warning("Multiple ports specified but ProtocolByPort configuration is not set");
-            foreach (var port in Config.ListenPorts)
+            foreach (var port in Config.GetPortDefinitions())
             {
                 var peerListener = new TL();
                 peerListener.Initialize(Logger, PeerCollection, Serializer, Config, TaskSchedulerFactory, port,
