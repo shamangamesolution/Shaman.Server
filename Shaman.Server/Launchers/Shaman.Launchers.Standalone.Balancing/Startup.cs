@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -46,7 +47,7 @@ namespace Shaman.Launchers.Standalone.Balancing
                     Convert.ToBoolean(Configuration["LauncherSettings:OverwriteDownloadedBundle"]),
                     Configuration["LauncherSettings:RouterUrl"],
                     config.PublicDomainNameOrAddress, 
-                    config.ListenPorts, 
+                    config.GetPortDefinitions().Select(d=>d.Port), 
                     config.ServerRole);
             });
             services.AddSingleton<IBundleInfoProvider, RouterBundleInfoProvider>();

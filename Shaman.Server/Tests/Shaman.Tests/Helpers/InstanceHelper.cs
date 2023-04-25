@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Moq;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Server.Protection;
@@ -51,7 +52,7 @@ namespace Shaman.Tests.Helpers
             var config = new ApplicationConfig
             {
                 PublicDomainNameOrAddress = "127.0.0.1",
-                ListenPorts = new List<ushort> {mmPort},
+                ListenPorts = $"{mmPort}",
                 BindToPortHttp = 7002,
                 MaxPacketSize = 300,
                 BasePacketBufferSize = 64,
@@ -115,7 +116,7 @@ namespace Shaman.Tests.Helpers
             var config = new ApplicationConfig
             {
                 PublicDomainNameOrAddress = "127.0.0.1",
-                ListenPorts = gamePorts,
+                ListenPorts = string.Join(",", gamePorts.Select(p => p.ToString())),
                 BindToPortHttp = 7000,
                 MaxPacketSize = 300,
                 BasePacketBufferSize = 64,

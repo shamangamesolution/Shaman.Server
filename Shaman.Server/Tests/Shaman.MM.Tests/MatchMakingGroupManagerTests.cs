@@ -46,7 +46,7 @@ namespace Shaman.MM.Tests
             var config = new ApplicationConfig
             {
                 PublicDomainNameOrAddress = "127.0.0.1",
-                ListenPorts = new List<ushort> {0},
+                ListenPorts = "0",
                 IsAuthOn = false,
                 BindToPortHttp = 7002
             };
