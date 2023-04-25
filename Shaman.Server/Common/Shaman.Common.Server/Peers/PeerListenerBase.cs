@@ -98,9 +98,9 @@ namespace Shaman.Common.Server.Peers
                         ? protocol
                         : null);
             _logger.Info($"Network impl {_reliableSocket.GetType().Name} created");
-            _reliableSocket.Listen(_port);
-            
+
             _reliableSocket.AddEventCallbacks(OnReceivePacket, OnNewClientConnect, OnClientDisconnect);
+            _reliableSocket.Listen(_port);
             
             _lastTick = DateTime.UtcNow;
             _isTicking = false;
