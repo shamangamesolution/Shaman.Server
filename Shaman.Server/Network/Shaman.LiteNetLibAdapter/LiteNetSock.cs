@@ -8,7 +8,7 @@ using Shaman.Contract.Common.Logging;
 
 namespace Shaman.LiteNetLibAdapter
 {
-    public class LiteNetSock : IReliableSock
+    public class LiteNetSock : ITransportLayer
     {
         private readonly EventBasedNetListener _listener;
         private readonly NetManager _peer;

@@ -30,6 +30,6 @@ public class ShamanClientFactory
         
     public IShamanClientPeer GetClient()
     {
-        return new ShamanClientPeer(_logger, _taskSchedulerFactory, _serializer, _requestSender, _clientPeerListener, _clientPeerConfig, new LiteNetClientSocketFactory());
+        return new ShamanClientPeer(_logger, _taskSchedulerFactory, _serializer, _requestSender, _clientPeerListener, _clientPeerConfig, new LiteNetClientTransportLayerFactory());
     }
 }

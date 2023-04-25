@@ -44,9 +44,9 @@ namespace Shaman.Tests.Helpers
         
         public static MmApplication GetMm(ushort mmPort, ushort gamePort, GameApplication gameApplication, int maximumPlayers = 2, int mmTime = 10000, int ddosConnectionsLevel = 300, int ddosConnectionCheckInterval = 5000)
         {
-            var socketFactory = new LiteNetSockFactory();
-            var serializer = new BinarySerializer();
             var serverLogger = new ConsoleLogger("M ", LogLevel.Error | LogLevel.Info | LogLevel.Debug);
+            var socketFactory = new LiteNetSockFactory(serverLogger);
+            var serializer = new BinarySerializer();
 
             var config = new ApplicationConfig
             {
@@ -105,7 +105,7 @@ namespace Shaman.Tests.Helpers
         {
             var _roomControllerFactory = new FakeRoomControllerFactory();
             var serverLogger = new ConsoleLogger("G ", LogLevel.Error | LogLevel.Info | LogLevel.Debug);
-            var socketFactory = new LiteNetSockFactory();
+            var socketFactory = new LiteNetSockFactory(serverLogger);
             var serializer = new BinarySerializer();
             var taskSchedulerFactory = new TaskSchedulerFactory(serverLogger);
             var protectionManagerConfig = new ConnectionDdosProtectionConfig(300, 5000, 5000, 60000);

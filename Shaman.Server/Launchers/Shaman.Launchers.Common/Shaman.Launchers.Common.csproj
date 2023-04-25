@@ -25,6 +25,7 @@
       <ProjectReference Include="..\..\Contracts\Shaman.Contract.Common\Shaman.Contract.Common.csproj" />
       <ProjectReference Include="..\..\Bootstrap\Shaman.ServiceBootstrap\Shaman.ServiceBootstrap.csproj" />
       <ProjectReference Include="..\..\Network\Shaman.LiteNetLibAdapter\Shaman.LiteNetLibAdapter.csproj" />
+      <ProjectReference Include="..\..\Network\Shaman.WsNetworkLayer\Shaman.WsNetworkLayer.csproj" />
     </ItemGroup>
 
     <ItemGroup>

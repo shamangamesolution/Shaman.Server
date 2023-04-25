@@ -7,7 +7,7 @@ namespace Shaman.Common.Server.Peers
     public interface IPeerCollection<T> 
         where T : class, IPeer, new()
     {
-        void Add(IPEndPoint endPoint, IReliableSock socket);
+        void Add(IPEndPoint endPoint, ITransportLayer socket);
         void Remove(IPEndPoint endPoint);
         void RemoveAll();
         T Get(IPEndPoint endPoint);

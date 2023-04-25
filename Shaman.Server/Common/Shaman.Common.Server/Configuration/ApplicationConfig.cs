@@ -6,6 +6,7 @@ namespace Shaman.Common.Server.Configuration
     public class ApplicationConfig : IApplicationConfig
     {
         public string PublicDomainNameOrAddress { get; set; }
+        public Dictionary<string, string> ProtocolByPort { get; set; }
         public List<ushort> ListenPorts { get; set; }
         public int SocketTickTimeMs { get; set; }
         public int ReceiveTickTimeMs { get; set; }

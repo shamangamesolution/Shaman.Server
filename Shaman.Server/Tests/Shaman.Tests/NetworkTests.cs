@@ -42,7 +42,7 @@ public class NetworkTests
             },
             (point, info) => { logger.LogInfo($"[server] disconnected {point} {info.Reason}"); });
         server.Listen(62222);
-        var sender = new ServerSender(new LiteNetClientSocketFactory(), logger,
+        var sender = new ServerSender(new LiteNetClientTransportLayerFactory(), logger,
             (packet, action) => { logger.LogInfo($"[client] received some {packet.Length}"); },
             taskScheduler);
         sender.Connect("127.0.0.1", 62222);

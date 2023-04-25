@@ -100,7 +100,7 @@ namespace Shaman.Bundling.Common
                 {
                     if (!messageSent)
                     {
-                        _logger.Error($"Retry bundle loading in {BundleRetryMsec:F1} sec: {e.Message}");
+                        _logger.Error($"Retry bundle loading in {BundleRetryMsec:F1} sec: {e}");
                         messageSent = true;
                     }
 
@@ -130,9 +130,7 @@ namespace Shaman.Bundling.Common
                 catch (FileLoadException e)
                 {
                     if (!e.Message.Equals("Assembly with same name is already loaded"))
-                    {
                         throw;
-                    }
                 }
                 catch (Exception e)
                 {

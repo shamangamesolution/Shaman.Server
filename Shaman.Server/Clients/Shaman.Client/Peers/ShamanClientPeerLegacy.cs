@@ -93,7 +93,7 @@ namespace Shaman.Client.Peers
 
         public ShamanClientPeerLegacy(IMessageDeserializer messageDeserializer, IShamanLogger logger,
             ITaskSchedulerFactory taskSchedulerFactory, int pollPackageQueueIntervalMs, ISerializer serializer,
-            IRequestSender requestSender, IClientSocketFactory clientSocketFactory, bool startOtherThreadMessageProcessing = true, int maxPacketSize = 300,
+            IRequestSender requestSender, IClientTransportLayerFactory clientTransportLayerFactory, bool startOtherThreadMessageProcessing = true, int maxPacketSize = 300,
             int sendTickMs = 33)
         {
             _status = ClientStatusLegacy.Offline;
@@ -103,7 +103,7 @@ namespace Shaman.Client.Peers
             _taskScheduler = taskSchedulerFactory.GetTaskScheduler();
             _serializer = serializer;
 //            _serializer.InitializeDefaultSerializers(0, "client");
-            _clientPeer = new ClientPeer(logger, clientSocketFactory, taskSchedulerFactory, maxPacketSize,
+            _clientPeer = new ClientPeer(logger, clientTransportLayerFactory, taskSchedulerFactory, maxPacketSize,
                 sendTickMs);
             _requestSender = requestSender;
             _clientPeer.OnDisconnectedFromServer += (reason) =>

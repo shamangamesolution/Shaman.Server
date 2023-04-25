@@ -14,7 +14,8 @@ namespace Shaman.Common.Server.Peers
     {
         void Initialize(IShamanLogger logger, IPeerCollection<T> peerCollection, ISerializer serializer,
             IApplicationConfig config, ITaskSchedulerFactory taskSchedulerFactory, ushort port,
-            ISocketFactory socketFactory, IRequestSender requestSender, IProtectionManager banManager);
+            IServerTransportLayerFactory serverTransportLayerFactory, IRequestSender requestSender,
+            IProtectionManager banManager);
         void Listen();
         ushort GetListenPort();
         void StopListening();

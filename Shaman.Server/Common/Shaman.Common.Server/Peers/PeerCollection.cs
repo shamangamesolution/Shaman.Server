@@ -24,7 +24,7 @@ namespace Shaman.Common.Server.Peers
             _config = config;
         }
         
-        public void Add(IPEndPoint endPoint, IReliableSock socket)
+        public void Add(IPEndPoint endPoint, ITransportLayer socket)
         {
             var peer = new T();
             peer.Initialize(endPoint, Guid.NewGuid(), socket, _serializer, _config, _logger);            

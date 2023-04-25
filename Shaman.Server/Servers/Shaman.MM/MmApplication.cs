@@ -35,7 +35,7 @@ namespace Shaman.MM
             IShamanLogger logger,
             IApplicationConfig config,
             ISerializer serializer,
-            ISocketFactory socketFactory,
+            IServerTransportLayerFactory serverTransportLayerFactory,
             IMatchMaker matchMaker,
             IRequestSender requestSender,
             ITaskSchedulerFactory taskSchedulerFactory,
@@ -43,7 +43,7 @@ namespace Shaman.MM
             IShamanMessageSenderFactory messageSenderFactory,
             IMatchMakerServerInfoProvider serverProvider,
             IRoomManager roomManager, IMatchMakingGroupsManager matchMakingGroupManager, IPlayersManager playersManager, IMmMetrics mmMetrics, IProtectionManager protectionManager) : base(logger, config, serializer,
-            socketFactory, taskSchedulerFactory, requestSender, mmMetrics, protectionManager)
+            serverTransportLayerFactory, taskSchedulerFactory, requestSender, mmMetrics, protectionManager)
         {
             _packetSender = packetSender;
             _messageSenderFactory = messageSenderFactory;

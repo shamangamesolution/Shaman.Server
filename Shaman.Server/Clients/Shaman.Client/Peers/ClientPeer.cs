@@ -53,10 +53,10 @@ namespace Shaman.Client.Peers
 
     public class ServerSender : IPeerSender
     {
-        private readonly IClientSocketFactory _clientSocketFactory;
+        private readonly IClientTransportLayerFactory _clientTransportLayerFactory;
         private readonly IShamanLogger _logger;
         private readonly Action<DataPacket, Action> _onPackageReceived;
-        private IReliableSock _socket;
+        private ITransportLayer _socket;
         private IPendingTask _socketTickTask = null;
         private IPEndPoint _ep;
         private readonly ITaskScheduler _taskScheduler;
@@ -68,11 +68,11 @@ namespace Shaman.Client.Peers
         private object _isTickingMutex = new object();
         private readonly object _stateSync = new object();
 
-        public ServerSender(IClientSocketFactory clientSocketFactory, IShamanLogger logger,
+        public ServerSender(IClientTransportLayerFactory clientTransportLayerFactory, IShamanLogger logger,
             Action<DataPacket, Action> onPackageReceived,
             ITaskScheduler taskScheduler)
         {
-            _clientSocketFactory = clientSocketFactory;
+            _clientTransportLayerFactory = clientTransportLayerFactory;
             _logger = logger;
             _onPackageReceived = onPackageReceived;
             _taskScheduler = taskScheduler;
@@ -100,7 +100,7 @@ namespace Shaman.Client.Peers
 
         public void Connect(string address, int port)
         {
-            _socket = _clientSocketFactory.Create(_logger);
+            _socket = _clientTransportLayerFactory.Create(_logger);
 
             _socket.OnPacketReceived += (endPoint, dataPacket, release) =>
             {
@@ -217,7 +217,7 @@ namespace Shaman.Client.Peers
     public class ClientPeer
     {
         private readonly IShamanLogger _logger;
-        private readonly IClientSocketFactory _clientSocketFactory;
+        private readonly IClientTransportLayerFactory _clientTransportLayerFactory;
         private readonly object _queueSync = new object();
         private readonly Queue<IPacketInfo> _packets = new Queue<IPacketInfo>();
 
@@ -255,14 +255,14 @@ namespace Shaman.Client.Peers
             return _serverSender.GetPing();
         }
 
-        public ClientPeer(IShamanLogger logger, IClientSocketFactory clientSocketFactory, ITaskSchedulerFactory taskSchedulerFactory, int maxMessageSize,
+        public ClientPeer(IShamanLogger logger, IClientTransportLayerFactory clientTransportLayerFactory, ITaskSchedulerFactory taskSchedulerFactory, int maxMessageSize,
             int sendTickMs)
         {
             _logger = logger;
-            _clientSocketFactory = clientSocketFactory;
+            _clientTransportLayerFactory = clientTransportLayerFactory;
             var clientPacketSenderConfig = new ClientPacketSenderConfig(maxMessageSize, sendTickMs);
             _packetBatchSender = new PacketBatchSender(taskSchedulerFactory, clientPacketSenderConfig, _logger);
-            _serverSender = new ServerSender(clientSocketFactory, logger, OnPackageReceived, taskSchedulerFactory.GetTaskScheduler());
+            _serverSender = new ServerSender(clientTransportLayerFactory, logger, OnPackageReceived, taskSchedulerFactory.GetTaskScheduler());
             _shamanSender = new ShamanSender(new BinarySerializer(), _packetBatchSender, clientPacketSenderConfig);
         }
 

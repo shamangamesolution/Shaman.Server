@@ -23,10 +23,10 @@ namespace Shaman.Game
         private readonly IShamanMessageSenderFactory _messageSenderFactory;
 
         public GameApplication(IShamanLogger logger, IApplicationConfig config, ISerializer serializer,
-            ISocketFactory socketFactory, ITaskSchedulerFactory taskSchedulerFactory, IRequestSender requestSender,
+            IServerTransportLayerFactory serverTransportLayerFactory, ITaskSchedulerFactory taskSchedulerFactory, IRequestSender requestSender,
             IRoomManager roomManager, IPacketSender packetSender, IGameMetrics gameMetrics,
             IShamanMessageSenderFactory messageSenderFactory, IProtectionManager protectionManager ) :
-            base(logger, config, serializer, socketFactory, taskSchedulerFactory, requestSender, gameMetrics, protectionManager)
+            base(logger, config, serializer, serverTransportLayerFactory, taskSchedulerFactory, requestSender, gameMetrics, protectionManager)
         {
             _roomManager = roomManager;
             _packetSender = packetSender;

@@ -15,7 +15,7 @@ namespace Shaman.Common.Server.Peers
         where T : class, IPeer, new()
 
     {
-        private IReliableSock _reliableSocket;
+        private ITransportLayer _reliableSocket;
         private bool _isStopping = false;
         private bool _isTicking = false;
         private object _isTickingMutex = new object();
@@ -43,7 +43,7 @@ namespace Shaman.Common.Server.Peers
         public abstract void OnReceivePacketFromClient(IPEndPoint endPoint, DataPacket dataPacket);
 
         private ushort _port;
-        private ISocketFactory _socketFactory;
+        private IServerTransportLayerFactory _serverTransportLayerFactory;
         protected IRequestSender RequestSender;
 
         private void OnReceivePacket(IPEndPoint endPoint, DataPacket data, Action release)
@@ -69,7 +69,8 @@ namespace Shaman.Common.Server.Peers
         
         public virtual void Initialize(IShamanLogger logger, IPeerCollection<T> peerCollection, ISerializer serializer,
             IApplicationConfig config, ITaskSchedulerFactory taskSchedulerFactory, ushort port,
-            ISocketFactory socketFactory, IRequestSender requestSender, IProtectionManager protectionManager) 
+            IServerTransportLayerFactory serverTransportLayerFactory, IRequestSender requestSender,
+            IProtectionManager protectionManager) 
         {
             _logger = logger;
             PeerCollection = peerCollection;
@@ -78,7 +79,7 @@ namespace Shaman.Common.Server.Peers
             _taskSchedulerFactory = taskSchedulerFactory;
             TaskScheduler = _taskSchedulerFactory.GetTaskScheduler();
             _port = port;
-            _socketFactory = socketFactory;
+            _serverTransportLayerFactory = serverTransportLayerFactory;
             RequestSender = requestSender;
             _protectionManager = protectionManager;
         }
@@ -90,18 +91,13 @@ namespace Shaman.Common.Server.Peers
         
         public void Listen()
         {
-            //create reliable socket
-            switch (Config.SocketType)
-            {
-                case SocketType.BareSocket:
-                    _reliableSocket = _socketFactory.GetReliableSockWithBareSocket(_logger);
-                    break;
-                case SocketType.ThreadSocket:
-                    _reliableSocket = _socketFactory.GetReliableSockWithThreadSocket(_logger);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+            _reliableSocket =
+                _serverTransportLayerFactory.GetLayer(
+                    Config.ProtocolByPort != null &&
+                    Config.ProtocolByPort.TryGetValue(_port.ToString(), out var protocol)
+                        ? protocol
+                        : null);
+            _logger.Info($"Network impl {_reliableSocket.GetType().Name} created");
             _reliableSocket.Listen(_port);
             
             _reliableSocket.AddEventCallbacks(OnReceivePacket, OnNewClientConnect, OnClientDisconnect);

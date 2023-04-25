@@ -33,7 +33,7 @@ namespace Shaman.MM.Tests.Fakes
             return _sessionId;
         }
 
-        public void Initialize(IPEndPoint endpoint, Guid peerId, IReliableSock socket, ISerializer serializer,
+        public void Initialize(IPEndPoint endpoint, Guid peerId, ITransportLayer socket, ISerializer serializer,
             IApplicationConfig config, IShamanLogger logger)
         {
             throw new NotImplementedException();

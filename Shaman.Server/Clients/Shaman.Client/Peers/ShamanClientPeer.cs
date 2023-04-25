@@ -86,7 +86,7 @@ namespace Shaman.Client.Peers
         public ShamanClientPeer(IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory,
             ISerializer serializer, IRequestSender requestSender,
             IShamanClientPeerListener listener, IShamanClientPeerConfig config,
-            IClientSocketFactory clientSocketFactory)
+            IClientTransportLayerFactory clientTransportLayerFactory)
         {
             _status = ShamanClientStatus.Offline;
 
@@ -96,7 +96,7 @@ namespace Shaman.Client.Peers
             _logger = logger;
             _taskScheduler = taskSchedulerFactory.GetTaskScheduler();
 //            _serializer.InitializeDefaultSerializers(0, "client");
-            _clientPeer = new ClientPeer(logger, clientSocketFactory, taskSchedulerFactory, config.MaxPacketSize, config.SendTickMs);
+            _clientPeer = new ClientPeer(logger, clientTransportLayerFactory, taskSchedulerFactory, config.MaxPacketSize, config.SendTickMs);
             _requestSender = requestSender;
             _listener = listener;
             _clientPeer.OnDisconnectedFromServer += (reason) =>

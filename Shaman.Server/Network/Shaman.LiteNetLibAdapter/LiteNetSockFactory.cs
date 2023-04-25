@@ -3,21 +3,23 @@ using Shaman.Contract.Common.Logging;
 
 namespace Shaman.LiteNetLibAdapter
 {
-    public class LiteNetSockFactory : ISocketFactory
+    public class LiteNetSockFactory : IServerTransportLayerFactory
     {
-        public IReliableSock GetReliableSockWithBareSocket(IShamanLogger logger)
+        private readonly IShamanLogger _logger;
+
+        public LiteNetSockFactory(IShamanLogger logger)
         {
-            return new LiteNetSock(logger);
+            _logger = logger;
         }
 
-        public IReliableSock GetReliableSockWithThreadSocket(IShamanLogger logger)
+        public ITransportLayer GetLayer(string protocol)
         {
-            return new LiteNetSock(logger);
+            return new LiteNetSock(_logger);
         }
     }
-    public class LiteNetClientSocketFactory : IClientSocketFactory
+    public class LiteNetClientTransportLayerFactory : IClientTransportLayerFactory
     {
-        public IReliableSock Create(IShamanLogger logger)
+        public ITransportLayer Create(IShamanLogger logger)
         {
             return new LiteNetSock(logger);
         }

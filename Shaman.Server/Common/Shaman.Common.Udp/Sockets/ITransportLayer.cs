@@ -32,7 +32,7 @@ namespace Shaman.Common.Udp.Sockets
         public Payload Payload { get; }
     }
 
-    public interface IReliableSock
+    public interface ITransportLayer
     {
         //todo split it, finally
 

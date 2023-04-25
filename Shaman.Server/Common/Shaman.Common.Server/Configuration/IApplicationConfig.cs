@@ -13,6 +13,7 @@ namespace Shaman.Common.Server.Configuration
     public interface IApplicationConfig: IPacketSenderConfig, IProtectionManagerConfig
     {
         string PublicDomainNameOrAddress { get; set; }
+        Dictionary<string, string> ProtocolByPort { get; set; }
         List<ushort> ListenPorts { get; set; }
         int SocketTickTimeMs { get; set; }
         int ReceiveTickTimeMs { get; set; }

@@ -1,3 +1,4 @@
+
 namespace Shaman.Contract.Bundle
 {
     public interface IGameBundle

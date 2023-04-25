@@ -14,7 +14,7 @@ namespace Shaman.Common.Server.Peers
         void SetSessionId(Guid sessionId);
         Guid GetSessionId();
 
-        void Initialize(IPEndPoint endpoint, Guid peerId, IReliableSock socket, ISerializer serializer,
+        void Initialize(IPEndPoint endpoint, Guid peerId, ITransportLayer socket, ISerializer serializer,
             IApplicationConfig config, IShamanLogger logger);
 
         void Disconnect(ServerDisconnectReason reason);

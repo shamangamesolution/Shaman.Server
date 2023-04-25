@@ -57,7 +57,7 @@ namespace Shaman.TestTools.ClientPeers
             _logger = logger;
             _serializer = serializer;
             _taskScheduler = taskSchedulerFactory.GetTaskScheduler();
-            _clientPeer = new ClientPeer(logger, new LiteNetClientSocketFactory(),taskSchedulerFactory, 300, 10);
+            _clientPeer = new ClientPeer(logger, new LiteNetClientTransportLayerFactory(),taskSchedulerFactory, 300, 10);
             //_clientPeer.OnPackageReceived += ClientOnPackageReceived;
 
             _clientPeer.OnDisconnectedFromServer = OnDisconnected;

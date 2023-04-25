@@ -11,7 +11,7 @@ namespace Shaman.Common.Server.Peers
     {
         private IPEndPoint _endpoint;
         private Guid _peerId;
-        private IReliableSock _socket;
+        private ITransportLayer _socket;
         private Guid _sessionId;
         private IShamanLogger _logger;
 
@@ -30,7 +30,7 @@ namespace Shaman.Common.Server.Peers
             return _sessionId;
         }
 
-        public void Initialize(IPEndPoint endpoint, Guid peerId, IReliableSock socket, ISerializer serializer, IApplicationConfig config, IShamanLogger logger)
+        public void Initialize(IPEndPoint endpoint, Guid peerId, ITransportLayer socket, ISerializer serializer, IApplicationConfig config, IShamanLogger logger)
         {
             _endpoint = endpoint;
             _peerId = peerId;

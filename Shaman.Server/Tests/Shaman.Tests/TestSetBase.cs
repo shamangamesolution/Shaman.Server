@@ -121,10 +121,6 @@ namespace Shaman.Tests
         protected IShamanLogger _serverLogger = new ConsoleLogger("S ", LogLevel.Error | LogLevel.Info);
         protected ISerializer serializer;
         
-        //switch Sockets implementation.BEGIN
-        protected ISocketFactory socketFactory = new LiteNetSockFactory();
-        //switch sockets implementation.END
-        
         protected ITaskSchedulerFactory taskSchedulerFactory = null;
         
         private object _syncCollection = new object();

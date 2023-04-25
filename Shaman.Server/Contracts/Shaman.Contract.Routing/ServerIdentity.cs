@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Shaman.Serialization;
 
 namespace Shaman.Contract.Routing
@@ -14,20 +13,13 @@ namespace Shaman.Contract.Routing
         public ServerRole ServerRole { get; set; }
 
         #region helpers
-        private static string GetAsPortString(IEnumerable<ushort> list, char separator = ',')
+
+        private static string GetAsPortString(IEnumerable<ushort> list, string separator = ",")
         {
-            StringBuilder stringBuilder = new StringBuilder();
-            var isFirst = true;
-            foreach (var item in list)
-            {
-                if (!isFirst)
-                    stringBuilder.Append(separator);
-                isFirst = false;
-                stringBuilder.Append(item.ToString());
-            }
-            return stringBuilder.ToString();
+            return string.Join(separator, list.Select(p => p.ToString()));
         }
-        private static IEnumerable<ushort> GetAsUshortList(string sourceString,  char separator = ',')
+
+        private static IEnumerable<ushort> GetAsUshortList(string sourceString, char separator = ',')
         {
             var ports = new List<ushort>();
             var portsSplitted = sourceString.Split(separator);
@@ -40,8 +32,9 @@ namespace Shaman.Contract.Routing
 
             return ports;
         }
+
         #endregion
-        
+
         public ServerIdentity(string address, IEnumerable<ushort> ports, ServerRole serverRole)
         {
             Address = address;
@@ -49,7 +42,7 @@ namespace Shaman.Contract.Routing
             ServerRole = serverRole;
             PortsString = GetAsPortString(Ports);
         }
-        
+
         public ServerIdentity(string address, string ports, ServerRole serverRole)
         {
             Address = address;
@@ -67,10 +60,7 @@ namespace Shaman.Contract.Routing
 
         public override string ToString()
         {
-            var str = $"{ServerRole}://{Address}:[";
-            foreach (var port in Ports)
-                str += port.ToString();
-            str += "]";
+            var str = $"{ServerRole}://{Address}:[{string.Join(",", Ports)}]";
             return str;
         }
 
@@ -85,10 +75,10 @@ namespace Shaman.Contract.Routing
 
         public void Serialize(ITypeWriter typeWriter)
         {
-            typeWriter.Write((byte)this.ServerRole);
+            typeWriter.Write((byte) this.ServerRole);
             typeWriter.Write(this.Address);
             typeWriter.Write(Ports.Count);
-            foreach(var port in Ports)
+            foreach (var port in Ports)
                 typeWriter.Write(port);
             typeWriter.Write(this.PortsString);
         }

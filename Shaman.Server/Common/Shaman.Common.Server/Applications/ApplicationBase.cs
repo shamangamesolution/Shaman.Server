@@ -26,19 +26,19 @@ namespace Shaman.Common.Server.Applications
         protected readonly IApplicationConfig Config;
         protected IPeerCollection<TP> PeerCollection;
         protected readonly ISerializer Serializer;
-        protected readonly ISocketFactory SocketFactory;
+        protected readonly IServerTransportLayerFactory ServerTransportLayerFactory;
         protected readonly IRequestSender RequestSender;
         protected readonly IServerMetrics ServerMetrics;
         private readonly IProtectionManager _protectionManager;
         
         protected ApplicationBase(IShamanLogger logger, IApplicationConfig config, ISerializer serializer,
-            ISocketFactory socketFactory, ITaskSchedulerFactory taskSchedulerFactory, IRequestSender requestSender,
+            IServerTransportLayerFactory serverTransportLayerFactory, ITaskSchedulerFactory taskSchedulerFactory, IRequestSender requestSender,
             IServerMetrics serverMetrics, IProtectionManager banManager)
         {
             Logger = logger;
             Config = config;
             Serializer = serializer;
-            SocketFactory = socketFactory;
+            ServerTransportLayerFactory = serverTransportLayerFactory;
             TaskSchedulerFactory = taskSchedulerFactory;
             TaskScheduler = taskSchedulerFactory.GetTaskScheduler();
             RequestSender = requestSender;
@@ -67,7 +67,7 @@ namespace Shaman.Common.Server.Applications
         {
             return PeerListeners.Select(l => l as TL).ToList();
         }
-        
+
         public virtual void Start()
         {
             Logger.Info($"Starting");
@@ -78,15 +78,18 @@ namespace Shaman.Common.Server.Applications
 //            Serializer.InitializeDefaultSerializers(8, $"Simple{this.GetType()}Buffer");
             Logger.Debug($"Serializer factory initialized as {Serializer.GetType()}");
             //initialize listener
+            if (Config.ProtocolByPort == null && Config.ListenPorts.Count > 1)
+                Logger.Warning("Multiple ports specified but ProtocolByPort configuration is not set");
             foreach (var port in Config.ListenPorts)
             {
                 var peerListener = new TL();
-                peerListener.Initialize(Logger, PeerCollection, Serializer, Config, TaskSchedulerFactory, port, SocketFactory, RequestSender, _protectionManager);
+                peerListener.Initialize(Logger, PeerCollection, Serializer, Config, TaskSchedulerFactory, port,
+                    ServerTransportLayerFactory, RequestSender, _protectionManager);
                 PeerListeners.Add(peerListener);
                 Logger.Info($"PeerListener initialized as {peerListener.GetType()} on port {port}");
             }
 
-                                    
+
             //call child sub logic
             OnStart();
             

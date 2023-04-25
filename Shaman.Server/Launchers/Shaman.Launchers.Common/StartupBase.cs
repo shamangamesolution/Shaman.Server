@@ -19,7 +19,6 @@ using Shaman.Common.Udp.Senders;
 using Shaman.Common.Udp.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Common.Logging;
-using Shaman.LiteNetLibAdapter;
 using Shaman.Serialization;
 using Shaman.ServiceBootstrap.Logging;
 
@@ -74,7 +73,7 @@ namespace Shaman.Launchers.Common
             //serializer - binary by default
             services.AddSingleton<ISerializer, BinarySerializer>();
             //factory which produces sockets - should be changed in case of using other adapters
-            services.AddSingleton<ISocketFactory, LiteNetSockFactory>();            
+            services.AddSingleton<IServerTransportLayerFactory, MultiProtocolTransportLayerFactory>();            
             //factory for task schedulers
             services.AddSingleton<ITaskSchedulerFactory, TaskSchedulerFactory>();   
             //sends request between subsystems
@@ -100,7 +99,8 @@ namespace Shaman.Launchers.Common
         {
             services.Configure<T>(Configuration);
             var settings = new T();
-            Configuration.GetSection("CommonSettings").Bind(settings);
+            var configurationSection = Configuration.GetSection("CommonSettings");
+            configurationSection.Bind(settings);
             var ports = Configuration["CommonSettings:ListenPorts"].Split(',').Select(s => Convert.ToUInt16(s)).ToList();
             settings.ListenPorts = ports;
             services.AddSingleton<IApplicationConfig>(c => settings);
@@ -123,7 +123,7 @@ namespace Shaman.Launchers.Common
             services.AddSingleton<IMetricsAgent>(metricsAgent);
             services.AddSingleton<TService, TImplementation>();
         }
-        
+
         /// <summary>
         /// Common middleware configuration - used for all types of launchers
         /// </summary>
