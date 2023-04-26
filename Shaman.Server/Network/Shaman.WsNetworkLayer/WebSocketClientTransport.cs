@@ -1,8 +1,10 @@
+using System.Buffers;
 using System.Net;
 using System.Net.WebSockets;
 using Shaman.Common.Udp.Sockets;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
+using Shaman.Serialization.Utils.Pooling;
 
 namespace Bro.WsShamanNetwork;
 
@@ -30,34 +32,46 @@ public class WebSocketClientTransport : ITransportLayer
             await _clientWebSocket.ConnectAsync(uri,
                 CancellationToken.None // todo possible handle timeout
             );
-            // todo handle growable buffer
-            var buffer = new byte[1024 * 4];
             if (_clientWebSocket.State == WebSocketState.Open)
                 OnConnected?.Invoke(endPoint);
 
-            while (_clientWebSocket.State == WebSocketState.Open)
+            try
             {
-                var result =
-                    await _clientWebSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
-
-                if (result.MessageType == WebSocketMessageType.Close)
+                while (_clientWebSocket.State == WebSocketState.Open)
                 {
-                    // todo pass reason
-                    OnDisconnected?.Invoke(endPoint, new SimpleDisconnectInfo(ShamanDisconnectReason.ConnectionLost));
-                    await _clientWebSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty,
-                        CancellationToken.None);
-                    break;
-                }
+                    var buffer = ArrayPool<byte>.Shared.Rent(1024 * 4);
+                    var result =
+                        await _clientWebSocket.ReceiveAsync(buffer, CancellationToken.None);
 
-                if (result.MessageType != WebSocketMessageType.Binary)
-                {
-                    _logger.Error($"Unsupported message type: {result.MessageType}");
-                    continue;
-                }
+                    if (result.MessageType == WebSocketMessageType.Close)
+                    {
+                        await _clientWebSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty,
+                            CancellationToken.None);
+                        break;
+                    }
 
-                OnPacketReceived?.Invoke(endPoint,
-                    new DataPacket(buffer, 0, result.Count, new DeliveryOptions(true, true)),
-                    () => { }); // consider buffer can be reused after invocation
+                    if (result.MessageType != WebSocketMessageType.Binary)
+                    {
+                        _logger.Error($"Unsupported message type: {result.MessageType}");
+                        continue;
+                    }
+
+                    if (!result.EndOfMessage)
+                        throw new NotImplementedException("Partial messages are not supported yet");
+
+                    OnPacketReceived?.Invoke(endPoint,
+                        new DataPacket(buffer, 0, result.Count, new DeliveryOptions(true, true)),
+                        () => ArrayPool<byte>.Shared.Return(buffer)); // todo refactor buffer disposing to avoid closure
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.Error($"Peer connection processing failed: {e}");
+            }
+            finally
+            {
+                OnDisconnected?.Invoke(endPoint,
+                    new SimpleDisconnectInfo(ShamanDisconnectReason.ConnectionLost));
             }
         }, 0);
     }
@@ -65,6 +79,8 @@ public class WebSocketClientTransport : ITransportLayer
     public void Send(byte[] buffer, int offset, int length, bool reliable, bool orderControl,
         bool returnAfterSend = true)
     {
+        if (_clientWebSocket.State != WebSocketState.Open)
+            return;
         _clientWebSocket.SendAsync(new ArraySegment<byte>(buffer, offset, length), WebSocketMessageType.Binary,
             true, CancellationToken.None).ContinueWith(HandleResult);
     }
@@ -72,6 +88,8 @@ public class WebSocketClientTransport : ITransportLayer
     private void HandleResult(Task sendingTask)
     {
         if (!sendingTask.IsFaulted)
+            return;
+        if (_clientWebSocket.State != WebSocketState.Open)
             return;
         _logger.Error($"Failed to send data to peer: {sendingTask.Exception}");
     }
@@ -92,16 +110,18 @@ public class WebSocketClientTransport : ITransportLayer
     public void Close()
     {
         // todo implement reason according to server impl
-        _clientWebSocket.CloseAsync(WebSocketCloseStatus.Empty, string.Empty, CancellationToken.None)
-            .ContinueWith(HandleResult);
+        if (_clientWebSocket.State != WebSocketState.Open)
+            _clientWebSocket.CloseAsync(WebSocketCloseStatus.Empty, string.Empty, CancellationToken.None)
+                .ContinueWith(HandleResult);
         OnDisconnected?.Invoke(null, new SimpleDisconnectInfo(ShamanDisconnectReason.PeerLeave));
     }
 
     public void Close(byte[] data, int offset, int length)
     {
         // todo implement payload according to server impl
-        _clientWebSocket.CloseAsync(WebSocketCloseStatus.Empty, string.Empty, CancellationToken.None)
-            .ContinueWith(HandleResult);
+        if (_clientWebSocket.State != WebSocketState.Open)
+            _clientWebSocket.CloseAsync(WebSocketCloseStatus.Empty, string.Empty, CancellationToken.None)
+                .ContinueWith(HandleResult);
         OnDisconnected?.Invoke(null, new SimpleDisconnectInfo(ShamanDisconnectReason.PeerLeave));
     }
 

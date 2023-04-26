@@ -85,18 +85,43 @@ public class WebSocketServerTransport : ITransportLayer
             {
                 var ctx = await _httpListener.GetContextAsync();
                 _logger.Info($"Incoming connection {ctx.Request.RemoteEndPoint}");
-
                 if (!ctx.Request.IsWebSocketRequest)
                 {
                     ctx.Response.StatusCode = 400;
                     ctx.Response.Close();
                 }
 
-                var ipEndPoint = ctx.Request.RemoteEndPoint;
-                var webSocketCtx = await ctx.AcceptWebSocketAsync(null);
-                _contexts[ipEndPoint] = webSocketCtx;
-                _onConnect?.Invoke(ipEndPoint);
-                _ = _taskScheduler.Schedule(async () => { await HandleWsContext(webSocketCtx, ipEndPoint); }, 0);
+                _ = _taskScheduler.Schedule(async () =>
+                {
+                    var ipEndPoint = ctx.Request.RemoteEndPoint;
+                    var webSocketCtx = await ctx.AcceptWebSocketAsync(null);
+                    _contexts[ipEndPoint] = webSocketCtx;
+                    try
+                    {
+                        _onConnect?.Invoke(ipEndPoint);
+                        await HandleWsContext(webSocketCtx, ipEndPoint);
+                    }
+                    catch (WebSocketException e)
+                    {
+                        if (e.WebSocketErrorCode != WebSocketError.InvalidState &&
+                            e.WebSocketErrorCode != WebSocketError.ConnectionClosedPrematurely)
+                            _logger.Error($"WebSocket error: {e}");
+                    }
+                    finally
+                    {
+                        _contexts.TryRemove(ipEndPoint, out _);
+                        try
+                        {
+                            webSocketCtx.WebSocket.Dispose();
+                        }
+                        catch
+                        {
+                        }
+
+                        _onDisconnect?.Invoke(ipEndPoint,
+                            new SimpleDisconnectInfo(ShamanDisconnectReason.ConnectionLost));
+                    }
+                }, 0);
             }
         }, 0);
     }
@@ -104,31 +129,32 @@ public class WebSocketServerTransport : ITransportLayer
     private async Task HandleWsContext(HttpListenerWebSocketContext webSocketCtx, IPEndPoint ipEndPoint)
     {
         var webSocket = webSocketCtx.WebSocket;
-        var buffer = new byte[1024];
-        WebSocketReceiveResult result =
-            await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
-        while (!result.CloseStatus.HasValue)
+        var buffer = new byte[1024 * 10];
+        while (webSocket.State == WebSocketState.Open)
         {
+            var result =
+                await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+            if (result.CloseStatus.HasValue)
+            {
+                await webSocket.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription,
+                    CancellationToken.None);
+                break;
+            }
+
             if (!result.EndOfMessage)
             {
+                // todo implement
                 _logger.Error("Message is too long");
-                await webSocket.CloseAsync(WebSocketCloseStatus.MessageTooBig, "Message is too long",
-                    CancellationToken.None);
-                _onDisconnect?.Invoke(ipEndPoint, new SimpleDisconnectInfo(ShamanDisconnectReason.ConnectionLost));
+                DisconnectPeerImpl(webSocketCtx);
                 return;
             }
 
             var dataPacket = new DataPacket(buffer, 0, result.Count, new DeliveryOptions(true, true));
-
             _onReceivePacket(ipEndPoint, dataPacket, () =>
             {
                 // consider data not used after processing the listener
             });
-            result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
         }
-
-        await webSocket.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, CancellationToken.None);
-        Console.WriteLine("WebSocket connection closed");
     }
 
     public void Tick()
@@ -139,22 +165,31 @@ public class WebSocketServerTransport : ITransportLayer
     {
         if (!_contexts.TryGetValue(endPoint, out var wctx))
             return;
+        if (wctx.WebSocket.CloseStatus.HasValue)
+            return;
         var webSocket = wctx.WebSocket;
         webSocket.SendAsync(new ArraySegment<byte>(buffer, offset, length), WebSocketMessageType.Binary, true,
-                CancellationToken.None)
-            .ContinueWith(HandleWsSend, endPoint);
+            CancellationToken.None).ContinueWith(HandleWsSend, endPoint);
     }
 
     private void HandleWsSend(Task sendingTask, object ip)
     {
         if (!sendingTask.IsFaulted)
             return;
-        _logger.Error($"Failed to send data to peer {ip}: {sendingTask.Exception}");
+        if (_contexts.TryGetValue((IPEndPoint) ip, out var wctx) && !wctx.WebSocket.CloseStatus.HasValue)
+            _logger.Error($"Failed to send data to peer {ip}: {sendingTask.Exception}");
     }
 
     public bool DisconnectPeer(IPEndPoint ipEndPoint)
     {
         if (!_contexts.TryGetValue(ipEndPoint, out var wctx))
+            return false;
+        return DisconnectPeerImpl(wctx);
+    }
+
+    private static bool DisconnectPeerImpl(HttpListenerWebSocketContext wctx)
+    {
+        if (wctx.WebSocket.CloseStatus.HasValue)
             return false;
         wctx.WebSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Disconnect", CancellationToken.None);
         return true;
@@ -163,6 +198,8 @@ public class WebSocketServerTransport : ITransportLayer
     public bool DisconnectPeer(IPEndPoint ipEndPoint, byte[] data, int offset, int length)
     {
         if (!_contexts.TryGetValue(ipEndPoint, out var wctx))
+            return false;
+        if (wctx.WebSocket.CloseStatus.HasValue)
             return false;
         wctx.WebSocket.CloseAsync(WebSocketCloseStatus.NormalClosure,
             "DisconnectWithPl:" + Convert.ToBase64String(data, offset, length), CancellationToken.None);
