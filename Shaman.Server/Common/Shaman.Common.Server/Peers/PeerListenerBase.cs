@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Net;
 using Shaman.Common.Http;
 using Shaman.Common.Server.Configuration;
@@ -96,35 +95,37 @@ namespace Shaman.Common.Server.Peers
             
             _lastTick = DateTime.UtcNow;
             _isTicking = false;
-            _socketTickTask = TaskScheduler.ScheduleOnInterval(() =>
-            {
-                if (_isStopping)
-                    return;
-                lock (_isTickingMutex)
+            if (_reliableSocket.IsTickRequired)
+                _socketTickTask = TaskScheduler.ScheduleOnInterval(() =>
                 {
-                    if (_isTicking)
+                    if (_isStopping)
                         return;
-                    _isTicking = true;
-                }
-                var duration = (DateTime.UtcNow - _lastTick).Milliseconds;
-                _lastTick = DateTime.UtcNow;
-                if (duration > _maxSendDuration) // overlapping not matters
-                    _maxSendDuration = duration;
+                    lock (_isTickingMutex)
+                    {
+                        if (_isTicking)
+                            return;
+                        _isTicking = true;
+                    }
 
-                try
-                {
-                    _reliableSocket.Tick();
-                }
-                catch
-                {
-                    //empty
-                }
-                finally
-                {
-                    lock(_isTickingMutex)
-                        _isTicking = false;
-                }
-            }, 0, Config.SocketTickTimeMs);
+                    var duration = (DateTime.UtcNow - _lastTick).Milliseconds;
+                    _lastTick = DateTime.UtcNow;
+                    if (duration > _maxSendDuration) // overlapping not matters
+                        _maxSendDuration = duration;
+
+                    try
+                    {
+                        _reliableSocket.Tick();
+                    }
+                    catch
+                    {
+                        //empty
+                    }
+                    finally
+                    {
+                        lock (_isTickingMutex)
+                            _isTicking = false;
+                    }
+                }, 0, Config.SocketTickTimeMs);
             
             //start protection
             _protectionManager.Start();

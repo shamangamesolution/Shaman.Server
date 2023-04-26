@@ -60,6 +60,7 @@ namespace Shaman.Common.Udp.Sockets
             Action<IPEndPoint, IDisconnectInfo> onDisconnect);
         void Listen(int port);
         void Tick();
+        bool IsTickRequired { get; }
         void Send(IPEndPoint endPoint, byte[] buffer, int offset, int length, bool reliable, bool orderControl);
         bool DisconnectPeer(IPEndPoint ipEndPoint);
         bool DisconnectPeer(IPEndPoint ipEndPoint, byte[] data, int offset, int length);

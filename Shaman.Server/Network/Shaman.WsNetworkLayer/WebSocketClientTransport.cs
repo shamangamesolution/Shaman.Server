@@ -4,7 +4,6 @@ using System.Net.WebSockets;
 using Shaman.Common.Udp.Sockets;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
-using Shaman.Serialization.Utils.Pooling;
 
 namespace Bro.WsShamanNetwork;
 
@@ -149,7 +148,10 @@ public class WebSocketClientTransport : ITransportLayer
 
     public void Tick()
     {
+        throw new NotImplementedException("Tick is not required for WebSocket transport");
     }
+
+    public bool IsTickRequired => false;
 
     public void Send(IPEndPoint endPoint, byte[] buffer, int offset, int length, bool reliable, bool orderControl)
     {

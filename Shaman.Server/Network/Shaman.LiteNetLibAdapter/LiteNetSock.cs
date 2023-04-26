@@ -113,6 +113,8 @@ namespace Shaman.LiteNetLibAdapter
             _peer.PollEvents();
         }
 
+        public bool IsTickRequired => true;
+
         private DeliveryMethod GetDeliveryMode(bool reliable, bool orderControl)
         {
             var mode = DeliveryMethod.Unreliable;

@@ -116,35 +116,36 @@ namespace Shaman.Client.Peers
             _connected = true;
             _isTicking = false;
             //Send(new ConnectedEvent());
-            _socketTickTask = _taskScheduler.ScheduleOnInterval(() =>
-            {
-                lock (_stateSync)
+            if (_socket.IsTickRequired)
+                _socketTickTask = _taskScheduler.ScheduleOnInterval(() =>
                 {
-                    if (!_connected)
-                        return;
-
-                    lock (_isTickingMutex)
+                    lock (_stateSync)
                     {
-                        if (_isTicking)
+                        if (!_connected)
                             return;
-                        _isTicking = true;
-                    }
 
-                    try
-                    {
-                        _socket.Tick();
+                        lock (_isTickingMutex)
+                        {
+                            if (_isTicking)
+                                return;
+                            _isTicking = true;
+                        }
+
+                        try
+                        {
+                            _socket.Tick();
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.Error($"Socket tick error: {ex}");
+                        }
+                        finally
+                        {
+                            lock (_isTickingMutex)
+                                _isTicking = false;
+                        }
                     }
-                    catch (Exception ex)
-                    {
-                        _logger.Error($"Socket tick error: {ex}");
-                    }
-                    finally
-                    {
-                        lock(_isTickingMutex)
-                            _isTicking = false;
-                    }
-                }
-            }, 0, 10);
+                }, 0, 10);
             _logger?.Debug($"Receive loop started");
         }
 
