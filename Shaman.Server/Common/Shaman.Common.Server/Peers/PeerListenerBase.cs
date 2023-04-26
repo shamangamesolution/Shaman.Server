@@ -52,21 +52,17 @@ namespace Shaman.Common.Server.Peers
             if (_protectionManager.IsBanned(endPoint))
                 return;
             
-            TaskScheduler.ScheduleOnceOnNow(() =>
+            try
             {
-                try
-                {
-                    OnReceivePacketFromClient(endPoint,data);
-                }
-                finally
-                {
-                    
-                    //litenet automatically releases all null packets
-                    if (data.Buffer != null)
-                        release();
-                }
-            });
-        }       
+                OnReceivePacketFromClient(endPoint,data);
+            }
+            finally
+            {
+                //litenet automatically releases all null packets
+                if (data.Buffer != null)
+                    release();
+            }
+        }
         
         public virtual void Initialize(IShamanLogger logger, IPeerCollection<T> peerCollection, ISerializer serializer,
             IApplicationConfig config, ITaskSchedulerFactory taskSchedulerFactory, ListenPortDefinition port,
