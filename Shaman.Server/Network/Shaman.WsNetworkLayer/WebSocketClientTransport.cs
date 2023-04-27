@@ -55,11 +55,11 @@ public class WebSocketClientTransport : ITransportLayer
                         continue;
                     }
 
-                    if (!result.EndOfMessage)
-                        throw new NotImplementedException("Partial messages are not supported yet");
 
-                    OnPacketReceived?.Invoke(endPoint,
-                        new DataPacket(buffer, 0, result.Count, new DeliveryOptions(true, true)),
+                    var dataPacket = result.EndOfMessage
+                        ? new DataPacket(buffer, 0, result.Count, new DeliveryOptions(true, true))
+                        : await result.ReadBigMessage(_logger, buffer, _clientWebSocket);
+                    OnPacketReceived?.Invoke(endPoint, dataPacket,
                         () => ArrayPool<byte>.Shared.Return(buffer)); // todo refactor buffer disposing to avoid closure
                 }
             }

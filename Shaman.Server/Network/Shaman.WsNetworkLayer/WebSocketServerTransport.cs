@@ -129,7 +129,7 @@ public class WebSocketServerTransport : ITransportLayer
     private async Task HandleWsContext(HttpListenerWebSocketContext webSocketCtx, IPEndPoint ipEndPoint)
     {
         var webSocket = webSocketCtx.WebSocket;
-        var buffer = new byte[1024 * 10];
+        var buffer = new byte[1024 * 4];
         while (webSocket.State == WebSocketState.Open)
         {
             var result =
@@ -141,21 +141,23 @@ public class WebSocketServerTransport : ITransportLayer
                 break;
             }
 
-            if (!result.EndOfMessage)
+            if (result.MessageType != WebSocketMessageType.Binary)
             {
-                // todo implement
-                _logger.Error("Message is too long");
-                DisconnectPeerImpl(webSocketCtx);
-                return;
+                _logger.Error($"Unsupported message type: {result.MessageType}");
+                continue;
             }
 
-            var dataPacket = new DataPacket(buffer, 0, result.Count, new DeliveryOptions(true, true));
-            _onReceivePacket(ipEndPoint, dataPacket, () =>
-            {
-                // consider data not used after processing the listener
-            });
+            var dataPacket = result.EndOfMessage
+                ? new DataPacket(buffer, 0, result.Count, new DeliveryOptions(true, true))
+                : await result.ReadBigMessage(_logger, buffer, webSocket);
+            _onReceivePacket(ipEndPoint, dataPacket,
+                () =>
+                {
+                    // consider data not used after processing the listener
+                });
         }
     }
+
 
     public void Tick()
     {
