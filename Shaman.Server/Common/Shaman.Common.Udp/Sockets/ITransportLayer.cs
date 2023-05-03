@@ -24,6 +24,12 @@ namespace Shaman.Common.Udp.Sockets
             Payload = default;
         }
 
+        public SimpleDisconnectInfo(ShamanDisconnectReason reason, Payload payload)
+        {
+            Reason = reason;
+            Payload = default;
+        }
+
         public void Dispose()
         {
         }

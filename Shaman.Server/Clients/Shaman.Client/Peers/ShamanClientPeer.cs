@@ -681,7 +681,12 @@ namespace Shaman.Client.Peers
         {
             _clientPeer.Disconnect();
             ResetState();
-            OnDisconnected?.Invoke(new SimpleDisconnectInfo(ShamanDisconnectReason.PeerLeave));
+        }
+
+        public void Disconnect(byte[] data, int offset, int length)
+        {
+            _clientPeer.Disconnect(data, offset, length);
+            ResetState();
         }
 
         public int GetSendQueueSize()

@@ -95,9 +95,9 @@ public class WebSocketServerTransport : ITransportLayer
                 {
                     var ipEndPoint = ctx.Request.RemoteEndPoint;
                     var webSocketCtx = await ctx.AcceptWebSocketAsync(null);
-                    _contexts[ipEndPoint] = webSocketCtx;
                     try
                     {
+                        _contexts[ipEndPoint] = webSocketCtx;
                         _onConnect?.Invoke(ipEndPoint);
                         await HandleWsContext(webSocketCtx, ipEndPoint);
                     }
@@ -114,8 +114,9 @@ public class WebSocketServerTransport : ITransportLayer
                         {
                             webSocketCtx.WebSocket.Dispose();
                         }
-                        catch
+                        catch (Exception e)
                         {
+                            _logger.Error($"Failed to dispose socket: {e}");
                         }
 
                         _onDisconnect?.Invoke(ipEndPoint,
@@ -134,12 +135,16 @@ public class WebSocketServerTransport : ITransportLayer
         {
             var result =
                 await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+            // _logger.Error($"result: {result.EndOfMessage} {result.Count} {result.MessageType} {result.CloseStatus} {result.CloseStatusDescription}");
             if (result.CloseStatus.HasValue)
             {
-                await webSocket.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription,
+                await webSocket.CloseAsync(result.CloseStatus ?? WebSocketCloseStatus.NormalClosure, result.CloseStatusDescription,
                     CancellationToken.None);
                 break;
             }
+
+            if (result.MessageType == WebSocketMessageType.Close)
+                break;
 
             if (result.MessageType != WebSocketMessageType.Binary)
             {
@@ -196,7 +201,7 @@ public class WebSocketServerTransport : ITransportLayer
     {
         if (wctx.WebSocket.CloseStatus.HasValue)
             return false;
-        wctx.WebSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Disconnect", CancellationToken.None);
+        wctx.WebSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
         return true;
     }
 
@@ -207,7 +212,7 @@ public class WebSocketServerTransport : ITransportLayer
         if (wctx.WebSocket.CloseStatus.HasValue)
             return false;
         wctx.WebSocket.CloseAsync(WebSocketCloseStatus.NormalClosure,
-            "DisconnectWithPl:" + Convert.ToBase64String(data, offset, length), CancellationToken.None);
+            Convert.ToBase64String(data, offset, length), CancellationToken.None);
         return true;
     }
 }

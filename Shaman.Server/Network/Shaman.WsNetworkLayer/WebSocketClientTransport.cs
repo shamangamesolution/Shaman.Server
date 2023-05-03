@@ -41,13 +41,10 @@ public class WebSocketClientTransport : ITransportLayer
                     var buffer = ArrayPool<byte>.Shared.Rent(1024 * 4);
                     var result =
                         await _clientWebSocket.ReceiveAsync(buffer, CancellationToken.None);
+                    // _logger.Error($"result: {result.EndOfMessage} {result.Count} {result.MessageType} {result.CloseStatus} {result.CloseStatusDescription}");
 
                     if (result.MessageType == WebSocketMessageType.Close)
-                    {
-                        await _clientWebSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty,
-                            CancellationToken.None);
                         break;
-                    }
 
                     if (result.MessageType != WebSocketMessageType.Binary)
                     {
@@ -66,9 +63,6 @@ public class WebSocketClientTransport : ITransportLayer
             catch (Exception e)
             {
                 _logger.Error($"Peer connection processing failed: {e}");
-            }
-            finally
-            {
                 OnDisconnected?.Invoke(endPoint,
                     new SimpleDisconnectInfo(ShamanDisconnectReason.ConnectionLost));
             }
@@ -108,20 +102,23 @@ public class WebSocketClientTransport : ITransportLayer
 
     public void Close()
     {
-        // todo implement reason according to server impl
-        if (_clientWebSocket.State != WebSocketState.Open)
-            _clientWebSocket.CloseAsync(WebSocketCloseStatus.Empty, string.Empty, CancellationToken.None)
-                .ContinueWith(HandleResult);
-        OnDisconnected?.Invoke(null, new SimpleDisconnectInfo(ShamanDisconnectReason.PeerLeave));
+        if (_clientWebSocket.State == WebSocketState.Open)
+            _clientWebSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None)
+                .ContinueWith(HandleResult)
+                .ContinueWith(_ =>
+                    OnDisconnected?.Invoke(null, new SimpleDisconnectInfo(ShamanDisconnectReason.PeerLeave)));
     }
 
     public void Close(byte[] data, int offset, int length)
     {
-        // todo implement payload according to server impl
-        if (_clientWebSocket.State != WebSocketState.Open)
-            _clientWebSocket.CloseAsync(WebSocketCloseStatus.Empty, string.Empty, CancellationToken.None)
-                .ContinueWith(HandleResult);
-        OnDisconnected?.Invoke(null, new SimpleDisconnectInfo(ShamanDisconnectReason.PeerLeave));
+        if (_clientWebSocket.State == WebSocketState.Open)
+            _clientWebSocket.CloseAsync(WebSocketCloseStatus.NormalClosure,
+                    Convert.ToBase64String(data, offset, length), CancellationToken.None)
+                .ContinueWith(HandleResult)
+                .ContinueWith(_ =>
+                {
+                    OnDisconnected?.Invoke(null, new SimpleDisconnectInfo(ShamanDisconnectReason.PeerLeave));
+                });
     }
 
 
