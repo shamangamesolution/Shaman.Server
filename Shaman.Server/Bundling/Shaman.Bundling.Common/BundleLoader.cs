@@ -129,6 +129,7 @@ namespace Shaman.Bundling.Common
                 }
                 catch (FileLoadException e)
                 {
+                    Console.WriteLine($"Assembly {s} load exception: {e}");
                     if (!e.Message.Equals("Assembly with same name is already loaded"))
                         throw;
                 }
