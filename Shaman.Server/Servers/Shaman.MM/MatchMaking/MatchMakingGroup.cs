@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Shaman.Common.Udp.Senders;
 using Shaman.Common.Utils.TaskScheduling;
+using Shaman.Contract.Bundle.Stats;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
 using Shaman.MM.Players;
@@ -10,7 +11,6 @@ using Shaman.Messages;
 using Shaman.Messages.MM;
 using Shaman.Messages.RoomFlow;
 using Shaman.MM.Managers;
-using Shaman.MM.Metrics;
 
 namespace Shaman.MM.MatchMaking
 {

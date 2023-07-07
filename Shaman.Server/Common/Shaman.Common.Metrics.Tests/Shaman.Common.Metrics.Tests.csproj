@@ -13,6 +13,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\Contracts\Shaman.Contract.Monitoring.AppMetrics\Shaman.Contract.Monitoring.AppMetrics.csproj" />
       <ProjectReference Include="..\Shaman.Common.Metrics\Shaman.Common.Metrics.csproj" />
     </ItemGroup>
 

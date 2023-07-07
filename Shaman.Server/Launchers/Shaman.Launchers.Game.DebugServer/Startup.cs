@@ -6,6 +6,7 @@ using Shaman.Bundling.Common;
 using Shaman.Common.Server.Applications;
 using Shaman.Common.Server.Configuration;
 using Shaman.Contract.Bundle;
+using Shaman.Contract.Bundle.Stats;
 using Shaman.Contract.Common.Logging;
 using Shaman.Contract.Routing.Meta;
 using Shaman.Game.Metrics;
@@ -55,10 +56,10 @@ namespace Shaman.Launchers.Game.DebugServer
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplication server,
             IShamanLogger logger, IBundledRoomControllerFactory roomControllerFactory,
-            IShamanComponents shamanComponents)
+            IShamanComponents shamanComponents, IGameMetrics gameMetrics)
         {
             ConfigureGame(app, env, server, logger, StandaloneServerLauncher.StandaloneBundle, roomControllerFactory,
-                shamanComponents);
+                shamanComponents, gameMetrics);
         }
     }
 }

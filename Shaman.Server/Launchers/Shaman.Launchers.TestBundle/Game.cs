@@ -7,12 +7,18 @@ using Shaman.Contract.Bundle;
 using Shaman.Contract.Bundle.DI;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
+using Shaman.Game.Metrics;
 using Shaman.Serialization.Messages.Udp;
 
 namespace Shaman.Launchers.TestBundle
 {
     public class Game : GameBundleBase<TestRoomControllerFactory>
     {
+        public override IGameMetrics GetMetrics(IShamanComponents shamanComponents)
+        {
+            return new GameMetricsStub();
+        }
+
         protected override void ConfigureServices(IServiceCollection serviceCollection)
         {
         }

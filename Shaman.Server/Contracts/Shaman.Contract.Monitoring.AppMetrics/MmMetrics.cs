@@ -1,19 +1,10 @@
 using App.Metrics;
 using App.Metrics.Counter;
 using App.Metrics.Histogram;
-using Shaman.Common.Metrics;
 using Shaman.Common.Utils.TaskScheduling;
 
-namespace Shaman.MM.Metrics
+namespace Shaman.Contract.Monitoring.AppMetrics
 {
-    public interface IMmMetrics: IServerMetrics
-    {
-        void TrackPlayerAdded();
-        void TrackPlayerRemoved();
-        void TrackPlayerCleared(int leftCount);
-        void TrackMmCompleted(long ms);
-    }
-
     public class MmMetrics : BasicMetrics, IMmMetrics
     {
         private static readonly HistogramOptions Gen0Collections = new HistogramOptions

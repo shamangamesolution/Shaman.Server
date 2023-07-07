@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 using Shaman.Common.Utils.Logging;
+using Shaman.Contract.Bundle.Stats;
 using Shaman.Contract.Common.Logging;
 using Shaman.MM.Managers;
-using Shaman.MM.Metrics;
 using Shaman.MM.Players;
 using Shaman.MM.Tests.Fakes;
 

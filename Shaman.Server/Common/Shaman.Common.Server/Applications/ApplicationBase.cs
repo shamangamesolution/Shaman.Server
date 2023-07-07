@@ -1,12 +1,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using Shaman.Common.Http;
-using Shaman.Common.Metrics;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Server.Peers;
 using Shaman.Common.Server.Protection;
 using Shaman.Common.Udp.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
+using Shaman.Contract.Bundle.Stats;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
 using Shaman.Serialization;

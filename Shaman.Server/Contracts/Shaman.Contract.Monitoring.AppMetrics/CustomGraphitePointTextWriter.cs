@@ -6,7 +6,7 @@ using App.Metrics;
 using App.Metrics.Formatters.Graphite;
 using App.Metrics.Formatters.Graphite.Internal;
 
-namespace Shaman.Common.Metrics
+namespace Shaman.Contract.Monitoring.AppMetrics
 {
     public class CustomGraphitePointTextWriter : IGraphitePointTextWriter
     {
@@ -20,7 +20,7 @@ namespace Shaman.Common.Metrics
             var stringWriter = new StringWriter();
             foreach (var pathNode in pathNodes)
             {
-                stringWriter.Write(GraphiteSyntax.EscapeName(pathNode, false));
+                stringWriter.Write((string?) GraphiteSyntax.EscapeName(pathNode, false));
                 stringWriter.Write(".");
             }
             _prefix = stringWriter.ToString();
@@ -42,7 +42,7 @@ namespace Shaman.Common.Metrics
 
             if (tagsDictionary.TryGetValue("mtype", out var metricType) && !string.IsNullOrWhiteSpace(metricType))
             {
-                measurementWriter.Write(metricType);
+                measurementWriter.Write((string?) metricType);
                 hasPrevious = true;
             }
 
@@ -51,14 +51,14 @@ namespace Shaman.Common.Metrics
                 measurementWriter.Write(".");
             }
 
-            measurementWriter.Write(GraphiteSyntax.EscapeName(point.Measurement, true));
+            measurementWriter.Write((string?) GraphiteSyntax.EscapeName(point.Measurement, true));
 
-            var tags = tagsDictionary.Where(tag => !ExcludeTags.Contains(tag.Key));
+            var tags = Enumerable.Where<KeyValuePair<string, string>>(tagsDictionary, tag => !ExcludeTags.Contains(tag.Key));
 
             foreach (var tag in tags)
             {
                 measurementWriter.Write('.');
-                measurementWriter.Write(GraphiteSyntax.EscapeName(tag.Key));
+                measurementWriter.Write((string?) GraphiteSyntax.EscapeName(tag.Key));
                 measurementWriter.Write('.');
                 measurementWriter.Write(tag.Value);
             }
@@ -72,13 +72,13 @@ namespace Shaman.Common.Metrics
             foreach (var f in point.Fields)
             {
                 textWriter.Write(prefix);
-                textWriter.Write(GraphiteSyntax.EscapeName(f.Key));
+                textWriter.Write((string?) GraphiteSyntax.EscapeName(f.Key));
 
                 textWriter.Write(' ');
-                textWriter.Write(GraphiteSyntax.FormatValue(f.Value));
+                textWriter.Write((string?) GraphiteSyntax.FormatValue(f.Value));
 
                 textWriter.Write(' ');
-                textWriter.Write(GraphiteSyntax.FormatTimestamp(utcTimestamp));
+                textWriter.Write((string?) GraphiteSyntax.FormatTimestamp(utcTimestamp));
 
                 textWriter.Write('\n');
             }

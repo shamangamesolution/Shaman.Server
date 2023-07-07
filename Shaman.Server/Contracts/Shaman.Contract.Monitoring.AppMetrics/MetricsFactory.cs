@@ -2,13 +2,13 @@ using System;
 using App.Metrics;
 using App.Metrics.Formatters.Graphite;
 
-namespace Shaman.Common.Metrics
+namespace Shaman.Contract.Monitoring.AppMetrics
 {
     public static class MetricsFactory
     {
         public static IMetricsRoot CreateMetrics(string graphiteUri, TimeSpan flushInterval, params string[] pathNodes)
         {
-            return AppMetrics.CreateDefaultBuilder()
+            return App.Metrics.AppMetrics.CreateDefaultBuilder()
                 .Report.ToGraphite(g =>
                 {
                     

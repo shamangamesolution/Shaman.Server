@@ -22,6 +22,7 @@
       <ProjectReference Include="..\..\Contracts\Shaman.Contract.Bundle\Shaman.Contract.Bundle.csproj" />
       <ProjectReference Include="..\..\Contracts\Shaman.Contract.MM\Shaman.Contract.MM.csproj" />
       <ProjectReference Include="..\..\Serialization\Shaman.Serialization.Messages.Udp\Shaman.Serialization.Messages.Udp.csproj" />
+      <ProjectReference Include="..\..\Servers\Shaman.Game\Shaman.Game.csproj" />
     </ItemGroup>
 
 </Project>

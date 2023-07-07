@@ -6,11 +6,11 @@ using Shaman.Common.Server.Configuration;
 using Shaman.Common.Udp.Senders;
 using Shaman.Common.Utils.Helpers;
 using Shaman.Common.Utils.TaskScheduling;
+using Shaman.Contract.Bundle.Stats;
 using Shaman.Contract.Common.Logging;
 using Shaman.Contract.MM;
 using Shaman.Messages;
 using Shaman.MM.MatchMaking;
-using Shaman.MM.Metrics;
 using Shaman.MM.Players;
 using Shaman.MM.Rooms;
 

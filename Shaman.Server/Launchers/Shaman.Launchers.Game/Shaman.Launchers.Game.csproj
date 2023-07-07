@@ -6,6 +6,7 @@
     </PropertyGroup>
     
     <ItemGroup>
+        <ProjectReference Include="..\..\Contracts\Shaman.Contract.Monitoring.AppMetrics\Shaman.Contract.Monitoring.AppMetrics.csproj" />
         <ProjectReference Include="..\..\Contracts\Shaman.Contract.Routing.Actualization\Shaman.Contract.Routing.Actualization.csproj" />
         <ProjectReference Include="..\..\Contracts\Shaman.Contract.Routing.Meta\Shaman.Contract.Routing.Meta.csproj" />
         <ProjectReference Include="..\..\Routing\Shaman.Routing.Common.Messages\Shaman.Routing.Common.Messages.csproj" />

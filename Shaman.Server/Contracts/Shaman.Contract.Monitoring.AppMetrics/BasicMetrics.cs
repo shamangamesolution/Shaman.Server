@@ -2,9 +2,11 @@ using System;
 using App.Metrics;
 using App.Metrics.Histogram;
 using Shaman.Common.Utils.TaskScheduling;
+using Shaman.Contract.Bundle.Stats;
 using Shaman.Contract.Common;
+using TaskScheduler = Shaman.Common.Utils.TaskScheduling.TaskScheduler;
 
-namespace Shaman.Common.Metrics
+namespace Shaman.Contract.Monitoring.AppMetrics
 {
     public class BasicMetrics: IServerMetrics
     {

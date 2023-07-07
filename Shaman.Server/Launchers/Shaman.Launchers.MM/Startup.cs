@@ -7,12 +7,13 @@ using Shaman.Bundling.Common;
 using Shaman.Common.Server.Applications;
 using Shaman.Common.Server.Configuration;
 using Shaman.Contract.Bundle;
+using Shaman.Contract.Bundle.Stats;
 using Shaman.Contract.Common.Logging;
 using Shaman.Contract.Routing.MM;
 using Shaman.Launchers.Common;
+using Shaman.Launchers.Common.Metrics.Metrics;
 using Shaman.Launchers.Common.MM;
 using Shaman.MM.MatchMaking;
-using Shaman.MM.Metrics;
 using Shaman.MM.Providers;
 
 namespace Shaman.Launchers.MM
@@ -52,7 +53,7 @@ namespace Shaman.Launchers.MM
             //get particular bundle settings
             services.AddSingleton<IBundleConfig, BundleConfig>();
             //metrics
-            ConfigureMetrics<IMmMetrics, MmMetrics>(services);
+            ConfigureMetrics<IMmMetrics, BundledMmMetrics>(services);
         }
         
 

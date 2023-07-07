@@ -13,6 +13,7 @@ using Shaman.Game.Api;
 using Shaman.Game.Providers;
 using Shaman.Game.Rooms;
 using Shaman.Game.Rooms.RoomProperties;
+using Shaman.Launchers.Common.Metrics.Metrics;
 
 namespace Shaman.Launchers.Common.Game
 {
@@ -64,10 +65,12 @@ namespace Shaman.Launchers.Common.Game
         /// <param name="shamanComponents"></param>
         public void ConfigureGame(IApplicationBuilder app, IHostingEnvironment env, IApplication server,
             IShamanLogger logger, IGameBundle gameBundle, IBundledRoomControllerFactory roomControllerFactory,
-            IShamanComponents shamanComponents)
+            IShamanComponents shamanComponents, IGameMetrics gameMetrics)
         {
             //call common configuration
             gameBundle.Initialize(shamanComponents);
+            if (gameMetrics is BundledGameMetrics bundledGameMetrics)
+                bundledGameMetrics.ConfigureImplementation(gameBundle.GetMetrics(shamanComponents));
             var bundledRoomControllerFactory = gameBundle.GetRoomControllerFactory();
             if (bundledRoomControllerFactory == null)
                 throw new NullReferenceException("Game bundle returned null factory");

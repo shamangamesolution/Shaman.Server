@@ -31,6 +31,8 @@ namespace Shaman.Contract.Bundle.DI
             _serviceProvider = serviceCollection.BuildServiceProvider();
         }
 
+        public abstract IGameMetrics GetMetrics(IShamanComponents shamanComponents);
+
         public void OnStart()
         {
             OnStart(_serviceProvider, _shamanComponents);

@@ -5,6 +5,7 @@ namespace Shaman.Contract.Bundle
     {
         IRoomControllerFactory GetRoomControllerFactory();
         void Initialize(IShamanComponents shamanComponents);
+        IGameMetrics GetMetrics(IShamanComponents shamanComponents);
         void OnStart();
     }
 }

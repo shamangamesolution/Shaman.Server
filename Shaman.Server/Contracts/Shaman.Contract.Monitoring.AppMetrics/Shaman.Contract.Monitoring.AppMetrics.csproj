@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageVersion>1.22.0</PackageVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\Common\Shaman.Common.Utils\Shaman.Common.Utils.csproj" />
+      <ProjectReference Include="..\Shaman.Contract.Bundle\Shaman.Contract.Bundle.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="App.Metrics" Version="3.1.0" />
+        <PackageReference Include="App.Metrics.Reporting.Graphite" Version="3.1.0" />
+    </ItemGroup>
+</Project>

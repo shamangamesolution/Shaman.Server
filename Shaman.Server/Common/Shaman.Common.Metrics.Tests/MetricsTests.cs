@@ -5,6 +5,7 @@ using App.Metrics;
 using App.Metrics.Histogram;
 using App.Metrics.Reporting.Graphite;
 using NUnit.Framework;
+using Shaman.Contract.Monitoring.AppMetrics;
 
 namespace Shaman.Common.Metrics.Tests
 {

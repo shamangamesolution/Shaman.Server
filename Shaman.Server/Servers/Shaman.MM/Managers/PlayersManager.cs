@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Shaman.Contract.Bundle.Stats;
 using Shaman.Contract.Common.Logging;
-using Shaman.MM.Metrics;
 using Shaman.MM.Players;
 
 namespace Shaman.MM.Managers

@@ -8,9 +8,9 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\Contracts\Shaman.Contract.Bundle\Shaman.Contract.Bundle.csproj" />
       <ProjectReference Include="..\..\Contracts\Shaman.Contract.Routing\Shaman.Contract.Routing.csproj" />
       <ProjectReference Include="..\Shaman.Common.Http\Shaman.Common.Http.csproj" />
-      <ProjectReference Include="..\Shaman.Common.Metrics\Shaman.Common.Metrics.csproj" />
       <ProjectReference Include="..\Shaman.Common.Udp\Shaman.Common.Udp.csproj" />
       <ProjectReference Include="..\Shaman.Common.Utils\Shaman.Common.Utils.csproj" />
     </ItemGroup>

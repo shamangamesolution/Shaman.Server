@@ -8,9 +8,9 @@ using Shaman.Common.Server.Applications;
 using Shaman.Common.Server.Configuration;
 using Shaman.Contract.Bundle;
 using Shaman.Contract.Common.Logging;
+using Shaman.Contract.Monitoring.AppMetrics;
 using Shaman.Contract.Routing.Actualization;
 using Shaman.Contract.Routing.Meta;
-using Shaman.Game.Metrics;
 using Shaman.Game.Rooms;
 using Shaman.Launchers.Common;
 using Shaman.Launchers.Common.Game;
@@ -64,12 +64,12 @@ namespace Shaman.Launchers.Game
         
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplication server,
             IServerActualizer serverActualizer, IShamanLogger logger, IBundleLoader bundleLoader,
-            IShamanComponents shamanComponents, IBundledRoomControllerFactory roomControllerFactory)
+            IShamanComponents shamanComponents, IBundledRoomControllerFactory roomControllerFactory, IGameMetrics gameMetrics)
         {
             //todo extract in one place
             serverActualizer.Start(Convert.ToInt32(Configuration["ServerSettings:ActualizationIntervalMs"]));
             var gameBundle = bundleLoader.LoadTypeFromBundle<IGameBundle>();
-            ConfigureGame(app, env, server, logger, gameBundle, roomControllerFactory, shamanComponents);
+            ConfigureGame(app, env, server, logger, gameBundle, roomControllerFactory, shamanComponents, gameMetrics);
         }
 
 

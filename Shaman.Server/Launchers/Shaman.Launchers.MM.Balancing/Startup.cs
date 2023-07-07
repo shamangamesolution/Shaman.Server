@@ -14,9 +14,9 @@ using Shaman.Contract.Routing.Balancing;
 using Shaman.Contract.Routing.MM;
 using Shaman.Launchers.Common;
 using Shaman.Launchers.Common.Balancing;
+using Shaman.Launchers.Common.Metrics.Metrics;
 using Shaman.Launchers.Common.MM;
 using Shaman.MM.MatchMaking;
-using Shaman.MM.Metrics;
 using Shaman.MM.Providers;
 
 namespace Shaman.Launchers.MM.Balancing
@@ -72,7 +72,7 @@ namespace Shaman.Launchers.MM.Balancing
             //get particular bundle settings
             services.AddSingleton<IBundleConfig, BundleConfig>();
             //metrics
-            ConfigureMetrics<IMmMetrics, MmMetrics>(services);
+            ConfigureMetrics<IMmMetrics, BundledMmMetrics>(services);
         }
         
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplication server,

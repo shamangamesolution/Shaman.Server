@@ -1,3 +1,5 @@
+using Shaman.Contract.Bundle.Stats;
+
 namespace Shaman.Game.Metrics
 {
     public class GameMetricsStub : IGameMetrics

@@ -13,7 +13,6 @@ using Shaman.Contract.Routing.MM;
 using Shaman.MM.MatchMaking;
 using Shaman.MM.Peers;
 using Shaman.MM.Managers;
-using Shaman.MM.Metrics;
 using Shaman.Serialization;
 
 namespace Shaman.MM

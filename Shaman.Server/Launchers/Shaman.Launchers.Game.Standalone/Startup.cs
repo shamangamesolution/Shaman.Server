@@ -12,6 +12,7 @@ using Shaman.Game.Metrics;
 using Shaman.Game.Rooms;
 using Shaman.Launchers.Common;
 using Shaman.Launchers.Common.Game;
+using Shaman.Launchers.Common.Metrics.Metrics;
 
 namespace Shaman.Launchers.Game.Standalone
 {
@@ -50,16 +51,17 @@ namespace Shaman.Launchers.Game.Standalone
             //get particular bundle settings
             services.AddSingleton<IBundleConfig, BundleConfig>();
             //metrics
-            ConfigureMetrics<IGameMetrics, GameMetrics>(services);
+            ConfigureMetrics<IGameMetrics, BundledGameMetrics>(services);
             // stub state updater for routerless config
             services.AddSingleton<IServerStateHolder, ServerStateHolder>();
         }
-        
+
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplication server,
-            IShamanLogger logger, IBundleLoader bundleLoader, IShamanComponents shamanComponents, IBundledRoomControllerFactory roomControllerFactory)
+            IShamanLogger logger, IBundleLoader bundleLoader, IShamanComponents shamanComponents,
+            IBundledRoomControllerFactory roomControllerFactory, IGameMetrics gameMetrics)
         {
             var gameBundle = bundleLoader.LoadTypeFromBundle<IGameBundle>();
-            ConfigureGame(app, env, server, logger, gameBundle, roomControllerFactory, shamanComponents);
+            ConfigureGame(app, env, server, logger, gameBundle, roomControllerFactory, shamanComponents, gameMetrics);
         }
     }
 }

@@ -9,6 +9,7 @@ using Shaman.Common.Udp.Sockets;
 using Shaman.Common.Utils.Helpers;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Bundle;
+using Shaman.Contract.Bundle.Stats;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
 using Shaman.Game.Metrics;

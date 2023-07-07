@@ -1,4 +1,4 @@
-namespace Shaman.Common.Metrics
+namespace Shaman.Contract.Bundle.Stats
 {
     public interface IServerMetrics
     {

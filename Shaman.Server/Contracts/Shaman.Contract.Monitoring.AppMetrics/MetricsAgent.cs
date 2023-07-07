@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using App.Metrics;
 
-namespace Shaman.Common.Metrics
+namespace Shaman.Contract.Monitoring.AppMetrics
 {
     public class MetricsSettings
     {

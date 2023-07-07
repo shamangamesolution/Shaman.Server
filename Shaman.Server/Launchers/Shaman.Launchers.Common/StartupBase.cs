@@ -8,7 +8,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Serialization;
 using Serilog;
 using Shaman.Common.Http;
-using Shaman.Common.Metrics;
 using Shaman.Common.Mvc;
 using Shaman.Common.Server.Applications;
 using Shaman.Common.Server.Configuration;
@@ -114,10 +113,6 @@ namespace Shaman.Launchers.Common
             where TService : class
             where TImplementation:class, TService
         {
-            var metricsSettings = new MetricsSettings();
-            Configuration.GetSection("Metrics").Bind(metricsSettings);
-            var metricsAgent = new MetricsAgent(metricsSettings);
-            services.AddSingleton<IMetricsAgent>(metricsAgent);
             services.AddSingleton<TService, TImplementation>();
         }
 
