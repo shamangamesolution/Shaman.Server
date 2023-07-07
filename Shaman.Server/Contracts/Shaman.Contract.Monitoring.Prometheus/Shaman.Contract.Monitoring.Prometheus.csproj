@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>Shaman.Contracts.Monitoring.Prometheus</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Shaman.Contract.Bundle\Shaman.Contract.Bundle.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="prometheus-net" Version="8.0.0" />
+    </ItemGroup>
+
+</Project>
