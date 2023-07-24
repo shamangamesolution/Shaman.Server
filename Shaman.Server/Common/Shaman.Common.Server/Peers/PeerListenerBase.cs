@@ -1,5 +1,6 @@
 using System;
 using System.Net;
+using System.Threading;
 using Shaman.Common.Http;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Server.Protection;
@@ -17,8 +18,7 @@ namespace Shaman.Common.Server.Peers
     {
         private ITransportLayer _reliableSocket;
         private bool _isStopping = false;
-        private bool _isTicking = false;
-        private object _isTickingMutex = new object();
+        private int _isTicking;
         protected ISerializer Serializer;
 
         protected IPeerCollection<T> PeerCollection;
@@ -94,18 +94,14 @@ namespace Shaman.Common.Server.Peers
             _reliableSocket.Listen(_port.Port);
             
             _lastTick = DateTime.UtcNow;
-            _isTicking = false;
+            _isTicking = 0;
             if (_reliableSocket.IsTickRequired)
                 _socketTickTask = TaskScheduler.ScheduleOnInterval(() =>
                 {
                     if (_isStopping)
                         return;
-                    lock (_isTickingMutex)
-                    {
-                        if (_isTicking)
-                            return;
-                        _isTicking = true;
-                    }
+                    if(Interlocked.Exchange(ref _isTicking, 1) != 0)
+                        return;
 
                     var duration = (DateTime.UtcNow - _lastTick).Milliseconds;
                     _lastTick = DateTime.UtcNow;
@@ -122,8 +118,7 @@ namespace Shaman.Common.Server.Peers
                     }
                     finally
                     {
-                        lock (_isTickingMutex)
-                            _isTicking = false;
+                        Interlocked.Exchange(ref _isTicking, 0);
                     }
                 }, 0, Config.SocketTickTimeMs);
             
