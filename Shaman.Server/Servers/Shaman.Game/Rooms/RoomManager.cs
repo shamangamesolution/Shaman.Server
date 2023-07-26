@@ -9,10 +9,8 @@ using Shaman.Common.Udp.Sockets;
 using Shaman.Common.Utils.Helpers;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Bundle;
-using Shaman.Contract.Bundle.Stats;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
-using Shaman.Game.Metrics;
 using Shaman.Game.Rooms.Exceptions;
 using Shaman.Game.Rooms.RoomProperties;
 using Shaman.Game.Stats;
@@ -139,7 +137,7 @@ namespace Shaman.Game.Rooms
                 roomPropertiesContainer.Initialize(players, properties);
 
                 var room = new Room(_logger, _taskSchedulerFactory, roomPropertiesContainer,
-                    _roomControllerFactory, packetSender, roomId ?? Guid.NewGuid(), _roomStateUpdater);
+                    _roomControllerFactory, packetSender, roomId ?? Guid.NewGuid(), _roomStateUpdater, _gameMetrics);
 
                 if(_rooms.TryAdd(room.GetRoomId(), room))
                     _gameMetrics.TrackRoomCreated();

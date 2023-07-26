@@ -60,9 +60,19 @@ public class BundledGameMetrics : IGameMetrics
         _gameMetrics?.TrackRoomTotalTrafficSent(bytes);
     }
 
+    public void TrackRoomTrafficSent(int bytes)
+    {
+        _gameMetrics?.TrackRoomTrafficSent(bytes);
+    }
+
     public void TrackRoomTotalTrafficReceived(int bytes)
     {
         _gameMetrics?.TrackRoomTotalTrafficReceived(bytes);
+    }
+
+    public void TrackRoomTrafficReceived(int bytes)
+    {
+        _gameMetrics?.TrackRoomTrafficReceived(bytes);
     }
 
     public void TrackRoomTotalMessagesSent(int count)

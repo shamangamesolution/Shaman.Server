@@ -1,5 +1,3 @@
-using Shaman.Contract.Bundle.Stats;
-
 namespace Shaman.Game.Metrics
 {
     public class GameMetricsStub : IGameMetrics
@@ -36,7 +34,15 @@ namespace Shaman.Game.Metrics
         {
         }
 
+        public void TrackRoomTrafficSent(int bytes)
+        {
+        }
+
         public void TrackRoomTotalTrafficReceived(int bytes)
+        {
+        }
+
+        public void TrackRoomTrafficReceived(int bytes)
         {
         }
 

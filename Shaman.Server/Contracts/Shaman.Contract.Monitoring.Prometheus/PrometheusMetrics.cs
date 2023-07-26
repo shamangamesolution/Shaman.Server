@@ -27,6 +27,8 @@ public class PrometheusMetrics : IGameMetrics
         });
 
     private static readonly Counter RoomTrafficSent = Metrics.CreateCounter("room_traffic_sent", "Room traffic sent");
+    private static readonly Counter TrafficSent = Metrics.CreateCounter("traffic_sent", "Traffic sent");
+    private static readonly Counter TrafficReceived = Metrics.CreateCounter("traffic_received", "Traffic received");
 
     private static readonly Counter RoomTrafficReceived =
         Metrics.CreateCounter("room_traffic_received", "Room traffic received");
@@ -93,9 +95,19 @@ public class PrometheusMetrics : IGameMetrics
         RoomTrafficSent.Inc(bytes);
     }
 
+    public void TrackRoomTrafficSent(int bytes)
+    {
+        TrafficSent.Inc(bytes);
+    }
+
     public void TrackRoomTotalTrafficReceived(int bytes)
     {
         RoomTrafficReceived.Inc(bytes);
+    }
+
+    public void TrackRoomTrafficReceived(int bytes)
+    {
+        TrafficReceived.Inc(bytes);
     }
 
     public void TrackRoomTotalMessagesSent(int count)

@@ -28,6 +28,12 @@ namespace Shaman.Contract.Monitoring.AppMetrics
         private static readonly HistogramOptions RoomTrafficReceived = new HistogramOptions
             {Name = "Room traffic received", MeasurementUnit = Unit.None};
 
+        private static readonly HistogramOptions TrafficSent = new HistogramOptions
+            {Name = "Traffic sent", MeasurementUnit = Unit.None};
+
+        private static readonly HistogramOptions TrafficReceived = new HistogramOptions
+            {Name = "Traffic received", MeasurementUnit = Unit.None};
+
         private static readonly HistogramOptions RoomTotalMessagesReceived = new HistogramOptions
             {Name = "Room messages received", MeasurementUnit = Unit.None};
 
@@ -79,9 +85,19 @@ namespace Shaman.Contract.Monitoring.AppMetrics
             Metrics.Measure.Histogram.Update(RoomTrafficSent, bytes);
         }
 
+        public void TrackRoomTrafficSent(int bytes)
+        {
+            Metrics.Measure.Histogram.Update(TrafficSent, bytes);
+        }
+
         public void TrackRoomTotalTrafficReceived(int bytes)
         {
             Metrics.Measure.Histogram.Update(RoomTrafficReceived, bytes);
+        }
+
+        public void TrackRoomTrafficReceived(int bytes)
+        {
+            Metrics.Measure.Histogram.Update(TrafficReceived, bytes);
         }
 
         public void TrackRoomTotalMessagesSent(int count)

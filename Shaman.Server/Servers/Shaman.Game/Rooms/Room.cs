@@ -29,14 +29,14 @@ namespace Shaman.Game.Rooms
         private readonly IRoomController _roomController;
         private readonly RoomStats _roomStats;
         private readonly IRoomStateUpdater _roomStateUpdater;
-        
+
         private RoomState _roomState = RoomState.Closed;
 
         
         public Room(IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory,
             IRoomPropertiesContainer roomPropertiesContainer,
             IRoomControllerFactory roomControllerFactory, IPacketSender packetSender,
-            Guid roomId, IRoomStateUpdater roomStateUpdater)
+            Guid roomId, IRoomStateUpdater roomStateUpdater, IGameMetrics gameMetrics)
         {
             _logger = logger;
             _roomId = roomId;
@@ -46,7 +46,7 @@ namespace Shaman.Game.Rooms
             _roomPropertiesContainer = roomPropertiesContainer;
             _packetSender = packetSender;
 
-            _roomStats = new RoomStats(GetRoomId(), roomPropertiesContainer.GetPlayersCount());
+            _roomStats = new RoomStats(GetRoomId(), roomPropertiesContainer.GetPlayersCount(), gameMetrics);
             
             _roomController =
                 roomControllerFactory.GetGameModeController(
@@ -266,6 +266,7 @@ namespace Shaman.Game.Rooms
             if (!TryGetPlayer(sessionId, out var player))
                 return;
 
+            TrackBundleMsg(payload, deliveryOptions);
             _packetSender.AddPacket(player.Peer, deliveryOptions, BundleMessagePrefix, payload);
         }
 
@@ -283,14 +284,22 @@ namespace Shaman.Game.Rooms
             {
                 if (Equals(exceptionSessionId, roomPlayer.Peer.GetSessionId()))
                     continue;
+                TrackBundleMsg(payload, deliveryOptions);
                 _packetSender.AddPacket(roomPlayer.Peer, deliveryOptions, BundleMessagePrefix, payload);
             }
+        }
+
+        private void TrackBundleMsg(Payload payload, DeliveryOptions deliveryOptions)
+        {
+            _roomStats.TrackSentMessage(payload.Length - payload.Offset, deliveryOptions.IsReliable,
+                ShamanOperationCode.Bundle);
         }
 
         public void SendToAll(Payload payload, DeliveryOptions deliveryOptions)
         {
             foreach (var roomPlayer in GetAllPlayers())
             {
+                TrackBundleMsg(payload, deliveryOptions);
                 _packetSender.AddPacket(roomPlayer.Peer, deliveryOptions, BundleMessagePrefix, payload);
             }
         }
