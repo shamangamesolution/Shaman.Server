@@ -85,7 +85,7 @@ namespace Shaman.Game.Stats
                 if (isReliable)
                     AddReliable(operationCode);
             }
-            _gameMetrics.TrackRoomTotalTrafficSent(sizeInBytes);
+            _gameMetrics.TrackTrafficSent(sizeInBytes);
         }
 
         public void TrackReceivedMessage(ushort operationCode, int messageLength, bool isReliable)
@@ -105,7 +105,7 @@ namespace Shaman.Game.Stats
                 if (isReliable)
                     AddReliable(messageOperationCode);
             }
-            _gameMetrics.TrackRoomTotalTrafficReceived(messageLength);
+            _gameMetrics.TrackTrafficReceived(messageLength);
         }
 
         private static ushort GetOperationCode(MessageBase message)

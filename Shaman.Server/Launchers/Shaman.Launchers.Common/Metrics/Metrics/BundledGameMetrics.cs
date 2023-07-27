@@ -60,9 +60,9 @@ public class BundledGameMetrics : IGameMetrics
         _gameMetrics?.TrackRoomTotalTrafficSent(bytes);
     }
 
-    public void TrackRoomTrafficSent(int bytes)
+    public void TrackTrafficSent(int bytes)
     {
-        _gameMetrics?.TrackRoomTrafficSent(bytes);
+        _gameMetrics?.TrackTrafficSent(bytes);
     }
 
     public void TrackRoomTotalTrafficReceived(int bytes)
@@ -70,9 +70,9 @@ public class BundledGameMetrics : IGameMetrics
         _gameMetrics?.TrackRoomTotalTrafficReceived(bytes);
     }
 
-    public void TrackRoomTrafficReceived(int bytes)
+    public void TrackTrafficReceived(int bytes)
     {
-        _gameMetrics?.TrackRoomTrafficReceived(bytes);
+        _gameMetrics?.TrackTrafficReceived(bytes);
     }
 
     public void TrackRoomTotalMessagesSent(int count)

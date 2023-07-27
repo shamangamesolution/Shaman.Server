@@ -95,7 +95,7 @@ public class PrometheusMetrics : IGameMetrics
         RoomTrafficSent.Inc(bytes);
     }
 
-    public void TrackRoomTrafficSent(int bytes)
+    public void TrackTrafficSent(int bytes)
     {
         TrafficSent.Inc(bytes);
     }
@@ -105,7 +105,7 @@ public class PrometheusMetrics : IGameMetrics
         RoomTrafficReceived.Inc(bytes);
     }
 
-    public void TrackRoomTrafficReceived(int bytes)
+    public void TrackTrafficReceived(int bytes)
     {
         TrafficReceived.Inc(bytes);
     }

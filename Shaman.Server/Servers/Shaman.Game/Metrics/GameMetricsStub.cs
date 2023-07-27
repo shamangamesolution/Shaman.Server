@@ -34,7 +34,7 @@ namespace Shaman.Game.Metrics
         {
         }
 
-        public void TrackRoomTrafficSent(int bytes)
+        public void TrackTrafficSent(int bytes)
         {
         }
 
@@ -42,7 +42,7 @@ namespace Shaman.Game.Metrics
         {
         }
 
-        public void TrackRoomTrafficReceived(int bytes)
+        public void TrackTrafficReceived(int bytes)
         {
         }
 
