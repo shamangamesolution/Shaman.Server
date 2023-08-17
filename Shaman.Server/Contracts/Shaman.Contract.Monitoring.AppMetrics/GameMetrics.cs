@@ -85,7 +85,7 @@ namespace Shaman.Contract.Monitoring.AppMetrics
             Metrics.Measure.Histogram.Update(RoomTrafficSent, bytes);
         }
 
-        public void TrackRoomTrafficSent(int bytes)
+        public void TrackTrafficSent(int bytes)
         {
             Metrics.Measure.Histogram.Update(TrafficSent, bytes);
         }
@@ -95,7 +95,7 @@ namespace Shaman.Contract.Monitoring.AppMetrics
             Metrics.Measure.Histogram.Update(RoomTrafficReceived, bytes);
         }
 
-        public void TrackRoomTrafficReceived(int bytes)
+        public void TrackTrafficReceived(int bytes)
         {
             Metrics.Measure.Histogram.Update(TrafficReceived, bytes);
         }
