@@ -26,16 +26,16 @@ public class WebSocketClientTransport : ITransportLayer
     {
         _taskScheduler.Schedule(async () =>
         {
-            var uri = new Uri($"ws://{endPoint}");
-            _logger.Info($"WsClient connecting to {uri}");
-            await _clientWebSocket.ConnectAsync(uri,
-                CancellationToken.None // todo possible handle timeout
-            );
-            if (_clientWebSocket.State == WebSocketState.Open)
-                OnConnected?.Invoke(endPoint);
 
             try
             {
+                var uri = new Uri($"ws://{endPoint}");
+                _logger.Info($"WsClient connecting to {uri}");
+                await _clientWebSocket.ConnectAsync(uri,
+                    CancellationToken.None // todo possible handle timeout
+                );
+                if (_clientWebSocket.State == WebSocketState.Open)
+                    OnConnected?.Invoke(endPoint);
                 while (_clientWebSocket.State == WebSocketState.Open)
                 {
                     var buffer = ArrayPool<byte>.Shared.Rent(1024 * 4);
