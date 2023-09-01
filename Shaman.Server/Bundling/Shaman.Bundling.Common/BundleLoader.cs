@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Net;
+using System.Net.Http;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -51,14 +51,22 @@ namespace Shaman.Bundling.Common
                 {
                     Directory.Delete(newBundleFolder, true);
                 }
-                Console.Out.WriteLine($"Downloading bundle from {uri}");
-                using (var wc = new WebClient())
-                    wc.DownloadFile(uri, bundleDest);
+                Console.Out.WriteLine($"Downloading bundle from '{uri}'"); 
+                DownloadFile(uri, bundleDest).Wait();
                 ZipFile.ExtractToDirectory(bundleDest, newBundleFolder);
                 File.Delete(bundleDest);
             }
 
             return newBundleFolder;
+        }
+
+        private static async Task DownloadFile(Uri fileUri, string destination)
+        {
+            using var client = new HttpClient();
+            using var response = await client.GetAsync(fileUri);
+            await using var stream = await response.Content.ReadAsStreamAsync();
+            await using var fs = new FileStream(destination, FileMode.Create);
+            await stream.CopyToAsync(fs);
         }
         
         private void LoadAll(string publishDir)
