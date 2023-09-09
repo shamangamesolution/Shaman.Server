@@ -101,7 +101,9 @@ namespace Shaman.Client.Peers
             _listener = listener;
             _clientPeer.OnDisconnectedFromServer += (reason) =>
             {
-                switch (_status)
+                var status = _status;
+                _status = ShamanClientStatus.Disconnected;
+                switch (status)
                 {
                     case ShamanClientStatus.ConnectingGameServer:
                     case ShamanClientStatus.AuthorizingGameServer:

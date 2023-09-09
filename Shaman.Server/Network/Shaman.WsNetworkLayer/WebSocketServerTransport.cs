@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using System.Net;
 using System.Net.WebSockets;
+using System.Text;
 using Shaman.Common.Udp.Sockets;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
@@ -17,6 +18,7 @@ public class WebSocketServerTransport : ITransportLayer
     private Func<IPEndPoint, bool> _onConnect;
     private Action<IPEndPoint, IDisconnectInfo> _onDisconnect;
 
+    private static readonly byte[] PingPongLetter = Encoding.UTF8.GetBytes("p");
     #region Client-side
 
     public void Connect(IPEndPoint endPoint)
@@ -138,13 +140,26 @@ public class WebSocketServerTransport : ITransportLayer
             // _logger.Error($"result: {result.EndOfMessage} {result.Count} {result.MessageType} {result.CloseStatus} {result.CloseStatusDescription}");
             if (result.CloseStatus.HasValue)
             {
-                await webSocket.CloseAsync(result.CloseStatus ?? WebSocketCloseStatus.NormalClosure, result.CloseStatusDescription,
+                await webSocket.CloseAsync(result.CloseStatus ?? WebSocketCloseStatus.NormalClosure,
+                    result.CloseStatusDescription,
                     CancellationToken.None);
                 break;
             }
 
             if (result.MessageType == WebSocketMessageType.Close)
                 break;
+            if (result.MessageType == WebSocketMessageType.Text)
+            {
+                var ping = buffer.AsSpan(0, result.Count).SequenceEqual(PingPongLetter);
+                if (!ping)
+                {
+                    _logger.Error("Bad ping received");
+                    break;
+                }
+                _logger.Info("Ping received");
+                await webSocket.SendAsync(PingPongLetter, WebSocketMessageType.Text, true, CancellationToken.None);
+                continue;
+            }
 
             if (result.MessageType != WebSocketMessageType.Binary)
             {

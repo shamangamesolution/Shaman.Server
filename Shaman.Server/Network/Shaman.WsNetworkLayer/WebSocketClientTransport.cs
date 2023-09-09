@@ -1,6 +1,7 @@
 using System.Buffers;
 using System.Net;
 using System.Net.WebSockets;
+using System.Text;
 using Shaman.Common.Udp.Sockets;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
@@ -12,12 +13,19 @@ public class WebSocketClientTransport : ITransportLayer
     private readonly ITaskScheduler _taskScheduler;
     private readonly IShamanLogger _logger;
     private readonly ClientWebSocket _clientWebSocket;
+    private static readonly byte[] PingPongLetter = Encoding.UTF8.GetBytes("p");
 
-    public WebSocketClientTransport(ITaskScheduler taskScheduler, IShamanLogger logger)
+    private int _rtt = 0;
+    private bool _waitForPong = false;
+    private DateTime _pingSent = DateTime.UtcNow;
+    private readonly TimeSpan KeepAliveInterval;
+
+    public WebSocketClientTransport(ITaskScheduler taskScheduler, IShamanLogger logger, TimeSpan keepAliveInterval)
     {
         _taskScheduler = taskScheduler;
         _logger = logger;
         _clientWebSocket = new ClientWebSocket();
+        KeepAliveInterval = keepAliveInterval;
     }
 
     #region Client-side
@@ -26,7 +34,6 @@ public class WebSocketClientTransport : ITransportLayer
     {
         _taskScheduler.Schedule(async () =>
         {
-
             try
             {
                 var uri = new Uri($"ws://{endPoint}");
@@ -36,22 +43,40 @@ public class WebSocketClientTransport : ITransportLayer
                 );
                 if (_clientWebSocket.State == WebSocketState.Open)
                     OnConnected?.Invoke(endPoint);
+                await SendHb();
+                var cancellationToken = new CancellationTokenSource();
                 while (_clientWebSocket.State == WebSocketState.Open)
                 {
                     var buffer = ArrayPool<byte>.Shared.Rent(1024 * 4);
+                    cancellationToken.CancelAfter(KeepAliveInterval);
                     var result =
-                        await _clientWebSocket.ReceiveAsync(buffer, CancellationToken.None);
+                        await _clientWebSocket.ReceiveAsync(buffer, cancellationToken.Token);
                     // _logger.Error($"result: {result.EndOfMessage} {result.Count} {result.MessageType} {result.CloseStatus} {result.CloseStatusDescription}");
 
                     if (result.MessageType == WebSocketMessageType.Close)
                         break;
+
+                    if (result.MessageType == WebSocketMessageType.Text)
+                    {
+                        var ping = buffer.AsSpan(0, result.Count).SequenceEqual(PingPongLetter);
+                        if (!ping)
+                        {
+                            _logger.Error("Bad pong received");
+                            break;
+                        }
+
+                        _rtt = (int) (DateTime.UtcNow - _pingSent).TotalMilliseconds;
+                        _waitForPong = false;
+                        _logger.Info($"PONG received3 ({_rtt})");
+                        _taskScheduler.Schedule(async () => { await SendHb(); }, Math.Max(0, (long) (1000 - _rtt)));
+                        continue;
+                    }
 
                     if (result.MessageType != WebSocketMessageType.Binary)
                     {
                         _logger.Error($"Unsupported message type: {result.MessageType}");
                         continue;
                     }
-
 
                     var dataPacket = result.EndOfMessage
                         ? new DataPacket(buffer, 0, result.Count, new DeliveryOptions(true, true))
@@ -67,6 +92,21 @@ public class WebSocketClientTransport : ITransportLayer
                     new SimpleDisconnectInfo(ShamanDisconnectReason.ConnectionLost));
             }
         }, 0);
+    }
+
+    private async Task SendHb()
+    {
+        _pingSent = DateTime.UtcNow;
+        _waitForPong = true;
+        try
+        {
+            await _clientWebSocket.SendAsync(PingPongLetter, WebSocketMessageType.Text, true,
+                CancellationToken.None);
+        }
+        catch (Exception e)
+        {
+            // no worries
+        }
     }
 
     public void Send(byte[] buffer, int offset, int length, bool reliable, bool orderControl,
@@ -90,14 +130,18 @@ public class WebSocketClientTransport : ITransportLayer
 
     public int GetPing()
     {
-        //todo
-        return 100;
+        if (_waitForPong)
+        {
+            var rtt = (int) (DateTime.UtcNow - _pingSent).TotalMilliseconds;
+            return Math.Max(rtt, _rtt);
+        }
+
+        return _rtt;
     }
 
     public int GetRtt()
     {
-        //todo
-        return 100;
+        return GetPing();
     }
 
     public void Close()
