@@ -51,6 +51,7 @@ namespace Shaman.Bundling.Common
                 {
                     Directory.Delete(newBundleFolder, true);
                 }
+                Console.Out.WriteLine($"Shaman build 111"); 
                 Console.Out.WriteLine($"Downloading bundle from '{uri}'"); 
                 DownloadFile(uri, bundleDest).Wait();
                 ZipFile.ExtractToDirectory(bundleDest, newBundleFolder);
