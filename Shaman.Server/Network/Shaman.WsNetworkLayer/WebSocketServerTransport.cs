@@ -72,8 +72,14 @@ public class WebSocketServerTransport : ITransportLayer
         _onConnect = onConnect;
         _onReceivePacket = onReceivePacket;
     }
+    
+    private class Ctx
+    {
+        public HttpListenerWebSocketContext WebSocketContext { get; set; }
+        public SemaphoreSlim Semaphore { get; set; }
+    }
 
-    private readonly ConcurrentDictionary<IPEndPoint, HttpListenerWebSocketContext> _contexts = new();
+    private readonly ConcurrentDictionary<IPEndPoint, Ctx> _contexts = new();
 
     public void Listen(int port)
     {
@@ -99,9 +105,14 @@ public class WebSocketServerTransport : ITransportLayer
                     var webSocketCtx = await ctx.AcceptWebSocketAsync(null);
                     try
                     {
-                        _contexts[ipEndPoint] = webSocketCtx;
+                        var context = new Ctx
+                        {
+                            WebSocketContext = webSocketCtx,
+                            Semaphore = new SemaphoreSlim(1, 1)
+                        };
+                        _contexts[ipEndPoint] = context;
                         _onConnect?.Invoke(ipEndPoint);
-                        await HandleWsContext(webSocketCtx, ipEndPoint);
+                        await HandleWsContext(context, ipEndPoint);
                     }
                     catch (WebSocketException e)
                     {
@@ -129,9 +140,9 @@ public class WebSocketServerTransport : ITransportLayer
         }, 0);
     }
 
-    private async Task HandleWsContext(HttpListenerWebSocketContext webSocketCtx, IPEndPoint ipEndPoint)
+    private async Task HandleWsContext(Ctx webSocketCtx, IPEndPoint ipEndPoint)
     {
-        var webSocket = webSocketCtx.WebSocket;
+        var webSocket = webSocketCtx.WebSocketContext.WebSocket;
         var buffer = new byte[1024 * 4];
         while (webSocket.State == WebSocketState.Open)
         {
@@ -153,7 +164,10 @@ public class WebSocketServerTransport : ITransportLayer
                 var ping = buffer.AsSpan(0, result.Count).SequenceEqual(PingPongLetter);
                 if (!ping)
                     break;
+
+                await webSocketCtx.Semaphore.WaitAsync();
                 await webSocket.SendAsync(PingPongLetter, WebSocketMessageType.Text, true, CancellationToken.None);
+                webSocketCtx.Semaphore.Release();
                 continue;
             }
 
@@ -186,26 +200,35 @@ public class WebSocketServerTransport : ITransportLayer
     {
         if (!_contexts.TryGetValue(endPoint, out var wctx))
             return;
-        if (wctx.WebSocket.CloseStatus.HasValue)
+        if (wctx.WebSocketContext.WebSocket.CloseStatus.HasValue)
             return;
-        var webSocket = wctx.WebSocket;
-        webSocket.SendAsync(new ArraySegment<byte>(buffer, offset, length), WebSocketMessageType.Binary, true,
-            CancellationToken.None).ContinueWith(HandleWsSend, endPoint);
+        var webSocket = wctx.WebSocketContext.WebSocket;
+        var arraySegment = new ArraySegment<byte>(buffer, offset, length);
+        _ = Send(wctx.Semaphore, endPoint, webSocket, arraySegment);
     }
 
-    private void HandleWsSend(Task sendingTask, object ip)
+    private async Task Send(SemaphoreSlim sendSemaphore, IPEndPoint endPoint, WebSocket webSocket,
+        ArraySegment<byte> arraySegment)
     {
-        if (!sendingTask.IsFaulted)
-            return;
-        if (_contexts.TryGetValue((IPEndPoint) ip, out var wctx) && !wctx.WebSocket.CloseStatus.HasValue)
-            _logger.Error($"Failed to send data to peer {ip}: {sendingTask.Exception}");
+        try
+        {
+            await sendSemaphore.WaitAsync();
+            await webSocket.SendAsync(arraySegment, WebSocketMessageType.Binary, true,
+                CancellationToken.None);
+            sendSemaphore.Release();
+        }
+        catch (Exception e)
+        {
+            if (_contexts.ContainsKey(endPoint) && !webSocket.CloseStatus.HasValue)
+                _logger.Error($"Failed to send data to peer {endPoint}: {e}");
+        }
     }
 
     public bool DisconnectPeer(IPEndPoint ipEndPoint)
     {
         if (!_contexts.TryGetValue(ipEndPoint, out var wctx))
             return false;
-        return DisconnectPeerImpl(wctx);
+        return DisconnectPeerImpl(wctx.WebSocketContext);
     }
 
     private static bool DisconnectPeerImpl(HttpListenerWebSocketContext wctx)
@@ -220,9 +243,9 @@ public class WebSocketServerTransport : ITransportLayer
     {
         if (!_contexts.TryGetValue(ipEndPoint, out var wctx))
             return false;
-        if (wctx.WebSocket.CloseStatus.HasValue)
+        if (wctx.WebSocketContext.WebSocket.CloseStatus.HasValue)
             return false;
-        wctx.WebSocket.CloseAsync(WebSocketCloseStatus.NormalClosure,
+        wctx.WebSocketContext.WebSocket.CloseAsync(WebSocketCloseStatus.NormalClosure,
             Convert.ToBase64String(data, offset, length), CancellationToken.None);
         return true;
     }
