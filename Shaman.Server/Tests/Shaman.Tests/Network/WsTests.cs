@@ -20,7 +20,7 @@ public class WsTests
         var consoleLogger = new ConsoleLogger();
         var taskScheduler = new TaskScheduler(consoleLogger);
         var serverSock = new WebSocketServerTransport(taskScheduler, consoleLogger);
-        var clientSock = new WebSocketClientTransport(taskScheduler, consoleLogger);
+        var clientSock = new WebSocketClientTransport(taskScheduler, consoleLogger, TimeSpan.FromSeconds(5));
         var clientRcvTask = new TaskCompletionSource<byte[]>();
         var srvRcvTask = new TaskCompletionSource<byte[]>();
         var payloadFromClient = new byte[] {1, 2, 3};
@@ -66,7 +66,7 @@ public class WsTests
         var consoleLogger = new ConsoleLogger();
         var taskScheduler = new TaskScheduler(consoleLogger);
         var serverSock = new WebSocketServerTransport(taskScheduler, consoleLogger);
-        var clientSock = new WebSocketClientTransport(taskScheduler, consoleLogger);
+        var clientSock = new WebSocketClientTransport(taskScheduler, consoleLogger, TimeSpan.FromSeconds(5));
         var clientRcvTask = new TaskCompletionSource<byte[]>();
         var srvRcvTask = new TaskCompletionSource<byte[]>();
         var payloadFromClient = Enumerable.Range(0, 1024 * 200).Select(i => (byte) (i % 256)).ToArray();
