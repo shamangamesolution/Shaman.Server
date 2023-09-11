@@ -60,14 +60,10 @@ public class WebSocketClientTransport : ITransportLayer
                     {
                         var ping = buffer.AsSpan(0, result.Count).SequenceEqual(PingPongLetter);
                         if (!ping)
-                        {
-                            _logger.Error("Bad pong received");
                             break;
-                        }
 
                         _rtt = (int) (DateTime.UtcNow - _pingSent).TotalMilliseconds;
                         _waitForPong = false;
-                        _logger.Info($"PONG received3 ({_rtt})");
                         _taskScheduler.Schedule(async () => { await SendHb(); }, Math.Max(0, (long) (1000 - _rtt)));
                         continue;
                     }

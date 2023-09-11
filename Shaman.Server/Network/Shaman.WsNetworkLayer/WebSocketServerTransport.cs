@@ -152,11 +152,7 @@ public class WebSocketServerTransport : ITransportLayer
             {
                 var ping = buffer.AsSpan(0, result.Count).SequenceEqual(PingPongLetter);
                 if (!ping)
-                {
-                    _logger.Error("Bad ping received");
                     break;
-                }
-                _logger.Info("Ping received");
                 await webSocket.SendAsync(PingPongLetter, WebSocketMessageType.Text, true, CancellationToken.None);
                 continue;
             }
