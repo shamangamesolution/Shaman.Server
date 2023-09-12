@@ -19,6 +19,7 @@ public class WebSocketClientTransport : ITransportLayer
     private bool _waitForPong = false;
     private DateTime _pingSent = DateTime.UtcNow;
     private readonly TimeSpan KeepAliveInterval;
+    private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
 
     public WebSocketClientTransport(ITaskScheduler taskScheduler, IShamanLogger logger, TimeSpan keepAliveInterval)
     {
@@ -96,8 +97,7 @@ public class WebSocketClientTransport : ITransportLayer
         _waitForPong = true;
         try
         {
-            await _clientWebSocket.SendAsync(PingPongLetter, WebSocketMessageType.Text, true,
-                CancellationToken.None);
+            await SendImpl(PingPongLetter, WebSocketMessageType.Text);
         }
         catch (Exception e)
         {
@@ -108,10 +108,27 @@ public class WebSocketClientTransport : ITransportLayer
     public void Send(byte[] buffer, int offset, int length, bool reliable, bool orderControl,
         bool returnAfterSend = true)
     {
+        _ = SendImpl(new ArraySegment<byte>(buffer, offset, length), WebSocketMessageType.Binary);
+    }
+
+    private async Task SendImpl(ArraySegment<byte> arraySegment, WebSocketMessageType messageType)
+    {
         if (_clientWebSocket.State != WebSocketState.Open)
             return;
-        _clientWebSocket.SendAsync(new ArraySegment<byte>(buffer, offset, length), WebSocketMessageType.Binary,
-            true, CancellationToken.None).ContinueWith(HandleResult);
+        var readOnlyMemory = arraySegment;
+        try
+        {
+            await _semaphore.WaitAsync();
+            await _clientWebSocket.SendAsync(readOnlyMemory, messageType,
+                true, CancellationToken.None);
+            _semaphore.Release();
+        }
+        catch (Exception e)
+        {
+            if (_clientWebSocket.State != WebSocketState.Open)
+                return;
+            _logger.Error($"Failed to send data to peer: {e}");
+        }
     }
 
     private void HandleResult(Task sendingTask)
