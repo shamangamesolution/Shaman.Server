@@ -75,7 +75,7 @@ namespace Shaman.Launchers.Game.DebugServer
                         new KeyValuePair<string, string>("CommonSettings:SendTickTimeMs", Config.SendTickTimeMs.ToString()),
                         new KeyValuePair<string, string>("CommonSettings:MaxPacketSize", Config.MaxPacketSize.ToString()),
                         new KeyValuePair<string, string>("CommonSettings:BasePacketBufferSize", Config.BasePacketBufferSize.ToString()),
-                        new KeyValuePair<string, string>("CommonSettings:ListenPorts", Config.ListenPorts.First().ToString()),
+                        new KeyValuePair<string, string>("CommonSettings:ListenPorts", Config.ListenPorts),
                         new KeyValuePair<string, string>("CommonSettings:IsAuthOn", Config.IsAuthOn.ToString()),
                         new KeyValuePair<string, string>("CommonSettings:ConsoleLogLevel", _levelLog),
                         new KeyValuePair<string, string>("Serilog:MinimumLevel", _levelLog),
