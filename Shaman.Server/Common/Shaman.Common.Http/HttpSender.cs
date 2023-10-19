@@ -30,7 +30,7 @@ namespace Shaman.Common.Http
             _client.Timeout = new TimeSpan(0, 0, 15);
         }
 
-        public async Task<T> SendRequest<T>(string serviceUrl, HttpRequestBase request)
+        public async Task<T> SendRequest<T>(string serviceUrl, HttpSimpleRequestBase request)
             where T : HttpResponseBase, new()
         {
             var responseObject = new T();
@@ -70,7 +70,7 @@ namespace Shaman.Common.Http
             return responseObject;
         }
 
-        public async Task SendRequest<T>(string serviceUrl, HttpRequestBase request, Action<T> callback) where T : HttpResponseBase, new()
+        public async Task SendRequest<T>(string serviceUrl, HttpSimpleRequestBase request, Action<T> callback) where T : HttpResponseBase, new()
         {
             var responseObject = await SendRequest<T>(serviceUrl, request);
             try

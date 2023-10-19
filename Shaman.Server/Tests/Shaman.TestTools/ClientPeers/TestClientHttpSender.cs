@@ -8,7 +8,7 @@ using IRequestSender = Shaman.Client.IRequestSender;
 
 namespace Shaman.TestTools.ClientPeers
 {
-    public class TestClientHttpSender:IRequestSender
+    public class TestClientHttpSender : IRequestSender
     {
         private readonly HttpSender _httpSender;
 
@@ -17,12 +17,12 @@ namespace Shaman.TestTools.ClientPeers
             _httpSender = new HttpSender(logger,serializer);
         }
 
-        public Task<T> SendRequest<T>(string serviceUri, HttpRequestBase request) where T : HttpResponseBase, new()
+        public Task<T> SendRequest<T>(string serviceUri, HttpSimpleRequestBase request) where T : HttpResponseBase, new()
         {
             return _httpSender.SendRequest<T>(serviceUri, request);
         }
 
-        public Task SendRequest<T>(string serviceUri, HttpRequestBase request, Action<T> callback) where T : HttpResponseBase, new()
+        public Task SendRequest<T>(string serviceUri, HttpSimpleRequestBase request, Action<T> callback) where T : HttpResponseBase, new()
         {
             return _httpSender.SendRequest<T>(serviceUri, request, callback);
         }

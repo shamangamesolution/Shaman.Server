@@ -27,8 +27,13 @@ namespace Shaman.Serialization.Messages.Http
             DeserializeRequestBody(typeReader);
         }
     }
+    
+    public interface ISessionRequest
+    {
+        Guid SessionId { get; set; }
+    }
 
-    public abstract class HttpSessionRequestBase : HttpSimpleRequestBase
+    public abstract class HttpSessionRequestBase : HttpSimpleRequestBase, ISessionRequest
     {
         public Guid SessionId { get; set; }
 

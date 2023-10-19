@@ -3,13 +3,11 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Shaman.Common.Http;
-using Shaman.Common.Udp.Sockets;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Common.Logging;
 using Shaman.Contract.Routing;
 using Shaman.Game;
-using Shaman.LiteNetLibAdapter;
 using Shaman.Messages.General.DTO.Responses.Auth;
 using Shaman.Messages.RoomFlow;
 using Shaman.Routing.Balancing.Messages;
@@ -21,7 +19,7 @@ namespace Shaman.Tests
 {
     public class FakeSender : IRequestSender
     {        
-        public async Task<T> SendRequest<T>(string serviceUri, HttpRequestBase request) where T : HttpResponseBase, new()
+        public async Task<T> SendRequest<T>(string serviceUri, HttpSimpleRequestBase request) where T : HttpResponseBase, new()
         {
             if (typeof(T) == typeof(CreateRoomResponse))
                 return new CreateRoomResponse(Guid.NewGuid()) as T;
@@ -35,7 +33,7 @@ namespace Shaman.Tests
             return new T();
         }
 
-        public async Task SendRequest<T>(string serviceUri, HttpRequestBase request, Action<T> callback) where T : HttpResponseBase, new()
+        public async Task SendRequest<T>(string serviceUri, HttpSimpleRequestBase request, Action<T> callback) where T : HttpResponseBase, new()
         {
             if (typeof(T) == typeof(CreateRoomResponse))
                 callback(new CreateRoomResponse(Guid.NewGuid()) as T);
@@ -75,7 +73,7 @@ namespace Shaman.Tests
             _updateRoomDelegate = updateRoomDelegate;
         }
         
-        public async Task<T> SendRequest<T>(string serviceUri, HttpRequestBase request) where T : HttpResponseBase, new()
+        public async Task<T> SendRequest<T>(string serviceUri, HttpSimpleRequestBase request) where T : HttpResponseBase, new()
         {
             if (typeof(T) == typeof(CreateRoomResponse))
             {
@@ -96,7 +94,7 @@ namespace Shaman.Tests
             return new T();
         }
 
-        public async Task SendRequest<T>(string serviceUri, HttpRequestBase request, Action<T> callback) where T : HttpResponseBase, new()
+        public async Task SendRequest<T>(string serviceUri, HttpSimpleRequestBase request, Action<T> callback) where T : HttpResponseBase, new()
         {
             if (typeof(T) == typeof(CreateRoomResponse))
             {
