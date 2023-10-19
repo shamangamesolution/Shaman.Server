@@ -11,13 +11,7 @@ namespace Shaman.Serialization.Messages.Http
             this.ResultCode = ResultCode.OK;
         }
 
-        public bool Success
-        {
-            get
-            {
-                return this.ResultCode == ResultCode.OK;
-            }
-        }
+        public bool Success => this.ResultCode == ResultCode.OK;
 
         protected abstract void SerializeResponseBody(ITypeWriter typeWriter);
 
