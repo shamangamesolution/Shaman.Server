@@ -121,13 +121,16 @@ public class WebSocketClientTransport : ITransportLayer
             await _semaphore.WaitAsync();
             await _clientWebSocket.SendAsync(readOnlyMemory, messageType,
                 true, CancellationToken.None);
-            _semaphore.Release();
         }
         catch (Exception e)
         {
             if (_clientWebSocket.State != WebSocketState.Open)
                 return;
             _logger.Error($"Failed to send data to peer: {e}");
+        }
+        finally
+        {
+            _semaphore.Release();
         }
     }
 
