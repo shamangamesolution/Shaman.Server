@@ -97,6 +97,7 @@ public class WebSocketServerTransport : ITransportLayer
                 {
                     ctx.Response.StatusCode = 400;
                     ctx.Response.Close();
+                    continue;
                 }
 
                 _ = _taskScheduler.Schedule(async () =>
