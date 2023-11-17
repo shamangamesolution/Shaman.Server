@@ -166,8 +166,14 @@ public class WebSocketServerTransport : ITransportLayer
                     break;
 
                 await webSocketCtx.Semaphore.WaitAsync();
-                await webSocket.SendAsync(PingPongLetter, WebSocketMessageType.Text, true, CancellationToken.None);
-                webSocketCtx.Semaphore.Release();
+                try
+                {
+                    await webSocket.SendAsync(PingPongLetter, WebSocketMessageType.Text, true, CancellationToken.None);
+                }
+                finally
+                {
+                    webSocketCtx.Semaphore.Release();
+                }
                 continue;
             }
 
@@ -215,12 +221,15 @@ public class WebSocketServerTransport : ITransportLayer
             await sendSemaphore.WaitAsync();
             await webSocket.SendAsync(arraySegment, WebSocketMessageType.Binary, true,
                 CancellationToken.None);
-            sendSemaphore.Release();
         }
         catch (Exception e)
         {
             if (_contexts.ContainsKey(endPoint) && !webSocket.CloseStatus.HasValue)
                 _logger.Error($"Failed to send data to peer {endPoint}: {e}");
+        }
+        finally
+        {
+            sendSemaphore.Release();
         }
     }
 
