@@ -191,16 +191,6 @@ namespace Shaman.Game.Rooms
 
                 _gameMetrics.TrackRoomTotalMessagesReceived(messageStatistics.Received.Sum(m => m.Item3));
                 _gameMetrics.TrackRoomTotalMessagesSent(messageStatistics.Sent.Sum(m => m.Item3));
-
-                foreach (var item in messageStatistics.Received)
-                {
-                    _gameMetrics.TrackRoomTotalMessagesReceived(item.Item3, item.Item1.ToString());
-                }
-
-                foreach (var item in messageStatistics.Sent)
-                {
-                    _gameMetrics.TrackRoomTotalMessagesSent(item.Item3, item.Item1.ToString());
-                }
             }
         }
 

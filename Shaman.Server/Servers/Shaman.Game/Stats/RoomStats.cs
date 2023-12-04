@@ -25,7 +25,7 @@ namespace Shaman.Game.Stats
 
         private readonly List<int> _maxQueueSize = new List<int>() {0};
         private readonly List<int> _averageQueueSize = new List<int>() {0};
-        
+
         public RoomStats(Guid id, int playersCount, IGameMetrics gameMetrics)
         {
             _gameMetrics = gameMetrics;
@@ -86,6 +86,7 @@ namespace Shaman.Game.Stats
                     AddReliable(operationCode);
             }
             _gameMetrics.TrackTrafficSent(sizeInBytes);
+            _gameMetrics.TrackRoomMessagesSent(sizeInBytes, operationCode.ToString()/*garbage*/);
         }
 
         public void TrackReceivedMessage(ushort operationCode, int messageLength, bool isReliable)
@@ -106,6 +107,7 @@ namespace Shaman.Game.Stats
                     AddReliable(messageOperationCode);
             }
             _gameMetrics.TrackTrafficReceived(messageLength);
+            _gameMetrics.TrackRoomMessagesReceived(messageLength, operationCode.ToString()/*garbage*/);
         }
 
         private static ushort GetOperationCode(MessageBase message)

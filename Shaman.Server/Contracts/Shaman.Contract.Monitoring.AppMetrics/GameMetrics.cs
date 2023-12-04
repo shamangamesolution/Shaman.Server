@@ -110,13 +110,13 @@ namespace Shaman.Contract.Monitoring.AppMetrics
             Metrics.Measure.Histogram.Update(RoomTotalMessagesReceived, count);
         }
 
-        public void TrackRoomTotalMessagesSent(int count, string messageName)
+        public void TrackRoomMessagesSent(int count, string messageName)
         {
             Metrics.Measure.Histogram.Update(RoomTotalMessagesSent, new MetricTags("message", messageName),
                 count);
         }
 
-        public void TrackRoomTotalMessagesReceived(int count, string messageName)
+        public void TrackRoomMessagesReceived(int count, string messageName)
         {
             Metrics.Measure.Histogram.Update(RoomTotalMessagesReceived, new MetricTags("message", messageName),
                 count);

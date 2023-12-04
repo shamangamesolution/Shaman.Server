@@ -85,13 +85,13 @@ public class BundledGameMetrics : IGameMetrics
         _gameMetrics?.TrackRoomTotalMessagesReceived(count);
     }
 
-    public void TrackRoomTotalMessagesSent(int count, string messageName)
+    public void TrackRoomMessagesSent(int count, string messageName)
     {
-        _gameMetrics?.TrackRoomTotalMessagesSent(count, messageName);
+        _gameMetrics?.TrackRoomMessagesSent(count, messageName);
     }
 
-    public void TrackRoomTotalMessagesReceived(int count, string messageName)
+    public void TrackRoomMessagesReceived(int count, string messageName)
     {
-        _gameMetrics?.TrackRoomTotalMessagesReceived(count, messageName);
+        _gameMetrics?.TrackRoomMessagesReceived(count, messageName);
     }
 }

@@ -54,11 +54,11 @@ namespace Shaman.Game.Metrics
         {
         }
 
-        public void TrackRoomTotalMessagesSent(int count, string messageName)
+        public void TrackRoomMessagesSent(int count, string messageName)
         {
         }
 
-        public void TrackRoomTotalMessagesReceived(int count, string messageName)
+        public void TrackRoomMessagesReceived(int count, string messageName)
         {
         }
 

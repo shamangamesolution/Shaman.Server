@@ -34,10 +34,13 @@ public class PrometheusMetrics : IGameMetrics
         Metrics.CreateCounter("room_traffic_received", "Room traffic received");
 
     private static readonly Counter RoomTotalMessagesReceived =
-        Metrics.CreateCounter("room_messages_received", "Room messages received");
-
+        Metrics.CreateCounter("room_total_messages_received", "Room messages received, total per room");
+    private static readonly Counter RoomMessagesReceived =
+        Metrics.CreateCounter("room_messages_received", "Room messages received", "message_name");
     private static readonly Counter RoomTotalMessagesSent =
-        Metrics.CreateCounter("room_messages_sent", "Room messages sent");
+        Metrics.CreateCounter("room_total_messages_sent", "Room messages sent, total sent");
+    private static readonly Counter RoomMessagesSent =
+        Metrics.CreateCounter("room_messages_sent", "Room messages sent", "message_name");
 
     private static readonly Histogram MaxSendTickDuration =
         Metrics.CreateHistogram("max_send_tick_duration", "Max send tick duration", new HistogramConfiguration
@@ -120,14 +123,14 @@ public class PrometheusMetrics : IGameMetrics
         RoomTotalMessagesReceived.Inc(count);
     }
 
-    public void TrackRoomTotalMessagesSent(int count, string messageName)
+    public void TrackRoomMessagesSent(int count, string messageName)
     {
-        RoomTotalMessagesSent.WithLabels(messageName).Inc(count);
+        RoomMessagesSent.WithLabels(messageName).Inc(count);
     }
 
-    public void TrackRoomTotalMessagesReceived(int count, string messageName)
+    public void TrackRoomMessagesReceived(int count, string messageName)
     {
-        RoomTotalMessagesReceived.WithLabels(messageName).Inc(count);
+        RoomMessagesReceived.WithLabels(messageName).Inc(count);
     }
 
     public void TrackSendTickDuration(int maxDurationForSec, string listenerTag)

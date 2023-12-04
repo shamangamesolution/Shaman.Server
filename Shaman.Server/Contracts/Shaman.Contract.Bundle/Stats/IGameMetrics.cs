@@ -16,6 +16,6 @@ public interface IGameMetrics: IServerMetrics
     void TrackTrafficReceived(int bytes);
     void TrackRoomTotalMessagesSent(int count);
     void TrackRoomTotalMessagesReceived(int count);
-    void TrackRoomTotalMessagesSent(int count, string messageName);
-    void TrackRoomTotalMessagesReceived(int count, string messageName);
+    void TrackRoomMessagesSent(int count, string messageName);
+    void TrackRoomMessagesReceived(int count, string messageName);
 }
