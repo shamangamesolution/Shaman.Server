@@ -5,6 +5,8 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <RootNamespace>Shaman.Contracts.Monitoring.Prometheus</RootNamespace>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageVersion>1.23.2</PackageVersion>
     </PropertyGroup>
 
     <ItemGroup>
