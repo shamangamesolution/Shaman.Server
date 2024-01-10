@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <PackageVersion>1.23.2</PackageVersion>
+        <PackageVersion>1.24.0</PackageVersion>
         <TargetFrameworks>netstandard2.0</TargetFrameworks>
     </PropertyGroup>
 
