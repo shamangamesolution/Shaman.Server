@@ -6,9 +6,11 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
 using Shaman.Client.Peers;
+using Shaman.Common.Utils.Logging;
 using Shaman.Launchers.Game.Standalone;
 using Shaman.Launchers.Tests.Common;
 using Shaman.ServiceBootstrap;
+using Shaman.TestTools.ClientPeers;
 
 namespace Shaman.Launchers.Tests
 {
@@ -44,6 +46,23 @@ namespace Shaman.Launchers.Tests
         public void TearDown()
         {
             
+        }
+        
+        [Test]
+        public async Task DisconnectTests()
+        {
+            var peerListener = new TestDisconnectClientPeerListener(new ConsoleLogger());
+            var client = _clientFactory.GetClient(peerListener);
+            var mmProperties = new Dictionary<byte, object>();
+            var joinProperties = new Dictionary<byte, object>();
+            var joinInfo = await client.DirectConnectToGameServerToRandomRoom("127.0.0.1", 23452, Guid.NewGuid(), mmProperties,
+                joinProperties);
+            await Task.Delay(1000);
+            Assert.AreEqual(ShamanClientStatus.InRoom,  client.GetStatus());
+            client.Disconnect();
+            await Task.Delay(3000);
+            Assert.AreEqual(ShamanClientStatus.Offline,  client.GetStatus());
+            Assert.IsTrue(peerListener.WasDisconnectFired);
         }
 
         [Test]

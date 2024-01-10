@@ -102,7 +102,7 @@ namespace Shaman.Client.Peers
             _clientPeer.OnDisconnectedFromServer += (reason) =>
             {
                 var status = _status;
-                _status = ShamanClientStatus.Disconnected;
+                SetAndReportStatus(ShamanClientStatus.Disconnected, _statusCallback, error: reason.ToString());
                 switch (status)
                 {
                     case ShamanClientStatus.ConnectingGameServer:
@@ -121,7 +121,6 @@ namespace Shaman.Client.Peers
                         break;
                 }
                 OnDisconnected?.Invoke(reason);
-                SetAndReportStatus(ShamanClientStatus.Disconnected, _statusCallback, error: reason.ToString());
                 ResetState();
             };
             _pollPackageQueueIntervalMs = config.PollPackageQueueIntervalMs;

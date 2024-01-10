@@ -23,7 +23,7 @@ namespace Shaman.Launchers.Tests
                 ServerName = "TestGame",
                 Region = "SomeRegion",
                 PublicDomainNameOrAddress = "localhost",
-                ListenPorts = "23452",
+                ListenPorts = "23452/udp",
                 BindToPortHttp = 7005,
                 SocketTickTimeMs = 100,
                 ReceiveTickTimeMs = 33,

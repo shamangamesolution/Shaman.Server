@@ -178,6 +178,8 @@ namespace Shaman.LiteNetLibAdapter
         public int Mtu => _serverPeer?.Mtu ?? 0;
         public void Close()
         {
+            if (_peer.IsRunning && _serverPeer != null)
+                OnDisconnected?.Invoke(_serverPeer.EndPoint, new SimpleDisconnectInfo(ShamanDisconnectReason.PeerLeave));
             _peer.Stop();
             _peer.DisconnectAll();
             _serverPeer?.Disconnect();
@@ -185,6 +187,8 @@ namespace Shaman.LiteNetLibAdapter
         }
         public void Close(byte[] data, int offset, int length)
         {
+            if (_peer.IsRunning && _serverPeer != null)
+                OnDisconnected?.Invoke(_serverPeer.EndPoint, new SimpleDisconnectInfo(ShamanDisconnectReason.PeerLeave));
             _serverPeer?.Disconnect(data, offset, length);
             _peer.Stop();
             _peer.DisconnectAll();
