@@ -50,13 +50,20 @@ namespace Shaman.Launchers.Common
             services.AddMvc()
                 .AddApplicationPart(assembly)
                 .AddControllersAsServices()
-                .AddJsonOptions(o =>
-            {
-                o.SerializerSettings.ContractResolver = new DefaultContractResolver()
-                {
-                    NamingStrategy = new SnakeCaseNamingStrategy()
-                };
-            });
+                .AddJsonOptions(o => o.JsonSerializerOptions.PropertyNamingPolicy = new SnakeCaseNamingPolicy());
+
+            //     .AddJsonOptions(o =>
+            // {
+            //     o.SerializerSettings.ContractResolver = new DefaultContractResolver()
+            //     {
+            //         NamingStrategy = new SnakeCaseNamingStrategy()
+            //     };
+            // });
+            
+            // services.AddControllers(options => options.AddShamanMvc())
+            //     .AddApplicationPart(assembly)
+            //     .AddJsonOptions(o => o.JsonSerializerOptions.PropertyNamingPolicy = new SnakeCaseNamingPolicy());
+
             
             //logger
             services.AddSingleton<IShamanLogger, SerilogLogger>();
