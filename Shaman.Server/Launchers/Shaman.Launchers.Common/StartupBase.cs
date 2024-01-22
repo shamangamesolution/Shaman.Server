@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -24,6 +25,18 @@ using Shaman.ServiceBootstrap.Logging;
 
 namespace Shaman.Launchers.Common
 {
+    public class SnakeCaseNamingPolicy : JsonNamingPolicy
+    {
+        private readonly SnakeCaseNamingStrategy _newtonsoftSnakeCaseNamingStrategy = new();
+        public static SnakeCaseNamingPolicy Instance { get; } = new SnakeCaseNamingPolicy();
+
+        public override string ConvertName(string name)
+        {
+            // todo remove newtonsoft dep
+            return _newtonsoftSnakeCaseNamingStrategy.GetPropertyName(name, false);
+        }
+    }
+    
     /// <summary>
     /// base configuration for all types of launchers
     /// </summary>

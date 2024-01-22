@@ -2,6 +2,8 @@ using System;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Shaman.Contract.Common.Logging;
 using Shaman.Serialization;
@@ -23,6 +25,9 @@ namespace Shaman.Common.Http
         
         public HttpSender(IShamanLogger logger, ISerializer serializer)
         {
+            ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls11;
+            
             _logger = logger;
             _serializer = serializer;
         }
