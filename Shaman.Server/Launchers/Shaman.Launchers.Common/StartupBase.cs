@@ -60,11 +60,15 @@ namespace Shaman.Launchers.Common
             services.AddOptions();
             var assembly = Assembly.Load(assemblyName);
             
-            services.AddMvc()
+            // services.AddMvc()
+            //     .AddApplicationPart(assembly)
+            //     .AddControllersAsServices()
+            //     .AddJsonOptions(o => o.JsonSerializerOptions.PropertyNamingPolicy = new SnakeCaseNamingPolicy());
+            
+            services.AddControllers(options => options.EnableEndpointRouting = false)
                 .AddApplicationPart(assembly)
-                .AddControllersAsServices()
                 .AddJsonOptions(o => o.JsonSerializerOptions.PropertyNamingPolicy = new SnakeCaseNamingPolicy());
-
+            
             //     .AddJsonOptions(o =>
             // {
             //     o.SerializerSettings.ContractResolver = new DefaultContractResolver()

@@ -3,7 +3,7 @@
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <PackageVersion>1.12.7</PackageVersion>
+        <PackageVersion>1.12.75</PackageVersion>
         <RepositoryUrl>https://github.com/shamangamesolution/Shaman.Server</RepositoryUrl>
     </PropertyGroup>
 

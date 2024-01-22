@@ -2,6 +2,8 @@ using System;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Shaman.Contract.Common.Logging;
 using Shaman.Serialization;
@@ -15,32 +17,37 @@ namespace Shaman.Common.Http
         private readonly IShamanLogger _logger;
         private readonly ISerializer _serializer;
         private readonly HttpClient _client;
-
-        static HttpSender()
-        {
-            ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls11;
-        }
-
+        
         public HttpSender(IShamanLogger logger, ISerializer serializer)
         {
             _logger = logger;
             _serializer = serializer;
-            _client = HttpClientFactory.Create();
+            
+            //TODO inject this stuff via dep!!!
+            // Create an HttpClientHandler object and set to use default credentials
+            HttpClientHandler handler = new HttpClientHandler();
+            // Set custom server validation callback
+            handler.ServerCertificateCustomValidationCallback = (_, _, _, _) => true;
+
+            _client = HttpClientFactory.Create(handler);
             _client.Timeout = new TimeSpan(0, 0, 15);
-            ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls11;
         }
 
         public async Task<T> SendRequest<T>(string serviceUrl, HttpRequestBase request)
             where T : HttpResponseBase, new()
         {
+            // _logger.Error($"piiimpa! {serviceUrl}");
             var responseObject = new T();
             var stopwatch = Stopwatch.StartNew();
             var requestUri = $"{serviceUrl}/{request.EndPoint}";
 
             try
             {
+                // Disabling certificate validation can expose you to a man-in-the-middle attack
+                // which may allow your encrypted message to be read by an attacker
+                // https://stackoverflow.com/a/14907718/740639
+
+                
                 if (string.IsNullOrWhiteSpace(serviceUrl))
                     throw new Exception($"Base Url address is empty for {request.GetType()}");
 
@@ -48,6 +55,7 @@ namespace Shaman.Common.Http
                     throw new Exception($"Request endpoint Url address is empty for {request.GetType()}");
 
                 var byteContent = new ByteArrayContent(_serializer.Serialize(request));
+
                 using (var message = await _client.PostAsync(requestUri, byteContent))
                 {
                     if (!message.IsSuccessStatusCode)
