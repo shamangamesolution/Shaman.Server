@@ -3,15 +3,16 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Net;
+using System.Net.Http;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
+using Shaman.Contract.Common.Logging;
 
 namespace Shaman.Bundling.Common
 {
     public interface IBundleLoader
     {
-        Task LoadBundle();
         T LoadTypeFromBundle<T>();
         HashSet<string> GetConfigs();
     }
@@ -20,14 +21,16 @@ namespace Shaman.Bundling.Common
     {
         private readonly string _bundleTempSubFolder = "shaman.bundles";
         private readonly IBundleInfoProvider _bundleInfoProvider;
-        private HashSet<string> _dll = new HashSet<string>();
-        private HashSet<string> _configs = new HashSet<string>();
+        private readonly IShamanLogger _logger;
+        private readonly HashSet<string> _dll = new HashSet<string>();
+        private readonly HashSet<string> _configs = new HashSet<string>();
 
         private string _publishDir;
         
-        public BundleLoader(IBundleInfoProvider bundleInfoProvider) 
+        public BundleLoader(IBundleInfoProvider bundleInfoProvider, IShamanLogger logger)
         {
             _bundleInfoProvider = bundleInfoProvider;
+            _logger = logger;
         }
 
         private string LoadFromHttp(string url, bool overwriteExisting = false)
@@ -48,14 +51,36 @@ namespace Shaman.Bundling.Common
                 {
                     Directory.Delete(newBundleFolder, true);
                 }
-                Console.Out.WriteLine($"Downloading bundle from {uri}");
-                using (var wc = new WebClient())
-                    wc.DownloadFile(uri, bundleDest);
+                Console.Out.WriteLine($"Shaman build 111"); 
+                Console.Out.WriteLine($"Downloading bundle from '{uri}'"); 
+                DownloadFile(uri, bundleDest).Wait();
                 ZipFile.ExtractToDirectory(bundleDest, newBundleFolder);
                 File.Delete(bundleDest);
             }
 
             return newBundleFolder;
+        }
+
+        private static async Task DownloadFile(Uri fileUri, string destination)
+        {
+            using (var client = new HttpClient())
+            {
+                using (var response = await client.GetAsync(fileUri))
+                {
+                    using (var stream = await response.Content.ReadAsStreamAsync())
+                    {
+                        using (var fs = new FileStream(destination, FileMode.Create))
+                        {
+                            await stream.CopyToAsync(fs);
+                        }
+                    }
+                }
+            }
+            // using var client = new HttpClient();
+            // using var response = await client.GetAsync(fileUri);
+            // await using var stream = await response.Content.ReadAsStreamAsync();
+            // await using var fs = new FileStream(destination, FileMode.Create);
+            // await stream.CopyToAsync(fs);
         }
         
         private void LoadAll(string publishDir)
@@ -70,8 +95,8 @@ namespace Shaman.Bundling.Common
                     _configs.Add(s);
             }
         }
-        
-        public async Task LoadBundle()
+
+        private async Task LoadBundle()
         {
             var uri = await _bundleInfoProvider.GetBundleUri();
             if (uri.StartsWith("http"))
@@ -82,8 +107,33 @@ namespace Shaman.Bundling.Common
             LoadAll(_publishDir);
         }
 
+        private const int BundleRetryMsec = 1500;
+
         public T LoadTypeFromBundle<T>()
         {
+            bool messageSent = false;
+            while (true)
+            {
+                try
+                {
+                    return LoadTypeFromBundleImpl<T>();
+                }
+                catch (Exception e)
+                {
+                    if (!messageSent)
+                    {
+                        _logger.Error($"Retry bundle loading in {BundleRetryMsec:F1} sec: {e}");
+                        messageSent = true;
+                    }
+
+                    Thread.Sleep(BundleRetryMsec);
+                }
+            }
+        }
+
+        public T LoadTypeFromBundleImpl<T>()
+        {
+            LoadBundle().Wait();
             Type targetType = null;
             foreach (var s in _dll)
             {
@@ -101,10 +151,9 @@ namespace Shaman.Bundling.Common
                 }
                 catch (FileLoadException e)
                 {
+                    Console.WriteLine($"Assembly {s} load exception: {e}");
                     if (!e.Message.Equals("Assembly with same name is already loaded"))
-                    {
                         throw;
-                    }
                 }
                 catch (Exception e)
                 {
@@ -116,7 +165,7 @@ namespace Shaman.Bundling.Common
             if (targetType == null)
             {
                 throw new BundleLoadException(
-                    $"No implementation of {typeof(T)} found in assemblies from  {_publishDir}");
+                    $"No implementation of {typeof(T)} found in assemblies from {Path.GetFullPath(_publishDir)}");
             }
 
             try

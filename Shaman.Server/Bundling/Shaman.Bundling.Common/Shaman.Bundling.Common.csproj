@@ -5,6 +5,7 @@
         <PackageVersion>1.12.7</PackageVersion>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <RepositoryUrl>https://github.com/shamangamesolution/Shaman.Server</RepositoryUrl>
+        <LangVersion>latest</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
