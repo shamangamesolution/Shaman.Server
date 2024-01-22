@@ -56,7 +56,7 @@ namespace Shaman.Launchers.Game.Standalone
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplication server,
             IShamanLogger logger, IBundleLoader bundleLoader, IShamanComponents shamanComponents, IRoomControllerFactory roomControllerFactory)
         {
-            bundleLoader.LoadBundle();
+            // bundleLoader.LoadBundle();
             var gameBundle = bundleLoader.LoadTypeFromBundle<IGameBundle>();
             gameBundle.OnInitialize(shamanComponents);
             var bundledRoomControllerFactory = gameBundle.GetRoomControllerFactory();

@@ -83,7 +83,7 @@ namespace Shaman.Launchers.Game.Balancing
             //todo extract in one place
             serverActualizer.Start(Convert.ToInt32(Configuration["ServerSettings:ActualizationIntervalMs"]));
 
-            bundleLoader.LoadBundle().Wait();
+            // bundleLoader.LoadBundle().Wait();
             var gameBundle = bundleLoader.LoadTypeFromBundle<IGameBundle>();
             gameBundle.OnInitialize(shamanComponents);
             var bundledRoomControllerFactory = gameBundle.GetRoomControllerFactory();

@@ -86,7 +86,7 @@ namespace Shaman.Launchers.Game
             //todo extract in one place
             serverActualizer.Start(Convert.ToInt32(Configuration["ServerSettings:ActualizationIntervalMs"]));
 
-            bundleLoader.LoadBundle();
+            // bundleLoader.LoadBundle();
             var gameBundle = bundleLoader.LoadTypeFromBundle<IGameBundle>();
             gameBundle.OnInitialize(shamanComponents);
             var bundledRoomControllerFactory = gameBundle.GetRoomControllerFactory();
