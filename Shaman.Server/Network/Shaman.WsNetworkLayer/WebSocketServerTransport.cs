@@ -5,6 +5,7 @@ using System.Text;
 using Shaman.Common.Udp.Sockets;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
+using Shaman.Serialization.Utils.Pooling;
 
 namespace Bro.WsShamanNetwork;
 
@@ -63,6 +64,7 @@ public class WebSocketServerTransport : ITransportLayer
         _taskScheduler = taskScheduler;
         _logger = logger;
         _httpListener = new HttpListener();
+        _sendBufferPool = new ArrayPool();
     }
 
     public void AddEventCallbacks(Action<IPEndPoint, DataPacket, Action> onReceivePacket,
@@ -80,6 +82,7 @@ public class WebSocketServerTransport : ITransportLayer
     }
 
     private readonly ConcurrentDictionary<IPEndPoint, Ctx> _contexts = new();
+    private readonly ArrayPool _sendBufferPool;
 
     public void Listen(int port)
     {
@@ -210,17 +213,18 @@ public class WebSocketServerTransport : ITransportLayer
         if (wctx.WebSocketContext.WebSocket.CloseStatus.HasValue)
             return;
         var webSocket = wctx.WebSocketContext.WebSocket;
-        var arraySegment = new ArraySegment<byte>(buffer, offset, length);
-        _ = Send(wctx.Semaphore, endPoint, webSocket, arraySegment);
+        var cpBuffer = _sendBufferPool.Rent(length);
+        Array.Copy(buffer, offset, cpBuffer, 0, length);
+        var arraySegment = new ArraySegment<byte>(cpBuffer, 0, length);
+        _ = SendFromRentedBuffer(wctx.Semaphore, endPoint, webSocket, arraySegment, buffer);
     }
 
-    private async Task Send(SemaphoreSlim sendSemaphore, IPEndPoint endPoint, WebSocket webSocket,
-        ArraySegment<byte> arraySegment)
+    private async Task SendFromRentedBuffer(SemaphoreSlim sendSemaphore, IPEndPoint endPoint, WebSocket webSocket, ArraySegment<byte> data, byte[] rentedBufferToRelease)
     {
         try
         {
             await sendSemaphore.WaitAsync();
-            await webSocket.SendAsync(arraySegment, WebSocketMessageType.Binary, true,
+            await webSocket.SendAsync(data, WebSocketMessageType.Binary, true,
                 CancellationToken.None);
         }
         catch (Exception e)
@@ -230,6 +234,7 @@ public class WebSocketServerTransport : ITransportLayer
         }
         finally
         {
+            _sendBufferPool.Return(rentedBufferToRelease);
             sendSemaphore.Release();
         }
     }

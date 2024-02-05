@@ -1,10 +1,10 @@
-using System.Buffers;
 using System.Net;
 using System.Net.WebSockets;
 using System.Text;
 using Shaman.Common.Udp.Sockets;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
+using Shaman.Serialization.Utils.Pooling;
 
 namespace Bro.WsShamanNetwork
 {
@@ -20,6 +20,7 @@ namespace Bro.WsShamanNetwork
         private DateTime _pingSent = DateTime.UtcNow;
         private readonly TimeSpan KeepAliveInterval;
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
+        private readonly ArrayPool _bufferPool;
 
         public WebSocketClientTransport(ITaskScheduler taskScheduler, IShamanLogger logger, TimeSpan keepAliveInterval)
         {
@@ -27,6 +28,7 @@ namespace Bro.WsShamanNetwork
             _logger = logger;
             _clientWebSocket = new ClientWebSocket();
             KeepAliveInterval = keepAliveInterval;
+            _bufferPool = new ArrayPool();
         }
 
         #region Client-side
@@ -48,7 +50,7 @@ namespace Bro.WsShamanNetwork
                     var cancellationToken = new CancellationTokenSource();
                     while (_clientWebSocket.State == WebSocketState.Open)
                     {
-                        var buffer = ArrayPool<byte>.Shared.Rent(1024 * 4);
+                        var buffer = _bufferPool.Rent(1024 * 4);
                         cancellationToken.CancelAfter(KeepAliveInterval);
                         var result =
                             await _clientWebSocket.ReceiveAsync(buffer, cancellationToken.Token);
@@ -79,7 +81,7 @@ namespace Bro.WsShamanNetwork
                             ? new DataPacket(buffer, 0, result.Count, new DeliveryOptions(true, true))
                             : await result.ReadBigMessage(_logger, buffer, _clientWebSocket);
                         OnPacketReceived?.Invoke(endPoint, dataPacket,
-                            () => ArrayPool<byte>.Shared.Return(buffer)); // todo refactor buffer disposing to avoid closure
+                            () => _bufferPool.Return(buffer)); // todo refactor buffer disposing to avoid closure
                     }
                 }
                 catch (Exception e)
@@ -97,7 +99,7 @@ namespace Bro.WsShamanNetwork
             _waitForPong = true;
             try
             {
-                await SendImpl(PingPongLetter, WebSocketMessageType.Text);
+                await SendImpl(PingPongLetter, WebSocketMessageType.Text, null);
             }
             catch (Exception e)
             {
@@ -108,10 +110,13 @@ namespace Bro.WsShamanNetwork
         public void Send(byte[] buffer, int offset, int length, bool reliable, bool orderControl,
             bool returnAfterSend = true)
         {
-            _ = SendImpl(new ArraySegment<byte>(buffer, offset, length), WebSocketMessageType.Binary);
+            var cpBuffer = _bufferPool.Rent(length);
+            Array.Copy(buffer, offset, cpBuffer, 0, length);
+            var arraySegment = new ArraySegment<byte>(cpBuffer, 0, length);
+            _ = SendImpl(arraySegment, WebSocketMessageType.Binary, cpBuffer);
         }
 
-        private async Task SendImpl(ArraySegment<byte> arraySegment, WebSocketMessageType messageType)
+        private async Task SendImpl(ArraySegment<byte> arraySegment, WebSocketMessageType messageType, byte[]? bufferToRelease)
         {
             if (_clientWebSocket.State != WebSocketState.Open)
                 return;
@@ -130,6 +135,10 @@ namespace Bro.WsShamanNetwork
             }
             finally
             {
+                if (bufferToRelease != null)
+                {
+                    _bufferPool.Return(bufferToRelease);
+                }
                 _semaphore.Release();
             }
         }
