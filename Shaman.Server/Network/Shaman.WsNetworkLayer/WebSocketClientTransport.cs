@@ -1,10 +1,10 @@
+using System.Buffers;
 using System.Net;
 using System.Net.WebSockets;
 using System.Text;
 using Shaman.Common.Udp.Sockets;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
-using Shaman.Serialization.Utils.Pooling;
 
 namespace Bro.WsShamanNetwork
 {
@@ -20,7 +20,7 @@ namespace Bro.WsShamanNetwork
         private DateTime _pingSent = DateTime.UtcNow;
         private readonly TimeSpan KeepAliveInterval;
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
-        private readonly ArrayPool _bufferPool;
+        private readonly ArrayPool<byte> _bufferPool;
 
         public WebSocketClientTransport(ITaskScheduler taskScheduler, IShamanLogger logger, TimeSpan keepAliveInterval)
         {
@@ -28,7 +28,7 @@ namespace Bro.WsShamanNetwork
             _logger = logger;
             _clientWebSocket = new ClientWebSocket();
             KeepAliveInterval = keepAliveInterval;
-            _bufferPool = new ArrayPool();
+            _bufferPool = ArrayPool<byte>.Shared;
         }
 
         #region Client-side
@@ -116,30 +116,34 @@ namespace Bro.WsShamanNetwork
             _ = SendImpl(arraySegment, WebSocketMessageType.Binary, cpBuffer);
         }
 
-        private async Task SendImpl(ArraySegment<byte> arraySegment, WebSocketMessageType messageType, byte[]? bufferToRelease)
+        private async Task SendImpl(ArraySegment<byte> arraySegment, WebSocketMessageType messageType,
+            byte[]? bufferToRelease)
         {
-            if (_clientWebSocket.State != WebSocketState.Open)
-                return;
-            var readOnlyMemory = arraySegment;
             try
-            {
-                await _semaphore.WaitAsync();
-                await _clientWebSocket.SendAsync(readOnlyMemory, messageType,
-                    true, CancellationToken.None);
-            }
-            catch (Exception e)
             {
                 if (_clientWebSocket.State != WebSocketState.Open)
                     return;
-                _logger.Error($"Failed to send data to peer: {e}");
+                var readOnlyMemory = arraySegment;
+                try
+                {
+                    await _semaphore.WaitAsync();
+                    await _clientWebSocket.SendAsync(readOnlyMemory, messageType,
+                        true, CancellationToken.None);
+                }
+                catch (Exception e)
+                {
+                    if (_clientWebSocket.State != WebSocketState.Open)
+                        return;
+                    _logger.Error($"Failed to send data to peer: {e}");
+                }
+                finally
+                {
+                    _semaphore.Release();
+                }
             }
             finally
             {
-                if (bufferToRelease != null)
-                {
-                    _bufferPool.Return(bufferToRelease);
-                }
-                _semaphore.Release();
+                _bufferPool.Return(bufferToRelease);
             }
         }
 

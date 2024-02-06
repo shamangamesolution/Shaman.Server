@@ -1,11 +1,14 @@
+using System;
+using System.Buffers;
 using System.Collections.Concurrent;
 using System.Net;
 using System.Net.WebSockets;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Shaman.Common.Udp.Sockets;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
-using Shaman.Serialization.Utils.Pooling;
 
 namespace Bro.WsShamanNetwork;
 
@@ -64,7 +67,7 @@ public class WebSocketServerTransport : ITransportLayer
         _taskScheduler = taskScheduler;
         _logger = logger;
         _httpListener = new HttpListener();
-        _sendBufferPool = new ArrayPool();
+        _sendBufferPool = ArrayPool<byte>.Shared;
     }
 
     public void AddEventCallbacks(Action<IPEndPoint, DataPacket, Action> onReceivePacket,
@@ -74,7 +77,7 @@ public class WebSocketServerTransport : ITransportLayer
         _onConnect = onConnect;
         _onReceivePacket = onReceivePacket;
     }
-    
+
     private class Ctx
     {
         public HttpListenerWebSocketContext WebSocketContext { get; set; }
@@ -82,7 +85,7 @@ public class WebSocketServerTransport : ITransportLayer
     }
 
     private readonly ConcurrentDictionary<IPEndPoint, Ctx> _contexts = new();
-    private readonly ArrayPool _sendBufferPool;
+    private readonly ArrayPool<byte> _sendBufferPool;
 
     public void Listen(int port)
     {
@@ -198,7 +201,6 @@ public class WebSocketServerTransport : ITransportLayer
         }
     }
 
-
     public void Tick()
     {
         throw new NotImplementedException("Tick is not required for WebSocket transport");
@@ -219,23 +221,30 @@ public class WebSocketServerTransport : ITransportLayer
         _ = SendFromRentedBuffer(wctx.Semaphore, endPoint, webSocket, arraySegment, cpBuffer);
     }
 
-    private async Task SendFromRentedBuffer(SemaphoreSlim sendSemaphore, IPEndPoint endPoint, WebSocket webSocket, ArraySegment<byte> data, byte[] rentedBufferToRelease)
+    private async Task SendFromRentedBuffer(SemaphoreSlim sendSemaphore, IPEndPoint endPoint, WebSocket webSocket,
+        ArraySegment<byte> data, byte[] rentedBufferToRelease)
     {
         try
         {
-            await sendSemaphore.WaitAsync();
-            await webSocket.SendAsync(data, WebSocketMessageType.Binary, true,
-                CancellationToken.None);
-        }
-        catch (Exception e)
-        {
-            if (_contexts.ContainsKey(endPoint) && !webSocket.CloseStatus.HasValue)
-                _logger.Error($"Failed to send data to peer {endPoint}: {e}");
+            try
+            {
+                await sendSemaphore.WaitAsync();
+                await webSocket.SendAsync(data, WebSocketMessageType.Binary, true,
+                    CancellationToken.None);
+            }
+            catch (Exception e)
+            {
+                if (_contexts.ContainsKey(endPoint) && !webSocket.CloseStatus.HasValue)
+                    _logger.Error($"Failed to send data to peer {endPoint}: {e}");
+            }
+            finally
+            {
+                sendSemaphore.Release();
+            }
         }
         finally
         {
             _sendBufferPool.Return(rentedBufferToRelease);
-            sendSemaphore.Release();
         }
     }
 
