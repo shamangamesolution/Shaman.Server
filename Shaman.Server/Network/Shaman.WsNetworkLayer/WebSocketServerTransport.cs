@@ -216,7 +216,7 @@ public class WebSocketServerTransport : ITransportLayer
         var cpBuffer = _sendBufferPool.Rent(length);
         Array.Copy(buffer, offset, cpBuffer, 0, length);
         var arraySegment = new ArraySegment<byte>(cpBuffer, 0, length);
-        _ = SendFromRentedBuffer(wctx.Semaphore, endPoint, webSocket, arraySegment, buffer);
+        _ = SendFromRentedBuffer(wctx.Semaphore, endPoint, webSocket, arraySegment, cpBuffer);
     }
 
     private async Task SendFromRentedBuffer(SemaphoreSlim sendSemaphore, IPEndPoint endPoint, WebSocket webSocket, ArraySegment<byte> data, byte[] rentedBufferToRelease)
