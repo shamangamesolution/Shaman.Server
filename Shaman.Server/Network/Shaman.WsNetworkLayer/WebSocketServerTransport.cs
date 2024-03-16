@@ -212,9 +212,11 @@ public class WebSocketServerTransport : ITransportLayer
     {
         if (!_contexts.TryGetValue(endPoint, out var wctx))
             return;
-        if (wctx.WebSocketContext.WebSocket.CloseStatus.HasValue)
-            return;
         var webSocket = wctx.WebSocketContext.WebSocket;
+        if (webSocket.CloseStatus.HasValue)
+            return;
+        if (webSocket.State != WebSocketState.Open)
+            return;
         var cpBuffer = _sendBufferPool.Rent(length);
         Array.Copy(buffer, offset, cpBuffer, 0, length);
         var arraySegment = new ArraySegment<byte>(cpBuffer, 0, length);
@@ -226,6 +228,8 @@ public class WebSocketServerTransport : ITransportLayer
     {
         try
         {
+            if (webSocket.State != WebSocketState.Open)
+                return;
             try
             {
                 await sendSemaphore.WaitAsync();
@@ -233,9 +237,12 @@ public class WebSocketServerTransport : ITransportLayer
                     CancellationToken.None);
             }
             catch (Exception e)
-            {
-                if (_contexts.ContainsKey(endPoint) && !webSocket.CloseStatus.HasValue)
-                    _logger.Error($"Failed to send data to peer {endPoint}: {e}");
+            { 
+                if (_contexts.ContainsKey(endPoint))
+                {
+                    if (!webSocket.CloseStatus.HasValue) _logger.Error($"Failed to send data to peer {endPoint}: {e}");
+                    webSocket.Dispose();
+                }
             }
             finally
             {
