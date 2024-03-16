@@ -1,14 +1,12 @@
-using System;
 using System.Buffers;
 using System.Collections.Concurrent;
 using System.Net;
 using System.Net.WebSockets;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using Shaman.Common.Udp.Sockets;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
+using CancellationTokenSource = System.Threading.CancellationTokenSource;
 
 namespace Bro.WsShamanNetwork;
 
@@ -86,6 +84,7 @@ public class WebSocketServerTransport : ITransportLayer
 
     private readonly ConcurrentDictionary<IPEndPoint, Ctx> _contexts = new();
     private readonly ArrayPool<byte> _sendBufferPool;
+    private const int PingReceiveTimeoutMs = 10000;
 
     public void Listen(int port)
     {
@@ -151,10 +150,17 @@ public class WebSocketServerTransport : ITransportLayer
     {
         var webSocket = webSocketCtx.WebSocketContext.WebSocket;
         var buffer = new byte[1024 * 4];
+        var cts = new CancellationTokenSource();
         while (webSocket.State == WebSocketState.Open)
         {
+            if (!cts.TryReset())
+            {
+                _logger.Warning("WebSocketServerTransport: Failed to reset CancellationTokenSource");
+                cts = new CancellationTokenSource();
+            }
+            cts.CancelAfter(PingReceiveTimeoutMs);
             var result =
-                await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+                await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), cts.Token);
             // _logger.Error($"result: {result.EndOfMessage} {result.Count} {result.MessageType} {result.CloseStatus} {result.CloseStatusDescription}");
             if (result.CloseStatus.HasValue)
             {
