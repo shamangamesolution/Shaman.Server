@@ -31,7 +31,6 @@ namespace Shaman.Game.Rooms
         private readonly ConcurrentDictionary<Guid, IRoom> _sessionsToRooms = new ConcurrentDictionary<Guid, IRoom>();
         private readonly IShamanLogger _logger;
         private readonly ISerializer _serializer;
-        private readonly object _syncPeersList = new object();
         private readonly IApplicationConfig _config;
         private readonly IRoomControllerFactory _roomControllerFactory;
         private readonly IShamanMessageSender _messageSender;
@@ -120,61 +119,51 @@ namespace Shaman.Game.Rooms
 
         public Guid CreateRoom(Dictionary<byte, object> properties, Dictionary<Guid, Dictionary<byte, object>> players, Guid? roomId)
         {
-            lock (_syncPeersList)
+            if (roomId.HasValue && _rooms.ContainsKey(roomId.Value))
             {
-                if (roomId.HasValue && _rooms.ContainsKey(roomId.Value))
-                {
-                    var message = $"Failed to create room: room with specified id already exists ({roomId})";
-                    _logger.Error(message);
-                    throw new Exception(message);
-                }
-                
-                var roomPropertiesContainer = new RoomPropertiesContainer(_logger);
-                var packetSender = new PacketBatchSender(_taskSchedulerFactory, _config, _logger);
-                
-                packetSender.Start(true);
-                
-                roomPropertiesContainer.Initialize(players, properties);
-
-                var room = new Room(_logger, _taskSchedulerFactory, roomPropertiesContainer,
-                    _roomControllerFactory, packetSender, roomId ?? Guid.NewGuid(), _roomStateUpdater, _gameMetrics);
-
-                if(_rooms.TryAdd(room.GetRoomId(), room))
-                    _gameMetrics.TrackRoomCreated();
-                return room.GetRoomId();
+                var message = $"Failed to create room: room with specified id already exists ({roomId})";
+                _logger.Error(message);
+                throw new Exception(message);
             }
+
+            var roomPropertiesContainer = new RoomPropertiesContainer(_logger);
+            var packetSender = new PacketBatchSender(_taskSchedulerFactory, _config, _logger);
+
+            packetSender.Start(true);
+
+            roomPropertiesContainer.Initialize(players, properties);
+
+            var room = new Room(_logger, _taskSchedulerFactory, roomPropertiesContainer,
+                _roomControllerFactory, packetSender, roomId ?? Guid.NewGuid(), _roomStateUpdater, _gameMetrics);
+
+            if (_rooms.TryAdd(room.GetRoomId(), room))
+                _gameMetrics.TrackRoomCreated();
+            return room.GetRoomId();
         }
 
         public void UpdateRoom(Guid roomId, Dictionary<Guid, Dictionary<byte, object>> players)
         {
-            lock (_syncPeersList)
+            var room = GetRoomById(roomId);
+            if (room != null)
             {
-                var room = GetRoomById(roomId);
-                if (room != null)
-                {
-                    room.UpdateRoom(players);
-                }
-                else
-                {
-                    _logger?.Error($"UpdateRoom error: can not find room {roomId} to add new players");
-                    return;
-                }
+                room.UpdateRoom(players);
+            }
+            else
+            {
+                _logger?.Error($"UpdateRoom error: can not find room {roomId} to add new players");
             }
         }
 
         private void DeleteRoom(Guid roomId)
         {
-            lock (_syncPeersList)
-            {
-                if (!_rooms.TryGetValue(roomId, out var room)) 
-                    return;
-                
-                var roomStats = room.GetStats();
-                _gameMetrics.TrackPeerDisconnected(room.CleanUp());
-                _taskScheduler.ScheduleOnceOnNow(async () => await room.InvalidateRoom());
-                _rooms.TryRemove(roomId, out _);
-                TrackRoomMetricsOnDelete(roomStats);
-            }
+            if (!_rooms.TryGetValue(roomId, out var room))
+                return;
+
+            var roomStats = room.GetStats();
+            _gameMetrics.TrackPeerDisconnected(room.CleanUp());
+            _taskScheduler.ScheduleOnceOnNow(async () => await room.InvalidateRoom());
+            _rooms.TryRemove(roomId, out _);
+            TrackRoomMetricsOnDelete(roomStats);
         }
         private void TrackRoomMetricsOnDelete(RoomStats roomStats)
         {
@@ -220,25 +209,22 @@ namespace Shaman.Game.Rooms
 
         public void PeerDisconnected(IPeer peer, IDisconnectInfo info)
         {
-            lock (_syncPeersList)
+            var sessionId = peer.GetSessionId();
+            if (!_sessionsToRooms.TryGetValue(sessionId, out var room))
             {
-                var sessionId = peer.GetSessionId();
-                if (!_sessionsToRooms.TryGetValue(sessionId, out var room))
-                {
-                    _logger.Error($"PeerDisconnected error: Can not get room for peer {sessionId}");
-                    return;
-                }
+                _logger.Error($"PeerDisconnected error: Can not get room for peer {sessionId}");
+                return;
+            }
 
-                if (room.PeerDisconnected(sessionId, info))
-                    _gameMetrics.TrackPeerDisconnected();
-                
-                _sessionsToRooms.TryRemove(sessionId, out _);
-                _messageSender.CleanupPeerData(peer);
+            if (room.PeerDisconnected(sessionId, info))
+                _gameMetrics.TrackPeerDisconnected();
 
-                if (room.IsGameFinished())
-                {
-                    DeleteRoom(room.GetRoomId());
-                }
+            _sessionsToRooms.TryRemove(sessionId, out _);
+            _messageSender.CleanupPeerData(peer);
+
+            if (room.IsGameFinished())
+            {
+                DeleteRoom(room.GetRoomId());
             }
         }
 
@@ -349,24 +335,18 @@ namespace Shaman.Game.Rooms
 
         public Dictionary<Guid, int> GetRoomPeerCount()
         {
-            lock (_syncPeersList)
-            {
-                return _rooms.ToDictionary(p => p.Key,
-                    p => p.Value.GetPeerCount());
-            }
+            return _rooms.ToDictionary(p => p.Key,
+                p => p.Value.GetPeerCount());
         }
 
         public IRoom GetOldestRoom()
         {
-            lock (_syncPeersList)
-            {
-                var oldestRoom = _rooms
-                    .OrderByDescending(d => d.Value.GetCreatedOnDateTime())
-                    .Select(e => (KeyValuePair<Guid, IRoom>?) e)
-                    .FirstOrDefault();
+            var oldestRoom = _rooms
+                .OrderByDescending(d => d.Value.GetCreatedOnDateTime())
+                .Select(e => (KeyValuePair<Guid, IRoom>?) e)
+                .FirstOrDefault();
 
-                return oldestRoom?.Value;
-            }
+            return oldestRoom?.Value;
         }
     }
 }
