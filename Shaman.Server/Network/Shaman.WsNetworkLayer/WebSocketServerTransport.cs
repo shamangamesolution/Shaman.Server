@@ -162,7 +162,7 @@ public class WebSocketServerTransport : ITransportLayer
             var result =
                 await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), cts.Token);
             // _logger.Error($"result: {result.EndOfMessage} {result.Count} {result.MessageType} {result.CloseStatus} {result.CloseStatusDescription}");
-            if (result.CloseStatus.HasValue)
+            if (cts.Token.IsCancellationRequested || result.CloseStatus.HasValue)
             {
                 await webSocket.CloseAsync(result.CloseStatus ?? WebSocketCloseStatus.NormalClosure,
                     result.CloseStatusDescription,
