@@ -29,10 +29,10 @@ namespace Shaman.ServiceBootstrap
                 .Build();
         }
 
-        public static void LaunchWithCommonAndRoleConfig<T>(string configRole,
+        public static Task LaunchWithCommonAndRoleConfig<T>(string configRole,
             Action<LoggerConfiguration, IConfiguration> configureLogging = null) where T : class
         {
-            BuildHostApp<T>(GetConfig(configRole), configureLogging).Run();
+            return BuildHostApp<T>(GetConfig(configRole), configureLogging).RunAsync();
         }
 
         public static void Launch<T>(IConfigurationRoot config,
