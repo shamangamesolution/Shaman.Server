@@ -120,6 +120,9 @@ public class WebSocketServerTransport : ITransportLayer
                         _onConnect?.Invoke(ipEndPoint);
                         await HandleWsContext(context, ipEndPoint);
                     }
+                    catch (OperationCanceledException e) // timeout receive w/o ping
+                    {
+                    }
                     catch (WebSocketException e)
                     {
                         if (e.WebSocketErrorCode != WebSocketError.InvalidState &&
@@ -158,15 +161,14 @@ public class WebSocketServerTransport : ITransportLayer
                 _logger.Warning("WebSocketServerTransport: Failed to reset CancellationTokenSource");
                 cts = new CancellationTokenSource();
             }
+
             cts.CancelAfter(PingReceiveTimeoutMs);
             var result =
                 await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), cts.Token);
             // _logger.Error($"result: {result.EndOfMessage} {result.Count} {result.MessageType} {result.CloseStatus} {result.CloseStatusDescription}");
             if (cts.Token.IsCancellationRequested || result.CloseStatus.HasValue)
             {
-                await webSocket.CloseAsync(result.CloseStatus ?? WebSocketCloseStatus.NormalClosure,
-                    result.CloseStatusDescription,
-                    CancellationToken.None);
+                await CloseHandshakeOrForget(webSocket, result);
                 break;
             }
 
@@ -204,6 +206,19 @@ public class WebSocketServerTransport : ITransportLayer
                 {
                     // consider data not used after processing the listener
                 });
+        }
+    }
+
+    private static async Task CloseHandshakeOrForget(WebSocket webSocket, WebSocketReceiveResult result)
+    {
+        try
+        {
+            await webSocket.CloseAsync(result.CloseStatus ?? WebSocketCloseStatus.NormalClosure,
+                result.CloseStatusDescription,
+                CancellationToken.None);
+        }
+        catch
+        {
         }
     }
 
