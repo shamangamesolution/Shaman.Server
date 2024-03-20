@@ -86,6 +86,7 @@ namespace Shaman.ServiceBootstrap
             foreach (var middleWare in startup.GetMiddleWares(app.Services))
                 app.UseMiddleware(middleWare);
             app.UseRouting();
+            startup.ConfigureApp(app);
             app.UseEndpoints(builder =>
                 builder.MapControllerRoute("default", "{controller=Home}/{action=Index}"));
             await startup.Initialize(app.Services);
