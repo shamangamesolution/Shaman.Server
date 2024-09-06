@@ -2,6 +2,7 @@ FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build-env
 WORKDIR /app
 COPY . .
 # Install dotnet-dump
+RUN dotnet tool install -g dotnet-gcdump
 RUN dotnet tool install -g dotnet-dump
 
 ENV ASPNETCORE_ENVIRONMENT=Production
