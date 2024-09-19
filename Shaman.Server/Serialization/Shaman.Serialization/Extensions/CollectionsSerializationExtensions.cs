@@ -57,6 +57,20 @@ namespace Shaman.Serialization.Extensions
             }
         }
 
+        public static void WriteList(this ITypeWriter bw, IList<long> list)
+        {
+            if (list != null && list.Any())
+            {
+                bw.Write(list.Count);
+                for (var i = 0; i < list.Count; i++)
+                    bw.Write(list[i]);
+            }
+            else
+            {
+                bw.Write(0);
+            }
+        }
+
         public static void WriteList(this ITypeWriter bw, IList<string> list)
         {
             if (list != null && list.Any())
@@ -84,6 +98,17 @@ namespace Shaman.Serialization.Extensions
                     list.Add(reader.ReadInt());
                 }
             }
+
+            return list;
+        }
+
+        public static List<long> ReadListOfLong(this ITypeReader reader)
+        {
+            var listLength = reader.ReadInt();
+            var list = new List<long>(listLength);
+            if (listLength == 0) return list;
+            for (var i = 0; i < listLength; i++)
+                list.Add(reader.ReadLong());
 
             return list;
         }
