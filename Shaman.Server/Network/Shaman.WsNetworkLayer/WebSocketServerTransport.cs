@@ -140,6 +140,14 @@ public class WebSocketServerTransport : ITransportLayer
                         {
                             _logger.Error($"Failed to dispose socket: {e}");
                         }
+                        try
+                        {
+                            ctx.Response.Close();
+                        }
+                        catch (Exception e)
+                        {
+                            _logger.Error($"Failed to close : {e}");
+                        }
 
                         _onDisconnect?.Invoke(ipEndPoint,
                             new SimpleDisconnectInfo(ShamanDisconnectReason.ConnectionLost));
@@ -180,15 +188,16 @@ public class WebSocketServerTransport : ITransportLayer
                 if (!ping)
                     break;
 
-                await webSocketCtx.Semaphore.WaitAsync();
                 try
                 {
+                    await webSocketCtx.Semaphore.WaitAsync();
                     await webSocket.SendAsync(PingPongLetter, WebSocketMessageType.Text, true, CancellationToken.None);
                 }
                 finally
                 {
                     webSocketCtx.Semaphore.Release();
                 }
+
                 continue;
             }
 
