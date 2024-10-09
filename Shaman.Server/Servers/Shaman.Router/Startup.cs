@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -80,6 +81,10 @@ namespace Shaman.Router
 
 
             ConfigureMetrics(services, configuration);
+        }
+
+        public void ConfigureApp(WebApplication webApplication)
+        {
         }
 
         public void AddMvcOptions(MvcOptions options) => options.AddShamanMvc();
