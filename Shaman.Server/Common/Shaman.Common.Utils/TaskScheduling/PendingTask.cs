@@ -94,7 +94,8 @@ namespace Shaman.Common.Utils.TaskScheduling
                     return;
                 }
 
-                if (_action == null)
+                var action = _action;
+                if (action == null)
                 {
                     _logger?.Error($"Action is null");
                     _cancelled = true;
@@ -104,11 +105,11 @@ namespace Shaman.Common.Utils.TaskScheduling
                 try
                 {
                     Interlocked.Increment(ref _executingActionsCount);
-                    _action();
+                    action();
                 }
                 catch (Exception ex)
                 {
-                    _logger?.Error($"Task {_action?.Target} executing error: {ex}");
+                    _logger?.Error($"Task {action.Target} executing error: {ex}");
                 }
                 finally
                 {
