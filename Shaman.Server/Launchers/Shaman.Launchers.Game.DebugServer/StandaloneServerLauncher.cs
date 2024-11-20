@@ -83,6 +83,11 @@ namespace Shaman.Launchers.Game.DebugServer
                         new KeyValuePair<string, string>("CommonSettings:BindToIP", _bindToIp),
                         new KeyValuePair<string, string>("CommonSettings:BindToPortHttp", Config.BindToPortHttp.ToString()),
                         new KeyValuePair<string, string>("CommonSettings:SocketType", Config.SocketType.ToString()),
+                        new KeyValuePair<string, string>("CommonSettings:IsConnectionDdosProtectionOn", Config.IsConnectionDdosProtectionOn.ToString()),
+                        new KeyValuePair<string, string>("CommonSettings:MaxConnectsFromSingleIp", Config.MaxConnectsFromSingleIp.ToString()),
+                        new KeyValuePair<string, string>("CommonSettings:ConnectionCountCheckIntervalMs", Config.ConnectionCountCheckIntervalMs.ToString()),
+                        new KeyValuePair<string, string>("CommonSettings:BanCheckIntervalMs", Config.BanCheckIntervalMs.ToString()),
+                        new KeyValuePair<string, string>("CommonSettings:BanDurationMs", Config.BanDurationMs.ToString()),
                     }
                 })
                 .Build();
