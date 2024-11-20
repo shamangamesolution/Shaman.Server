@@ -13,6 +13,7 @@ using Shaman.Game.Metrics;
 using Shaman.Game.Rooms;
 using Shaman.Launchers.Common;
 using Shaman.Launchers.Common.Game;
+using Shaman.Launchers.Common.Metrics.Metrics;
 
 namespace Shaman.Launchers.Game.DebugServer
 {
@@ -39,7 +40,7 @@ namespace Shaman.Launchers.Game.DebugServer
 
             //game server core depend on Metrics, so we pass a stub here, because we do not need to send metrics in case of standalone launcher by default
             //if standalone launcher will be used in production environment - this dep should be reinjected on bundle level
-            services.AddSingleton<IGameMetrics, GameMetricsStub>();
+            services.AddSingleton<IGameMetrics, BundledGameMetrics>();
             //the same for this - we need it, so we pass stub here
             services.AddSingleton<IRoomStateUpdater, RoomStateUpdaterStub>();
             //bundle setup - this is used for getting bundle settings. This implementation gets settings from exe directory
