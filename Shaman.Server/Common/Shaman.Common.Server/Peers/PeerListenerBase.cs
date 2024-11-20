@@ -136,9 +136,8 @@ namespace Shaman.Common.Server.Peers
             _logger.Info($"Connected: {endPoint.Address} : {endPoint.Port}");
             try
             {
-                if (_protectionManager.IsBanned(endPoint))
+                if (!_protectionManager.PeerConnected(endPoint))
                     return false;
-                _protectionManager.PeerConnected(endPoint);
                 //add peer to collection
                 PeerCollection.Add(endPoint, _reliableSocket);
                 return true;

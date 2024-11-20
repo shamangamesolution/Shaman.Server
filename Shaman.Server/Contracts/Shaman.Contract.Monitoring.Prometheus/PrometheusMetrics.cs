@@ -41,6 +41,8 @@ public class PrometheusMetrics : IGameMetrics
         Metrics.CreateCounter("room_total_messages_sent", "Room messages sent, total sent");
     private static readonly Counter RoomMessagesSent =
         Metrics.CreateCounter("room_messages_sent", "Room messages sent", "message_name");
+    private static readonly Gauge MaxConnectionFromOneIp =
+        Metrics.CreateGauge("max_connections_from_ip", "Max connections from one ip");
 
     private static readonly Histogram MaxSendTickDuration =
         Metrics.CreateHistogram("max_send_tick_duration", "Max send tick duration", new HistogramConfiguration
@@ -141,5 +143,10 @@ public class PrometheusMetrics : IGameMetrics
     public void TrackSendersCount(string source, int count)
     {
         PacketSenderPeers.Inc(count);
+    }
+
+    public void TrackMaxConnectionsFromIp(int count)
+    {
+        MaxConnectionFromOneIp.Set(count);
     }
 }

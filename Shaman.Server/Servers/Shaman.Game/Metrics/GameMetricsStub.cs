@@ -69,5 +69,9 @@ namespace Shaman.Game.Metrics
         public void TrackSendersCount(string source, int count)
         {
         }
+
+        public void TrackMaxConnectionsFromIp(int count)
+        {
+        }
     }
 }

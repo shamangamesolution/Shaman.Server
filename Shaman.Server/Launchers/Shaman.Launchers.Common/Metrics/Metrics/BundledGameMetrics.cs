@@ -20,6 +20,11 @@ public class BundledGameMetrics : IGameMetrics
         _gameMetrics?.TrackSendersCount(source, count);
     }
 
+    public void TrackMaxConnectionsFromIp(int count)
+    {
+        _gameMetrics?.TrackMaxConnectionsFromIp(count);
+    }
+
     public void TrackPeerJoin()
     {
         _gameMetrics?.TrackPeerJoin();

@@ -7,7 +7,7 @@ namespace Shaman.Common.Server.Protection
 {
     public interface IProtectionManager
     {
-        void PeerConnected(IPEndPoint endPoint);
+        bool PeerConnected(IPEndPoint endPoint);
         void OnReceivePacket(IPEndPoint endPoint);
         bool IsBanned(IPEndPoint endPoint);
         void Start();
@@ -27,10 +27,11 @@ namespace Shaman.Common.Server.Protection
             _logger = logger;
         }
 
-        public void PeerConnected(IPEndPoint endPoint)
+        public bool PeerConnected(IPEndPoint endPoint)
         {
             if (_config.IsConnectionDdosProtectionOn)
-                _ddosProtection.OnPeerConnected(endPoint);
+                return _ddosProtection.OnPeerConnected(endPoint);
+            return true;
         }
 
         public void OnReceivePacket(IPEndPoint endPoint)

@@ -19,6 +19,11 @@ public class BundledMmMetrics: IMmMetrics
         _mmMetrics?.TrackSendersCount(source, count);
     }
 
+    public void TrackMaxConnectionsFromIp(int count)
+    {
+        _mmMetrics?.TrackMaxConnectionsFromIp(count);
+    }
+
     public void TrackPlayerAdded()
     {
         _mmMetrics?.TrackPlayerAdded();
