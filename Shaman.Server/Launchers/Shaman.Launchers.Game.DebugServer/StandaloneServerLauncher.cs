@@ -90,6 +90,7 @@ namespace Shaman.Launchers.Game.DebugServer
                         new KeyValuePair<string, string>("CommonSettings:BanDurationMs", Config.BanDurationMs.ToString()),
                     }
                 })
+                .AddEnvironmentVariables()
                 .Build();
         }
     }
