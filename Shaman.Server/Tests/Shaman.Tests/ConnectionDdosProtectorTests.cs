@@ -4,6 +4,7 @@ using NUnit.Framework;
 using Shaman.Common.Server.Protection;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.TaskScheduling;
+using Shaman.Game.Metrics;
 using Shaman.Tests.Configuration;
 
 namespace Shaman.Tests
@@ -23,7 +24,7 @@ namespace Shaman.Tests
                     IsConnectionDdosProtectionOn = true
                 },
                 new TaskSchedulerFactory(logger),
-                logger
+                logger, new GameMetricsStub()
             );
             var emptyTask = new Task(() => {});
             Assert.IsFalse(protector.IsBanned(new IPEndPoint(ip, 1)));

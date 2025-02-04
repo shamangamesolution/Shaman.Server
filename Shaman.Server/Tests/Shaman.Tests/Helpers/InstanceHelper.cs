@@ -89,7 +89,7 @@ namespace Shaman.Tests.Helpers
 
             var senderFactory = new ShamanMessageSenderFactory(serializer, config);
             var protectionManagerConfig = new ConnectionDdosProtectionConfig(ddosConnectionsLevel, ddosConnectionCheckInterval, 5000, 60000);
-            var connectionDdosProtection = new ConnectDdosProtection(protectionManagerConfig,taskSchedulerFactory, serverLogger);
+            var connectionDdosProtection = new ConnectDdosProtection(protectionManagerConfig,taskSchedulerFactory, serverLogger, new GameMetricsStub());
             var protectionManager = new ProtectionManager(connectionDdosProtection, protectionManagerConfig, serverLogger);
             //setup mm server
             return new MmApplication(serverLogger, config, serializer, socketFactory, matchMaker,
@@ -110,7 +110,7 @@ namespace Shaman.Tests.Helpers
             var serializer = new BinarySerializer();
             var taskSchedulerFactory = new TaskSchedulerFactory(serverLogger);
             var protectionManagerConfig = new ConnectionDdosProtectionConfig(300, 5000, 5000, 60000);
-            var connectionDdosProtection = new ConnectDdosProtection(protectionManagerConfig,taskSchedulerFactory, serverLogger);
+            var connectionDdosProtection = new ConnectDdosProtection(protectionManagerConfig,taskSchedulerFactory, serverLogger, new GameMetricsStub());
             var protectionManager = new ProtectionManager(connectionDdosProtection, protectionManagerConfig, serverLogger);
             
             var config = new ApplicationConfig

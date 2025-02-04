@@ -73,6 +73,10 @@ namespace Shaman.Contract.Monitoring.AppMetrics
             Metrics.Measure.Histogram.Update(PacketSenderPeers, new MetricTags("SendSource", source), count);
         }
 
+        public void TrackMaxConnectionsFromIp(int count)
+        {
+        }
+
         private void CollectMemoryAndThreadsUsage()
         {
             Metrics.Measure.Histogram.Update(Gen0Collections, GC.CollectionCount(0));
