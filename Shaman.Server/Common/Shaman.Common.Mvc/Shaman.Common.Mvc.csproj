@@ -24,6 +24,7 @@
         <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.1" />
         <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.2" />
         <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
+        <PackageReference Include="System.Collections.Immutable" Version="9.0.1" />
 <!--        need to try dotnet 8-->
         <PackageReference Include="System.Threading.Channels" Version="8.0.0" />
     </ItemGroup>
