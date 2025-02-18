@@ -4,6 +4,7 @@ COPY . .
 # Install dotnet-dump
 RUN dotnet tool install -g dotnet-gcdump
 RUN dotnet tool install -g dotnet-dump
+RUN dotnet tool install -g dotnet-trace
 
 ENV ASPNETCORE_ENVIRONMENT=Production
 RUN dotnet clean   Launchers/Shaman.Launchers.Standalone.Balancing/*.csproj
