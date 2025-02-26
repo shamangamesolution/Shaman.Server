@@ -14,7 +14,7 @@ using Serilog.Sinks.SystemConsole.Themes;
 
 namespace Shaman.ServiceBootstrap
 {
-    public class Bootstrap
+    public static class Bootstrap
     {
 
         private static IConfigurationRoot GetConfig(string configRole)
@@ -105,7 +105,7 @@ namespace Shaman.ServiceBootstrap
             });
         }
 
-        private static void UseSerilog(IHostBuilder configureHostBuilder, IConfiguration configurationManager,
+        public static void UseSerilog(this IHostBuilder configureHostBuilder, IConfiguration configurationManager,
             Action<LoggerConfiguration, IConfiguration> configureLogging = null)
         {
             configureHostBuilder
