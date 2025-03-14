@@ -14,7 +14,7 @@ static class CommonRoutines
         var oldBuffer = buffer;
         do
         {
-            logger.Warning($"Expanding server receive buffer to {oldBuffer.Length * 2}");
+            // logger.Warning($"Expanding server receive buffer to {oldBuffer.Length * 2}");
             var expandedBuffer = new byte[oldBuffer.Length * 2];
             Buffer.BlockCopy(oldBuffer, 0, expandedBuffer, 0, oldBuffer.Length);
             result = await webSocket.ReceiveAsync(new ArraySegment<byte>(expandedBuffer, oldBuffer.Length,
