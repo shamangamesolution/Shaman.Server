@@ -132,5 +132,16 @@ namespace Shaman.Serialization.Extensions
         {
             return reader.ReadBool() ? reader.Read<T>() : default;
         }
+
+        public static TimeSpan? ReadNullableTimeSpan(this ITypeReader reader)
+        {
+            var dateData = reader.ReadLong();
+            if (dateData == 0)
+            {
+                return null;
+            }
+
+            return TimeSpan.FromTicks(dateData);
+        }
     }
 }
