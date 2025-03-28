@@ -96,63 +96,73 @@ public class WebSocketServerTransport : ITransportLayer
         {
             while (true)
             {
-                var ctx = await _httpListener.GetContextAsync();
-                _logger.Info($"Incoming connection {ctx.Request.RemoteEndPoint}");
-                if (!ctx.Request.IsWebSocketRequest)
+                try
                 {
-                    ctx.Response.StatusCode = 400;
-                    ctx.Response.Close();
-                    continue;
+                    var ctx = await _httpListener.GetContextAsync();
+                    _logger.Info($"Incoming connection {ctx.Request.RemoteEndPoint}");
+                    if (!ctx.Request.IsWebSocketRequest)
+                    {
+                        ctx.Response.StatusCode = 400;
+                        ctx.Response.Close();
+                        continue;
+                    }
+
+                    _ = _taskScheduler.Schedule(async () =>
+                    {
+                        HttpListenerWebSocketContext? webSocketCtx = null;
+                        var ipEndPoint = ctx.Request.RemoteEndPoint;
+                        try
+                        {
+                            webSocketCtx = await ctx.AcceptWebSocketAsync(null);
+                            var context = new Ctx
+                            {
+                                WebSocketContext = webSocketCtx,
+                                Semaphore = new SemaphoreSlim(1, 1)
+                            };
+                            _contexts[ipEndPoint] = context;
+                            _onConnect?.Invoke(ipEndPoint);
+                            await HandleWsContext(context, ipEndPoint);
+                        }
+                        catch (OperationCanceledException e) // timeout receive w/o ping
+                        {
+                        }
+                        catch (WebSocketException e)
+                        {
+                            if (e.WebSocketErrorCode != WebSocketError.InvalidState &&
+                                e.WebSocketErrorCode != WebSocketError.ConnectionClosedPrematurely)
+                                _logger.Error($"WebSocket error: {e}");
+                        }
+                        finally
+                        {
+                            try
+                            {
+                                webSocketCtx?.WebSocket.Dispose();
+                            }
+                            catch (Exception e)
+                            {
+                                _logger.Error($"Failed to dispose socket: {e}");
+                            }
+
+                            try
+                            {
+                                ctx.Response.Close();
+                            }
+                            catch (Exception e)
+                            {
+                                _logger.Error($"Failed to close : {e}");
+                            }
+
+                            _contexts.TryRemove(ipEndPoint, out _);
+                            _onDisconnect?.Invoke(ipEndPoint,
+                                new SimpleDisconnectInfo(ShamanDisconnectReason.ConnectionLost));
+                        }
+                    }, 0);
                 }
-
-                _ = _taskScheduler.Schedule(async () =>
+                catch (Exception e)
                 {
-                    var ipEndPoint = ctx.Request.RemoteEndPoint;
-                    var webSocketCtx = await ctx.AcceptWebSocketAsync(null);
-                    try
-                    {
-                        var context = new Ctx
-                        {
-                            WebSocketContext = webSocketCtx,
-                            Semaphore = new SemaphoreSlim(1, 1)
-                        };
-                        _contexts[ipEndPoint] = context;
-                        _onConnect?.Invoke(ipEndPoint);
-                        await HandleWsContext(context, ipEndPoint);
-                    }
-                    catch (OperationCanceledException e) // timeout receive w/o ping
-                    {
-                    }
-                    catch (WebSocketException e)
-                    {
-                        if (e.WebSocketErrorCode != WebSocketError.InvalidState &&
-                            e.WebSocketErrorCode != WebSocketError.ConnectionClosedPrematurely)
-                            _logger.Error($"WebSocket error: {e}");
-                    }
-                    finally
-                    {
-                        _contexts.TryRemove(ipEndPoint, out _);
-                        try
-                        {
-                            webSocketCtx.WebSocket.Dispose();
-                        }
-                        catch (Exception e)
-                        {
-                            _logger.Error($"Failed to dispose socket: {e}");
-                        }
-                        try
-                        {
-                            ctx.Response.Close();
-                        }
-                        catch (Exception e)
-                        {
-                            _logger.Error($"Failed to close : {e}");
-                        }
-
-                        _onDisconnect?.Invoke(ipEndPoint,
-                            new SimpleDisconnectInfo(ShamanDisconnectReason.ConnectionLost));
-                    }
-                }, 0);
+                    if (!_httpListener.IsListening)
+                        throw new ObjectDisposedException($"HttpListener is stopped, quitting port {port} loop", e);
+                }
             }
         }, 0);
     }
