@@ -35,8 +35,6 @@ namespace Shaman.Launchers.Game.Standalone
             //settings
             ConfigureSettings<ApplicationConfig>(services);
             
-            //update room state on MM
-            services.AddSingleton<IRoomStateUpdater, FakeRoomStateUpdater>();
             //used for configuration of bundle related services
             services.AddSingleton<IDefaultBundleInfoConfig, DefaultBundleInfoConfig>(c =>
                 new DefaultBundleInfoConfig(Configuration["LauncherSettings:BundleUri"],

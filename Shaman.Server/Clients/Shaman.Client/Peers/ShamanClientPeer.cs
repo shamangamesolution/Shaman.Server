@@ -12,7 +12,6 @@ using Shaman.Messages;
 using Shaman.Messages.Authorization;
 using Shaman.Messages.General.DTO.Events;
 using Shaman.Messages.General.DTO.Responses;
-using Shaman.Messages.MM;
 using Shaman.Messages.RoomFlow;
 using Shaman.Serialization;
 using Shaman.Serialization.Messages;
@@ -38,10 +37,8 @@ namespace Shaman.Client.Peers
         private Dictionary<byte, object> _matchMakingProperties;
         private Dictionary<byte, object> _joinGameProperties;
         private Action<ShamanConnectionStatus, JoinInfo> _statusCallback;
-        private Action<List<RoomInfo>> _getRoomsCallback;
 
 
-        private Guid _joinInfoEventId;
         private bool _isPinging = false;
         private DateTime? _pingRequestSentOn = null;
         private JoinType _joinType;
@@ -131,77 +128,6 @@ namespace Shaman.Client.Peers
         #endregion
 
         #region private and protected
-        private void OnConnectedToMatchMaker(ConnectedEvent eve)
-        {
-            SetAndReportStatus(ShamanClientStatus.AuthorizingMatchMaking, _statusCallback);
-
-            //authorizing matchmaker
-            SendShamanRequest<AuthorizationResponse>(new AuthorizationRequest{SessionId = SessionId}, OmMmAuthorizationResponse);
-        }
-
-        private void GetRooms()
-        {
-            SendShamanRequest<GetRoomListResponse>(new GetRoomListRequest(_matchMakingProperties), response =>
-            {
-                if (!response.Success)
-                {
-                    var error = $"GetRooms: Error response {response.Message}";
-                    _logger.Error(error);
-                    _getRoomsCallback(new List<RoomInfo>());
-                    return;
-                }
-
-                _getRoomsCallback(response.Rooms);
-            });
-        }
-
-        private void CreateGame()
-        {
-            SendShamanRequest<CreateRoomFromClientResponse>(new CreateRoomFromClientRequest(_matchMakingProperties), response =>
-            {
-                if (!response.Success)
-                {
-                    var error = $"GetRooms: Error response {response.Message}";
-                    _logger.Error(error);
-                    SetAndReportStatus(ShamanClientStatus.CreateGameError, _statusCallback, false, error);
-                    return;
-                }
-
-                JoinInfoReceived(response.JoinInfo);
-            });
-        }
-
-        private void StartConnect(string matchMakerAddress, ushort matchMakerPort, Guid sessionId,
-            Dictionary<byte, object> matchMakingProperties, Dictionary<byte, object> joinGameProperties,
-            Action<ShamanConnectionStatus, JoinInfo> statusCallback)
-        {
-            try
-            {
-                _matchMakingProperties = matchMakingProperties;
-                _joinGameProperties = joinGameProperties;
-                _statusCallback = statusCallback;
-                SessionId = sessionId;
-                //waiting for join Info
-                _joinInfoEventId = RegisterShamanOperationHandler<JoinInfoEvent>(OnJoinInfoEvent);
-
-                SetAndReportStatus(ShamanClientStatus.ConnectingMatchMaking, statusCallback);
-                RegisterShamanOperationHandler<ConnectedEvent>(OnConnectedToMatchMaker, true);
-                RegisterShamanOperationHandler<ErrorResponse>(
-                    errorResponse =>
-                    {
-                        SetAndReportStatus(ShamanClientStatus.ErrorReceived, _statusCallback, false,
-                            errorResponse.ErrorCode.ToString());
-                    }, false);
-
-                _clientPeer.Connect(matchMakerAddress, matchMakerPort);
-            }
-            catch (Exception ex)
-            {
-                _logger.Error($"JoinGame error: {ex}");
-                throw new ShamanClientException("JoinGame error", ex);
-            }
-        }
-
         private void StartProcessingMessagesLoop()
         {
             _pollingTask = _taskScheduler.ScheduleOnInterval(() =>
@@ -256,57 +182,6 @@ namespace Shaman.Client.Peers
             statusCallback?.Invoke(new ShamanConnectionStatus(status, isSuccess, error), JoinInfo);
         }
 
-        private void OmMmAuthorizationResponse(AuthorizationResponse response)
-        {
-            _logger.Debug($"JoinGame: AuthorizationRequest callback fired");
-            if (response.ResultCode != ResultCode.OK)
-            {
-                _logger.Debug($"JoinGame: AuthorizationResponse error: {response.ResultCode}");
-                SetAndReportStatus(ShamanClientStatus.AuthorizingMatchMaking, _statusCallback, false,
-                    $"AuthorizationResponse error: {response.ResultCode}");
-                return;
-            }
-
-            _logger.Debug($"JoinGame: Entering matchmaking");
-
-            //calling next stage
-            switch(_joinType)
-            {
-                case JoinType.RandomJoin:
-                    _taskScheduler.ScheduleOnceOnNow(EnterMatchMaking);
-                    break;
-                // case JoinType.DirectJoin:
-                //     _taskScheduler.ScheduleOnceOnNow(GetRooms);
-                //     break;
-                // case JoinType.CreateGame:
-                //     _taskScheduler.ScheduleOnceOnNow(CreateGame);
-                //     break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
-
-        private void OnEnterMatchmakingResponse(EnterMatchMakingResponse response)
-        {
-            if (response.ResultCode != ResultCode.OK)
-            {
-                SetAndReportStatus(ShamanClientStatus.JoiningMatchMaking, _statusCallback, false,
-                    $"EnterMatchMakingResponse error: {response.ResultCode}");
-            }
-            else
-            {
-                if (response.MatchMakingErrorCode != MatchMakingErrorCode.OK)
-                {
-                    SetAndReportStatus(ShamanClientStatus.JoiningMatchMaking, _statusCallback, false,
-                        $"EnterMatchMakingResponse error code: {response.MatchMakingErrorCode}");
-                }
-                else
-                {
-                    SetAndReportStatus(ShamanClientStatus.OnMatchMaking, _statusCallback);
-                }
-            }
-        }
-
         public void Connect(string address, ushort port)
         {
             _clientPeer.Connect(address, port);
@@ -347,57 +222,11 @@ namespace Shaman.Client.Peers
             _taskScheduler.ScheduleOnceOnNow(JoinRoom);
         }
 
-        private void JoinInfoReceived(JoinInfo joinInfo)
-        {
-            JoinInfo = joinInfo;
-            _logger.Debug($"OnJoinInfoReceived: JoinInfo.Status {JoinInfo.Status}, JoinInfo.CurrentPlayers {JoinInfo.CurrentPlayers}, JoinInfo.MaxPlayers {JoinInfo.MaxPlayers}");
-
-            SetAndReportStatus(_status, _statusCallback);
-
-            //wait until we joinedÚ
-            if (JoinInfo.Status == JoinStatus.RoomIsReady)
-            {
-                //start join room logic
-                SetAndReportStatus(ShamanClientStatus.JoiningRoom, _statusCallback);
-
-                //disconnecting
-                _clientPeer.Disconnect();
-
-                //connect to game server
-                _taskScheduler.ScheduleOnceOnNow(() =>
-                {
-                    UnregisterShamanOperationHandler(_joinInfoEventId);
-                    ConnectToGameServer(JoinInfo.ServerIpAddress, JoinInfo.ServerPort);
-                });
-            }
-        }
-
-        private void OnJoinInfoEvent(JoinInfoEvent eve)
-        {
-            _logger.Debug($"OnJoinInfoReceived: JoinInfo event received");
-            JoinInfoReceived(eve.JoinInfo);
-        }
-
         private void ResetState()
         {
             _matchMakingProperties = null;
             _statusCallback = null;
             _status = ShamanClientStatus.Offline;
-        }
-
-        private void EnterMatchMaking()
-        {
-            try
-            {
-                //set correct status
-                SetAndReportStatus(ShamanClientStatus.JoiningMatchMaking, _statusCallback);
-
-                SendShamanRequest<EnterMatchMakingResponse>(new EnterMatchMakingRequest(_matchMakingProperties), OnEnterMatchmakingResponse);
-            }
-            catch (Exception ex)
-            {
-                _logger.Error($"EnterMatchMaking error: {ex}");
-            }
         }
 
         private void JoinRoom()
@@ -629,38 +458,6 @@ namespace Shaman.Client.Peers
                 _clientPeer.Send(new BundleMessageWrapper<TMessage>(eve), eve.IsReliable, eve.IsOrdered));
         }
 
-        public Task<JoinInfo> JoinGame(string matchMakerAddress, ushort matchMakerPort, Guid sessionId,
-            Dictionary<byte, object> matchMakingProperties, Dictionary<byte, object> joinGameProperties)
-        {
-            _joinType = JoinType.RandomJoin;
-            var joinTask = new TaskCompletionSource<JoinInfo>();
-            var cancellationTokenSource = new CancellationTokenSource(JoinGameTimeout);
-            cancellationTokenSource.Token.Register(() => joinTask.TrySetCanceled());
-
-            StartConnect(matchMakerAddress, matchMakerPort, sessionId, matchMakingProperties,
-                joinGameProperties, (status, info) =>
-                {
-                    if (joinTask.Task.IsCompleted)
-                        return;
-
-                    if (!status.IsSuccess || status.Status == ShamanClientStatus.Disconnected)
-                    {
-                        joinTask.SetException(new ShamanClientException($"Client disconnected: {status.Error}"));
-                        cancellationTokenSource.Dispose();
-                    }
-                    else if (info != null && info.Status == JoinStatus.MatchMakingFailed)
-                    {
-                        joinTask.SetException(new ShamanClientException("Matchmaking failed"));
-                        cancellationTokenSource.Dispose();
-                    }
-                    else if (status.Status == ShamanClientStatus.InRoom)
-                    {
-                        joinTask.SetResult(info);
-                        cancellationTokenSource.Dispose();
-                    }
-                });
-            return joinTask.Task;
-        }
         // public void CreateGame(string matchMakerAddress, ushort matchMakerPort, Guid sessionId,
         //     Dictionary<byte, object> matchMakingProperties, Dictionary<byte, object> joinGameProperties,
         //     Action<ShamanConnectionStatus, JoinInfo> statusCallback)

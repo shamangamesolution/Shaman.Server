@@ -35,7 +35,6 @@ namespace Shaman.Game.Rooms
         private readonly IRoomControllerFactory _roomControllerFactory;
         private readonly IShamanMessageSender _messageSender;
         private readonly IGameMetrics _gameMetrics;
-        private readonly IRoomStateUpdater _roomStateUpdater;
         private readonly Random _rnd = new Random();
         
         public RoomManager(
@@ -46,8 +45,7 @@ namespace Shaman.Game.Rooms
             IRoomControllerFactory roomControllerFactory,
             IPacketSender packetSender, 
             IShamanMessageSenderFactory messageSenderFactory,
-            IGameMetrics gameMetrics, 
-            IRoomStateUpdater roomStateUpdater)
+            IGameMetrics gameMetrics)
         {
             _logger = logger;
             _serializer = serializer;
@@ -59,7 +57,6 @@ namespace Shaman.Game.Rooms
             _taskSchedulerFactory = taskSchedulerFactory;
             _messageSender = messageSenderFactory.Create(packetSender);
             _gameMetrics = gameMetrics;
-            _roomStateUpdater = roomStateUpdater;
         }
 
         private void CheckRoomsState()
@@ -134,7 +131,7 @@ namespace Shaman.Game.Rooms
             roomPropertiesContainer.Initialize(players, properties);
 
             var room = new Room(_logger, _taskSchedulerFactory, roomPropertiesContainer,
-                _roomControllerFactory, packetSender, roomId ?? Guid.NewGuid(), _roomStateUpdater, _gameMetrics);
+                _roomControllerFactory, packetSender, roomId ?? Guid.NewGuid(), _gameMetrics);
 
             if (_rooms.TryAdd(room.GetRoomId(), room))
                 _gameMetrics.TrackRoomCreated();

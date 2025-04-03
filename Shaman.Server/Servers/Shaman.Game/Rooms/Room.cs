@@ -11,11 +11,12 @@ using Shaman.Contract.Bundle;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
 using Shaman.Messages;
-using Shaman.Messages.MM;
+using Shaman.Messages.RoomFlow;
 using RoomStats = Shaman.Game.Stats.RoomStats;
 
 namespace Shaman.Game.Rooms
 {
+    
     public class Room : IRoom
     {
         private readonly IShamanLogger _logger;
@@ -28,7 +29,6 @@ namespace Shaman.Game.Rooms
         private readonly IPacketSender _packetSender;
         private readonly IRoomController _roomController;
         private readonly RoomStats _roomStats;
-        private readonly IRoomStateUpdater _roomStateUpdater;
 
         private RoomState _roomState = RoomState.Closed;
 
@@ -36,11 +36,10 @@ namespace Shaman.Game.Rooms
         public Room(IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory,
             IRoomPropertiesContainer roomPropertiesContainer,
             IRoomControllerFactory roomControllerFactory, IPacketSender packetSender,
-            Guid roomId, IRoomStateUpdater roomStateUpdater, IGameMetrics gameMetrics)
+            Guid roomId, IGameMetrics gameMetrics)
         {
             _logger = logger;
             _roomId = roomId;
-            _roomStateUpdater = roomStateUpdater;
             _createdOn = DateTime.UtcNow;
             _taskScheduler = taskSchedulerFactory.GetTaskScheduler();
             _roomPropertiesContainer = roomPropertiesContainer;
@@ -59,8 +58,6 @@ namespace Shaman.Game.Rooms
                 _roomStats.AddAvgQueueSize(_packetSender.GetAverageQueueSize());
                 
             }, 0, 1000, true);
-
-            _ = _taskScheduler.ScheduleOnInterval(async () => await SendRoomStateUpdate(), 0, 2000, true); 
         }
 
         public TimeSpan ForceDestroyRoomAfter => _roomController.ForceDestroyRoomAfter;
@@ -77,45 +74,22 @@ namespace Shaman.Game.Rooms
         public void Open()
         {
             _roomState = RoomState.Open;
-            UpdateRoomStateOnMm();
         }
 
         public void Close()
         {
             _roomState = RoomState.Closed;
-            UpdateRoomStateOnMm();
         }
 
-        private void UpdateRoomStateOnMm()
-        {
-            //update state on matchmaker
-            _taskScheduler.ScheduleOnceOnNow(async () => await SendRoomStateUpdate());
-        }
         
         public async Task InvalidateRoom()
         {
             _roomState = RoomState.Disposed;
-            await SendRoomStateUpdate();
         }
 
         public IRoomPropertiesContainer GetPropertiesContainer()
         {
             return _roomPropertiesContainer;
-        }
-
-        private async Task SendRoomStateUpdate()
-        {
-            var matchMakerUrl =
-                _roomPropertiesContainer.GetRoomPropertyAsString(PropertyCode.RoomProperties.MatchMakerUrl);
-            
-            // todo handle this
-            // this may happen when, for example, bundle's room executes Close/Open method
-            // inside its constructor - at this time _roomController is not assigned yet
-            if (_roomController == null)
-            {
-                return;
-            }
-            await _roomStateUpdater.UpdateRoomState(GetRoomId(), _roomPlayers.Count(), _roomState, matchMakerUrl, _roomController.MaxMatchmakingWeight);
         }
 
         public IEnumerable<RoomPlayer> GetAllPlayers()
@@ -183,7 +157,6 @@ namespace Shaman.Game.Rooms
             {
                 _logger.Error($"CleanUpPlayer error: {ex}");
             }
-            UpdateRoomStateOnMm();
             return peerRemoved;
         }
         

@@ -15,8 +15,6 @@ namespace Shaman.Client.Peers
         Action<IDisconnectInfo> OnDisconnectedFromGameServer { get; set; }
 
         void Connect(string address, ushort port);
-        Task<JoinInfo> JoinGame(string matchMakerAddress, ushort matchMakerPort, Guid sessionId,
-            Dictionary<byte, object> matchMakingProperties, Dictionary<byte, object> joinGameProperties);
 
         Task<JoinInfo> DirectConnectToGameServerToRandomRoom(string gameServerAddress, ushort gameServerPort,
             Guid sessionId, Dictionary<byte, object> roomProperties, Dictionary<byte, object> joinGameProperties);

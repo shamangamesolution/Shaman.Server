@@ -17,19 +17,12 @@
       <ProjectReference Include="..\..\Clients\Shaman.Client\Shaman.Client.csproj" />
       <ProjectReference Include="..\..\Launchers\Shaman.Launchers.Game.DebugServer\Shaman.Launchers.Game.DebugServer.csproj" />
       <ProjectReference Include="..\..\Launchers\Shaman.Launchers.Game.Standalone\Shaman.Launchers.Game.Standalone.csproj" />
-      <ProjectReference Include="..\..\Launchers\Shaman.Launchers.Pair\Shaman.Launchers.Pair.csproj" />
       <ProjectReference Include="..\..\Launchers\Shaman.Launchers.TestBundle\Shaman.Launchers.TestBundle.csproj" />
       <ProjectReference Include="..\Shaman.TestTools\Shaman.TestTools.csproj" />
     </ItemGroup>
     
     <ItemGroup>
       <None Update="appsettings.standalone.json">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="appsettings.pair.GameServer.json">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="appsettings.pair.MatchMaker.json">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
     </ItemGroup>

@@ -16,7 +16,6 @@ using Shaman.Messages;
 using Shaman.Messages.General.DTO.Events;
 using Shaman.Messages.General.DTO.Requests;
 using Shaman.Messages.General.DTO.Responses;
-using Shaman.Messages.MM;
 using Shaman.Messages.RoomFlow;
 using Shaman.Serialization;
 using Shaman.Serialization.Messages;
@@ -157,11 +156,6 @@ namespace Shaman.TestTools.ClientPeers
                     OperationCode = bundleOperationCode
                 });
             }
-
-
-            //save join info
-            if (operationCode == ShamanOperationCode.JoinInfo)
-                _joinInfo = _serializer.DeserializeAs<JoinInfoEvent>(buffer, offset, length).JoinInfo;
         }
 
         private void ClientOnPackageReceived(IPacketInfo packet)
