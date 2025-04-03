@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using Shaman.Client;
 using Shaman.Client.Peers;
 using Shaman.Common.Server.Configuration;
 using Shaman.Launchers.Game.DebugServer;
@@ -70,6 +71,12 @@ namespace Shaman.Launchers.Tests
 
 
 
+            foreach (var client in clients)
+            {
+                var ping = await client.Key.Ping("127.0.0.1", 23452);
+                Assert.AreNotEqual(0, ping);
+            }
+            
             foreach (var client in clients)
             {
                 var joinInfo = await client.Key.DirectConnectToGameServerToRandomRoom("127.0.0.1", 23452,
