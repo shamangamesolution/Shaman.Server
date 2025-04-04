@@ -5,17 +5,9 @@ namespace Shaman.Launchers.Common
 {
     public static class LauncherHelpers
     {
-        public static string GetAssemblyName(ServerRole serverRole)
+        public static string GetAssemblyName()
         {
-            switch (serverRole)
-            {
-                case ServerRole.MatchMaker:
-                    return "Shaman.MM";
-                case ServerRole.GameServer:
-                    return "Shaman.Game";
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(serverRole), serverRole, null);
-            }
+            return "Shaman.Game";
         }
     }
 }

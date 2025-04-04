@@ -30,6 +30,5 @@ namespace Shaman.Contract.Bundle
         /// </summary>
         void ProcessMessage(Payload message, DeliveryOptions deliveryOptions, Guid sessionId);
         
-        int MaxMatchmakingWeight { get; }
     }
 }

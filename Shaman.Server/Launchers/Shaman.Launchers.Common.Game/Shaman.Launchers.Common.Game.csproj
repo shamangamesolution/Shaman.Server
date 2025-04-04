@@ -7,7 +7,6 @@
     </PropertyGroup>
     
     <ItemGroup>
-        <ProjectReference Include="..\..\Contracts\Shaman.Contract.Routing.Actualization\Shaman.Contract.Routing.Actualization.csproj" />
         <ProjectReference Include="..\..\Servers\Shaman.Game\Shaman.Game.csproj" />
         <ProjectReference Include="..\Shaman.Launchers.Common\Shaman.Launchers.Common.csproj" />
     </ItemGroup>

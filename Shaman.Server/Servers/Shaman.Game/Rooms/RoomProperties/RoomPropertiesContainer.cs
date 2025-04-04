@@ -43,33 +43,11 @@ namespace Shaman.Game.Rooms.RoomProperties
             }
         }
 
-        public bool IsPlayerInMatchMakerCollection(Guid sessionId)
-        {
-            lock (_playersMutex)
-            {
-                return _playersCameFromMatchMaker.ContainsKey(sessionId);
-            }
-        }
-
-        public void CheckIsBotForPlayers()
-        {
-        }
-
         public int GetPlayersCount()
         {
             lock (_playersMutex)
             {
-                return _playersCameFromMatchMaker.Count - GetBotsNumber();
-            }
-        }
-
-        public int GetBotsNumber()
-        {
-            if (!_roomProperties.TryGetValue(PropertyCode.RoomProperties.TotalPlayersNeeded, out var maximumPlayers))
-                return 0;
-            lock (_playersMutex)
-            {
-                return (int) maximumPlayers - _playersCameFromMatchMaker.Count;
+                return _playersCameFromMatchMaker.Count;
             }
         }
 

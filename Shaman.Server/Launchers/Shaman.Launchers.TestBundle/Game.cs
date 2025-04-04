@@ -8,10 +8,72 @@ using Shaman.Contract.Bundle.DI;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
 using Shaman.Game.Metrics;
+using Shaman.Serialization;
+using Shaman.Serialization.Extensions;
+using Shaman.Serialization.Messages.Extensions;
 using Shaman.Serialization.Messages.Udp;
 
 namespace Shaman.Launchers.TestBundle
 {
+    public class TestEvent : MessageBase
+    {
+        public TestEvent() : base(101)
+        {
+        }
+
+        public int IntValue { get; set; }
+
+        protected override void SerializeBody(ITypeWriter typeWriter)
+        {
+            typeWriter.Write(IntValue);
+        }
+
+        protected override void DeserializeBody(ITypeReader typeReader)
+        {
+            IntValue = typeReader.ReadInt();
+        }
+    }
+    
+    public class HeavyTestEvent : MessageBase
+    {
+        public HeavyTestEvent() : base(102)
+        {
+        }
+
+        public string StringValue { get; set; }
+        public Dictionary<string,string> StringDictionary { get; set; }
+
+        protected override void SerializeBody(ITypeWriter typeWriter)
+        {
+            typeWriter.Write(StringValue);
+            if (StringDictionary == null)
+                typeWriter.Write(0);
+            else
+            {
+                typeWriter.Write(StringDictionary.Count);
+                foreach (var item in StringDictionary)
+                {
+                    typeWriter.Write(item.Key);
+                    typeWriter.Write(item.Value);
+                }
+            }
+
+        }
+
+        protected override void DeserializeBody(ITypeReader typeReader)
+        {
+            StringValue = typeReader.ReadString();
+            StringDictionary = new Dictionary<string, string>();
+            var count = typeReader.ReadInt();
+            for (var i = 0; i < count; i++)
+            {
+                var key = typeReader.ReadString();
+                var value = typeReader.ReadString();
+                StringDictionary.Add(key, value);
+            }
+        }
+    }
+    
     public class Game : GameBundleBase<TestRoomControllerFactory>
     {
         public override IGameMetrics GetMetrics(IShamanComponents shamanComponents)
@@ -89,9 +151,13 @@ namespace Shaman.Launchers.TestBundle
         {
             var operationCode = MessageBase.GetOperationCode(message.Buffer, message.Offset);
             Trace($"Message {operationCode} received");
+            if (operationCode == 101
+                || operationCode == 102)
+            {
+                _room.GetSender().SendToAll(message, deliveryOptions);
+            }
         }
 
-        public int MaxMatchmakingWeight => 1;
 
         public void Dispose()
         {

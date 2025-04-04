@@ -8,6 +8,5 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Shaman.Contract.Common\Shaman.Contract.Common.csproj" />
-        <ProjectReference Include="..\Shaman.Contract.Routing.Meta\Shaman.Contract.Routing.Meta.csproj" />
     </ItemGroup>
 </Project>

@@ -28,7 +28,7 @@ namespace Shaman.LiteNetLibAdapter
         public void Connect(IPEndPoint endPoint)
         {
             _peer.Start();
-            _listener.NetworkReceiveEvent += (fromPeer, dataReader, deliveryMethod) =>
+            _listener.NetworkReceiveEvent += (fromPeer, dataReader, channel, deliveryMethod) =>
             {
                 var dataPacket = new DataPacket(dataReader.RawData, dataReader.UserDataOffset, dataReader.UserDataSize,
                     ConvertDeliveryMethod(deliveryMethod));
@@ -37,7 +37,7 @@ namespace Shaman.LiteNetLibAdapter
             _listener.PeerConnectedEvent += peer =>
             {
                 _serverPeer = peer;
-                OnConnected?.Invoke(peer.EndPoint);
+                OnConnected?.Invoke(peer);
             };
             
             _listener.PeerDisconnectedEvent += (peer, info) =>
@@ -67,24 +67,24 @@ namespace Shaman.LiteNetLibAdapter
             {
                 if (peer == null)
                     return;
-                _endPointReceivers.TryRemove(peer.EndPoint, out _);
+                _endPointReceivers.TryRemove(peer, out _);
                 using (var disconnectInfo = new LiteNetDisconnectInfo(info))
-                    onDisconnect(peer.EndPoint, disconnectInfo);
+                    onDisconnect(peer, disconnectInfo);
             };
 
-            _listener.NetworkReceiveEvent += (peer, dataReader, method) =>
+            _listener.NetworkReceiveEvent += (peer, dataReader, channel, method) =>
             {
                 var dataPacket = new DataPacket(dataReader.RawData, dataReader.UserDataOffset, dataReader.UserDataSize,
                     ConvertDeliveryMethod(method));
-                onReceivePacket(peer.EndPoint, dataPacket, dataReader.Recycle);
+                onReceivePacket(peer, dataPacket, dataReader.Recycle);
             };
             
             _listener.PeerConnectedEvent += peer =>
             {
                 if (peer == null)
                     throw new NullReferenceException($"Peer arg is null");
-                if (onConnect(peer.EndPoint))
-                    _endPointReceivers.TryAdd(peer.EndPoint, peer);
+                if (onConnect(peer))
+                    _endPointReceivers.TryAdd(peer, peer);
             };
         }
 
@@ -179,7 +179,7 @@ namespace Shaman.LiteNetLibAdapter
         public void Close()
         {
             if (_peer.IsRunning && _serverPeer != null)
-                OnDisconnected?.Invoke(_serverPeer.EndPoint, new SimpleDisconnectInfo(ShamanDisconnectReason.PeerLeave));
+                OnDisconnected?.Invoke(_serverPeer, new SimpleDisconnectInfo(ShamanDisconnectReason.PeerLeave));
             _peer.Stop();
             _peer.DisconnectAll();
             _serverPeer?.Disconnect();
@@ -188,7 +188,7 @@ namespace Shaman.LiteNetLibAdapter
         public void Close(byte[] data, int offset, int length)
         {
             if (_peer.IsRunning && _serverPeer != null)
-                OnDisconnected?.Invoke(_serverPeer.EndPoint, new SimpleDisconnectInfo(ShamanDisconnectReason.PeerLeave));
+                OnDisconnected?.Invoke(_serverPeer, new SimpleDisconnectInfo(ShamanDisconnectReason.PeerLeave));
             _serverPeer?.Disconnect(data, offset, length);
             _peer.Stop();
             _peer.DisconnectAll();

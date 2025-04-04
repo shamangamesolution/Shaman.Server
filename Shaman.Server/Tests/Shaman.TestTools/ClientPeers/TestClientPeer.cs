@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Shaman.Client;
 using Shaman.Client.Peers;
-using Shaman.Client.Providers;
 using Shaman.Common.Udp.Sockets;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Common;
@@ -43,12 +42,6 @@ namespace Shaman.TestTools.ClientPeers
 
         public Guid SessionId { get; set; }
 
-        private readonly List<Route> _routeTable = new List<Route>();
-
-        public string MmAddress => _routeTable.First().MatchMakerAddress;
-        public ushort MmPort => _routeTable.First().MatchMakerPort;
-        public string BackendUrl => $"{_routeTable.First().BackendProtocol}://{_routeTable.First().BackendAddress}:{_routeTable.First().BackendPort}/";
-        public int BackendId => _routeTable.First().BackendId;
         public Action<IDisconnectInfo> OnDisconnectedFromServer;
 
         public TestClientPeer(IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory, ISerializer serializer)
@@ -75,17 +68,6 @@ namespace Shaman.TestTools.ClientPeers
         {
             _logger.Info($"Disconnected from server: {disconnectInfo.Reason}");
             OnDisconnectedFromServer?.Invoke(disconnectInfo);
-        }
-
-
-        public async Task LoadRoutes(string routerUrl, string clientVersion)
-        {
-            var httpSender = new TestClientHttpSender(_logger, new BinarySerializer());
-            var routerClient = new TestRouterClient(httpSender, _logger, routerUrl);
-            var clientServerInfoProvider =
-                new ClientServerInfoProvider(_logger, routerClient);
-            _routeTable.AddRange(await clientServerInfoProvider.GetRoutes(routerUrl, clientVersion));
-            _routeTable.Should().NotBeEmpty();
         }
 
         public JoinInfo GetJoinInfo()

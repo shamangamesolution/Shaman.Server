@@ -10,7 +10,6 @@ namespace Shaman.Contract.Routing
         public string Address { get; set; }
         public List<ushort> Ports { get; set; }
         public string PortsString { get; set; }
-        public ServerRole ServerRole { get; set; }
 
         #region helpers
 
@@ -35,19 +34,17 @@ namespace Shaman.Contract.Routing
 
         #endregion
 
-        public ServerIdentity(string address, IEnumerable<ushort> ports, ServerRole serverRole)
+        public ServerIdentity(string address, IEnumerable<ushort> ports)
         {
             Address = address;
             Ports = ports.ToList();
-            ServerRole = serverRole;
             PortsString = GetAsPortString(Ports);
         }
 
-        public ServerIdentity(string address, string ports, ServerRole serverRole)
+        public ServerIdentity(string address, string ports)
         {
             Address = address;
             PortsString = ports;
-            ServerRole = serverRole;
             Ports = GetAsUshortList(PortsString).ToList();
         }
 
@@ -60,7 +57,7 @@ namespace Shaman.Contract.Routing
 
         public override string ToString()
         {
-            var str = $"{ServerRole}://{Address}:[{string.Join(",", Ports)}]";
+            var str = $"{Address}:[{string.Join(",", Ports)}]";
             return str;
         }
 
@@ -70,12 +67,11 @@ namespace Shaman.Contract.Routing
             if (ReferenceEquals(this, other)) return true;
             var a = Ports.All(other.Ports.Contains) && Ports.Count == other.Ports.Count;
             return string.Equals(Address, other.Address) && a &&
-                   string.Equals(PortsString, other.PortsString) && ServerRole == other.ServerRole;
+                   string.Equals(PortsString, other.PortsString);
         }
 
         public void Serialize(ITypeWriter typeWriter)
         {
-            typeWriter.Write((byte) this.ServerRole);
             typeWriter.Write(this.Address);
             typeWriter.Write(Ports.Count);
             foreach (var port in Ports)
@@ -85,7 +81,6 @@ namespace Shaman.Contract.Routing
 
         public void Deserialize(ITypeReader typeReader)
         {
-            this.ServerRole = (ServerRole) typeReader.ReadByte();
             this.Address = typeReader.ReadString();
             var count = typeReader.ReadInt();
             this.Ports = new List<ushort>();

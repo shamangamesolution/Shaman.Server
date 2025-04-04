@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -8,6 +9,7 @@ using NUnit.Framework;
 using Shaman.Client.Peers;
 using Shaman.Common.Utils.Logging;
 using Shaman.Launchers.Game.Standalone;
+using Shaman.Launchers.TestBundle;
 using Shaman.Launchers.Tests.Common;
 using Shaman.ServiceBootstrap;
 using Shaman.TestTools.ClientPeers;
@@ -65,13 +67,19 @@ namespace Shaman.Launchers.Tests
             Assert.IsTrue(peerListener.WasDisconnectFired);
         }
 
+        private void OnTestEventReceived(TestEvent eve)
+        {
+            Assert.AreEqual(444, eve.IntValue);
+        }
+
         [Test]
         public async Task JoinRoomTests()
         {
             var clients = new Dictionary<IShamanClientPeer, Guid>();
-            var mmProperties = new Dictionary<byte, object>();
             var joinInfoList = new HashSet<Guid>();
-            var joinProperties = new Dictionary<byte, object>();
+            var roomPlayers = new Dictionary<IShamanClientPeer, Guid>();
+            var testEventsReceivedTimes = new ConcurrentDictionary<IShamanClientPeer, int>();
+            
             for (int i = 0; i < 10; i++)
             {
                 clients.Add(_clientFactory.GetClient(), Guid.NewGuid());
@@ -79,16 +87,32 @@ namespace Shaman.Launchers.Tests
             await Task.Delay(3000);
             foreach (var client in clients)
             {
-                var joinInfo = await client.Key.DirectConnectToGameServerToRandomRoom("127.0.0.1", 23452, client.Value, mmProperties,
-                    joinProperties);
+                var joinInfo = await client.Key.DirectConnectToGameServerToRandomRoom("127.0.0.1", 23452, client.Value, new Dictionary<byte, object>(),
+                    new Dictionary<byte, object>());
                 joinInfoList.Add(joinInfo.RoomId);
+                roomPlayers[client.Key] = joinInfo.RoomId;
+                client.Key.RegisterOperationHandler<TestEvent>(eve =>
+                {
+                    OnTestEventReceived(eve);
+                    if (!testEventsReceivedTimes.TryAdd(client.Key, 1))
+                        testEventsReceivedTimes[client.Key] += 1;
+                });
             }
 
             await Task.Delay(5000);
             
             foreach(var client in clients)
                 Assert.AreEqual(ShamanClientStatus.InRoom,  client.Key.GetStatus());
+
+            foreach (var client in clients)
+            {
+                client.Key.SendEvent(new TestEvent() {IntValue = 444});
+            }
             
+            await Task.Delay(5000);
+            
+            Assert.AreEqual(10, testEventsReceivedTimes.Count);
+            Assert.IsTrue(testEventsReceivedTimes.All(i => i.Value == roomPlayers.Count(r => r.Value == roomPlayers[i.Key])));
             Assert.AreEqual(2, joinInfoList.Count, "Because 2 rooms should have been created (see OnStart method of bundle)");
             Assert.AreNotEqual(Guid.Empty, joinInfoList.First());
         }

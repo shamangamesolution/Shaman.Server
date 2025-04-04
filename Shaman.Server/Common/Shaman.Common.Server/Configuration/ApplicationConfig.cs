@@ -15,7 +15,6 @@ namespace Shaman.Common.Server.Configuration
         public string AuthSecret { get; set; }
         public string ServerName { get; set; }
         public string Region { get; set; }
-        public ServerRole ServerRole { get; set; }
 
         public int MaxPacketSize { get; set; }
         public int BasePacketBufferSize { get; set; }
@@ -29,7 +28,7 @@ namespace Shaman.Common.Server.Configuration
 
         public ServerIdentity GetIdentity()
         {
-            return new ServerIdentity(PublicDomainNameOrAddress, this.GetPortDefinitions().Select(d=>d.Port), ServerRole);;
+            return new ServerIdentity(PublicDomainNameOrAddress, this.GetPortDefinitions().Select(d=>d.Port));;
         }
     }
 }

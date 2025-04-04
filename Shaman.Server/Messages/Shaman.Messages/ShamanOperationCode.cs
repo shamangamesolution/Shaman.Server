@@ -14,17 +14,17 @@ namespace Shaman.Messages
         public const byte PingResponse = 9;
         public const byte AuthorizationResponse = 10;
         //matchmaking.BEGIN
-        public const byte EnterMatchMaking = 11;
-        public const byte LeaveMatchMaking = 12;
-        public const byte JoinInfo = 13;
-        public const byte GetRoomList = 14;
-        public const byte DirectJoin = 15;
-        public const byte CreateRoomFromClient = 16;
-        public const byte CreateRoomFromClientResponse = 17;
-        public const byte DirectJoinResponse = 18;
-        public const byte EnterMatchMakingResponse = 19;
-        public const byte GetRoomListResponse = 20;
-        public const byte LeaveMatchMakingResponse = 21;
+        // public const byte EnterMatchMaking = 11;
+        // public const byte LeaveMatchMaking = 12;
+        // public const byte JoinInfo = 13;
+        // public const byte GetRoomList = 14;
+        // public const byte DirectJoin = 15;
+        // public const byte CreateRoomFromClient = 16;
+        // public const byte CreateRoomFromClientResponse = 17;
+        // public const byte DirectJoinResponse = 18;
+        // public const byte EnterMatchMakingResponse = 19;
+        // public const byte GetRoomListResponse = 20;
+        // public const byte LeaveMatchMakingResponse = 21;
         public const byte JoinRandomRoom = 22;
         public const byte JoinRandomRoomResponse = 23;
         //matchmaking.END

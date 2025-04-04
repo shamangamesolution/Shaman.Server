@@ -21,7 +21,6 @@ namespace Shaman.Common.Server.Configuration
         string AuthSecret { get; set; }
         string ServerName { get; set; }
         string Region { get; set; }
-        ServerRole ServerRole { get; set; }
         ushort BindToPortHttp { get; set; }
         ServerIdentity GetIdentity();
 

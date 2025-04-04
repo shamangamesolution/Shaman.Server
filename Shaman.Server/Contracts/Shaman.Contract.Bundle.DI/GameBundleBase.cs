@@ -22,7 +22,6 @@ namespace Shaman.Contract.Bundle.DI
             serviceCollection.AddTransient<IRoomControllerFactory, TRoomFactoryImpl>();
             serviceCollection.AddTransient((c) => shamanComponents.Logger);
             serviceCollection.AddTransient((c) => shamanComponents.Config);
-            serviceCollection.AddTransient((c) => shamanComponents.MetaProvider);
             serviceCollection.AddTransient((c) => shamanComponents.GameServerApi);
             serviceCollection.AddTransient((c) => shamanComponents.ServerStateHolder);
 

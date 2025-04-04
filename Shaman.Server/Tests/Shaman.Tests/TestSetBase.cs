@@ -10,7 +10,6 @@ using Shaman.Contract.Routing;
 using Shaman.Game;
 using Shaman.Messages.General.DTO.Responses.Auth;
 using Shaman.Messages.RoomFlow;
-using Shaman.Routing.Balancing.Messages;
 using Shaman.Serialization;
 using Shaman.Serialization.Messages;
 using Shaman.Serialization.Messages.Http;
@@ -24,9 +23,6 @@ namespace Shaman.Tests
             if (typeof(T) == typeof(CreateRoomResponse))
                 return new CreateRoomResponse(Guid.NewGuid()) as T;
 
-            if (typeof(T) == typeof(GetServerInfoListResponse))
-                return CreateGetServerInfoListResponse<T>() as T;
-
             if (typeof(T) == typeof(ValidateSessionIdResponse))
                 return new ValidateSessionIdResponse() {ResultCode = ResultCode.OK} as T;
             
@@ -37,23 +33,10 @@ namespace Shaman.Tests
         {
             if (typeof(T) == typeof(CreateRoomResponse))
                 callback(new CreateRoomResponse(Guid.NewGuid()) as T);
-            else
-
-            if (typeof(T) == typeof(GetServerInfoListResponse))
-                callback(CreateGetServerInfoListResponse<T>() as T);
             else if (typeof(T) == typeof(ValidateSessionIdResponse))
                 callback(new ValidateSessionIdResponse() {ResultCode = ResultCode.OK} as T);
             else
                 callback(new T());
-        }
-
-        internal static GetServerInfoListResponse CreateGetServerInfoListResponse<T>() where T : HttpResponseBase, new()
-        {
-            return new GetServerInfoListResponse(
-                new EntityDictionary<ServerInfo>(new List<ServerInfo>{new ServerInfo
-                {
-                    Address = "", Id = 1, HttpPort = 5555, ServerRole = ServerRole.BackEnd, IsApproved = true
-                }}));
         }
     }
     
@@ -88,9 +71,6 @@ namespace Shaman.Tests
                 return new UpdateRoomResponse() as T;
             }
             
-            if (typeof(T) == typeof(GetServerInfoListResponse))
-                return FakeSender.CreateGetServerInfoListResponse<T>() as T;;
-            
             return new T();
         }
 
@@ -101,9 +81,6 @@ namespace Shaman.Tests
                 var roomId = _createRoomDelegate(_roomProperties, _gameApplication, ((CreateRoomRequest)request).RoomId);
                 callback(new CreateRoomResponse(roomId) as T);
             }
-            else
-            if (typeof(T) == typeof(GetServerInfoListResponse))
-                callback(FakeSender.CreateGetServerInfoListResponse<T>() as T);
             else
             if (typeof(T) == typeof(ValidateSessionIdResponse))
                 callback(new ValidateSessionIdResponse() {ResultCode = ResultCode.OK} as T);

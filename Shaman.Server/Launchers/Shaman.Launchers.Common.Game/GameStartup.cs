@@ -33,7 +33,7 @@ namespace Shaman.Launchers.Common.Game
         /// <param name="services"></param>
         public virtual void ConfigureServices(IServiceCollection services)
         {
-            ConfigureCommonServices(services, LauncherHelpers.GetAssemblyName(ServerRole.GameServer));
+            ConfigureCommonServices(services, LauncherHelpers.GetAssemblyName());
 
             services.AddSingleton<IRoomControllerFactory, TRoomControllerFactory>();
             services.AddSingleton(c=>(IBundledRoomControllerFactory) c.GetRequiredService<IRoomControllerFactory>());
