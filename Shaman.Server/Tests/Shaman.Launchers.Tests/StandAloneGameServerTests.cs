@@ -7,20 +7,24 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
 using Shaman.Client.Peers;
+using Shaman.Common.Server.Configuration;
 using Shaman.Common.Utils.Logging;
+using Shaman.Launchers.Game.DebugServer;
 using Shaman.Launchers.Game.Standalone;
-using Shaman.Launchers.TestBundle;
 using Shaman.Launchers.Tests.Common;
 using Shaman.ServiceBootstrap;
 using Shaman.TestTools.ClientPeers;
+using Startup = Shaman.Launchers.Game.Standalone.Startup;
 
 namespace Shaman.Launchers.Tests
 {
     [TestFixture]
-    public class DebugServerTests
+    public class StandAloneServerTests
     {
         private bool _isLaunched = false;
         private readonly ShamanClientFactory _clientFactory = new ShamanClientFactory();
+        
+
         
         private IConfigurationRoot GetConfig()
         {
@@ -41,7 +45,7 @@ namespace Shaman.Launchers.Tests
                 _isLaunched = true;
             }
                 
-            await Task.Delay(3000);
+            await Task.Delay(10000);
         }
 
         [TearDown]

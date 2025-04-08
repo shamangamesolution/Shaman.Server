@@ -8,7 +8,7 @@ namespace Shaman.Launchers.Game.DebugServer
     /// <summary>
     /// This implementation creates room controller factory using bundle which was got from standalone launcher
     /// </summary>
-    public class StandaloneModeRoomControllerFactory : IBundledRoomControllerFactory
+    public class DebugServerModeRoomControllerFactory : IBundledRoomControllerFactory
     {
         private IGameBundle _bundle;
         private IRoomControllerFactory _roomControllerFactory;

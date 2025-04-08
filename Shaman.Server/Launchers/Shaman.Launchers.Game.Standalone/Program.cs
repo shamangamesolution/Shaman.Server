@@ -9,7 +9,7 @@ namespace Shaman.Launchers.Game.Standalone
         internal static async Task Main(string[] args)
         {
             //launch game server
-            await Bootstrap.LaunchWithCommonAndRoleConfig<Startup>("GameServer", (loggerConfiguration, appConfig) =>
+            await Bootstrap.LaunchWithCommonAndRoleConfig<Startup>((loggerConfiguration, appConfig) =>
                 loggerConfiguration.Enrich.WithProperty("node",
                     $"{appConfig["PublicDomainNameOrAddress"]}:{appConfig["BindToPortHttp"]}[{appConfig["Ports"]}]"));
         }

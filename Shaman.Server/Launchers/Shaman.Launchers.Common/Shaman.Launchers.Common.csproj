@@ -27,13 +27,5 @@
       <ProjectReference Include="..\..\Network\Shaman.LiteNetLibAdapter\Shaman.LiteNetLibAdapter.csproj" />
       <ProjectReference Include="..\..\Network\Shaman.WsNetworkLayer\Shaman.WsNetworkLayer.csproj" />
     </ItemGroup>
-
-    <ItemGroup>
-      <Content Include="appsettings.common.json">
-        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      </Content>
-    </ItemGroup>
     
 </Project>

@@ -62,7 +62,6 @@ namespace Shaman.Tests.Helpers
                 BasePacketBufferSize = 64,
                 SendTickTimeMs = 20,
                 SocketTickTimeMs = 10,
-                SocketType = SocketType.BareSocket,
                 ReceiveTickTimeMs = 20,
                 IsAuthOn = isAuthOn,
                 IsConnectionDdosProtectionOn = false

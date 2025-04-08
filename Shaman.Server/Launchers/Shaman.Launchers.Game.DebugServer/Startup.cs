@@ -19,7 +19,7 @@ namespace Shaman.Launchers.Game.DebugServer
     public class Startup :
         // In standalone game server mode we use special room controller factory, which gets bundle from Standalone launcher
         // other types of launchers get bundle via file directory or http request
-        GameStartup<StandaloneModeRoomControllerFactory>
+        GameStartup<DebugServerModeRoomControllerFactory>
     {
         public Startup(IConfiguration configuration) : base(configuration)
         {
@@ -54,7 +54,7 @@ namespace Shaman.Launchers.Game.DebugServer
             IShamanLogger logger, IBundledRoomControllerFactory roomControllerFactory,
             IShamanComponents shamanComponents, IGameMetrics gameMetrics)
         {
-            ConfigureGame(app, env, server, logger, StandaloneServerLauncher.StandaloneBundle, roomControllerFactory,
+            ConfigureGame(app, env, server, logger, DebugServerLauncher.StandaloneBundle, roomControllerFactory,
                 shamanComponents, gameMetrics);
         }
     }

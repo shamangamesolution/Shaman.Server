@@ -17,7 +17,6 @@ namespace Shaman.Common.Server.Configuration
         int SocketTickTimeMs { get; set; }
         int ReceiveTickTimeMs { get; set; }
         bool IsAuthOn { get; set; }
-        SocketType SocketType { get; set; }
         string AuthSecret { get; set; }
         string ServerName { get; set; }
         string Region { get; set; }

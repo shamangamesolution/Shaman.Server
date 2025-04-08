@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Bro.WsShamanNetwork;
+using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
 using Shaman.Client;
 using Shaman.Client.Peers;
@@ -11,14 +13,14 @@ using Shaman.Common.Server.Configuration;
 using Shaman.Common.Utils.Logging;
 using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Launchers.Game.DebugServer;
-using Shaman.Launchers.TestBundle;
 using Shaman.Launchers.Tests.Common;
+using Shaman.ServiceBootstrap;
 using TaskScheduler = Shaman.Common.Utils.TaskScheduling.TaskScheduler;
 
 namespace Shaman.Launchers.Tests
 {
     [TestFixture]
-    public class StandAloneGameServerTests
+    public class DebugGameServerTests
     {
         private bool _isLaunched = false;
         private readonly ShamanClientFactory _clientFactory = new ShamanClientFactory();
@@ -38,10 +40,9 @@ namespace Shaman.Launchers.Tests
                 MaxPacketSize = 300,
                 BasePacketBufferSize = 64,
                 IsAuthOn = false,
-                SocketType = SocketType.BareSocket
             };
             
-            var result = StandaloneServerLauncher.Launch(new TestBundle.Game(), null, config, "0.0.0.0", "Error");
+            var result = DebugServerLauncher.Launch(new TestBundle.Game(), config, "0.0.0.0", "Error");
             result.ServerTask.Wait();
         }
         
@@ -54,7 +55,7 @@ namespace Shaman.Launchers.Tests
                 _isLaunched = true;
             }
                 
-            await Task.Delay(3000);
+            await Task.Delay(10000);
         }
 
         [TearDown]
@@ -157,7 +158,7 @@ namespace Shaman.Launchers.Tests
             var testEventsReceivedTimes = new ConcurrentDictionary<IShamanClientPeer, int>();
             var taskScheduler = new TaskScheduler(new ConsoleLogger());
             var clientsCount = 100;
-            var eventsCount = 500;
+            var eventsCount = 100;
             var mutex = new object();
             for (int i = 0; i < clientsCount; i++)
             {

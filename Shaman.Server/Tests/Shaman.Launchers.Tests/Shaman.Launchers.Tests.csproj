@@ -18,6 +18,7 @@
       <ProjectReference Include="..\..\Launchers\Shaman.Launchers.Game.DebugServer\Shaman.Launchers.Game.DebugServer.csproj" />
       <ProjectReference Include="..\..\Launchers\Shaman.Launchers.Game.Standalone\Shaman.Launchers.Game.Standalone.csproj" />
       <ProjectReference Include="..\..\Launchers\Shaman.Launchers.TestBundle\Shaman.Launchers.TestBundle.csproj" />
+      <ProjectReference Include="..\Shaman.Launchers.Tests.TestBundle\Shaman.Launchers.Tests.TestBundle.csproj" />
       <ProjectReference Include="..\Shaman.TestTools\Shaman.TestTools.csproj" />
     </ItemGroup>
     

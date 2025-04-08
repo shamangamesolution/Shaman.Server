@@ -17,22 +17,19 @@ namespace Shaman.ServiceBootstrap
     public static class Bootstrap
     {
 
-        private static IConfigurationRoot GetConfig(string configRole)
+        private static IConfigurationRoot GetConfig()
         {
             return new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.common.json", optional: false)
-                .AddJsonFile($"appsettings.common.{configRole}.json", optional: false)
-                .AddJsonFile($"appsettings.launcher.{configRole}.json", optional: true)
-                .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.{configRole}.json", optional: true)
+                .AddJsonFile($"appsettings.launcher.GameServer.json", optional: false)
+                .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.GameServer.json", optional: true)
                 .AddEnvironmentVariables()
                 .Build();
         }
 
-        public static Task LaunchWithCommonAndRoleConfig<T>(string configRole,
-            Action<LoggerConfiguration, IConfiguration> configureLogging = null) where T : class
+        public static Task LaunchWithCommonAndRoleConfig<T>(Action<LoggerConfiguration, IConfiguration> configureLogging = null) where T : class
         {
-            return BuildHostApp<T>(GetConfig(configRole), configureLogging).RunAsync();
+            return BuildHostApp<T>(GetConfig(), configureLogging).RunAsync();
         }
 
         public static void Launch<T>(IConfigurationRoot config,
