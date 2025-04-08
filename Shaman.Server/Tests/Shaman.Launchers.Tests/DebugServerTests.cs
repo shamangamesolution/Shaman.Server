@@ -3,11 +3,13 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Bro.WsShamanNetwork;
 using NUnit.Framework;
 using Shaman.Client;
 using Shaman.Client.Peers;
 using Shaman.Common.Server.Configuration;
 using Shaman.Common.Utils.Logging;
+using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Launchers.Game.DebugServer;
 using Shaman.Launchers.TestBundle;
 using Shaman.Launchers.Tests.Common;
@@ -28,7 +30,7 @@ namespace Shaman.Launchers.Tests
                 ServerName = "TestGame",
                 Region = "SomeRegion",
                 PublicDomainNameOrAddress = "localhost",
-                ListenPorts = "23452/udp",
+                ListenPorts = "23452/udp,23452/ws",
                 BindToPortHttp = 7005,
                 SocketTickTimeMs = 100,
                 ReceiveTickTimeMs = 33,
@@ -67,7 +69,9 @@ namespace Shaman.Launchers.Tests
         }
 
         [Test]
-        public async Task JoinRoomTests()
+        [TestCase(true)]
+        [TestCase(false)]
+        public async Task JoinRoomTests(bool udpSocket)
         {
             var clients = new Dictionary<IShamanClientPeer, Guid>();
             var rooms = new HashSet<Guid>();
@@ -76,15 +80,21 @@ namespace Shaman.Launchers.Tests
             
             for (int i = 0; i < 10; i++)
             {
-                clients.Add(_clientFactory.GetClient(), Guid.NewGuid());
+                if (udpSocket)
+                    clients.Add(_clientFactory.GetClient(), Guid.NewGuid());
+                else
+                    clients.Add(_clientFactory.GetClient(new WebSocketClientTransportLayerFactory(new TaskSchedulerFactory(new ConsoleLogger()),TimeSpan.FromSeconds(5))), Guid.NewGuid());
             }
 
-            foreach (var client in clients)
+            if (udpSocket)
             {
-                var ping = await client.Key.Ping("127.0.0.1", 23452);
-                Assert.AreNotEqual(0, ping);
+                foreach (var client in clients)
+                {
+                    var ping = await client.Key.Ping("127.0.0.1", 23452);
+                    Assert.AreNotEqual(0, ping);
+                }
             }
-            
+
             foreach (var client in clients)
             {
                 var joinInfo = await client.Key.DirectConnectToGameServerToRandomRoom("127.0.0.1", 23452,
@@ -159,7 +169,7 @@ namespace Shaman.Launchers.Tests
                 var ping = await client.Key.Ping("127.0.0.1", 23452);
                 Assert.AreNotEqual(0, ping);
             }
-            
+
             foreach (var client in clients)
             {
                 var joinInfo = await client.Key.DirectConnectToGameServerToRandomRoom("127.0.0.1", 23452,
@@ -203,7 +213,7 @@ namespace Shaman.Launchers.Tests
                 }
             }
             
-            await Task.Delay(120000);
+            await Task.Delay(300000);
             
             Assert.AreEqual(clientsCount, testEventsReceivedTimes.Count);
             foreach(var item in testEventsReceivedTimes)

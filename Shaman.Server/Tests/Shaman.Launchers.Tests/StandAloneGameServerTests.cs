@@ -71,7 +71,9 @@ namespace Shaman.Launchers.Tests
         {
             Assert.AreEqual(444, eve.IntValue);
         }
-
+        
+        
+        
         [Test]
         public async Task JoinRoomTests()
         {
