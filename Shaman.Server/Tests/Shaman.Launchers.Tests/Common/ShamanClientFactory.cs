@@ -28,13 +28,13 @@ public class ShamanClientFactory
         _clientPeerConfig = new ClientPeerConfig();
     }
         
-    public IShamanClientPeer GetClient()
+    public IShamanClientPeer<byte> GetClient()
     {
-        return new ShamanClientPeer(_logger, _taskSchedulerFactory, _serializer, _requestSender, _clientPeerListener, _clientPeerConfig, new LiteNetClientTransportLayerFactory());
+        return new ShamanClientPeer<byte>(_logger, _taskSchedulerFactory, _serializer, _requestSender, _clientPeerListener, _clientPeerConfig, new LiteNetClientTransportLayerFactory(), new ByteOpCodeExtractor());
     }
     
-    public IShamanClientPeer GetClient(IShamanClientPeerListener peerListener)
+    public IShamanClientPeer<byte> GetClient(IShamanClientPeerListener peerListener)
     {
-        return new ShamanClientPeer(_logger, _taskSchedulerFactory, _serializer, _requestSender, peerListener, _clientPeerConfig, new LiteNetClientTransportLayerFactory());
+        return new ShamanClientPeer<byte>(_logger, _taskSchedulerFactory, _serializer, _requestSender, peerListener, _clientPeerConfig, new LiteNetClientTransportLayerFactory(), new ByteOpCodeExtractor());
     }
 }
