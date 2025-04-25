@@ -514,11 +514,6 @@ namespace Shaman.Client.Peers
             return joinTask.Task;
         }
 
-        public Task<TResponse> SendRequest<TResponse>(RequestBase request) where TResponse : ResponseBase, new()
-        {
-            throw new NotImplementedException();
-        }
-
         #endregion
 
         #endregion
