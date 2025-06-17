@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build-env
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build-env
 WORKDIR /app
 COPY . .
 ENV ASPNETCORE_ENVIRONMENT=Production
@@ -6,7 +6,7 @@ RUN dotnet clean   Launchers/Shaman.Launchers.MM.Balancing/*.csproj
 RUN dotnet restore Launchers/Shaman.Launchers.MM.Balancing/*.csproj
 RUN dotnet publish Launchers/Shaman.Launchers.MM.Balancing/*.csproj -c Release -o /app/build
 
-FROM mcr.microsoft.com/dotnet/aspnet:6.0
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 COPY --from=build-env /app/build .
 ENTRYPOINT ["dotnet", "Shaman.Launchers.MM.Balancing.dll"]
