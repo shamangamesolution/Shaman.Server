@@ -1,14 +1,14 @@
 using System;
-using Shaman.Serialization.Messages.Udp;
+using Shaman.Serialization.Messages;
 
 namespace Shaman.Client.Peers.MessageHandling
 {
-    public interface IMessageHandler
+    public interface IMessageHandler<TOpCode>
     {
-        Guid RegisterOperationHandler<T>(Action<T> handler,
-            bool callOnce = false) where T : MessageBase, new();
+        Guid RegisterOperationHandler<T>(Action<T, Exception> handler, 
+            bool callOnce = false) where T : IOperationCodeProvider<TOpCode>, new();
 
         bool UnregisterOperationHandler(Guid id);
-        bool ProcessMessage(ushort operationCode, byte[] buffer, int offset, int length);
+        bool ProcessMessage(TOpCode operationCode, byte[] buffer, int offset, int length);
     }
 }

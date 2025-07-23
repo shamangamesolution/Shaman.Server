@@ -4,18 +4,18 @@ using System.Collections.Generic;
 using System.Threading;
 using Shaman.Contract.Common.Logging;
 using Shaman.Serialization;
-using Shaman.Serialization.Messages.Udp;
+using Shaman.Serialization.Messages;
 
 namespace Shaman.Client.Peers.MessageHandling
 {
-    public class MessageHandler : IMessageHandler
+    public class MessageHandler<TOpCode> : IMessageHandler<TOpCode>
     {
         private readonly IShamanLogger _logger;
         private readonly ISerializer _serializer;
-        private readonly ConcurrentDictionary<ushort, ConcurrentDictionary<Guid, EventHandler>> _handlers = new ConcurrentDictionary<ushort, ConcurrentDictionary<Guid, EventHandler>>();
-        private readonly ConcurrentDictionary<Type, ushort> _opCodesMap = new ConcurrentDictionary<Type, ushort>();
-        private readonly ConcurrentDictionary<ushort, Func<byte[], int, int, MessageBase>> _parsers =  new ConcurrentDictionary<ushort, Func<byte[], int, int, MessageBase>>();
-        private readonly ConcurrentDictionary<Guid, ushort> _handlerIdToOperationCodes = new ConcurrentDictionary<Guid, ushort>();
+        private readonly ConcurrentDictionary<TOpCode, ConcurrentDictionary<Guid, EventHandler<TOpCode>>> _handlers = new();
+        private readonly ConcurrentDictionary<Type, TOpCode> _opCodesMap = new();
+        private readonly ConcurrentDictionary<TOpCode, Func<byte[], int, int, IOperationCodeProvider<TOpCode>>> _parsers = new();
+        private readonly ConcurrentDictionary<Guid, TOpCode> _handlerIdToOperationCodes = new();
 
         public MessageHandler(IShamanLogger logger, ISerializer serializer)
         {
@@ -23,8 +23,8 @@ namespace Shaman.Client.Peers.MessageHandling
             _serializer = serializer;
         }
 
-        public Guid RegisterOperationHandler<T>(Action<T> handler,
-            bool callOnce = false) where T : MessageBase, new()
+        public Guid RegisterOperationHandler<T>(Action<T, Exception> handler, bool callOnce = false)
+            where T : IOperationCodeProvider<TOpCode>, new()
         {
             var id = Guid.NewGuid();
             
@@ -35,7 +35,7 @@ namespace Shaman.Client.Peers.MessageHandling
 
             if (!_handlers.TryGetValue(operationCode, out var eventHandlers))
             {
-                eventHandlers = new ConcurrentDictionary<Guid, EventHandler>();
+                eventHandlers = new ConcurrentDictionary<Guid, EventHandler<TOpCode>>();
                 _handlers.TryAdd(operationCode, eventHandlers);
             }
             
@@ -43,7 +43,7 @@ namespace Shaman.Client.Peers.MessageHandling
                 _parsers.TryAdd(operationCode, (data, offset, length) =>
                     _serializer.DeserializeAs<T>(data, offset, length));
 
-            eventHandlers.TryAdd(id, new EventHandler(msgBase => handler((T) msgBase), callOnce));
+            eventHandlers.TryAdd(id, new EventHandler<TOpCode>((msgBase, err) => handler((T) msgBase, err), callOnce));
             _handlerIdToOperationCodes[id] = operationCode;
             return id;
         }
@@ -61,7 +61,7 @@ namespace Shaman.Client.Peers.MessageHandling
             return eventHandlers.TryRemove(id, out _);
         }
 
-        private ushort GetOperationCode<T>() where T : MessageBase, new()
+        private TOpCode GetOperationCode<T>() where T : IOperationCodeProvider<TOpCode>, new()
         {
             if (!_opCodesMap.TryGetValue(typeof(T), out var operationCode))
             {
@@ -72,18 +72,18 @@ namespace Shaman.Client.Peers.MessageHandling
             return operationCode;
         }
 
-        private MessageBase DeserializeMessage(ushort operationCode, byte[] buffer, int offset, int length)
+        private IOperationCodeProvider<TOpCode> DeserializeMessage(TOpCode operationCode, byte[] buffer, int offset, int length)
         {
             if (!_parsers.TryGetValue(operationCode, out var parser))
                 throw new MessageHandleException($"No parser registered for operationCode {operationCode}");
             return parser(buffer, offset, length);
         }
 
-        private readonly ThreadLocal<List<KeyValuePair<Guid, EventHandler>>> _handlerIterateBuffers = new();
+        private readonly ThreadLocal<List<KeyValuePair<Guid, EventHandler<TOpCode>>>> _handlerIterateBuffers = new();
 
-        public bool ProcessMessage(ushort operationCode, byte[] buffer, int offset, int length)
+        public bool ProcessMessage(TOpCode operationCode, byte[] buffer, int offset, int length)
         {
-            MessageBase messageBase = null;
+            IOperationCodeProvider<TOpCode> messageBase = null;
 
             if (!_handlers.TryGetValue(operationCode, out var eventHandlers))
             {
@@ -94,7 +94,7 @@ namespace Shaman.Client.Peers.MessageHandling
 
             // take a snapshot of handler's set here, before any handler will be executed 
             // using buffer to avoid allocations
-            var iterateBuffer = _handlerIterateBuffers.Value ??= new List<KeyValuePair<Guid, EventHandler>>();
+            var iterateBuffer = _handlerIterateBuffers.Value ??= new List<KeyValuePair<Guid, EventHandler<TOpCode>>>();
             iterateBuffer.Clear();
             iterateBuffer.AddRange(eventHandlers);
 
@@ -105,18 +105,26 @@ namespace Shaman.Client.Peers.MessageHandling
                     if (item.Value.CallOnce && !UnregisterOperationHandler(item.Key))
                         continue;
                     messageBase ??= DeserializeMessage(operationCode, buffer, offset, length);
-                    item.Value.Handler.Invoke(messageBase);
+                    item.Value.Handler.Invoke(messageBase, null);
                 }
                 catch (Exception ex)
                 {
                     string targetName = item.Value == null ? "" : item.Value.Handler.Method.ToString();
                     var msg =
                         $"ClientOnPackageReceived error: processing message {operationCode} in handler {targetName} {ex}";
+                    try
+                    {
+                        item.Value.Handler.Invoke(null, ex);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                        throw;
+                    }
                     throw new MessageHandleException(msg, ex);
                 }
             }
             return true;
         }
-
     }
 }

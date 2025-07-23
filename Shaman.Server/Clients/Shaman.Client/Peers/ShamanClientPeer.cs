@@ -21,11 +21,24 @@ using Shaman.Serialization.Messages.Udp;
 
 namespace Shaman.Client.Peers
 {
+    public interface IOpCodeExtractor<TOpCode>
+    {
+        TOpCode GetOperationCode(byte[] data, int offset);
+    }
+
+    public class ByteOpCodeExtractor : IOpCodeExtractor<byte>
+    {
+        public byte GetOperationCode(byte[] data, int offset)
+        {
+            return data[offset];
+        }
+    }
+
     public interface IShamanClientPeerListener
     {
         void OnStatusChanged(ShamanClientStatus prevStatus, ShamanClientStatus newStatus);
     }
-    public class ShamanClientPeer : IShamanClientPeer
+    public class ShamanClientPeer<TOpCode> : IShamanClientPeer<TOpCode>
     {
         private readonly ClientPeer _clientPeer;
         private readonly IShamanLogger _logger;
@@ -76,22 +89,23 @@ namespace Shaman.Client.Peers
         }
 
         private readonly IShamanClientPeerListener _listener;
+        private readonly IOpCodeExtractor<TOpCode> _opCodeExtractor;
         private static readonly TimeSpan JoinGameTimeout = TimeSpan.FromSeconds(30);
         private static readonly TimeSpan ReceiveEventTimeout = TimeSpan.FromSeconds(5);
-        private readonly IMessageHandler _shamanMessageHandler;
-        private readonly IMessageHandler _bundleMessageHandler;
+        private readonly IMessageHandler<byte> _shamanMessageHandler;
+        private readonly IMessageHandler<TOpCode> _bundleMessageHandler;
         private Dictionary<byte, object> _directRandomJoinRoomProperties = new Dictionary<byte, object>();
         #region ctors
 
         public ShamanClientPeer(IShamanLogger logger, ITaskSchedulerFactory taskSchedulerFactory,
             ISerializer serializer, IRequestSender requestSender,
             IShamanClientPeerListener listener, IShamanClientPeerConfig config,
-            IClientTransportLayerFactory clientTransportLayerFactory)
+            IClientTransportLayerFactory clientTransportLayerFactory, IOpCodeExtractor<TOpCode> opCodeExtractor)
         {
             _status = ShamanClientStatus.Offline;
 
-            _shamanMessageHandler = new MessageHandler(logger, serializer);
-            _bundleMessageHandler = new MessageHandler(logger, serializer);
+            _shamanMessageHandler = new MessageHandler<byte>(logger, serializer);
+            _bundleMessageHandler = new MessageHandler<TOpCode>(logger, serializer);
 
             _logger = logger;
             _taskScheduler = taskSchedulerFactory.GetTaskScheduler();
@@ -99,6 +113,7 @@ namespace Shaman.Client.Peers
             _clientPeer = new ClientPeer(logger, clientTransportLayerFactory, taskSchedulerFactory, config.MaxPacketSize, config.SendTickMs);
             _requestSender = requestSender;
             _listener = listener;
+            _opCodeExtractor = opCodeExtractor;
             _clientPeer.OnDisconnectedFromServer += (reason) =>
             {
                 var status = _status;
@@ -523,13 +538,14 @@ namespace Shaman.Client.Peers
                         if (operationCode != ShamanOperationCode.Bundle)
                         {
                             _logger.Debug($"Shaman message received. Operation code: {operationCode}");
-                            _shamanMessageHandler.ProcessMessage(operationCode, packet.Buffer, item.Offset, item.Length);
+                            _shamanMessageHandler.ProcessMessage((byte) operationCode, packet.Buffer, item.Offset, item.Length);
                         }
                         else
                         {
                             _logger.Debug($"Bundle message received. Operation code: {operationCode}");
-                            var bundleOperationCode = MessageBase.GetOperationCode(packet.Buffer, item.Offset + 1);
-                            _bundleMessageHandler.ProcessMessage(bundleOperationCode, packet.Buffer, item.Offset + 1, item.Length - 1);
+                            var opCode = _opCodeExtractor.GetOperationCode(packet.Buffer, item.Offset + 1);
+                            _bundleMessageHandler.ProcessMessage(opCode, packet.Buffer, item.Offset + 1,
+                                item.Length - 1);
                         }
                     }
                     catch (Exception ex)
@@ -556,20 +572,20 @@ namespace Shaman.Client.Peers
             SendShamanEvent(request);
         }
 
-        public Task<TResponse> SendRequest<TResponse>(RequestBase request) where TResponse : ResponseBase, new()
+        public Task<TResponse> SendRequest<TResponse>(IOperationCodeProvider<TOpCode> request) where TResponse : IOperationCodeProvider<TOpCode>, new()
         {
             var task = new TaskCompletionSource<TResponse>();
             var cancellationTokenSource = new CancellationTokenSource(ReceiveEventTimeout);
 
-            var handler = RegisterOperationHandler<TResponse>(response =>
+            var handler = RegisterOperationHandler<TResponse>((response, err) =>
             {
-                if (response.Success)
+                if (response != null)
                 {
                     task.SetResult(response);
                 }
                 else
                 {
-                    task.SetException(new ShamanClientException($"Response for code {response.OperationCode} fail: {response.Message}"));
+                    task.SetException(new ShamanClientException($"Response for code {new TResponse().OperationCode} fail: {err.Message}", err));
                 }
                 cancellationTokenSource.Dispose();
             }, true);
@@ -584,16 +600,23 @@ namespace Shaman.Client.Peers
             return task.Task;
         }
 
-        public Guid RegisterOperationHandler<T>(Action<T> handler, bool callOnce = false) where T : MessageBase, new()
+        public Guid RegisterOperationHandler<T>(Action<T, Exception> handler, bool callOnce = false) where T : IOperationCodeProvider<TOpCode>, new()
         {
             _logger.Debug("Bundle message register");
             return _bundleMessageHandler.RegisterOperationHandler(handler, callOnce);
         }
 
-        private Guid RegisterShamanOperationHandler<T>(Action<T> handler, bool callOnce = false) where T : MessageBase, new()
+        private Guid RegisterShamanOperationHandler<T>(Action<T> handler, bool callOnce = false)
+            where T : IOperationCodeProvider<byte>, new()
         {
             _logger.Debug("Shaman message register");
-            return _shamanMessageHandler.RegisterOperationHandler(handler, callOnce);
+            return _shamanMessageHandler.RegisterOperationHandler<T>((msg, e) =>
+            {
+                if (e != null)
+                    throw new ShamanClientException("Error in Shaman message handler", e);
+
+                handler(msg);
+            }, callOnce);
         }
 
         public void UnregisterOperationHandler(Guid id)
@@ -623,10 +646,13 @@ namespace Shaman.Client.Peers
             _taskScheduler.ScheduleOnceOnNow(() => _clientPeer.Send(eve, eve.IsReliable, eve.IsOrdered));
         }
 
-        public void SendEvent<TMessage>(TMessage eve) where TMessage : MessageBase
+        public void SendEvent<TMessage>(TMessage eve, IUdpOptions udpOptions = null) where TMessage : IOperationCodeProvider<TOpCode>
         {
             _taskScheduler.ScheduleOnceOnNow(() =>
-                _clientPeer.Send(new BundleMessageWrapper<TMessage>(eve), eve.IsReliable, eve.IsOrdered));
+                _clientPeer.Send(new BundleMessageWrapper<TMessage>(eve),
+                    udpOptions == null
+                        ? new DeliveryOptions()
+                        : new DeliveryOptions(udpOptions.IsReliable, udpOptions.IsOrdered)));
         }
 
         public Task<JoinInfo> JoinGame(string matchMakerAddress, ushort matchMakerPort, Guid sessionId,

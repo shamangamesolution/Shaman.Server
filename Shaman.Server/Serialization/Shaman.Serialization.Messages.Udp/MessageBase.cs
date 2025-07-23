@@ -1,8 +1,8 @@
 namespace Shaman.Serialization.Messages.Udp
 {
-    public abstract class MessageBase : ISerializable
+    public abstract class MessageBase : IOperationCodeProvider<byte>
     {       
-        public byte OperationCode;
+        public byte OperationCode { get; set; }
         public virtual bool IsReliable => false;
         public virtual bool IsOrdered => false;
         

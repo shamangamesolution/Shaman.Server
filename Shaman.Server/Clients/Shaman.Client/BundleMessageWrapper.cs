@@ -5,7 +5,7 @@ using Shaman.Serialization.Extensions;
 
 namespace Shaman.Client
 {
-    public class BundleMessageWrapper<TBundleMessage> : ISerializable where TBundleMessage:ISerializable
+    public class BundleMessageWrapper<TBundleMessage> : ISerializable where TBundleMessage : ISerializable
     {
         private readonly TBundleMessage _innerMessage;
 
