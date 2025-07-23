@@ -606,15 +606,15 @@ namespace Shaman.Client.Peers
 //
 //                 //add handler
 //                 _handlers[operationCode].Add(id, new EventHandler<byte>((msg, err) =>
-                {
-                    if (err!=null)
-                        throw new Exception("Error processing message in legacy client peer", err);
-                    if (msg is MessageBase msgBase)
-                        handler(msgBase);
-                    else
-                        throw new Exception(
-                            $"Error processing message in legacy client peer. Message {msg.OperationCode} is not of type MessageBase: {msg.GetType().FullName}");
-                }, callOnce));
+                // {
+                //     if (err!=null)
+                //         throw new Exception("Error processing message in legacy client peer", err);
+                //     if (msg is MessageBase msgBase)
+                //         handler(msgBase);
+                //     else
+                //         throw new Exception(
+                //             $"Error processing message in legacy client peer. Message {msg.OperationCode} is not of type MessageBase: {msg.GetType().FullName}");
+                // }, callOnce));
 //                 _handlerIdToOperationCodes[id] = operationCode;
 //             }
 //

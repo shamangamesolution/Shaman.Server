@@ -83,8 +83,8 @@ namespace Shaman.Launchers.Tests
         {
             var clients = new Dictionary<IShamanClientPeer<byte>, Guid>();
             var joinInfoList = new HashSet<Guid>();
-            var roomPlayers = new Dictionary<IShamanClientPeer, Guid>();
-            var testEventsReceivedTimes = new ConcurrentDictionary<IShamanClientPeer, int>();
+            var roomPlayers = new Dictionary<IShamanClientPeer<byte>, Guid>();
+            var testEventsReceivedTimes = new ConcurrentDictionary<IShamanClientPeer<byte>, int>();
             
             for (int i = 0; i < 10; i++)
             {
@@ -97,7 +97,7 @@ namespace Shaman.Launchers.Tests
                     new Dictionary<byte, object>());
                 joinInfoList.Add(joinInfo.RoomId);
                 roomPlayers[client.Key] = joinInfo.RoomId;
-                client.Key.RegisterOperationHandler<TestEvent>(eve =>
+                client.Key.RegisterOperationHandler<TestEvent>((eve, err) =>
                 {
                     OnTestEventReceived(eve);
                     if (!testEventsReceivedTimes.TryAdd(client.Key, 1))

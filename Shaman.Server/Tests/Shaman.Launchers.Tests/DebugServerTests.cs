@@ -76,8 +76,8 @@ namespace Shaman.Launchers.Tests
         {
             var clients = new Dictionary<IShamanClientPeer<byte>, Guid>();
             var rooms = new HashSet<Guid>();
-            var roomPlayers = new Dictionary<IShamanClientPeer, Guid>();
-            var testEventsReceivedTimes = new ConcurrentDictionary<IShamanClientPeer, int>();
+            var roomPlayers = new Dictionary<IShamanClientPeer<byte>, Guid>();
+            var testEventsReceivedTimes = new ConcurrentDictionary<IShamanClientPeer<byte>, int>();
             
             for (int i = 0; i < 10; i++)
             {
@@ -102,7 +102,7 @@ namespace Shaman.Launchers.Tests
                     client.Value, new Dictionary<byte, object>(), new Dictionary<byte, object>());
                 rooms.Add(joinInfo.RoomId);
                 roomPlayers[client.Key] = joinInfo.RoomId;
-                client.Key.RegisterOperationHandler<TestEvent>(eve =>
+                client.Key.RegisterOperationHandler<TestEvent>((eve, err) =>
                 {
                     OnTestEventReceived(eve);
                     if (!testEventsReceivedTimes.TryAdd(client.Key, 1))
@@ -153,9 +153,9 @@ namespace Shaman.Launchers.Tests
         [Test]
         public async Task HeavyLoadTests()
         {
-            var clients = new Dictionary<IShamanClientPeer, Guid>();
-            var roomPlayers = new Dictionary<IShamanClientPeer, Guid>();
-            var testEventsReceivedTimes = new ConcurrentDictionary<IShamanClientPeer, int>();
+            var clients = new Dictionary<IShamanClientPeer<byte>, Guid>();
+            var roomPlayers = new Dictionary<IShamanClientPeer<byte>, Guid>();
+            var testEventsReceivedTimes = new ConcurrentDictionary<IShamanClientPeer<byte>, int>();
             var taskScheduler = new TaskScheduler(new ConsoleLogger());
             var clientsCount = 100;
             var eventsCount = 100;
@@ -176,7 +176,7 @@ namespace Shaman.Launchers.Tests
                 var joinInfo = await client.Key.DirectConnectToGameServerToRandomRoom("127.0.0.1", 23452,
                     client.Value, new Dictionary<byte, object>(), new Dictionary<byte, object>());
                 roomPlayers[client.Key] = joinInfo.RoomId;
-                client.Key.RegisterOperationHandler<HeavyTestEvent>(eve =>
+                client.Key.RegisterOperationHandler<HeavyTestEvent>((eve, err) =>
                 {
                     OnHeavyTestEventReceived(eve);
 
