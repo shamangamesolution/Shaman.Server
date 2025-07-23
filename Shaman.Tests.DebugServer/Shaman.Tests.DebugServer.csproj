@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <OutputType>Exe</OutputType>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Shaman.Server\Common\Shaman.Common.Server\Shaman.Common.Server.csproj" />
+      <ProjectReference Include="..\Shaman.Server\Launchers\Shaman.Launchers.Game.DebugServer\Shaman.Launchers.Game.DebugServer.csproj" />
+      <ProjectReference Include="..\Shaman.Server\Tests\Shaman.Launchers.Tests.TestBundle\Shaman.Launchers.Tests.TestBundle.csproj" />
+    </ItemGroup>
+
+</Project>
