@@ -74,7 +74,7 @@ namespace Shaman.Launchers.Tests
         [TestCase(false)]
         public async Task JoinRoomTests(bool udpSocket)
         {
-            var clients = new Dictionary<IShamanClientPeer, Guid>();
+            var clients = new Dictionary<IShamanClientPeer<byte>, Guid>();
             var rooms = new HashSet<Guid>();
             var roomPlayers = new Dictionary<IShamanClientPeer, Guid>();
             var testEventsReceivedTimes = new ConcurrentDictionary<IShamanClientPeer, int>();

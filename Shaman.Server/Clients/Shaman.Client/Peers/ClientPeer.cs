@@ -8,6 +8,7 @@ using Shaman.Common.Utils.TaskScheduling;
 using Shaman.Contract.Common;
 using Shaman.Contract.Common.Logging;
 using Shaman.Serialization;
+using Shaman.Serialization.Messages.Udp;
 
 namespace Shaman.Client.Peers
 {
@@ -334,6 +335,11 @@ namespace Shaman.Client.Peers
             {
                 return _packets.Count;
             }
+        }
+
+        public int Send(ISerializable message, DeliveryOptions deliveryOptions = default)
+        {
+            return _shamanSender.Send(message, deliveryOptions, _serverSender);
         }
 
         public int Send(ISerializable message, bool isReliable, bool isOrdered)

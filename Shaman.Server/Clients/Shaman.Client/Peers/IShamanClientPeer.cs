@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Shaman.Common.Udp.Sockets;
 using Shaman.Messages.RoomFlow;
+using Shaman.Serialization.Messages;
 using Shaman.Serialization.Messages.Http;
 using Shaman.Serialization.Messages.Udp;
 
 namespace Shaman.Client.Peers
 {
-    public interface IShamanClientPeer
+    public interface IShamanClientPeer<TOpCode>
     {
         Action<IDisconnectInfo> OnDisconnected { get; set; }
         Action<IDisconnectInfo> OnDisconnectedFromMmServer { get; set; }
@@ -20,17 +21,19 @@ namespace Shaman.Client.Peers
             Guid sessionId, Dictionary<byte, object> roomProperties, Dictionary<byte, object> joinGameProperties);
 
         Task<JoinInfo> DirectConnectToGameServer(string gameServerAddress, ushort gameServerPort, Guid sessionId,  Guid roomId, Dictionary<byte, object> joinGameProperties);
-        Task<TResponse> SendRequest<TResponse>(RequestBase request) where TResponse : ResponseBase, new();
 
-        Guid RegisterOperationHandler<T>(Action<T> handler,
-            bool callOnce = false) where T : MessageBase, new();
+        Task<TResponse> SendRequest<TResponse>(IOperationCodeProvider<TOpCode> request)
+            where TResponse : IOperationCodeProvider<TOpCode>, new();
+
+        Guid RegisterOperationHandler<T>(Action<T, Exception> handler,
+            bool callOnce = false) where T : IOperationCodeProvider<TOpCode>, new();
 
         void UnregisterOperationHandler(Guid id);
 
         Task<T> SendWebRequest<T>(string url, HttpRequestBase request)
             where T : HttpResponseBase, new();
 
-        void SendEvent<TMessage>(TMessage eve) where TMessage : MessageBase;
+        void SendEvent<TMessage>(TMessage eve, IUdpOptions udpOptions = null) where TMessage : IOperationCodeProvider<TOpCode>;
         void Disconnect();
         void ProcessMessages();
         ShamanClientStatus GetStatus();

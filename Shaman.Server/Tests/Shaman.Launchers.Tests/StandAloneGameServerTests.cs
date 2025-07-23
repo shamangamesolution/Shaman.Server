@@ -81,7 +81,7 @@ namespace Shaman.Launchers.Tests
         [Test]
         public async Task JoinRoomTests()
         {
-            var clients = new Dictionary<IShamanClientPeer, Guid>();
+            var clients = new Dictionary<IShamanClientPeer<byte>, Guid>();
             var joinInfoList = new HashSet<Guid>();
             var roomPlayers = new Dictionary<IShamanClientPeer, Guid>();
             var testEventsReceivedTimes = new ConcurrentDictionary<IShamanClientPeer, int>();

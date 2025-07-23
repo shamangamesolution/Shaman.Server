@@ -61,8 +61,8 @@ namespace Shaman.Client.Peers
 //         private readonly IRequestSender _requestSender;
 //         private int _backendId;
 //
-//         private object _syncCollections = new object();
-//         private Dictionary<ushort, Dictionary<Guid, EventHandler>> _handlers = new Dictionary<ushort, Dictionary<Guid, EventHandler>>();
+//         private readonly object _syncCollections = new object();
+//         private readonly Dictionary<ushort, Dictionary<Guid, EventHandler<byte>>> _handlers = new Dictionary<ushort, Dictionary<Guid, EventHandler<byte>>>();
 //         private readonly Dictionary<Guid, ushort> _handlerIdToOperationCodes = new Dictionary<Guid, ushort>();
 //         private Dictionary<byte, object> _matchMakingProperties;
 //         private Dictionary<byte, object> _joinGameProperties;
@@ -266,7 +266,7 @@ namespace Shaman.Client.Peers
 //                     {
 //                         try
 //                         {
-//                             item.Value.Handler.Invoke(deserialized);
+//                             item.Value.Handler.Invoke(deserialized, null);
 //                             if (item.Value.CallOnce)
 //                                 callbacksToUnregister.Add(item.Key);
 //                         }
@@ -602,10 +602,19 @@ namespace Shaman.Client.Peers
 //             lock (_syncCollections)
 //             {
 //                 if (!_handlers.ContainsKey(operationCode))
-//                     _handlers.Add(operationCode, new Dictionary<Guid, EventHandler>());
+//                     _handlers.Add(operationCode, new Dictionary<Guid, EventHandler<byte>>());
 //
 //                 //add handler
-//                 _handlers[operationCode].Add(id, new EventHandler(handler, callOnce));
+//                 _handlers[operationCode].Add(id, new EventHandler<byte>((msg, err) =>
+                {
+                    if (err!=null)
+                        throw new Exception("Error processing message in legacy client peer", err);
+                    if (msg is MessageBase msgBase)
+                        handler(msgBase);
+                    else
+                        throw new Exception(
+                            $"Error processing message in legacy client peer. Message {msg.OperationCode} is not of type MessageBase: {msg.GetType().FullName}");
+                }, callOnce));
 //                 _handlerIdToOperationCodes[id] = operationCode;
 //             }
 //
